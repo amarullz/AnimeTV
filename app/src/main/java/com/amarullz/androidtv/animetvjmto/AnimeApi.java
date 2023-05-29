@@ -191,6 +191,7 @@ public class AnimeApi extends WebViewClient {
     if (url.startsWith("data:")) {
       return super.shouldInterceptRequest(view, request);
     }
+    else if (accept.startsWith("image/")) return badRequest;
     else if (host.contains("9anime.to")) {
       if (uri.getPath().equals("/__inject.js")){
         return assetsRequest("inject/9anime_inject.js");
@@ -213,7 +214,7 @@ public class AnimeApi extends WebViewClient {
         InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
         return new WebResourceResponse(cType[0], cType[1], stream);
       } catch (Exception e) {
-        Log.d("VL_QUIC", "ERR=" + url + " - " + e.toString());
+        Log.d("ATVLOG", "QUIC-ERR=" + url + " - " + e.toString());
       }
     }
     else if (host.contains("mp4upload.com")) {
@@ -237,13 +238,14 @@ public class AnimeApi extends WebViewClient {
       } catch (Exception e) {}
       return badRequest;
     }
-    else if (accept.startsWith("image/")) return badRequest;
     else if (host.contains("vizcloud.co")||host.contains("mcloud.to")){
       return assetsRequest("inject/9anime_player.html");
     }
     else if (host.contains("cloudflare.com")||
         host.contains("bunnycdn.ru")) {
-      return super.shouldInterceptRequest(view, request);
+      if (!url.endsWith(".woff2")) {
+        return super.shouldInterceptRequest(view, request);
+      }
     }
     return badRequest;
   }
