@@ -12,6 +12,7 @@ function ___PLAYER(player){
     dbg.style.height='100%';
     dbg.style.top='0';
     dbg.style.right='0';
+    dbg.setAttribute('readonly','readonly');
     document.body.appendChild(dbg);
 
     var fetchTo=null;
@@ -21,7 +22,8 @@ function ___PLAYER(player){
         stream_url:'',
         banner:null,
         ep:[],
-        mp4:false
+        mp4:false,
+        url:location+""
     };
     try{
         data.banner=player.style.backgroundImage.slice(4, -1).replace(/["']/g, "");

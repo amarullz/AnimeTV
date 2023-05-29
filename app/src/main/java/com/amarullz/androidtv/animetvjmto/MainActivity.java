@@ -15,8 +15,8 @@ public class MainActivity extends FragmentActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     aApi=new AnimeApi(this);
-
-    aApi.getData("https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc.vpml/ep-1",result -> {
+    // https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc.vpml/ep-1
+    aApi.getData("https://9anime.to/watch/munou-na-nana-mini-anime-yaminabe-party.9o1q0/ep-1",result -> {
       Log.d("ATVLOG","Result View = "+result.Text);
     });
   }
