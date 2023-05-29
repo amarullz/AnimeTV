@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.AnimeTVJMTO" parent="@style/Theme.Leanback" />
+</resources>
