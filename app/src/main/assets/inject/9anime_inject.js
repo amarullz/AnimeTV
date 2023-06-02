@@ -18,6 +18,10 @@ function ___PLAYER(player){
     var fetchTo=null;
     var data={
         status:true,
+        stream_mp4:'',
+        title:'-',
+        poster:'',
+        synopsis:'',
         skip:[],
         stream_url:'',
         banner:null,
@@ -30,6 +34,9 @@ function ___PLAYER(player){
     }catch(e){}
     function startFetch(){
         console.log("ATVLOG --> Fetch Data");
+        data.stream_mp4=player.firstElementChild.src;
+        console.log("ATVLOG --> MP4STREAMURL = "+data.stream_mp4);
+
         /* get episodes */
         var ep=$('w-episodes').getElementsByTagName('li');
         for (var i=0;i<ep.length;i++){
@@ -108,18 +115,17 @@ function ___PLAYER(player){
                     var server=svr.getElementsByTagName('li');
                     var mp4upload=server[0].parentNode.lastElementChild;
                     if (mp4upload.textContent.toLowerCase()=='mp4upload'){
-                        data.mp4=true;
                         mp4upload.click();
-                        startFetchTimeout(4000);
+                        startFetchTimeout(1000);
                         return;
                     }
                 }catch(e){}
                 startFetchTimeout(2);
             }
             else if (j.cmd=='MP4UPLOAD'){
-                console.log("ATVLOG --> Got MP4");
-                data.mp4=j.value;
-                startFetchTimeout(2);
+//                console.log("ATVLOG --> Got MP4");
+//                data.mp4=j.value;
+                startFetchTimeout(1);
             }
         }catch(e){
         }

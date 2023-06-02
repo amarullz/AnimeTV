@@ -60,8 +60,8 @@ public class AnimeApi extends WebViewClient {
 
   public AnimeApi(Activity mainActivity) {
     activity = mainActivity;
-    // webView = new WebView(activity);
-    webView = activity.findViewById(R.id.webview);
+    webView = new WebView(activity);
+    // webView = activity.findViewById(R.id.webview);
 
     /* Setup Cronet HTTP+QUIC Client */
     CronetEngine.Builder myBuilder =
@@ -140,18 +140,21 @@ public class AnimeApi extends WebViewClient {
   }
 
   public String getMimeFn(String fn) {
-    String ex = fn.substring(fn.lastIndexOf("."));
-    if (ex.equals(".css")) return "text/css";
-    else if (ex.equals(".js")) return "application/javascript";
-    else if (ex.equals(".png")) return "image/png";
-    else if (ex.equals(".jpg")) return "image/jpeg";
-    else if (ex.equals(".html")) return "text/html";
+    int extpos=fn.lastIndexOf(".");
+    if (extpos>=0) {
+      String ex = fn.substring(extpos);
+      if (ex.equals(".css")) return "text/css";
+      else if (ex.equals(".js")) return "application/javascript";
+      else if (ex.equals(".png")) return "image/png";
+      else if (ex.equals(".jpg")) return "image/jpeg";
+      else if (ex.equals(".html")) return "text/html";
+    }
     return "text/plain";
   }
 
   public WebResourceResponse assetsRequest(String fn){
     try {
-      // Log.d("VL_QUIC", "ASSETS="+fn);
+      Log.d("ATVLOG", "ASSETS="+fn);
       String mime = getMimeFn(fn);
       InputStream is = activity.getAssets().open(fn);
       return new WebResourceResponse(mime,
@@ -220,15 +223,7 @@ public class AnimeApi extends WebViewClient {
     else if (host.contains("mp4upload.com")) {
       try {
         if (accept.startsWith("text/html")) {
-          HttpURLConnection conn = initQuic(url, "GET");
-          ByteArrayOutputStream buffer = getBody(conn, null);
-          String mp4src=buffer.toString();
-          int psrcpos=mp4src.indexOf("player.src(");
-          String srcjson="null";
-          if (psrcpos>0) {
-            srcjson = mp4src.substring(psrcpos + 11);
-            srcjson = srcjson.substring(0, srcjson.indexOf(");"));
-          }
+          String srcjson="null"; // getMp4Video(url);
           String out="<script>parent.postMessage(JSON.stringify" +
               "({cmd:'MP4UPLOAD',value:"+srcjson+"})," +
               "'*');</script>";
@@ -250,8 +245,24 @@ public class AnimeApi extends WebViewClient {
     return badRequest;
   }
 
+  public String getMp4Video(String url){
+    String srcjson = "null";
+    try {
+      HttpURLConnection conn = initQuic(url, "GET");
+      ByteArrayOutputStream buffer = getBody(conn, null);
+      String mp4src = buffer.toString();
+      int psrcpos = mp4src.indexOf("player.src(");
+      if (psrcpos > 0) {
+        srcjson = mp4src.substring(psrcpos + 11);
+        srcjson = srcjson.substring(0, srcjson.indexOf(");"));
+      }
+    }catch(Exception e){}
+    return srcjson;
+  }
+
   @Override
-  public boolean shouldOverrideUrlLoading(WebView webView, String url) {
+  public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
+    String url = request.getUrl().toString();
     if (url.startsWith("https://9anime.to/")) {
       return false;
     }
@@ -259,12 +270,12 @@ public class AnimeApi extends WebViewClient {
   }
 
   private void cleanWebView(){
-//    activity.runOnUiThread(() -> {
-//      webView.loadData(
-//          "<html><body>Finish</body></html>","text/html",
-//          null
-//      );
-//    });
+    activity.runOnUiThread(() -> {
+      webView.loadData(
+          "<html><body>Finish</body></html>","text/html",
+          null
+      );
+    });
   }
 
   public class JSApi{

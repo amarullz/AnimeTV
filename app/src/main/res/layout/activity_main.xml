@@ -7,7 +7,13 @@
     tools:context=".MainActivity"
     tools:deviceIds="tv"
     tools:ignore="MergeRootFrame">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        android:src="@drawable/splash" />
     <WebView
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/webview"

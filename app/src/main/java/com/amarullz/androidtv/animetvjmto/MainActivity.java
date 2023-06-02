@@ -1,7 +1,9 @@
 package com.amarullz.androidtv.animetvjmto;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -9,16 +11,53 @@ import androidx.fragment.app.FragmentActivity;
  * Main Activity class that loads {@link MainFragment}.
  */
 public class MainActivity extends FragmentActivity {
-  private AnimeApi aApi;
+  public AnimeView aView;
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    aApi=new AnimeApi(this);
-    // https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc.vpml/ep-1
-    aApi.getData("https://9anime.to/watch/munou-na-nana-mini-anime-yaminabe-party.9o1q0/ep-1",result -> {
-      Log.d("ATVLOG","Result View = "+result.Text);
-    });
+
+    aView=new AnimeView(this);
+
+//    aApi=new AnimeApi(this);
+//    // https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc.vpml/ep-1
+//    aApi.getData("https://9anime.to/watch/munou-na-nana-mini-anime-yaminabe-party.9o1q0/ep-1",result -> {
+//      Log.d("ATVLOG","Result View = "+result.Text);
+//    });
+  }
+
+  @Override
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    if ((keyCode == KeyEvent.KEYCODE_BACK) && aView.webView.canGoBack()) {
+      aView.webView.goBack();
+      return true;
+    }
+    return super.onKeyDown(keyCode, event);
+  }
+  private boolean sendKeyEvent(int code, boolean send){
+    int c=0;
+    switch(code){
+      case KeyEvent.KEYCODE_BACK: c=27; break;
+      case KeyEvent.KEYCODE_DPAD_UP: c=38; break;
+      case KeyEvent.KEYCODE_DPAD_DOWN: c=40; break;
+      case KeyEvent.KEYCODE_DPAD_CENTER: c=13; break;
+    }
+    if (c>0) {
+      if (send) {
+        aView.webView.evaluateJavascript("_KEYEV(" + c + ")", null);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  @SuppressLint("RestrictedApi")
+  @Override
+  public boolean dispatchKeyEvent(KeyEvent event) {
+    if (sendKeyEvent(event.getKeyCode(),event.getAction() == KeyEvent.ACTION_DOWN)){
+      return true;
+    }
+    return super.dispatchKeyEvent(event);
   }
 
 }
