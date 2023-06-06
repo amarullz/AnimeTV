@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -99,7 +100,14 @@ public class AnimeApi extends WebViewClient {
     resData.url=url;
     resData.status=1;
     handler.postDelayed(timeoutRunnable, timeout);
-    webView.loadUrl(url);
+    webView.evaluateJavascript("(window.__EPGET&&window.__EPGET('"+url+"'))" +
+            "?1:0",
+        s -> {
+          Log.d("ATVLOG","JAVASCRIPT VAL ["+s+"]");
+          if (s.equals("0")){
+            webView.loadUrl(url);
+          }
+        });
     return true;
   }
   public boolean getData(String url, Callback cb){
@@ -220,20 +228,7 @@ public class AnimeApi extends WebViewClient {
         Log.d("ATVLOG", "QUIC-ERR=" + url + " - " + e.toString());
       }
     }
-    else if (host.contains("mp4upload.com")) {
-      try {
-        if (accept.startsWith("text/html")) {
-          String srcjson="null"; // getMp4Video(url);
-          String out="<script>parent.postMessage(JSON.stringify" +
-              "({cmd:'MP4UPLOAD',value:"+srcjson+"})," +
-              "'*');</script>";
-          InputStream stream = new ByteArrayInputStream(out.getBytes());
-          return new WebResourceResponse("text/html", null, stream);
-        }
-      } catch (Exception e) {}
-      return badRequest;
-    }
-    else if (host.contains("vizcloud.co")||host.contains("mcloud.to")){
+    else if (host.contains("mp4upload.com")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
       return assetsRequest("inject/9anime_player.html");
     }
     else if (host.contains("cloudflare.com")||
@@ -270,12 +265,12 @@ public class AnimeApi extends WebViewClient {
   }
 
   private void cleanWebView(){
-    activity.runOnUiThread(() -> {
-      webView.loadData(
-          "<html><body>Finish</body></html>","text/html",
-          null
-      );
-    });
+//    activity.runOnUiThread(() -> {
+//      webView.loadData(
+//          "<html><body>Finish</body></html>","text/html",
+//          null
+//      );
+//    });
   }
 
   public class JSApi{

@@ -16,27 +16,108 @@ function ___PLAYER(player){
     document.body.appendChild(dbg);
 
     var fetchTo=null;
+    var episode_el=[];
     var data={
         status:true,
-        stream_mp4:'',
         title:'-',
-        poster:'',
+        title_jp:'-',
         synopsis:'',
-        skip:[],
         stream_url:'',
-        banner:null,
-        ep:[],
         mp4:false,
-        url:location+""
+        poster:'',
+        banner:null,
+        url:'',
+        skip:[],
+        ep:[],
+        related:[],
+        genres:[]
     };
-    try{
-        data.banner=player.style.backgroundImage.slice(4, -1).replace(/["']/g, "");
-    }catch(e){}
-    function startFetch(){
-        console.log("ATVLOG --> Fetch Data");
-        data.stream_mp4=player.firstElementChild.src;
-        console.log("ATVLOG --> MP4STREAMURL = "+data.stream_mp4);
 
+    /* Get Episode */
+    window.__EPGET=function(u){
+        for (var i=0;i<episode_el.length;i++){
+            if (u==episode_el[i].href){
+                episode_el[i].click();
+                return true;
+            }
+        }
+        return false;
+    };
+
+    function fetchInfo(){
+        data.related=[];
+        data.genres=[];
+        /* Get Banner */
+        try{
+            data.banner=player.style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+        }catch(e){}
+
+        /* info */
+        var info=$('w-info');
+        var poster=info.getElementsByTagName('img');
+        var title=info.getElementsByTagName('h1');
+        var content=info.getElementsByClassName('content');
+        if (poster[0]) data.poster=poster[0].src;
+        if (title[0]){
+            data.title=title[0].textContent;
+            data.title_jp=title[0].getAttribute('data-jp');
+        }
+        if (content[0]) data.synopsis=content[0].textContent;
+
+        /* get genres */
+        var bmeta=info.getElementsByClassName('bmeta');
+        if (bmeta[0]){
+            try{
+                var k=bmeta[0].firstElementChild.lastElementChild.getElementsByTagName('a');
+                for (var i=0;i<k.length;i++){
+                    try{
+                        var gn={};
+                        gn.val=k[i].href.substring(k[i].href.lastIndexOf('/')+1);
+                        gn.name=k[i].textContent.trim();
+                        data.genres.push(gn);
+                    }catch(ee){}
+                }
+            }catch(e){}
+        }
+
+        /* get seasons */
+        var ses=$('w-seasons');
+        if (ses){
+            var sa=ses.getElementsByTagName('a');
+            data.seasons=[];
+            for (var i=0;i<sa.length;i++){
+                var sv={};
+                sv.url=sa[i].href;
+                sv.title=sa[i].textContent.trim();
+                if (sa[i].parentNode.className.indexOf(' active')>0)
+                    sv.active=true;
+                try{
+                    sv.poster=sa[i].style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+                }catch(e){}
+                data.seasons.push(sv);
+            }
+        }
+
+        /* get related */
+        var rel=$('w-related');
+        if (rel){
+            var ri=rel.getElementsByTagName('a');
+            for (var i=0;i<ri.length;i++){
+                try{
+                    var ra=ri[i];
+                    var rd={};
+                    rd.poster=ra.getElementsByTagName('img')[0].src;
+                    rd.url=ra.href;
+                    rd.title=ra.getElementsByClassName('d-title')[0].textContent.trim();
+                    data.related.push(rd);
+                }catch(e){}
+            }
+        }
+    }
+    function startFetch(){
+        data.ep=[];
+        episode_el=[];
+        data.url=location+'';
         /* get episodes */
         var ep=$('w-episodes').getElementsByTagName('li');
         for (var i=0;i<ep.length;i++){
@@ -57,32 +138,9 @@ function ___PLAYER(player){
             if (a.className.trim()=='active')
                 s.active=true;
             data.ep.push(s);
+            episode_el.push(a);
         }
-
-        /* info */
-        var info=$('w-info');
-        var poster=info.getElementsByTagName('img');
-        var title=info.getElementsByTagName('h1');
-        var content=info.getElementsByClassName('content');
-        if (poster[0]) data.poster=poster[0].src;
-        if (title[0]) data.title=title[0].textContent;
-        if (content[0]) data.synopsis=content[0].textContent;
-
-        /* get seasons */
-        var ses=$('w-seasons');
-        if (ses){
-            var sa=ses.getElementsByTagName('a');
-            data.seasons=[];
-            for (var i=0;i<sa.length;i++){
-                var sv={};
-                sv.url=sa[i].href;
-                sv.title=sa[i].textContent.trim();
-                if (sa[i].parentNode.className.indexOf(' active')>0)
-                    sv.active=true;
-                data.seasons.push(sv);
-            }
-        }
-        dbg.value+=JSON.stringify(data,null,4);
+        dbg.value=JSON.stringify(data,null,4);
         _JSAPI.result(JSON.stringify(data));
     }
     function startFetchTimeout(ms){
@@ -94,42 +152,35 @@ function ___PLAYER(player){
         if (svr){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
-                console.log("ATVLOG --> Click Server");
-                server[0].click();
+                var mp4upload=server[0].parentNode.lastElementChild;
+                if (mp4upload.textContent.toLowerCase()=='mp4upload'){
+                    console.log("ATVLOG --> Click Server MP4UPLOAD");
+                    mp4upload.click();
+                    data.mp4=true;
+                }
+                else{
+                    console.log("ATVLOG --> Click Server Vidstream");
+                    server[0].click();
+                }
                 startFetchTimeout(4000);
                 return;
             }
         }
         setTimeout(clickServer,10);
     }
-    clickServer();
     window.addEventListener('message',function(e) {
         try{
             var j=JSON.parse(e.data);
             if (j.cmd=='HOOK_READY'){
-                console.log("ATVLOG --> Hook Ready");
+                console.log("ATVLOG --> Hook Ready = "+e.data);
                 data.skip=j.val.value;
                 data.stream_url=player.firstElementChild.src;
-                try{
-                    var svr=$('w-servers');
-                    var server=svr.getElementsByTagName('li');
-                    var mp4upload=server[0].parentNode.lastElementChild;
-                    if (mp4upload.textContent.toLowerCase()=='mp4upload'){
-                        mp4upload.click();
-                        startFetchTimeout(1000);
-                        return;
-                    }
-                }catch(e){}
-                startFetchTimeout(2);
-            }
-            else if (j.cmd=='MP4UPLOAD'){
-//                console.log("ATVLOG --> Got MP4");
-//                data.mp4=j.value;
                 startFetchTimeout(1);
             }
-        }catch(e){
-        }
+        }catch(e){}
     });
+    clickServer();
+    fetchInfo();
 }
 
 /* CHECK FOR PAGE */

@@ -19,10 +19,13 @@ public class MainActivity extends FragmentActivity {
 
     aView=new AnimeView(this);
 
-//    aApi=new AnimeApi(this);
+//    AnimeApi aApi=new AnimeApi(this);
 //    // https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc.vpml/ep-1
-//    aApi.getData("https://9anime.to/watch/munou-na-nana-mini-anime-yaminabe-party.9o1q0/ep-1",result -> {
+//    aApi.getData("https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc.vpml/ep-1",result -> {
 //      Log.d("ATVLOG","Result View = "+result.Text);
+//      aApi.getData("https://9anime.to/watch/kizuna-no-allele.vvq72/ep-10",result2 -> {
+//        Log.d("ATVLOG","Result View 2 = "+result2.Text);
+//      });
 //    });
   }
 
@@ -40,6 +43,8 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_BACK: c=27; break;
       case KeyEvent.KEYCODE_DPAD_UP: c=38; break;
       case KeyEvent.KEYCODE_DPAD_DOWN: c=40; break;
+      case KeyEvent.KEYCODE_DPAD_LEFT: c=37; break;
+      case KeyEvent.KEYCODE_DPAD_RIGHT: c=39; break;
       case KeyEvent.KEYCODE_DPAD_CENTER: c=13; break;
     }
     if (c>0) {

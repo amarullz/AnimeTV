@@ -299,12 +299,6 @@ var bgimgid=null;
     for (var i=0;i<d.ep.length;i++){
       var w=d.ep[i];
       var m=$n('div');
-//      m._img=new Image();
-//      m._img.src=d.poster;
-//      m._img._p=m;
-//      m._img.onload=function(){
-//        this._p.appendChild(this);
-//      };
       m._title=$n('b',0,0,m,special(w.ep+" "+w.title));
       m._action=w.url;
       playback.el.push(m);
@@ -350,6 +344,8 @@ var bgimgid=null;
 
       _vid.addEventListener('loadeddata',function(e) {
         if (!playback.onplayback) return;
+        playback.title.innerHTML=playback.title._readyHTML;
+        playback.state.className='';
         _vid.style.visibility='visible';
       },false);
 
@@ -389,13 +385,10 @@ var bgimgid=null;
     playback.data=d;
     playback_init_ep();
     console.log(d);
-    playback.title.innerHTML=special(d.title);
+    playback.title.innerHTML='<c class="loader">stream</c> Streaming...';
+    playback.title._readyHTML=special(d.title);
     playback.vid.setAttribute('poster',d.banner?d.banner:d.poster);
-    if (d.mp4){
-        playback.vid.src=d.mp4.src;
-        playback.vid.play();
-    }
-    else if (d.stream_mp4){
+    if (d.stream_url){
         mp4vidCb=function(mp4){
             try{
                 console.log("ATVLOG GOTMP4VID = "+JSON.stringify(mp4));
@@ -404,10 +397,9 @@ var bgimgid=null;
             }catch(e){}
             mp4vidCb=null;
         };
-        console.log("ATVLOG GETMP4 = "+d.stream_mp4);
-        _JSAPI.getmp4vid(d.stream_mp4);
+        console.log("ATVLOG GETMP4 = "+d.stream_url);
+        _JSAPI.getmp4vid(d.stream_url);
     }
-    playback.state.className='';
   }
   function playback_init(u){
     playback.menu.innerHTML='';
