@@ -1,0 +1,105 @@
+<style>
+    body, html{
+        background:#000 !important;
+        background-color:#000 !important;
+        background-image:none !important;
+        overflow:hidden;
+    }
+    *{
+        pointer-events: none !important;
+        user-select: none !important;
+    }
+    video{
+        z-index:99999 !important;
+        background:#000 !important;
+    }
+</style>
+<script>
+var __JWP=null;
+var __VID=null;
+(function(){
+function $(a){ return document.getElementById(a); }
+function $p(c,d){
+    console.log("ATVLOG PostMessage "+d);
+    parent.postMessage(JSON.stringify({
+            vcmd:c,
+            val:d
+    }),'*');
+}
+function jwquality(){
+    try{
+        __JWP.setCurrentQuality(1);
+    }catch(e){}
+}
+function jwcmd(c,v){
+    if (c=='play'){
+        __JWP.play();
+    }
+    else if (c=='pause'){
+        __JWP.pause();
+    }
+    else if (c=='seek'){
+        __JWP.seek(v);
+    }
+    else if (c=='ready'){
+        jwquality();
+        setTimeout(jwquality,100);
+        setTimeout(jwquality,200);
+    }
+}
+window.addEventListener('message',function(e) {
+    if (!__JWP) return;
+    try{
+        var j=JSON.parse(e.data);
+        if ('vcmd' in j){
+            jwcmd(j.vcmd,j.val);
+        }
+    }catch(e){
+    }
+});
+function initjw(){
+    console.log("ATVLOG initjw");
+    __JWP.setControls(0);
+    __JWP.on('complete',function(e) {
+        $p('complete',e);
+    },false);
+    __JWP.on('ready',function(e) {
+        $p('ready',e);
+    },false);
+    __JWP.on('play',function(e) {
+        $p('play',e);
+    },false);
+    __JWP.on('pause',function(e) {
+        $p('pause',e);
+    },false);
+    __JWP.on('time',function(e) {
+        $p('time',e);
+    },false);
+    __JWP.on('seek',function(e) {
+        $p('seek',e);
+    },false);
+    __JWP.on('levelsChanged',function(e) {
+        $p('levelsChanged',e);
+    },false);
+
+    $p('progress',null);
+    __JWP.setCurrentQuality(1);
+}
+function findjw(){
+    var vid=document.getElementsByTagName("video");
+    if (vid&&vid.length>0){
+        if (jwplayer){
+            var pl=jwplayer(0);
+            if (pl.play){
+                __VID=vid[0];
+                __JWP=pl;
+                initjw();
+                return;
+            }
+        }
+    }
+    setTimeout(findjw,50);
+}
+findjw();
+})();
+</script>

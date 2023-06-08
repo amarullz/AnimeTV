@@ -57,11 +57,13 @@ public class MainActivity extends FragmentActivity {
        */
     }
     switch(code){
+      case KeyEvent.KEYCODE_ESCAPE:
       case KeyEvent.KEYCODE_BACK: c=27; break;
       case KeyEvent.KEYCODE_DPAD_UP: c=38; break;
       case KeyEvent.KEYCODE_DPAD_DOWN: c=40; break;
       case KeyEvent.KEYCODE_DPAD_LEFT: c=37; break;
       case KeyEvent.KEYCODE_DPAD_RIGHT: c=39; break;
+      case KeyEvent.KEYCODE_ENTER:
       case KeyEvent.KEYCODE_DPAD_CENTER: c=13; break;
       case KeyEvent.KEYCODE_F5:
         if (send){

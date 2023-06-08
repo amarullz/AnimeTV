@@ -1,6 +1,8 @@
 package com.amarullz.androidtv.animetvjmto;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -25,6 +28,8 @@ public class AnimeView extends WebViewClient {
   private Activity activity;
   public WebView webView;
   public AnimeApi aApi;
+
+  public String playerInjectString;
 
   public static boolean USE_WEB_VIEW_ASSETS=true;
 
@@ -43,9 +48,18 @@ public class AnimeView extends WebViewClient {
     webSettings.setSupportMultipleWindows(false);
     webView.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     webView.setWebViewClient(this);
+    webView.setWebChromeClient(new WebChromeClient() {
+      @Override public Bitmap getDefaultVideoPoster() {
+        final Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawARGB(255, 0, 0, 0);
+        return bitmap;
+      }
+    });
+    webView.setVerticalScrollBarEnabled(false);
 
     aApi=new AnimeApi(activity);
-
+    playerInjectString=aApi.assetsString("inject/view_player.html");
     webView.loadUrl("https://9anime.to/__view/main.html");
   }
 
@@ -101,6 +115,25 @@ public class AnimeView extends WebViewClient {
         return new WebResourceResponse(cType[0], cType[1], stream);
       } catch (Exception e) {}
       return aApi.badRequest;
+    }
+    else if (host.contains("vizcloud.co")||host.contains("mcloud.to")){
+      if (accept.startsWith("text/html")) {
+        Log.d("ATVLOG","VIEW PLAYER REQ = "+url);
+        try {
+          HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
+          for (Map.Entry<String, String> entry :
+              request.getRequestHeaders().entrySet()) {
+            conn.setRequestProperty(entry.getKey(), entry.getValue());
+          }
+          String[] cType = aApi.parseContentType(conn.getContentType());
+          ByteArrayOutputStream buffer = aApi.getBody(conn, null);
+          aApi.injectString(buffer, playerInjectString);
+          InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
+          Log.d("ATVLOG","VIEW PLAYER REQ FINISH");
+          return new WebResourceResponse(cType[0], cType[1], stream);
+        } catch (Exception e) {}
+        return aApi.badRequest;
+      }
     }
     return super.shouldInterceptRequest(view, request);
   }

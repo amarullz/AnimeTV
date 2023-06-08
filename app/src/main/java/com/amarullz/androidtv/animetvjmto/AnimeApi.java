@@ -17,12 +17,15 @@ import android.webkit.WebViewClient;
 
 import org.chromium.net.CronetEngine;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class AnimeApi extends WebViewClient {
@@ -169,6 +172,22 @@ public class AnimeApi extends WebViewClient {
           null, is);
     } catch (IOException e) {}
     return badRequest;
+  }
+
+  public String assetsString(String fn){
+    try {
+      StringBuilder sb = new StringBuilder();
+      InputStream is = activity.getAssets().open(fn);
+      BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8 ));
+      String str;
+      while ((str = br.readLine()) != null) {
+        sb.append(str);
+      }
+      str=sb.toString();
+      br.close();
+      return str;
+    } catch (IOException e) {}
+    return "";
   }
 
   public String[] parseContentType(String contentType) {

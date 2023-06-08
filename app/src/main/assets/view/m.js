@@ -178,8 +178,9 @@ var bgimgid=null;
     playback.holder.className='';
     playback_setskip(false);
     keyHandler=playback.prevKey;
-    playback.vid.src='';
-    // playback.vid.style.visibility='hidden';
+    playback.vid.src='/__view/blank.html';
+    playback_stat_reset();
+    playback.vid.className='';
     window.focus();
   }
   function playback_autohide(){
@@ -253,26 +254,26 @@ var bgimgid=null;
       else{
         if (playback.onskip){
             if (playback.skip_val>0){
-                playback.vid.currentTime=playback.skip_val;
+                playback_cmd('seek',playback.skip_val);
             }
         }
         else{
-            if (playback.vid.paused)
-              playback.vid.play();
+            if (playback.vid._stat.play)
+              playback_cmd('pause',null);
             else
-              playback.vid.pause();
+              playback_cmd('play',null);
         }
       }
       return true;
     }
     else if (k==KRIGHT){
       playback_show_track();
-      playback.vid.currentTime+=10;
+      playback_cmd('seek',playback.vid._stat.pos+10);
       playback_updatepos();
     }
     else if (k==KLEFT){
-        playback_show_track();
-      playback.vid.currentTime-=10;
+      playback_show_track();
+      playback_cmd('seek',playback.vid._stat.pos-10);
       playback_updatepos();
     }
     else if (k==KUP){
@@ -316,93 +317,110 @@ var bgimgid=null;
     console.log(playback);
     playback_update_sel();
   }
-  function playback_init_event(){
-    var _vid=$('playback_video');
-    console.log("ATVLOG INIT VIDEO");
-      _vid.addEventListener('ended',function(e) {
-        if (!playback.onplayback) return;
-        console.log("ATVLOG ended");
-        if (playback.play_sel+1<playback.el.length){
-          try{
-            var c=playback.el[playback.play_sel+1]._action;
-            playback_close();
-            playback_init(c);
-          }catch(e){}
-        }
-      },false);
-
-      _vid.addEventListener('durationchange',function(e) {
-        if (!playback.onplayback) return;
-        console.log("ATVLOG durationchange");
-      },false);
-
-      _vid.addEventListener('progress',function(e) {
-        if (!playback.onplayback) return;
-        // console.log("ATVLOG progress");
-      },false);
-
-      _vid.addEventListener('play',function(e) {
-        if (!playback.onplayback) return;
-        console.log("ATVLOG play");
-      },false);
-
-      _vid.addEventListener('loadeddata',function(e) {
-        if (!playback.onplayback) return;
-        playback.title.innerHTML=playback.title._readyHTML;
-        playback.state.className='';
-        _vid.style.visibility='visible';
-      },false);
-
-      _vid.addEventListener('timeupdate',function(e) {
-        if (!playback.onplayback) return;
-        // playback_setskip(v)
-        // playback.onskip
-        var sk=0;
-        var ct=playback.vid.currentTime;
-        for (var i=0;i<playback.data.skip.length;i++){
-            if ((playback.data.skip[i][0]<ct)&&(playback.data.skip[i][1]>ct)){
-                sk=playback.data.skip[i][1];
-            }
-        }
-        if (sk>0){
-            if (!playback.onskip){
-                playback.skip_val=sk;
-                playback_setskip(true);
-            }
-        }else if (playback.onskip){
-            playback_setskip(false);
-        }
-        playback_updatepos();
-        console.log("ATVLOG time("+ct+") / sk="+sk+" --> "+JSON.stringify(playback.data.skip));
-      },false);
-  }
   function playback_updatepos(){
-    if (playback.vid.duration>0){
-        var dr=(playback.vid.currentTime/playback.vid.duration)*100.0;
+    if (playback.vid._stat.duration>0){
+        var dr=(playback.vid._stat.pos/playback.vid._stat.duration)*100.0;
         playback.trackpos.style.width=dr+"%";
     }
   }
-  playback_init_event();
+  function playback_stat_reset(){
+    playback.vid._stat={
+      ready:false,
+      pos:0,
+      duration:0,
+      play:false
+    };
+  }
+  function playback_message_handler(e){
+    try{
+      if (!playback.onplayback) return;
+      var j=JSON.parse(e.data);
+      // console.log("ATVLOG vidmsg_RAW = "+e.data);
+      if ('vcmd' in j){
+        if (j.vcmd=='complete'){
+          console.log("ATVLOG vidmsg complete");
+          if (playback.play_sel+1<playback.el.length){
+            try{
+              var c=playback.el[playback.play_sel+1]._action;
+              playback_close();
+              playback_init(c);
+            }catch(e){}
+          }
+        }
+        else if (j.vcmd=='pause'){
+          playback.vid._stat.play=false;
+        }
+        else if (j.vcmd=='ready'){
+          playback_player_ready();
+        }
+        else if (j.vcmd=='play'){
+          playback.vid._stat.play=true;
+          playback_player_ready();
+        }
+        else if (j.vcmd=='seek'){
+          console.log("ATVLOG vidmsg seek");
+        }
+        else if (j.vcmd=='time'){
+          playback.vid._stat.pos=j.val.position;
+          playback.vid._stat.duration=j.val.duration;
+
+          var sk=0;
+          var ct=playback.vid._stat.pos;
+          for (var i=0;i<playback.data.skip.length;i++){
+              if ((playback.data.skip[i][0]<ct)&&(playback.data.skip[i][1]>ct)){
+                  sk=playback.data.skip[i][1];
+              }
+          }
+          if (sk>0){
+              if (!playback.onskip){
+                  playback.skip_val=sk;
+                  playback_setskip(true);
+              }
+          }else if (playback.onskip){
+              playback_setskip(false);
+          }
+          playback_updatepos();
+        }
+      }
+      else if ('event' in j){
+        if (j.event=='PLAYER_READY'){
+          playback_player_ready();
+        }
+      }
+    }catch(e){}
+  }
+  function playback_player_ready(){
+    if (!playback.vid._stat.ready){
+      playback_cmd('ready',playback.data.banner?playback.data.banner:playback.data.poster);
+      playback.vid._stat.ready=true;
+      playback.title.innerHTML=playback.title._readyHTML;
+      playback.state.className='';
+      playback.vid.className='ready';
+    }
+  }
+  function playback_cmd(c,d){
+    try{
+      if (!playback.onplayback) return;
+      console.log("ATVLOG PostMessage "+c+" => "+d);
+      playback.vid.contentWindow.postMessage(JSON.stringify({
+              vcmd:c,
+              val:d
+      }),'*');
+    }catch(e){};
+  }
   function playback_draw(d){
     console.log("ATVLOG PDRAW = "+JSON.stringify(d));
+
+    playback_stat_reset();
+    messageHandler=playback_message_handler;
 
     playback.data=d;
     playback_init_ep();
     console.log(d);
     playback.title.innerHTML='<c class="loader">stream</c> Streaming...';
     playback.title._readyHTML=special(d.title);
-    playback.vid.setAttribute('poster',d.banner?d.banner:d.poster);
     if (d.stream_url){
-        mp4vidCb=function(mp4){
-            try{
-                console.log("ATVLOG GOTMP4VID = "+JSON.stringify(mp4));
-                playback.vid.src=mp4.src;
-                playback.vid.play();
-            }catch(e){}
-            mp4vidCb=null;
-        };
-        console.log("ATVLOG GETMP4 = "+d.stream_url);
-        _JSAPI.getmp4vid(d.stream_url);
+        playback.vid.src=d.stream_url;
     }
   }
   function playback_init(u){
@@ -540,9 +558,9 @@ var bgimgid=null;
           home_load();
         }
         else if (c.indexOf('http')===0){
-            try{
-                playback.vid.setAttribute('poster',home.sel_el._img.src);
-            }catch(e){}
+            // try{
+            //     playback.vid.setAttribute('poster',home.sel_el._img.src);
+            // }catch(e){}
             playback_init(c);
         }
       }

@@ -154,16 +154,16 @@ function ___PLAYER(player){
         if (svr){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
-                var mp4upload=server[0].parentNode.lastElementChild;
-                if (mp4upload.textContent.toLowerCase()=='mp4upload'){
-                    console.log("ATVLOG --> Click Server MP4UPLOAD");
-                    mp4upload.click();
-                    data.mp4=true;
-                }
-                else{
+//                var mp4upload=server[0].parentNode.lastElementChild;
+//                if (mp4upload.textContent.toLowerCase()=='mp4upload'){
+//                    console.log("ATVLOG --> Click Server MP4UPLOAD");
+//                    mp4upload.click();
+//                    data.mp4=true;
+//                }
+//                else{
                     console.log("ATVLOG --> Click Server Vidstream");
                     server[0].click();
-                }
+                // }
                 startFetchTimeout(4000);
                 return;
             }
