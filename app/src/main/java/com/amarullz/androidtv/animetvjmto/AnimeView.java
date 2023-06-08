@@ -3,6 +3,7 @@ package com.amarullz.androidtv.animetvjmto;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -29,6 +30,9 @@ public class AnimeView extends WebViewClient {
 
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      WebView.setWebContentsDebuggingEnabled(true);
+    }
     webView = activity.findViewById(R.id.webview);
     webView.setBackgroundColor(0xffffffff);
     WebSettings webSettings = webView.getSettings();
