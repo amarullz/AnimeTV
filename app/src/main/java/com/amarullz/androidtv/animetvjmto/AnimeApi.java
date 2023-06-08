@@ -53,7 +53,6 @@ public class AnimeApi extends WebViewClient {
         activity.runOnUiThread(() -> {
           if (callback!=null)
             callback.onFinish(resData);
-          cleanWebView();
         });
       }
     }
@@ -111,7 +110,7 @@ public class AnimeApi extends WebViewClient {
     return true;
   }
   public boolean getData(String url, Callback cb){
-    return getData(url,cb,15000);
+    return getData(url,cb,10000);
   }
 
   public HttpURLConnection initQuic(String url, String method) throws IOException {
@@ -264,13 +263,13 @@ public class AnimeApi extends WebViewClient {
     return true;
   }
 
-  private void cleanWebView(){
-//    activity.runOnUiThread(() -> {
-//      webView.loadData(
-//          "<html><body>Finish</body></html>","text/html",
-//          null
-//      );
-//    });
+  public void cleanWebView(){
+    activity.runOnUiThread(() -> {
+      webView.loadData(
+          "<html><body>Finish</body></html>","text/html",
+          null
+      );
+    });
   }
 
   public class JSApi{
@@ -283,7 +282,6 @@ public class AnimeApi extends WebViewClient {
         activity.runOnUiThread(() -> {
           if (callback!=null)
             callback.onFinish(resData);
-          cleanWebView();
         });
       }
     }

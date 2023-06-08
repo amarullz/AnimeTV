@@ -65,6 +65,7 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_DPAD_CENTER: c=13; break;
       case KeyEvent.KEYCODE_F5:
         if (send){
+          aView.aApi.cleanWebView();
           aView.webView.reload();
         }
         break;

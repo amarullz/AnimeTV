@@ -187,6 +187,7 @@ function ___PLAYER(player){
 
 /* CHECK FOR PAGE */
 var player=$('player');
+console.log("ATVLOG --> HOOK LOADED");
 if (player){
     ___PLAYER(player);
 }

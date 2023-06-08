@@ -73,7 +73,7 @@ public class AnimeView extends WebViewClient {
             /* dev web */
             try {
               Log.d("ATVLOG", "VIEW GET " + url + " = " + accept);
-              String newurl = url.replace("https://9anime.to", "https://pc.jmiot.org");
+              String newurl = url.replace("https://9anime.to", "http://192.168.100.245");
               HttpURLConnection conn = aApi.initQuic(newurl, request.getMethod());
               for (Map.Entry<String, String> entry :
                       request.getRequestHeaders().entrySet()) {
