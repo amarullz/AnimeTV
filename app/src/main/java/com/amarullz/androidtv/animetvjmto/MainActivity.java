@@ -39,6 +39,23 @@ public class MainActivity extends FragmentActivity {
   }
   private boolean sendKeyEvent(int code, boolean send){
     int c=0;
+    if (send){
+      Log.d("ATVLOG","KEY PRESS = "+code);
+      /*
+      RED = 183
+      GREEN = 184
+      YELLOW = 185
+      BLUE = 186
+      PROG UP = 166
+      PROG DOWN = 167
+      EXIT = 4
+      0-9 = 7 - 16
+      INFO = 165
+      TTX = 233
+      EPG = 172
+
+       */
+    }
     switch(code){
       case KeyEvent.KEYCODE_BACK: c=27; break;
       case KeyEvent.KEYCODE_DPAD_UP: c=38; break;
@@ -60,7 +77,7 @@ public class MainActivity extends FragmentActivity {
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
     if (sendKeyEvent(event.getKeyCode(),event.getAction() == KeyEvent.ACTION_DOWN)){
-      return true;
+      return false;
     }
     return super.dispatchKeyEvent(event);
   }
