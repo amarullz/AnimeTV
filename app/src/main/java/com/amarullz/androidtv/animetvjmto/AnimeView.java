@@ -25,6 +25,8 @@ public class AnimeView extends WebViewClient {
   public WebView webView;
   public AnimeApi aApi;
 
+  public static boolean USE_WEB_VIEW_ASSETS=true;
+
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
     webView = activity.findViewById(R.id.webview);
@@ -60,7 +62,27 @@ public class AnimeView extends WebViewClient {
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
     if (host.contains("9anime.to")) {
-      if (uri.getPath().startsWith("/__view/")){
+      String path=uri.getPath();
+      if (path.startsWith("/__view/")){
+        if (USE_WEB_VIEW_ASSETS){
+          if (!path.endsWith(".woff2") && !path.endsWith(".ttf")&& !accept.startsWith("image/")) {
+            /* dev web */
+            try {
+              Log.d("ATVLOG", "VIEW GET " + url + " = " + accept);
+              String newurl = url.replace("https://9anime.to", "https://pc.jmiot.org");
+              HttpURLConnection conn = aApi.initQuic(newurl, request.getMethod());
+              for (Map.Entry<String, String> entry :
+                      request.getRequestHeaders().entrySet()) {
+                conn.setRequestProperty(entry.getKey(), entry.getValue());
+              }
+              String[] cType = aApi.parseContentType(conn.getContentType());
+              ByteArrayOutputStream buffer = aApi.getBody(conn, null);
+              InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
+              return new WebResourceResponse(cType[0], cType[1], stream);
+            } catch (Exception e) {}
+            return aApi.badRequest;
+          }
+        }
         return aApi.assetsRequest(uri.getPath().substring(3));
       }
       try {

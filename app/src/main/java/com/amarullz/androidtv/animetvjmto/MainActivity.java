@@ -63,6 +63,11 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_DPAD_LEFT: c=37; break;
       case KeyEvent.KEYCODE_DPAD_RIGHT: c=39; break;
       case KeyEvent.KEYCODE_DPAD_CENTER: c=13; break;
+      case KeyEvent.KEYCODE_F5:
+        if (send){
+          aView.webView.reload();
+        }
+        break;
     }
     if (c>0) {
       if (send) {

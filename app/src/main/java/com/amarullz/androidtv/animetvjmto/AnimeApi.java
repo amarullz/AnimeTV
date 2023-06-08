@@ -67,7 +67,7 @@ public class AnimeApi extends WebViewClient {
     /* Setup Cronet HTTP+QUIC Client */
     CronetEngine.Builder myBuilder =
         new CronetEngine.Builder(activity)
-            .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 102400)
+            .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
             .enableHttp2(true)
             .enableQuic(true)
             .enableBrotli(true)
