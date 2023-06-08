@@ -135,8 +135,10 @@ function ___PLAYER(player){
                 s.ep=a.textContent;
                 s.title='';
             }
-            if (a.className.trim()=='active')
+            if (a.className.indexOf("active")>=0)
                 s.active=true;
+            if (a.className.indexOf("filler")>=0)
+                s.filler=true;
             data.ep.push(s);
             episode_el.push(a);
         }
