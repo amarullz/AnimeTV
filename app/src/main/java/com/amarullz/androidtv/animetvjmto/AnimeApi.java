@@ -42,9 +42,11 @@ public class AnimeApi extends WebViewClient {
   private CronetEngine cronet;
   public WebResourceResponse badRequest;
 
+  public boolean paused=false;
+
   public Callback callback;
 
-  Result resData=new Result();
+  public Result resData=new Result();
 
   Handler handler = new Handler(Looper.getMainLooper());
   Runnable timeoutRunnable = new Runnable() {
@@ -92,14 +94,16 @@ public class AnimeApi extends WebViewClient {
     webSettings.setSupportMultipleWindows(false);
     webView.addJavascriptInterface(new JSApi(), "_JSAPI");
     webView.setWebViewClient(this);
-    cleanWebView();
-    // webView.loadUrl("https://9anime.to/watch/edomae-elf.02qm7/ep-8");
+
+    webView.loadData(
+          "<html><body>Finish</body></html>","text/html",
+          null
+      );
   }
 
   public boolean getData(String url, Callback cb, long timeout){
     if (resData.status==1) return false;
     callback=cb;
-
     pauseView(false);
     resData.url=url;
     resData.status=1;
@@ -288,22 +292,29 @@ public class AnimeApi extends WebViewClient {
   public void pauseView(boolean pause){
     activity.runOnUiThread(() -> {
       if (pause) {
-//        webView.pauseTimers();
-        webView.onPause();
+        if (!paused) {
+          paused=pause;
+          webView.onPause();
+        }
       }
-      else {
+      else if (paused) {
+        paused=pause;
         webView.onResume();
-//        webView.resumeTimers();
       }
     });
   }
 
   public void cleanWebView(){
+    callback=null;
+    handler.removeCallbacks(timeoutRunnable);
+    resData.status = 2;
     activity.runOnUiThread(() -> {
+      pauseView(false);
       webView.loadData(
           "<html><body>Finish</body></html>","text/html",
           null
       );
+      pauseView(true);
     });
   }
 

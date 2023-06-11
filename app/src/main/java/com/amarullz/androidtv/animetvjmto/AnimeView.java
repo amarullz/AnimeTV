@@ -80,6 +80,7 @@ public class AnimeView extends WebViewClient {
     String url = uri.toString();
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
+    if (uri==null||url==null||host==null||accept==null) return aApi.badRequest;
     if (host.contains("9anime.to")) {
       String path=uri.getPath();
       if (path.startsWith("/__view/")){
@@ -139,22 +140,32 @@ public class AnimeView extends WebViewClient {
     return super.shouldInterceptRequest(view, request);
   }
 
-  public void getViewCallback(String d){
-    webView.evaluateJavascript("__GETVIEWCB("+d+");",null);
+  public void getViewCallback(String d,int u){
+    webView.evaluateJavascript("__GETVIEWCB("+d+","+u+");",null);
   }
 
   public class JSViewApi{
+
     @JavascriptInterface
-    public void getview(String url) {
-      activity.runOnUiThread(() -> {
+    public boolean getview(String url, int zid) {
+      if (aApi.resData.status==1) return false;
+      AsyncTask.execute(() -> activity.runOnUiThread(() -> {
         aApi.getData(url,result -> {
-          getViewCallback(result.Text);
+          getViewCallback(result.Text,zid);
         });
-      });
+      }));
+      return true;
     }
     @JavascriptInterface
+    public void clearView() {
+      aApi.cleanWebView();
+    }
+
+    @JavascriptInterface
     public void tapEmulate(float x, float y) {
-      simulateClick(x,y);
+      AsyncTask.execute(() -> {
+        simulateClick(x,y);
+      });
     }
 
     @JavascriptInterface
@@ -164,14 +175,11 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public void getmp4vid(String url) {
-      AsyncTask.execute(new Runnable() {
-        @Override
-        public void run() {
-          final String out=aApi.getMp4Video(url);
-          activity.runOnUiThread(() -> {
-            webView.evaluateJavascript("__MP4CB("+out+");",null);
-          });
-        }
+      AsyncTask.execute(() -> {
+        final String out=aApi.getMp4Video(url);
+        activity.runOnUiThread(() -> {
+          webView.evaluateJavascript("__MP4CB("+out+");",null);
+        });
       });
     }
   }

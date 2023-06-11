@@ -103,9 +103,10 @@ var videoEventHandler=null;
 function _VIDEO_EVENT(el,tag,ev){
   if (videoEventHandler) videoEventHandler(el,tag,ev);
 }
+var _GETVIEW_ZID=0;
 var getViewCb=null;
-function __GETVIEWCB(d){
-    if(getViewCb) getViewCb(d);
+function __GETVIEWCB(d,u){
+    if(getViewCb) getViewCb(d,u);
 }
 var mp4vidCb=null;
 function __MP4CB(d){
@@ -166,24 +167,33 @@ var bgimgid=null;
         playback.skip.style.visibility='hidden';
     }
   }
-  
   function isplayback(){
-    // return playback.holder.className=='active';
     return playback.onplayback;
   }
-  function playback_close(){
+  function playback_close(clearview){
     mp4vidCb=null;
-    playback.onplayback=false;
     getViewCb=null;
     messageHandler=null;
     videoEventHandler=null;
+
+    try{
+      if (playback.vt==1){
+        playback.v.src='about:blank';
+      }
+    }catch(e){}
+    playback.onplayback=false;
+    playback.vid.innerHTML='';
+    playback.v=null;
+    playback.vt=0;
+    playback.vid.className='';
     playback.holder.className='';
+
+    if (clearview)
+      _JSAPI.clearView();
+
     playback_setskip(false);
     keyHandler=playback.prevKey;
-    // playback.vid.src='/__view/blank.html';
     playback_stat_reset();
-    playback.vid.innerHTML='';
-    playback.vid.className='';
     window.focus();
   }
   function playback_autohide(){
@@ -238,7 +248,7 @@ var bgimgid=null;
         playback.tick=0;
       }
       else{
-        playback_close();
+        playback_close(true);
       }
       return true;
     }
@@ -249,7 +259,7 @@ var bgimgid=null;
           if (c=='-back'){
           }
           else{
-            playback_close();
+            playback_close(false);
             playback_init(c);
           }
         }
@@ -345,7 +355,7 @@ var bgimgid=null;
           if (playback.play_sel+1<playback.el.length){
             try{
               var c=playback.el[playback.play_sel+1]._action;
-              playback_close();
+              playback_close(false);
               playback_init(c);
             }catch(e){}
           }
@@ -425,12 +435,13 @@ var bgimgid=null;
           playback.vid._stat.pos=playback.v.currentTime=d;
         }
         else if (c=='play'){
+          playback.vid._stat.play=true;
           playback.v.play();
         }
-        else if (c=='seek'){
+        else if (c=='pause'){
+          playback.vid._stat.play=false;
           playback.v.pause();
-        }
-      }
+        }      }
     }catch(e){};
   }
   function playback_init_vidcloud(){
@@ -448,44 +459,53 @@ var bgimgid=null;
     }
   }
   function playback_init_mp4upload(vidurl){
+    if (!playback.onplayback) return;
     console.log("ATVLOG VIDEO MP4UPLOAD = "+vidurl);
     playback.vt=1;
     playback.v=document.createElement('video');
-    var _vid=playback.v;
-    _vid.setAttribute('poster',playback.data.banner?playback.data.banner:playback.data.poster);
+    playback.v.setAttribute('poster',playback.data.banner?playback.data.banner:playback.data.poster);
     playback.vid.innerHTML='';
     playback.vid.appendChild(playback.v);
 
-    _vid.addEventListener('ended',function(e) {
+    playback.v.addEventListener('ended',function(e) {
+      if (!playback.onplayback) return;
       playback_message('complete',0);
     },false);
-    _vid.addEventListener('durationchange',function(e) {
+    playback.v.addEventListener('durationchange',function(e) {
+      if (!playback.onplayback) return;
       playback_message('time',{
         position:playback.v.currentTime,
         duration:playback.v.duration
       });
     },false);
 
-    _vid.addEventListener('play',function(e) {
+    playback.v.addEventListener('play',function(e) {
+      if (!playback.onplayback) return;
       playback_message('play',0);
     },false);
 
-    _vid.addEventListener('pause',function(e) {
+    playback.v.addEventListener('pause',function(e) {
+      if (!playback.onplayback) return;
       playback_message('pause',0);
     },false);
 
-    _vid.addEventListener('loadeddata',function(e) {
+    playback.v.addEventListener('loadeddata',function(e) {
+      if (!playback.onplayback) return;
       playback.v.play();
       playback_message('ready',0);
     },false);
 
-    _vid.addEventListener('timeupdate',function(e) {
+    playback.v.addEventListener('timeupdate',function(e) {
+      if (!playback.onplayback) return;
       playback_message('time',{
         position:playback.v.currentTime,
         duration:playback.v.duration
       });
     },false);
-    playback.v.src=vidurl;
+
+    if (playback.onplayback){
+      playback.v.src=vidurl;
+    }
   }
 
   function playback_draw(d){
@@ -530,14 +550,18 @@ var bgimgid=null;
     playback.title.innerHTML='<c class="loader">donut_large</c> Loading...';
     playback.uri=u;
 
-    getViewCb=function(r){
-        if (r.status)
-            playback_draw(r);
-        else
-            playback_close();
+    var zuid = ++_GETVIEW_ZID;
+    getViewCb=function(r, uriv){
+      console.log("ATVLOG ZGVIEW#"+uriv+" --> "+zuid);
+      if (uriv==zuid && r.status)
+          playback_draw(r);
+      else
+          playback_close(true);
         getViewCb=null;
     };
-    _JSAPI.getview(u);
+    if (!_JSAPI.getview(u,zuid)){
+      playback_close(true);
+    }
   }
 
   var home={
