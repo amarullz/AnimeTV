@@ -1,11 +1,11 @@
 package com.amarullz.androidtv.animetvjmto;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -25,7 +25,7 @@ import java.net.HttpURLConnection;
 import java.util.Map;
 
 public class AnimeView extends WebViewClient {
-  private Activity activity;
+  private final Activity activity;
   public WebView webView;
   public AnimeApi aApi;
 
@@ -33,11 +33,10 @@ public class AnimeView extends WebViewClient {
 
   public static boolean USE_WEB_VIEW_ASSETS=false;
 
+  @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-      WebView.setWebContentsDebuggingEnabled(true);
-    }
+    WebView.setWebContentsDebuggingEnabled(true);
     webView = activity.findViewById(R.id.webview);
     webView.requestFocus();
     webView.setBackgroundColor(0xffffffff);
@@ -67,10 +66,7 @@ public class AnimeView extends WebViewClient {
   @Override
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
-    if (url.startsWith("https://9anime.to/")) {
-      return false;
-    }
-    return true;
+    return !url.startsWith("https://9anime.to/");
   }
 
   @Override
@@ -80,7 +76,7 @@ public class AnimeView extends WebViewClient {
     String url = uri.toString();
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
-    if (uri==null||url==null||host==null||accept==null) return aApi.badRequest;
+    if (host==null||accept==null) return aApi.badRequest;
     if (host.contains("9anime.to")) {
       String path=uri.getPath();
       if (path.startsWith("/__view/")){
@@ -99,7 +95,7 @@ public class AnimeView extends WebViewClient {
               ByteArrayOutputStream buffer = aApi.getBody(conn, null);
               InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
               return new WebResourceResponse(cType[0], cType[1], stream);
-            } catch (Exception e) {}
+            } catch (Exception ignored) {}
             return aApi.badRequest;
           }
         }
@@ -115,7 +111,7 @@ public class AnimeView extends WebViewClient {
         ByteArrayOutputStream buffer = aApi.getBody(conn, null);
         InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
         return new WebResourceResponse(cType[0], cType[1], stream);
-      } catch (Exception e) {}
+      } catch (Exception ignored) {}
       return aApi.badRequest;
     }
     else if (host.contains("vizcloud.co")||host.contains("mcloud.to")){
@@ -133,7 +129,7 @@ public class AnimeView extends WebViewClient {
           InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
           Log.d("ATVLOG","VIEW PLAYER REQ FINISH");
           return new WebResourceResponse(cType[0], cType[1], stream);
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
         return aApi.badRequest;
       }
     }
@@ -149,11 +145,7 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public boolean getview(String url, int zid) {
       if (aApi.resData.status==1) return false;
-      AsyncTask.execute(() -> activity.runOnUiThread(() -> {
-        aApi.getData(url,result -> {
-          getViewCallback(result.Text,zid);
-        });
-      }));
+      AsyncTask.execute(() -> activity.runOnUiThread(() -> aApi.getData(url, result -> getViewCallback(result.Text,zid))));
       return true;
     }
     @JavascriptInterface
@@ -163,9 +155,7 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public void tapEmulate(float x, float y) {
-      AsyncTask.execute(() -> {
-        simulateClick(x,y);
-      });
+      AsyncTask.execute(() -> simulateClick(x,y));
     }
 
     @JavascriptInterface
@@ -177,9 +167,7 @@ public class AnimeView extends WebViewClient {
     public void getmp4vid(String url) {
       AsyncTask.execute(() -> {
         final String out=aApi.getMp4Video(url);
-        activity.runOnUiThread(() -> {
-          webView.evaluateJavascript("__MP4CB("+out+");",null);
-        });
+        activity.runOnUiThread(() -> webView.evaluateJavascript("__MP4CB("+out+");",null));
       });
     }
   }

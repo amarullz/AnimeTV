@@ -1,5 +1,6 @@
 package com.amarullz.androidtv.animetvjmto;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -8,7 +9,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
-import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -37,9 +37,9 @@ public class AnimeApi extends WebViewClient {
   public interface Callback {
     void onFinish(Result result);
   }
-  private Activity activity;
-  private WebView webView;
-  private CronetEngine cronet;
+  private final Activity activity;
+  private final WebView webView;
+  private final CronetEngine cronet;
   public WebResourceResponse badRequest;
 
   public boolean paused=false;
@@ -63,6 +63,7 @@ public class AnimeApi extends WebViewClient {
     }
   };
 
+  @SuppressLint("SetJavaScriptEnabled")
   public AnimeApi(Activity mainActivity) {
     activity = mainActivity;
     webView = new WebView(activity);
@@ -101,8 +102,8 @@ public class AnimeApi extends WebViewClient {
       );
   }
 
-  public boolean getData(String url, Callback cb, long timeout){
-    if (resData.status==1) return false;
+  public void getData(String url, Callback cb, long timeout){
+    if (resData.status==1) return;
     callback=cb;
     pauseView(false);
     resData.url=url;
@@ -116,10 +117,9 @@ public class AnimeApi extends WebViewClient {
             webView.loadUrl(url);
           }
         });
-    return true;
   }
-  public boolean getData(String url, Callback cb){
-    return getData(url,cb,10000);
+  public void getData(String url, Callback cb){
+    getData(url,cb,10000);
   }
 
   public HttpURLConnection initQuic(String url, String method) throws IOException {
@@ -159,11 +159,18 @@ public class AnimeApi extends WebViewClient {
     int extpos=fn.lastIndexOf(".");
     if (extpos>=0) {
       String ex = fn.substring(extpos);
-      if (ex.equals(".css")) return "text/css";
-      else if (ex.equals(".js")) return "application/javascript";
-      else if (ex.equals(".png")) return "image/png";
-      else if (ex.equals(".jpg")) return "image/jpeg";
-      else if (ex.equals(".html")) return "text/html";
+      switch (ex) {
+        case ".css":
+          return "text/css";
+        case ".js":
+          return "application/javascript";
+        case ".png":
+          return "image/png";
+        case ".jpg":
+          return "image/jpeg";
+        case ".html":
+          return "text/html";
+      }
     }
     return "text/plain";
   }
@@ -176,7 +183,7 @@ public class AnimeApi extends WebViewClient {
       return new WebResourceResponse(mime,
           null, 200, "OK",
           null, is);
-    } catch (IOException e) {}
+    } catch (IOException ignored) {}
     return badRequest;
   }
 
@@ -192,7 +199,7 @@ public class AnimeApi extends WebViewClient {
       str=sb.toString();
       br.close();
       return str;
-    } catch (IOException e) {}
+    } catch (IOException ignored) {}
     return "";
   }
 
@@ -210,6 +217,7 @@ public class AnimeApi extends WebViewClient {
     return ret;
   }
 
+  @SuppressLint("WebViewClientOnReceivedSslError")
   @Override
   public void onReceivedSslError(WebView view, SslErrorHandler handler,
                                  SslError error) {
@@ -223,6 +231,8 @@ public class AnimeApi extends WebViewClient {
     String url = uri.toString();
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
+    if (accept==null) return badRequest;
+    if (host==null) return badRequest;
     if (url.startsWith("data:")) {
       return super.shouldInterceptRequest(view, request);
     }
@@ -249,7 +259,7 @@ public class AnimeApi extends WebViewClient {
         InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
         return new WebResourceResponse(cType[0], cType[1], stream);
       } catch (Exception e) {
-        Log.d("ATVLOG", "QUIC-ERR=" + url + " - " + e.toString());
+        Log.d("ATVLOG", "QUIC-ERR=" + url + " - " + e);
       }
     }
     else if (host.contains("mp4upload.com")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
@@ -276,29 +286,26 @@ public class AnimeApi extends WebViewClient {
         srcjson = mp4src.substring(psrcpos + 11);
         srcjson = srcjson.substring(0, srcjson.indexOf(");"));
       }
-    }catch(Exception e){}
+    }catch(Exception ignored){}
     return srcjson;
   }
 
   @Override
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
-    if (url.startsWith("https://9anime.to/")) {
-      return false;
-    }
-    return true;
+    return !url.startsWith("https://9anime.to/");
   }
 
   public void pauseView(boolean pause){
     activity.runOnUiThread(() -> {
       if (pause) {
         if (!paused) {
-          paused=pause;
+          paused= true;
           webView.onPause();
         }
       }
       else if (paused) {
-        paused=pause;
+        paused= false;
         webView.onResume();
       }
     });
