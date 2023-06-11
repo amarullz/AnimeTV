@@ -31,7 +31,7 @@ public class AnimeView extends WebViewClient {
 
   public String playerInjectString;
 
-  public static boolean USE_WEB_VIEW_ASSETS=true;
+  public static boolean USE_WEB_VIEW_ASSETS=false;
 
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
@@ -39,6 +39,7 @@ public class AnimeView extends WebViewClient {
       WebView.setWebContentsDebuggingEnabled(true);
     }
     webView = activity.findViewById(R.id.webview);
+    webView.requestFocus();
     webView.setBackgroundColor(0xffffffff);
     WebSettings webSettings = webView.getSettings();
     webSettings.setJavaScriptEnabled(true);

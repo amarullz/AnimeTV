@@ -2,7 +2,6 @@
 function $(i){
   return document.getElementById(i);
 }
-
 /* PLAYER INJECT */
 function ___PLAYER(player){
     var dbg=document.createElement('textarea');
@@ -22,6 +21,7 @@ function ___PLAYER(player){
         title:'-',
         title_jp:'-',
         synopsis:'',
+        stream_vurl:'',
         stream_url:'',
         mp4:false,
         poster:'',
@@ -154,26 +154,32 @@ function ___PLAYER(player){
         if (svr){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
-//                var mp4upload=server[0].parentNode.lastElementChild;
-//                if (mp4upload.textContent.toLowerCase()=='mp4upload'){
-//                    console.log("ATVLOG --> Click Server MP4UPLOAD");
-//                    mp4upload.click();
-//                    data.mp4=true;
-//                }
-//                else{
-                    console.log("ATVLOG --> Click Server Vidstream");
-                    server[0].click();
-                // }
+                server[0].click();
                 startFetchTimeout(4000);
                 return;
             }
         }
-        setTimeout(clickServer,10);
+        setTimeout(clickServer,5);
     }
     window.addEventListener('message',function(e) {
         try{
             var j=JSON.parse(e.data);
             if (j.cmd=='HOOK_READY'){
+                var svr=$('w-servers');
+                if (!data.mp4&&svr){
+                    var server=svr.getElementsByTagName('li');
+                    if (server.length>0){
+                        var mp4upload=server[0].parentNode.lastElementChild;
+                        if (mp4upload.textContent.toLowerCase()=='mp4upload'){
+                            data.stream_vurl=player.firstElementChild.src;
+                            console.log("ATVLOG --> Click Server MP4UPLOAD");
+                            mp4upload.click();
+                            data.mp4=true;
+                            startFetchTimeout(4000);
+                            return;
+                        }
+                    }
+                }
                 console.log("ATVLOG --> Hook Ready = "+e.data);
                 data.skip=j.val.value;
                 data.stream_url=player.firstElementChild.src;

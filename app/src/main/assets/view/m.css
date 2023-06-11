@@ -92,7 +92,8 @@ body {
   visibility: visible;
 }
 
-#playback_video {
+#playback_video video,
+#playback_video iframe{
   position: absolute;
   z-index: 0;
   top: 0;
@@ -105,7 +106,8 @@ body {
   visibility: hidden;
   opacity: 0;
 }
-#playback_video.ready {
+#playback_video.ready video, 
+#playback_video.ready iframe{
   opacity:1;
   visibility: visible;
 }

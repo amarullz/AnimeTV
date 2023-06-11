@@ -64,7 +64,7 @@ public class AnimeApi extends WebViewClient {
   public AnimeApi(Activity mainActivity) {
     activity = mainActivity;
     webView = new WebView(activity);
-    // webView = activity.findViewById(R.id.webview);
+//    webView = activity.findViewById(R.id.webview);
 
     /* Setup Cronet HTTP+QUIC Client */
     CronetEngine.Builder myBuilder =
@@ -99,6 +99,8 @@ public class AnimeApi extends WebViewClient {
   public boolean getData(String url, Callback cb, long timeout){
     if (resData.status==1) return false;
     callback=cb;
+
+    pauseView(false);
     resData.url=url;
     resData.status=1;
     handler.postDelayed(timeoutRunnable, timeout);
@@ -251,7 +253,8 @@ public class AnimeApi extends WebViewClient {
     }
     else if (host.contains("cloudflare.com")||
         host.contains("bunnycdn.ru")) {
-      if (!url.endsWith(".woff2")) {
+      if (!url.endsWith(".woff2")&&!accept.startsWith("text/css")) {
+        Log.d("ATVLOG_CDN", "CDN=>" + url + " - " + accept);
         return super.shouldInterceptRequest(view, request);
       }
     }
@@ -282,6 +285,19 @@ public class AnimeApi extends WebViewClient {
     return true;
   }
 
+  public void pauseView(boolean pause){
+    activity.runOnUiThread(() -> {
+      if (pause) {
+//        webView.pauseTimers();
+        webView.onPause();
+      }
+      else {
+        webView.onResume();
+//        webView.resumeTimers();
+      }
+    });
+  }
+
   public void cleanWebView(){
     activity.runOnUiThread(() -> {
       webView.loadData(
@@ -302,6 +318,7 @@ public class AnimeApi extends WebViewClient {
           if (callback!=null)
             callback.onFinish(resData);
         });
+        pauseView(true);
       }
     }
   }
