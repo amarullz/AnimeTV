@@ -452,20 +452,16 @@ var bgimgid=null;
       /* vidcloud */
       messageHandler=playback_message_handler;
       playback.vt=2;
-      playback.v=document.createElement('iframe')
       playback.vid.innerHTML='';
-      playback.vid.appendChild(playback.v);
-      playback.v.src=d.stream_vurl;
+      playback.v=$n('iframe','',{'src':d.stream_vurl},playback.vid,'');
     }
   }
   function playback_init_mp4upload(vidurl){
     if (!playback.onplayback) return;
     console.log("ATVLOG VIDEO MP4UPLOAD = "+vidurl);
     playback.vt=1;
-    playback.v=document.createElement('video');
-    playback.v.setAttribute('poster',playback.data.banner?playback.data.banner:playback.data.poster);
     playback.vid.innerHTML='';
-    playback.vid.appendChild(playback.v);
+    playback.v=$n('video','',{'poster':playback.data.banner?playback.data.banner:playback.data.poster},playback.vid,'');
 
     playback.v.addEventListener('ended',function(e) {
       if (!playback.onplayback) return;
