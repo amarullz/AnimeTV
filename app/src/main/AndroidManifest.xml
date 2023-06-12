@@ -19,6 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AnimeTVJMTO">
         <activity
+            android:hardwareAccelerated="true"
             android:name=".MainActivity"
             android:banner="@drawable/app_icon_your_company"
             android:exported="true"

@@ -25,6 +25,21 @@ function $n(t,c,a,p,h){
   if (p!=undefined) p.appendChild(l);
   return l;
 }
+function pad2(v) {
+  return ("00" + v).slice(-2);
+}
+function toTstamp(s,nohour){
+  var s=Math.floor(s);
+  var h=Math.floor(s/3600);
+  s-=(h*3600);
+  var m=Math.floor(s/60.0);
+  s-=m*60;
+  var o='';
+  if (!nohour||h>0)
+    o+=h+":";
+  o+=pad2(m)+":"+pad2(s);
+  return o;
+}
 function special(str){
   return str.replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -141,9 +156,13 @@ var bgimgid=null;
     vt:false,
     state:$('playback_state'),
     skip:$('playback_skip'),
-    track:$('playback_track'),
+    
+    track:$('playback_timing'),
     trackpos:$('playback_track_pos'),
+    track_timpos:$('playback_time_pos'),
+    track_timdur:$('playback_time_dur'),
     trackshow:false,
+
     prevKey:null,
     show:false,
     tick:0,
@@ -187,6 +206,8 @@ var bgimgid=null;
     playback.vt=0;
     playback.vid.className='';
     playback.holder.className='';
+    playback.trackshow=false;
+    playback.track.className='';
 
     if (clearview)
       _JSAPI.clearView();
@@ -227,19 +248,20 @@ var bgimgid=null;
     }
   }
   var _pbsto=null;
-  function playback_hide_track(){
+  function playback_hide_track(delay){
     clearTimeout(_pbsto);
     _pbsto=setTimeout(function(){
         if (playback.trackshow){
             playback.trackshow=false;
             playback.track.className='';
         }
-    },5000)
+    },delay);
   }
   function playback_show_track(){
     playback.trackshow=true;
     playback.track.className='show';
-    playback_hide_track();
+    if (playback.vid._stat.play)
+      playback_hide_track(5000);
   }
   function playback_keyhandler(k){
     var cs=playback.sel;
@@ -331,12 +353,17 @@ var bgimgid=null;
     playback_update_sel();
   }
   function playback_updatepos(){
-    var dur=(playback.vt==2)?playback.vid._stat.duration:playback.v.duration;
-    var pos=(playback.vt==2)?playback.vid._stat.pos:playback.v.currentTime;
+    if (playback.trackshow){
+      var dur=(playback.vt==2)?playback.vid._stat.duration:playback.v.duration;
+      var pos=(playback.vt==2)?playback.vid._stat.pos:playback.v.currentTime;
 
-    if (dur>0){
-        var dr=(pos/dur)*100.0;
-        playback.trackpos.style.width=dr+"%";
+      if (dur>0){
+          var dr=(pos/dur)*100.0;
+          playback.trackpos.style.width=dr+"%";
+
+          playback.track_timpos.innerHTML=toTstamp(pos,dur<3600);
+          playback.track_timdur.innerHTML=toTstamp(dur,dur<3600);
+      }
     }
   }
   function playback_stat_reset(){
@@ -362,6 +389,8 @@ var bgimgid=null;
         }
         else if (j.vcmd=='pause'){
           playback.vid._stat.play=false;
+          playback_show_track();
+          playback_updatepos();
         }
         else if (j.vcmd=='ready'){
           playback_player_ready();
@@ -369,6 +398,7 @@ var bgimgid=null;
         else if (j.vcmd=='play'){
           playback.vid._stat.play=true;
           playback_player_ready();
+          playback_hide_track(1500);
         }
         else if (j.vcmd=='seek'){
           console.log("ATVLOG vidmsg seek");
