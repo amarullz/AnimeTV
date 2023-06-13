@@ -313,7 +313,7 @@ const pb={
   menusel:0,
   menu_autohide_to:null,
   menu_autohide:function(){
-    var autohide_duration=2000;
+    var autohide_duration=4000;
     if (pb.state>0){
       clearTimeout(pb.menu_autohide_to);
       if (pb.lastkey+autohide_duration<$tick()){
@@ -595,7 +595,7 @@ const pb={
   }
 };
 
-pb.open('https://9anime.to/watch/one-piece.ov8/ep-52');
-// pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1');
+// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52');
+pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1');
 // pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10');
 //pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1');
