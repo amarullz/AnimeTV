@@ -31,7 +31,12 @@ function ___PLAYER(player){
         ep:[],
         related:[],
         genres:[],
-        seasons:[]
+        seasons:[],
+        info:{
+            type:null,
+            rating:null,
+            quality:null
+        }
     };
 
     /* Get Episode */
@@ -55,29 +60,51 @@ function ___PLAYER(player){
 
         /* info */
         var info=$('w-info');
-        var poster=info.getElementsByTagName('img');
-        var title=info.getElementsByTagName('h1');
-        var content=info.getElementsByClassName('content');
-        if (poster[0]) data.poster=poster[0].src;
-        if (title[0]){
-            data.title=title[0].textContent;
-            data.title_jp=title[0].getAttribute('data-jp');
-        }
-        if (content[0]) data.synopsis=content[0].textContent;
+        if (info){
+            var poster=info.getElementsByTagName('img');
+            var title=info.getElementsByTagName('h1');
+            var content=info.getElementsByClassName('content');
+            if (poster[0]) data.poster=poster[0].src;
+            if (title[0]){
+                data.title=title[0].textContent;
+                data.title_jp=title[0].getAttribute('data-jp');
+            }
+            if (content[0]) data.synopsis=content[0].textContent;
 
-        /* get genres */
-        var bmeta=info.getElementsByClassName('bmeta');
-        if (bmeta[0]){
+            /* get genres */
+            var bmeta=info.getElementsByClassName('bmeta');
+            if (bmeta[0]){
+                try{
+                    /* Find Genres */
+                    var k=bmeta[0].firstElementChild.lastElementChild.getElementsByTagName('a');
+                    for (var i=0;i<k.length;i++){
+                        try{
+                            var gn={};
+                            gn.val=k[i].href.substring(k[i].href.lastIndexOf('/')+1);
+                            gn.name=k[i].textContent.trim();
+                            data.genres.push(gn);
+                        }catch(ee){}
+                    }
+                }catch(e){}
+                try{
+                    /* Find Type */
+                    var r=bmeta[0].firstElementChild.firstElementChild.getElementsByTagName('a');
+                    if (r.length>0){
+                        data.info.type={
+                            val:r[0].getAttribute('href'),
+                            name:r[0].textContent.trim()
+                        };
+                    }
+                }catch(e){}
+            }
             try{
-                var k=bmeta[0].firstElementChild.lastElementChild.getElementsByTagName('a');
-                for (var i=0;i<k.length;i++){
-                    try{
-                        var gn={};
-                        gn.val=k[i].href.substring(k[i].href.lastIndexOf('/')+1);
-                        gn.name=k[i].textContent.trim();
-                        data.genres.push(gn);
-                    }catch(ee){}
-                }
+                /* rating */
+                data.info.rating=info.querySelectorAll("i.rating")[0].textContent;
+            }catch(e){}
+
+            try{
+                /* quality */
+                data.info.quality=info.querySelectorAll("i.quality")[0].textContent;
             }catch(e){}
         }
 

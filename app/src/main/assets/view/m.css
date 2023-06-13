@@ -274,7 +274,7 @@ c.loader {
 #pb_desc b {
   display: block;
   padding-bottom: .5vw;
-  font-size: .6vw;
+  font-size: .8vw;
   color: #ccc;
   font-weight: normal;
 }
@@ -283,9 +283,11 @@ c.loader {
   display: inline-block;
   background-color: rgba(20, 20, 20, .8);
   margin-right: .2vw;
-  padding: .1vw .4vw .1vw .4vw;
+  padding: .4vw .4vw .1vw .4vw;
   border-radius: .1vw;
   box-shadow: 0 .03vw .06vw rgba(0, 0, 0, 0.16), 0 .03vw .06vw rgba(0, 0, 0, 0.23);
+  line-height: 1;
+  font-weight: bold;
 }
 
 #pb_genres {
@@ -293,8 +295,19 @@ c.loader {
   font-size: 1vw;
   opacity: 0;
   transform: translateX(20vw);
+  padding-bottom: 1vw;
 }
-
+#pb_settings.pb_menu{
+  width: 60vw;
+  margin-top:.5vw;
+  font-size: 1vw;
+  opacity: 0;
+  transform: translateX(25vw);
+  position: absolute;
+  bottom: 4vw;
+  transition: all 1s cubic-bezier(.25, .8, .25, 1);
+  padding-bottom: 1vw;
+}
 #pb.active #pb_meta.active {
   opacity: 1;
   visibility: visible;
@@ -302,7 +315,8 @@ c.loader {
 
 #pb.active #pb_meta.active #pb_title,
 #pb.active #pb_meta.active #pb_desc,
-#pb.active #pb_meta.active #pb_genres {
+#pb.active #pb_meta.active #pb_genres,
+#pb.active #pb_meta.active #pb_settings {
   transform: translateX(0);
   opacity: 1;
 }
@@ -312,7 +326,7 @@ c.loader {
   white-space: nowrap;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(90deg, #000 95%, rgba(0, 0, 0, 0));
-  transition: all 1s cubic-bezier(.25, .8, .25, 1);
+  transition: all .85s cubic-bezier(.25, .8, .25, 1);
 }
 
 .pb_menu.maskleft {
@@ -542,21 +556,25 @@ c.loader {
 /**** RELATED ****/
 #pb_seasons div,
 #pb_related div {
-  padding: .2vw !important;
+  padding: 0 !important;
+  padding-bottom:0 !important;
   position: relative;
-  background-color: #000;
+  border-radius: .3vw;
+  overflow: hidden;
+  width: 12vw;
+  height: 17vw;
+  background-color: #333 !important;
+  outline: .01vw solid #333 !important
 }
 
 #pb_seasons div img {
   width: 12vw;
   height: 17vw;
-  border-radius: .1vw;
 }
 
 #pb_related div img {
   width: 12vw;
   height: 17vw;
-  border-radius: .1vw;
 }
 
 #pb_related div img,
@@ -585,8 +603,7 @@ c.loader {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, .8) 100%);
   width: 12vw;
   display: block;
-  margin: .2vw;
-  border-radius: .2vw;
+  margin: 0;
 }
 
 #pb_related div b {
@@ -597,7 +614,7 @@ c.loader {
   font-size: .9vw;
   display: block;
   font-weight: normal;
-  margin: .2vw;
+  margin: 0;
   overflow: hidden;
   word-break: normal;
   width: 12vw;
@@ -607,12 +624,12 @@ c.loader {
   word-wrap: break-word;
   box-sizing: border-box;
   line-height: 1.4;
-  border-radius: 0 0 .2vw .2vw;
 }
 
 #pb_seasons.pb_menu.active div.active,
 #pb_related.pb_menu.active div.active {
   background-color: #fff !important;
+  outline: .25vw solid #fff !important;
 }
 
 /**** TRACK ****/

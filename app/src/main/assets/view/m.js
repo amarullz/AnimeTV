@@ -29,8 +29,8 @@ function $n(t,c,a,p,h){
       l.setAttribute(i,a[i]);
   }
   if (c!=undefined&&c) l.className=c;
-  if (h!=undefined) l.innerHTML=h;
-  if (p!=undefined) p.appendChild(l);
+  if (h!=undefined&&h) l.innerHTML=h;
+  if (p!=undefined&&p) p.appendChild(l);
   return l;
 }
 
@@ -175,6 +175,52 @@ const _API={
   getMp4:function(url, f){
     _API.mp4cb=f;
     _JSAPI.getmp4vid(url);
+  },
+
+  getTooltip:function(id, cb){
+    $a("https://9anime.to/ajax/anime/tooltip/"+id+"?"+$tick(),function(r){
+      if (r.ok){
+        var d=$n('div','',0,0,r.responseText);
+        var o={
+          title:'',
+          title_jp:'',
+          synopsis:'',
+          genres:[],
+          rating:null,
+          quality:null
+        };
+        var tt=d.querySelector('div.title.d-title');
+        if (tt){
+          o.title=tt.textContent.trim();
+          o.title_jp=tt.getAttribute('data-jp');
+        }
+        try{
+          o.synopsis=d.querySelector('div.synopsis').textContent.trim();
+        }catch(e){}
+        try{
+          var gn=d.querySelector('div.meta-bl').lastElementChild.querySelectorAll('a');
+          for (var i=0;i<gn.length;i++){
+            var gd={
+              name:gn[i].textContent.trim(),
+              val:null
+            };
+            var gnr=gn[i].getAttribute('href').split('/');
+            gd.val=gnr[gnr.length-1].trim();
+            o.genres.push(gd);
+          }
+        }catch(e){}
+        try{
+          o.rating=d.querySelector('i.rating').textContent.trim();
+        }catch(e){}
+        try{
+          o.quality=d.querySelector('i.quality').textContent.trim();
+        }catch(e){}
+        d=null;
+        cb(o);
+      }
+      else
+        cb(null);
+    });
   }
 };
 
@@ -192,6 +238,8 @@ const pb={
   pb_episodes:$('pb_episodes'),
   pb_seasons:$('pb_seasons'),
   pb_related:$('pb_related'),
+  pb_settings:$('pb_settings'),
+
   pb_track_val:$('pb_track_val'),
   pb_track_pos:$('pb_track_pos'),
   pb_track_dur:$('pb_track_dur'),
@@ -314,7 +362,7 @@ const pb={
   menu_autohide_to:null,
   menu_autohide:function(){
     var autohide_duration=4000;
-    if (pb.state>0){
+    if (pb.state>1){
       clearTimeout(pb.menu_autohide_to);
       if (pb.lastkey+autohide_duration<$tick()){
         pb.menu_hide();
@@ -329,20 +377,20 @@ const pb={
     pb.menus[pb.menusel].classList.remove('active');
     pb.menusel=0;
     pb.menus[pb.menusel].classList.add('active');
-    $('pb_meta').classList.remove('active');
+    pb.pb_meta.classList.remove('active');
     $('pb_actions').classList.remove('active');
     pb.pb_list.style.height="0px";
   },
   menu_show:function(pos){
     pb.menus[pb.menusel].classList.remove('active');
-    pb.menusel=(pos===undefined?1:pos);
-    $('pb_actions').classList.add('active');
+    pb.menusel=(pos===undefined?2:pos);
+    pb.pb_actions.classList.add('active');
     pb.menus[pb.menusel].classList.add('active');
     pb.menu_update();
     pb.menu_autohide();
   },
   menu_update:function(){
-    if (pb.menusel==0){
+    if (pb.menusel<=1){
       pb.pb_meta.classList.add('active');
       pb.pb_list.style.height="0";
       pb.pb_list.classList.remove('nomask');
@@ -352,7 +400,7 @@ const pb={
       pb.pb_meta.classList.remove('active');
     }
     var vh=(pb.menusel<pb.menus.length-1)?window.innerHeight/15:0;
-    for (var i=2;((i<=pb.menusel)&&(i<pb.menus.length));i++){
+    for (var i=3;((i<=pb.menusel)&&(i<pb.menus.length));i++){
       vh+=pb.menus[i].offsetHeight;
     }
     if (pb.menusel==pb.menus.length-1)
@@ -411,7 +459,7 @@ const pb={
     }
     else{
       if (c==KUP||c==KDOWN){
-        pb.menu_show(c==KUP?0:1);
+        pb.menu_show(c==KUP?1:2);
       }
     }
   },
@@ -487,26 +535,73 @@ const pb={
     }
   },
 
+  init_settings:function(){
+    pb.pb_settings.innerHTML='';
+    $n('div','',{url:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
+    $n('div','',{url:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
+    $n('div','',{url:'-fav'},pb.pb_settings,'<c>bookmark_border</c> ADD TO WATCHLIST');
+    $n('div','',{url:'-autonext'},pb.pb_settings,'<c>check</c> AUTO NEXT');
+    $n('div','',{url:'-autoskip'},pb.pb_settings,'<c>clear</c> AUTO SKIP INTRO');
+    $n('div','',{url:'-skipfiller'},pb.pb_settings,'<c>clear</c> SKIP FILLER');
+    pb.menu_select(pb.pb_settings,pb.pb_settings.firstElementChild.nextElementSibling);
+    pb.pb_settings._midx=2;
+  },
+
   init:function(){
     pb.menus=[
       pb.pb_genres,
+      pb.pb_settings,
       pb.pb_tracks
     ];
-    pb.pb.style.backgroundImage='url('+(pb.data.banner?pb.data.banner:pb.data.poster)+')';
+    pb.pb.style.backgroundImage='url('+(pb.data.banner?pb.data.banner:pb.data.poster)+'), url('+(pb.data.banner?pb.data.banner:pb.data.poster)+'-w100)';
 
     /* META */
     pb.pb_title.innerHTML=special(pb.data.title);
-    pb.pb_desc.innerHTML=special(pb.data.synopsis);
+    var addb='';
+    try{
+      var bb='';
+      if (pb.data.info.type){
+        bb+='<span>'+special(pb.data.info.type.name)+'</span>';
+      }
+      if (pb.data.info.quality){
+        bb+='<span>'+special(pb.data.info.quality)+'</span>';
+      }
+      if (pb.data.info.rating){
+        bb+='<span>'+special(pb.data.info.rating)+'</span>';
+      }
+      if (pb.data.seasons){
+        if (pb.data.seasons.length>0){
+          bb+='<span>'+pb.data.seasons.length+' SEASONS</span>';
+        }
+      }
+      if (pb.data.ep){
+        if (pb.data.ep.length>1){
+          bb+='<span>'+pb.data.ep.length+' EPISODES</span>';
+        }
+      }
+      if(bb){
+        addb='<b>'+bb+'</b>';
+      }
+    }catch(e){}
+    pb.pb_desc.innerHTML=addb+special(pb.data.synopsis);
 
     /* Genres */
     pb.pb_genres.innerHTML='';
-    if (pb.data.genres){
-      for (var i=0;i<pb.data.genres.length;i++){
-        $n('div','',{val:pb.data.genres[i].val},pb.pb_genres,special(pb.data.genres[i].name));
+    if (pb.data.genres||pb.data.info.type){
+      if (pb.data.info.type){
+        $n('div','',{val:'!'+pb.data.info.type.val},pb.pb_genres,special(pb.data.info.type.name));
+      }
+      if (pb.data.genres){
+        for (var i=0;i<pb.data.genres.length;i++){
+          $n('div','',{val:pb.data.genres[i].val},pb.pb_genres,special(pb.data.genres[i].name));
+        }
       }
       pb.menu_select(pb.pb_genres,pb.pb_genres.firstElementChild);
     }
 
+    /* settings */
+    pb.init_settings();
+    
     /* Episode */
     pb.pb_episodes.innerHTML='';
     if (pb.data.ep&&pb.data.ep.length){
@@ -526,7 +621,7 @@ const pb={
       for (var i=0;i<pb.data.seasons.length;i++){
         var d=pb.data.seasons[i];
         var hl=$n('div',d.active?'playing':'',{url:d.url},pb.pb_seasons,'');
-        hl._img=$n('img','',{src:d.poster},hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
         if (d.active) act=hl;
       }
@@ -548,7 +643,7 @@ const pb={
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
         var hl=$n('div','',{url:d.url},pb.pb_related,'');
-        hl._img=$n('img','',{src:d.poster},hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
       }
       pb.menu_select(pb.pb_related,pb.pb_related.firstElementChild);
@@ -560,6 +655,7 @@ const pb={
 
     /* ACTIONS */
     pb.pb_genres._midx=4;
+    pb.pb_settings._keycb=
     pb.pb_genres._keycb=
     pb.pb_episodes._keycb=
     pb.pb_seasons._keycb=
@@ -576,26 +672,61 @@ const pb={
 
     pb.lastkey=$tick();
     pb.state=1;
-    pb.menu_show(0);
+    pb.menu_show(1);
   },
 
-  open:function(uri){
-    pb.state=0;
-    pb.pb.style.backgroundImage='';
-    pb.pb_loading.classList.add('active');
-    pb.pb.classList.add('active');
+  open:function(uri, ttid){
+    var open_stat=0;
     var uid=_API.getView(uri,function(d,u){
+      open_stat=1;
       if (uid==u && d.status){
         console.log(d);
         pb.data=d;
         pb.init();
       }
     });
+    if (uid){
+      if (ttid){
+        _API.getTooltip(ttid,function(d){
+          if (d){
+            if (open_stat==0){
+              pb.pb_title.innerHTML=special(d.title);
+              var addb='';
+              try{
+                var bb='';
+                if (d.quality){
+                  bb+='<span>'+special(d.quality)+'</span>';
+                }
+                if (d.rating){
+                  bb+='<span>'+special(d.rating)+'</span>';
+                }
+                if(bb){
+                  addb='<b>'+bb+'</b>';
+                }
+              }catch(e){}
+              pb.pb_desc.innerHTML=addb+special(d.synopsis);
+              pb.pb_meta.classList.add('active');
+              try{
+                pb.pb_genres.innerHTML='';
+                for (var i=0;i<d.genres.length;i++){
+                  $n('div','',0,pb.pb_genres,special(d.genres[i].name));
+                }
+              }catch(e){}
+              console.log('DRAWED...');
+            }
+          }
+        });
+      }
+      pb.state=0;
+      pb.pb.style.backgroundImage='';
+      pb.pb_loading.classList.add('active');
+      pb.pb.classList.add('active');
+    }
     return uid;
   }
 };
 
-// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52');
-pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1');
-// pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10');
-//pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1');
+// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177);
+pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065);
+// pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', 14891);
+//pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049);

@@ -67,8 +67,8 @@ public class MainActivity extends FragmentActivity {
         if (send){
           aView.aApi.cleanWebView();
           aView.webView.clearCache(true);
-          // aView.webView.reload();
-          aView.webView.loadUrl("https://9anime.to/__view/main.html");
+          aView.webView.reload();
+          // aView.webView.loadUrl("https://9anime.to/__view/main.html");
         }
         break;
     }
