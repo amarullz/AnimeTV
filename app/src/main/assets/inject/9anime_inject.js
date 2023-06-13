@@ -119,6 +119,7 @@ function ___PLAYER(player){
         data.ep=[];
         episode_el=[];
         data.url=location+'';
+
         /* get episodes */
         var ep=$('w-episodes').getElementsByTagName('li');
         for (var i=0;i<ep.length;i++){
@@ -143,7 +144,7 @@ function ___PLAYER(player){
             data.ep.push(s);
             episode_el.push(a);
         }
-        dbg.value=JSON.stringify(data,null,4);
+        // dbg.value=JSON.stringify(data,null,4);
         _JSAPI.result(JSON.stringify(data));
     }
     function startFetchTimeout(ms){

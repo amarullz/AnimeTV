@@ -2,7 +2,6 @@ package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.fragment.app.FragmentActivity;
@@ -59,6 +58,10 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_DPAD_RIGHT: c=39; break;
       case KeyEvent.KEYCODE_ENTER:
       case KeyEvent.KEYCODE_DPAD_CENTER: c=13; break;
+      case 166: /* PROG UP */
+      case KeyEvent.KEYCODE_PAGE_UP: c=33; break;
+      case 167: /* PROG DOWN */
+      case KeyEvent.KEYCODE_PAGE_DOWN: c=34; break;
       case 183: /* red */
       case KeyEvent.KEYCODE_F5:
         if (send){

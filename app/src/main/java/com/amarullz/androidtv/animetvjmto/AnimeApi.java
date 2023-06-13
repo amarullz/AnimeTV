@@ -119,7 +119,7 @@ public class AnimeApi extends WebViewClient {
         });
   }
   public void getData(String url, Callback cb){
-    getData(url,cb,10000);
+    getData(url,cb,20000);
   }
 
   public HttpURLConnection initQuic(String url, String method) throws IOException {

@@ -136,18 +136,28 @@ public class AnimeView extends WebViewClient {
     return super.shouldInterceptRequest(view, request);
   }
 
-  public void getViewCallback(String d,int u){
-    webView.evaluateJavascript("__GETVIEWCB("+d+","+u+");",null);
+  public void getViewCallback(int u){
+    webView.evaluateJavascript("__GETVIEWCB(JSON.parse(_JSAPI.lastResult()),"+u+");",null);
   }
 
   public class JSViewApi{
+    private String lastResultText="";
 
     @JavascriptInterface
     public boolean getview(String url, int zid) {
       if (aApi.resData.status==1) return false;
-      AsyncTask.execute(() -> activity.runOnUiThread(() -> aApi.getData(url, result -> getViewCallback(result.Text,zid))));
+      AsyncTask.execute(() -> activity.runOnUiThread(() -> aApi.getData(url, result -> {
+        lastResultText=result.Text;
+        getViewCallback(zid);
+      })));
       return true;
     }
+
+    @JavascriptInterface
+    public String lastResult() {
+      return lastResultText;
+    }
+
     @JavascriptInterface
     public void clearView() {
       aApi.cleanWebView();
