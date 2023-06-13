@@ -2,13 +2,13 @@
 <html>
 <head>
     <link rel="preload" as="image" href="bg.webp">
-    <link href="m.css" rel="stylesheet" type="text/css" />
+    <link href="m.css?nocache" rel="stylesheet" type="text/css" />
     <title>AnimeTV JMTO</title>
 </head>
 <body>
 <div id="pb">
     <div id="pb_vid"></div>
-    <div id="pb_loading"><span class="z-loader"></span><b id="pb_load">Loading...</b></div>
+    <div id="pb_loading"><span class="z-loader"></span><b id="pb_load">LOADING DATA</b></div>
     <div id="pb_actions">
         <div id="pb_meta">
             <div id="pb_title"></div>
@@ -17,7 +17,10 @@
         </div>
         <div id="pb_iactions">
             <div id="pb_tracks">
-                <div id="pb_track_pos">-</div>
+                <div id="pb_track_left">
+                    <c id="pb_track_ctl">play_circle</c>
+                    <span id="pb_track_pos">-</span>
+                </div>
                 <div id="pb_track_dur">-</div>
                 <div id="pb_track"><div id="pb_track_val"></div></div>
             </div>
@@ -29,6 +32,6 @@
         </div>
     </div>
 </div>
-<script src="m.js"></script>
+<script src="m.js?nocache"></script>
 </body>
 </html>
