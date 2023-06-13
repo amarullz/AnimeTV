@@ -1,33 +1,31 @@
 <!DOCTYPE html>
-<html class="theme_dark">
+<html>
 <head>
     <link rel="preload" as="image" href="bg.webp">
     <link href="m.css" rel="stylesheet" type="text/css" />
     <title>AnimeTV JMTO</title>
 </head>
 <body>
-<div id="home">
-    <c id="home_search">search</c>
-    <div id="homelang">EN</div>
-    <div id="homepage"></div>
-    <h1>AnimeTV JMTO</h1>
-    <div id="homelist"></div>
-    <div id="homepaging">
-        <div id="homeprev" style="visibility:hidden"><c>chevron_left</c> PREV</div>
-        <div id="homenext" style="visibility:hidden">NEXT <c>chevron_right</c></div>
-    </div>
-</div>
-<div id="playback">
-    <div id="playback_state">
-        <h1 id="playback_title">Loading...</h1>
-        <div id="playback_video"></div>
-        <div id="playback_skip">Skip</div>
-        <div id="playback_timing">
-            <div id="playback_time_pos"></div>
-            <div id="playback_time_dur"></div>
-            <div id="playback_track"><div id="playback_track_pos"></div></div>
+<div id="pb">
+    <div id="pb_vid"></div>
+    <div id="pb_loading"><span class="z-loader"></span><b id="pb_load">Loading...</b></div>
+    <div id="pb_actions">
+        <div id="pb_meta">
+            <div id="pb_title"></div>
+            <div id="pb_desc"><b><span>3 SESSION</span><span>12 EPISODE</span><span>TV</span><span>HD</span></b>The demise of a member in the Astronomy Club marked the beginning of the club's alleged ghostly presence. One sleep-deprived and grumpy Ganta Nakami, stumbled upon the laid-back yet mildly rebellious Isaki Magari in the</div>
+            <div id="pb_genres" class="pb_menu"></div>
         </div>
-        <div id="playback_menu">
+        <div id="pb_iactions">
+            <div id="pb_tracks">
+                <div id="pb_track_pos">-</div>
+                <div id="pb_track_dur">-</div>
+                <div id="pb_track"><div id="pb_track_val"></div></div>
+            </div>
+            <div id="pb_lists">
+                <div id="pb_episodes" class="pb_menu"></div>
+                <div id="pb_seasons" class="pb_menu"></div>
+                <div id="pb_related" class="pb_menu"></div>
+            </div>
         </div>
     </div>
 </div>

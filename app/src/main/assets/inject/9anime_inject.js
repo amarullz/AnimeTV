@@ -30,7 +30,8 @@ function ___PLAYER(player){
         skip:[],
         ep:[],
         related:[],
-        genres:[]
+        genres:[],
+        seasons:[]
     };
 
     /* Get Episode */

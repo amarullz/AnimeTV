@@ -39,23 +39,17 @@ public class MainActivity extends FragmentActivity {
   }
   private boolean sendKeyEvent(int code, boolean send){
     int c=0;
-    if (send){
-      Log.d("ATVLOG","KEY PRESS = "+code);
-      /*
-      RED = 183
-      GREEN = 184
-      YELLOW = 185
-      BLUE = 186
-      PROG UP = 166
-      PROG DOWN = 167
-      EXIT = 4
-      0-9 = 7 - 16
-      INFO = 165
-      TTX = 233
-      EPG = 172
-
-       */
-    }
+//    RED = 183
+//    GREEN = 184
+//    YELLOW = 185
+//    BLUE = 186
+//    PROG UP = 166
+//    PROG DOWN = 167
+//    EXIT = 4
+//    0-9 = 7 - 16
+//    INFO = 165
+//    TTX = 233
+//    EPG = 172
     switch(code){
       case KeyEvent.KEYCODE_ESCAPE:
       case KeyEvent.KEYCODE_BACK: c=27; break;
@@ -69,7 +63,9 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_F5:
         if (send){
           aView.aApi.cleanWebView();
-          aView.webView.reload();
+          aView.webView.clearCache(true);
+          // aView.webView.reload();
+          aView.webView.loadUrl("https://9anime.to/__view/main.html");
         }
         break;
     }

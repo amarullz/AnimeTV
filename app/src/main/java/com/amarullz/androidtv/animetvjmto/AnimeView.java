@@ -31,7 +31,7 @@ public class AnimeView extends WebViewClient {
 
   public String playerInjectString;
 
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {
