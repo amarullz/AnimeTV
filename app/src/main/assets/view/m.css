@@ -699,7 +699,12 @@ c.loader {
   width: 2vw;
   height: 2vw;
   vertical-align: middle;
-  text-shadow: 0 0 .5vw #000, 0 0 .05vw #000;
+  transition: all .2s cubic-bezier(.25, .8, .25, 1);
+  text-shadow: 0 0 .2vw #000;
+}
+
+#pb_tracks.active #pb_track_ctl {
+  text-shadow: 0 0 .4vw var(--primary-1), 0 0 1vw var(--primary-2), 0 0 2vw #fff;
 }
 
 #pb_track_pos {
@@ -724,37 +729,6 @@ c.loader {
   outline: .05vw solid rgba(255, 255, 255, .4);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
   transition: all .2s cubic-bezier(.25, .8, .25, 1);
-}
-
-@keyframes trackbuffer_keyframe {
-  0% {
-    left: 0;
-    right: 88vw;
-  }
-
-  40% {
-    left: 15vw;
-  }
-
-  60% {
-    right: 15vw;
-  }
-
-  100% {
-    left: 88vw;
-    right: 0;
-  }
-}
-
-#pb_track.buffering:after {
-  content: ' ';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background-color: var(--primary-1);
-  display: block;
-  animation: trackbuffer_keyframe 2s ease-in-out infinite alternate;
-  border-radius: .5vw;
 }
 
 #pb_track_val {
@@ -804,4 +778,81 @@ c.loader {
 
 #pb_vid iframe.ready {
   opacity: 1;
+}
+
+/**** EVENTS COMMANDS ****/
+#pb_events {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  visibility: visible;
+  opacity: 1;
+  transition: all .2s cubic-bezier(.25, .8, .25, 1);
+  text-shadow: 0 0 .1vw #000, 0 0 .1vw #000, 0 0 .4vw #000;
+}
+
+#pb.menushow #pb_events {
+  visibility: hidden;
+  opacity: 0;
+}
+
+#pb_event_skip {
+  display: block;
+  font-size: 1.4vw;
+  padding: .5vw 1.5vw .5vw 1.5vw;
+  background-color: rgba(255, 255, 255, .4);
+  outline: .05vw solid #fff;
+  color: #fff;
+  position: absolute;
+  right: 5vw;
+  bottom: 5vw;
+  border-radius: .3vw;
+  box-shadow: 0 .17vw .4vw rgba(0, 0, 0, 0.25), 0 .15vw .15vw rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+  transition: all .2s cubic-bezier(.25, .8, .25, 1);
+  visibility: hidden;
+  opacity: 0;
+}
+
+#pb_event_skip.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+#pb_event_skip span {
+  position: relative;
+  z-index: 10;
+}
+
+@keyframes skipanim_keyframe {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(3);
+  }
+}
+
+#pb_event_skip.autoskip:before {
+  content: '';
+  position: absolute;
+  background-color: var(--primary-2);
+  border-radius: 50vw;
+  width: 10vw;
+  height: 10vw;
+  left: -5vw;
+  top: -5vw;
+  z-index: 0;
+  transform: scale(3);
+  animation: skipanim_keyframe 2s linear 1;
+}
+
+#pb.menushow #pb_event_skip.autoskip:before {
+  content: none;
 }
