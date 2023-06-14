@@ -272,6 +272,13 @@ const pb={
     if (v=='autoskip'){
       return true;
     }
+    else if (v=='autonext'){
+      return true;
+    }
+    else if (v=='skipfiller'){
+      return true;
+    }
+    return false;
   },
 
   onskip:false,
@@ -363,6 +370,32 @@ const pb={
   },
   vid_event:function(c,v){
     if (c=='complete'){
+      pb.vid_stat.play=false;
+      pb.pb_track_ctl.innerHTML='replay';
+      pb.menu_show(1);
+
+      /* autonext */
+      if (pb.cfg('autonext')){
+        if (pb.ep_index<pb.data.ep.length-1){
+          var next_id=pb.ep_index+1;
+          var sel_id=-1;
+          /* skip filler */
+          if (pb.cfg('skipfiller')){
+            for (var i=next_id;i<pb.data.ep.length;i++){
+              if (!pb.data.ep[i].filler){
+                sel_id=i;
+                break;
+              }
+            }
+          }else{
+            sel_id=next_id;
+          }
+          if (sel_id>-1){
+            var epd=pb.data.ep[sel_id];
+            pb.action_handler(epd.url,';1');
+          }
+        }
+      }
     }
     else if (c=='ready'){
       pb.state=2;
@@ -678,7 +711,6 @@ const pb={
         }
       }
       if (c==KLEFT||c==KRIGHT||c==KUP||c==KDOWN||c==KENTER){
-        
         pb.menu_show(c==KUP?1:2);
       }
       else if (c==KBACK){
@@ -1131,11 +1163,11 @@ const pb={
   }
 };
 
-// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
+pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
 // pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
 // pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',0);
 //pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,0);
-pb.open('https://9anime.to/watch/gamers.47rx/ep-4','',0);
+// pb.open('https://9anime.to/watch/gamers.47rx/ep-4','',0);
 // pb.open('https://9anime.to/watch/the-pet-girl-of-sakurasou.rxm/ep-1','',0);
 
 /*
