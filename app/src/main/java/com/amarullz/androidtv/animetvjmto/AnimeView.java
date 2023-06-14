@@ -31,6 +31,7 @@ public class AnimeView extends WebViewClient {
   public AnimeApi aApi;
 
   public String playerInjectString;
+  public boolean webViewReady=false;
 
   public static boolean USE_WEB_VIEW_ASSETS=true;
 
@@ -138,7 +139,6 @@ public class AnimeView extends WebViewClient {
             sendM3U8Req(buffer.toString("UTF-8"));
           }
           InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-          Log.d("ATVLOG","VIEW PLAYER REQ FINISH");
           return new WebResourceResponse(cType[0], cType[1], stream);
         } catch (Exception ignored) {}
         return aApi.badRequest;
@@ -220,6 +220,7 @@ public class AnimeView extends WebViewClient {
   @Override
   public void onPageFinished(WebView view, String url) {
     webView.setVisibility(View.VISIBLE);
+    webViewReady=true;
   }
 
   private void simulateClick(float xx, float yy) {

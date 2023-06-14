@@ -68,11 +68,10 @@ public class MainActivity extends FragmentActivity {
           aView.aApi.cleanWebView();
           aView.webView.clearCache(true);
           aView.webView.reload();
-          // aView.webView.loadUrl("https://9anime.to/__view/main.html");
         }
         break;
     }
-    if (c>0) {
+    if (c>0&&aView.webViewReady) {
       if (send) {
         aView.webView.evaluateJavascript("_KEYEV(" + c + ")", null);
       }

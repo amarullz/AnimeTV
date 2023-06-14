@@ -33,9 +33,7 @@ function jwquality(){
 }
 function jwburstquality(){
     setTimeout(jwquality,200);
-    setTimeout(jwquality,400);
     setTimeout(jwquality,600);
-    setTimeout(jwquality,800);
     setTimeout(jwquality,1000);
 }
 function jwcmd(c,v){
@@ -88,7 +86,6 @@ function initjw(){
     },false);
 
     $p('progress',null);
-    jwburstquality();
 }
 function findjw(){
     var vid=document.getElementsByTagName("video");
@@ -103,7 +100,7 @@ function findjw(){
             }
         }
     }
-    setTimeout(findjw,50);
+    setTimeout(findjw,200);
 }
 findjw();
 })();
