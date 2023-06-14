@@ -31,6 +31,13 @@ function jwquality(){
         __JWP.setCurrentQuality(1);
     }catch(e){}
 }
+function jwburstquality(){
+    setTimeout(jwquality,200);
+    setTimeout(jwquality,400);
+    setTimeout(jwquality,600);
+    setTimeout(jwquality,800);
+    setTimeout(jwquality,1000);
+}
 function jwcmd(c,v){
     if (c=='play'){
         __JWP.play();
@@ -42,9 +49,7 @@ function jwcmd(c,v){
         __JWP.seek(v);
     }
     else if (c=='ready'){
-        jwquality();
-        setTimeout(jwquality,100);
-        setTimeout(jwquality,200);
+        jwburstquality();
     }
 }
 window.addEventListener('message',function(e) {
@@ -83,7 +88,7 @@ function initjw(){
     },false);
 
     $p('progress',null);
-    __JWP.setCurrentQuality(1);
+    jwburstquality();
 }
 function findjw(){
     var vid=document.getElementsByTagName("video");
