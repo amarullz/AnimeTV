@@ -253,6 +253,33 @@ const pb={
   pb_title:$('pb_title'),
   pb_desc:$('pb_desc'),
 
+  /* reset */
+  reset:function(close, noclean){
+    pb.state=0;
+    pb.vid=null;
+    pb.vid_reset_stat();
+    pb.pb_vid.innerHTML='';
+    pb.pb_track_val.style.width="0%";
+    pb.pb_list.style.height="0";
+
+    if (noclean){
+      pb.pb_meta.classList.add('active');
+    }
+    else{
+      pb.pb.style.backgroundImage='';
+      pb.pb_meta.classList.remove('active');
+    }
+    pb.pb_actions.classList.remove('active');
+    if (close){
+      pb.pb_loading.classList.remove('active');
+      pb.pb.classList.remove('active');
+    }
+    else{
+      pb.pb_loading.classList.add('active');
+      pb.pb.classList.add('active');
+    }
+  },
+
   /* videos */
   vid:null,
   vid_stat:{
@@ -305,6 +332,28 @@ const pb={
   ep_title:'',
   lastkey:0,
   state:0,
+
+  /* action command handler */
+  action_handler:function(action,arg){
+    if (!action) return false;
+    console.log("action_handler -> "+action+" / "+arg);
+    if (action.startsWith("http")){
+      var args=[0,0];
+      if (arg)
+        args=arg.split(';');
+      pb.open(action, args[0], parseInt(args[1]));
+      return true;
+    }
+  },
+
+  action_handler_el:function(el){
+    try{
+      var action=el.getAttribute('action');
+      var arg=el.getAttribute('arg');
+      return pb.action_handler(action,arg);
+    }catch(e){}
+    return false;
+  },
 
   /* menu selection */
   menu_select:function(g,n){
@@ -359,7 +408,19 @@ const pb={
       };
     }
     if (!g.firstElementChild) return false;
-    if (c==KLEFT){
+    if (c==KENTER){
+      if (g._sel){
+        if (g._enter_cb)
+          return g._enter_cb(g,g._sel);
+        else{
+          if (g._sel._enter_cb)
+            return g._sel._enter_cb(g,g._sel);
+          else
+            return pb.action_handler_el(g._sel);
+        }
+      }
+    }
+    else if (c==KLEFT){
       if (g._sel){
         if (g._sel.previousElementSibling)
           n=g._sel.previousElementSibling;
@@ -562,7 +623,7 @@ const pb={
       for (var i=start;((i<pb.data.ep.length)&&(i<start+paging_sz));i++){
         var d=pb.data.ep[i];
         var adh='';
-        var hl=$n('div',d.active?'playing':'',{url:d.url},pb.pb_episodes,special(d.ep)+adh);
+        var hl=$n('div',d.active?'playing':'',{action:d.url,arg:';1'},pb.pb_episodes,special(d.ep)+adh);
         if (i==start){
           if (pb.pb_episodes._margin){
             hl.style.marginLeft="-"+pb.pb_episodes._margin+"px";
@@ -741,11 +802,11 @@ const pb={
     pb.pb_genres.innerHTML='';
     if (pb.data.genres||pb.data.info.type){
       if (pb.data.info.type){
-        $n('div','',{val:'!'+pb.data.info.type.val},pb.pb_genres,special(pb.data.info.type.name));
+        $n('div','',{action:'@'+pb.data.info.type.val},pb.pb_genres,special(pb.data.info.type.name));
       }
       if (pb.data.genres){
         for (var i=0;i<pb.data.genres.length;i++){
-          $n('div','',{val:pb.data.genres[i].val},pb.pb_genres,special(pb.data.genres[i].name));
+          $n('div','',{action:'!'+pb.data.genres[i].val},pb.pb_genres,special(pb.data.genres[i].name));
         }
       }
       pb.menu_select(pb.pb_genres,pb.pb_genres.firstElementChild);
@@ -772,7 +833,7 @@ const pb={
       var act=null;
       for (var i=0;i<pb.data.seasons.length;i++){
         var d=pb.data.seasons[i];
-        var hl=$n('div',d.active?'playing':'',{url:d.url},pb.pb_seasons,'');
+        var hl=$n('div',d.active?'playing':'',{action:d.url},pb.pb_seasons,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
         if (d.active) act=hl;
@@ -794,7 +855,7 @@ const pb={
         var d=pb.data.related[i];
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
-        var hl=$n('div','',{url:d.url,tip:d.tip?d.tip:''},pb.pb_related,'');
+        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_related,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
       }
@@ -813,7 +874,7 @@ const pb={
         var d=pb.data.recs[i];
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
-        var hl=$n('div','',{url:d.url,tip:d.tip?d.tip:''},pb.pb_recs,'');
+        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
       }
@@ -864,7 +925,8 @@ const pb={
     }
   },
 
-  open:function(uri, ttid, fresh){
+  open:function(uri, ttid, noclean){
+    console.log("pb.open -> "+noclean+" / "+ttid);
     var open_stat=0;
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;
@@ -875,7 +937,7 @@ const pb={
       }
     });
     if (uid){
-      if (ttid){
+      if (ttid&&!noclean){
         _API.getTooltip(ttid,function(d){
           if (d){
             if (open_stat==0){
@@ -905,24 +967,12 @@ const pb={
           }
         });
       }
-      pb.state=0;
-      if (fresh){
-        pb.pb.style.backgroundImage='';
-        pb.pb_meta.classList.remove('active');
-      }
-      pb.pb_vid.innerHTML='';
-      pb.pb_loading.classList.add('active');
-      pb.pb_actions.classList.remove('active');
-      pb.pb.classList.add('active');
+      pb.reset(0,noclean);
       _API.setKey(function(ke){
         if (ke==KBACK){
           uid=-1;
-          pb.state=2;
-          pb.pb.style.backgroundImage='';
-          pb.pb_loading.classList.remove('active');
-          pb.pb_meta.classList.remove('active');
-          pb.pb_actions.classList.remove('active');
-          pb.pb.classList.remove('active');
+          open_stat=3;
+          pb.reset(1,0);
         }
       });
     }
@@ -930,7 +980,9 @@ const pb={
   }
 };
 
-// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,1);
-// pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,1);
-pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',1);
-//pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,1);
+// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
+// pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
+// pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',0);
+//pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,0);
+
+pb.open('https://9anime.to/watch/the-pet-girl-of-sakurasou.rxm/ep-1','',0);

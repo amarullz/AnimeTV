@@ -202,8 +202,9 @@ c.loader {
   position: fixed;
   inset: 0;
   background: #000;
-  background-size: cover;
+  background-size: contain;
   background-position: center center;
+  background-repeat: no-repeat;
   transition: all .3s cubic-bezier(.25, .8, .25, 1);
   transform: scale(.5);
   opacity: 0;
@@ -227,7 +228,7 @@ c.loader {
   transition: all .5s cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
   visibility: hidden;
-  z-index:10;
+  z-index: 10;
 }
 
 #pb_loading c {
@@ -257,7 +258,7 @@ c.loader {
   transition: all .5s cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
   visibility: hidden;
-  z-index:30;
+  z-index: 30;
 }
 
 #pb_title {
@@ -271,12 +272,16 @@ c.loader {
 }
 
 #pb_desc {
-  width: 45vw;
+  width: 50vw;
   line-height: 1.5;
-  padding-bottom: 1.5vw;
+  margin-bottom: 1.5vw;
   transition: all .7s cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
   transform: translateX(15vw);
+  -webkit-line-clamp: 14;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  display: -webkit-box;
 }
 
 #pb_desc b {
@@ -305,9 +310,10 @@ c.loader {
   transform: translateX(20vw);
   padding-bottom: 1vw;
 }
-#pb_settings.pb_menu{
+
+#pb_settings.pb_menu {
   width: 60vw;
-  margin-top:.5vw;
+  margin-top: .5vw;
   font-size: 1vw;
   opacity: 0;
   transform: translateX(25vw);
@@ -316,6 +322,7 @@ c.loader {
   transition: all 1s cubic-bezier(.25, .8, .25, 1);
   padding-bottom: 1vw;
 }
+
 #pb.active #pb_meta.active {
   opacity: 1;
   visibility: visible;
@@ -374,7 +381,7 @@ c.loader {
   transition: all .5s cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
   visibility: hidden;
-  z-index:50;
+  z-index: 50;
 }
 
 #pb_actions.active {
@@ -484,8 +491,9 @@ c.loader {
 #pb_related:before {
   content: "Related";
 }
-#pb_recs:before{
-  content:"Recommendation";
+
+#pb_recs:before {
+  content: "Recommendation";
 }
 
 #pb_episodes div {
@@ -574,7 +582,7 @@ c.loader {
 #pb_seasons div,
 #pb_related div {
   padding: 0 !important;
-  padding-bottom:0 !important;
+  padding-bottom: 0 !important;
   position: relative;
   border-radius: .3vw;
   overflow: hidden;
@@ -640,7 +648,7 @@ c.loader {
   word-break: normal;
   width: 12vw;
   padding: .4vw .2vw .4vw .2vw;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, .65) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, .65) 100%);
   text-align: center;
   white-space: break-spaces;
   word-wrap: break-word;
@@ -672,24 +680,28 @@ c.loader {
   font-weight: bold;
   line-height: 2vw;
 }
-#pb_track_title{
+
+#pb_track_title {
   font-size: 1vw;
-  left:20vw;
+  left: 20vw;
   right: 20vw;
   text-align: center;
 }
-#pb_track_pos{
+
+#pb_track_pos {
   font-size: 1.3vw;
   font-weight: bold;
 }
+
 #pb_track_ctl {
   font-size: 2vw;
   line-height: 2vw;
-  width:2vw;
-  height:2vw;
+  width: 2vw;
+  height: 2vw;
   vertical-align: middle;
   text-shadow: 0 0 .5vw #000, 0 0 .05vw #000;
 }
+
 #pb_track_pos {
   padding-left: .5vw;
 }
@@ -717,7 +729,7 @@ c.loader {
 #pb_track_val {
   position: relative;
   border-radius: .5vw;
-  width:0%;
+  width: 0%;
   height: .6vw;
   background: var(--primary-3);
   background: linear-gradient(180deg, var(--dimm-1), var(--dimm-1) 100%);
@@ -741,15 +753,15 @@ c.loader {
 
 /* VIDEO */
 #pb_vid video,
-#pb_vid iframe{
+#pb_vid iframe {
   position: absolute;
   z-index: 1;
-  border:none;
-  left:0;
-  right:0;
-  top:0;
-  bottom:0;
-  width:100vw;
-  height:100vh;
+  border: none;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
   background: #000;
 }
