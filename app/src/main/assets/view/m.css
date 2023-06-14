@@ -227,6 +227,7 @@ c.loader {
   transition: all .5s cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
   visibility: hidden;
+  z-index:10;
 }
 
 #pb_loading c {
@@ -256,6 +257,7 @@ c.loader {
   transition: all .5s cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
   visibility: hidden;
+  z-index:30;
 }
 
 #pb_title {
@@ -372,6 +374,7 @@ c.loader {
   transition: all .5s cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
   visibility: hidden;
+  z-index:50;
 }
 
 #pb_actions.active {
@@ -707,7 +710,7 @@ c.loader {
 #pb_track_val {
   position: relative;
   border-radius: .5vw;
-  width: 50%;
+  width:0%;
   height: .6vw;
   background: var(--primary-3);
   background: linear-gradient(180deg, var(--dimm-1), var(--dimm-1) 100%);
@@ -727,4 +730,19 @@ c.loader {
 
 #pb_tracks.active #pb_track_val {
   background: linear-gradient(180deg, var(--primary-3), var(--primary-1) 100%);
+}
+
+/* VIDEO */
+#pb_vid video,
+#pb_vid iframe{
+  position: absolute;
+  z-index: 1;
+  border:none;
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  width:100vw;
+  height:100vh;
+  background: #000;
 }

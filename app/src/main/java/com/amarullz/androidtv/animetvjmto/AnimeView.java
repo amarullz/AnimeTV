@@ -41,13 +41,18 @@ public class AnimeView extends WebViewClient {
     webView.requestFocus();
     webView.setBackgroundColor(0xffffffff);
     WebSettings webSettings = webView.getSettings();
+
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
     webSettings.setSafeBrowsingEnabled(false);
     webSettings.setSupportMultipleWindows(false);
+    webSettings.setAllowFileAccess(true);
+    webSettings.setAllowContentAccess(true);
     webView.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     webView.setWebViewClient(this);
+
+
     webView.setWebChromeClient(new WebChromeClient() {
       @Override public Bitmap getDefaultVideoPoster() {
         final Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
@@ -142,11 +147,17 @@ public class AnimeView extends WebViewClient {
 
   public class JSViewApi{
     private String lastResultText="";
+    private String lastResultUrl="";
 
     @JavascriptInterface
     public boolean getview(String url, int zid) {
       if (aApi.resData.status==1) return false;
+      if (lastResultUrl.equals(url)){
+        AsyncTask.execute(() ->activity.runOnUiThread(() ->getViewCallback(zid)));
+        return true;
+      }
       AsyncTask.execute(() -> activity.runOnUiThread(() -> aApi.getData(url, result -> {
+        lastResultUrl=url;
         lastResultText=result.Text;
         getViewCallback(zid);
       })));

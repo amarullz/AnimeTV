@@ -93,6 +93,7 @@ public class AnimeApi extends WebViewClient {
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
     webSettings.setSafeBrowsingEnabled(false);
     webSettings.setSupportMultipleWindows(false);
+    webSettings.setBlockNetworkImage(true);
     webView.addJavascriptInterface(new JSApi(), "_JSAPI");
     webView.setWebViewClient(this);
 
