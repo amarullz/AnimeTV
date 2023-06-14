@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 public class AnimeView extends WebViewClient {
@@ -120,7 +121,7 @@ public class AnimeView extends WebViewClient {
       return aApi.badRequest;
     }
     else if (host.contains("vizcloud.co")||host.contains("mcloud.to")){
-      if (accept.startsWith("text/html")) {
+      if (accept.startsWith("text/html")||url.startsWith("https://vizcloud.co/mediainfo")) {
         Log.d("ATVLOG","VIEW PLAYER REQ = "+url);
         try {
           HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
@@ -130,7 +131,12 @@ public class AnimeView extends WebViewClient {
           }
           String[] cType = aApi.parseContentType(conn.getContentType());
           ByteArrayOutputStream buffer = aApi.getBody(conn, null);
-          aApi.injectString(buffer, playerInjectString);
+          if (accept.startsWith("text/html")) {
+            aApi.injectString(buffer, playerInjectString);
+          }
+          else{
+            sendM3U8Req(buffer.toString("UTF-8"));
+          }
           InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
           Log.d("ATVLOG","VIEW PLAYER REQ FINISH");
           return new WebResourceResponse(cType[0], cType[1], stream);
@@ -141,7 +147,11 @@ public class AnimeView extends WebViewClient {
     else if (host.contains("rosebudemphasizelesson.com")||
             host.contains("simplewebanalysis.com")||
       host.contains("addthis.com")||
-      host.contains("amung.us")){
+      host.contains("amung.us")||
+      host.contains("cdnjs.cloudflare.com")||
+      host.contains("www.googletagmanager.com")||
+      host.contains("ontosocietyweary.com")
+    ){
       /* BLOCK DNS */
       return aApi.badRequest;
     }
@@ -150,6 +160,13 @@ public class AnimeView extends WebViewClient {
 
   public void getViewCallback(int u){
     webView.evaluateJavascript("__GETVIEWCB(JSON.parse(_JSAPI.lastResult()),"+u+");",null);
+  }
+
+  public void sendM3U8Req(String data){
+    AsyncTask.execute(() ->activity.runOnUiThread(() ->
+            webView.evaluateJavascript(
+                    "__M3U8CB("+data+");",null)
+    ));
   }
 
   public class JSViewApi{
