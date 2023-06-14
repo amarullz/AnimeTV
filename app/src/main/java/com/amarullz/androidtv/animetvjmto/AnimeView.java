@@ -138,6 +138,13 @@ public class AnimeView extends WebViewClient {
         return aApi.badRequest;
       }
     }
+    else if (host.contains("rosebudemphasizelesson.com")||
+            host.contains("simplewebanalysis.com")||
+      host.contains("addthis.com")||
+      host.contains("amung.us")){
+      Log.d("ATVLOG","chromium BLOCK DOMAIN = "+url);
+      return aApi.badRequest;
+    }
     return super.shouldInterceptRequest(view, request);
   }
 
