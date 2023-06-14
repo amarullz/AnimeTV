@@ -90,4 +90,20 @@ public class MainActivity extends FragmentActivity {
     return super.dispatchKeyEvent(event);
   }
 
+  @Override
+  protected void onSaveInstanceState(Bundle outState )
+  {
+    super.onSaveInstanceState(outState);
+    aView.webView.saveState(outState);
+    aView.aApi.webView.saveState(outState);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState)
+  {
+    super.onRestoreInstanceState(savedInstanceState);
+    aView.webView.restoreState(savedInstanceState);
+    aView.aApi.webView.restoreState(savedInstanceState);
+  }
+
 }

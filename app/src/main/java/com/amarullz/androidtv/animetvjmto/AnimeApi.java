@@ -38,7 +38,7 @@ public class AnimeApi extends WebViewClient {
     void onFinish(Result result);
   }
   private final Activity activity;
-  private final WebView webView;
+  public final WebView webView;
   private final CronetEngine cronet;
   public WebResourceResponse badRequest;
 
