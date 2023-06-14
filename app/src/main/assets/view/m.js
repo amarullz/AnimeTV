@@ -240,6 +240,7 @@ const pb={
   pb_related:$('pb_related'),
   pb_recs:$('pb_recs'),
   pb_settings:$('pb_settings'),
+  pb_iactions:$('pb_iactions'),
 
   pb_vid:$('pb_vid'),
 
@@ -260,7 +261,7 @@ const pb={
     pb.vid_reset_stat();
     pb.pb_vid.innerHTML='';
     pb.pb_track_val.style.width="0%";
-    pb.pb_list.style.height="0";
+    pb.pb_iactions.style.transform='';
 
     _API.setMessage(null);
     _API.setKey(null);
@@ -496,7 +497,7 @@ const pb={
     pb.menus[pb.menusel].classList.add('active');
     pb.pb_meta.classList.remove('active');
     $('pb_actions').classList.remove('active');
-    pb.pb_list.style.height="0px";
+    pb.pb_iactions.style.transform='';
   },
   menu_show:function(pos){
     pb.menus[pb.menusel].classList.remove('active');
@@ -509,7 +510,7 @@ const pb={
   menu_update:function(){
     if (pb.menusel<=1){
       pb.pb_meta.classList.add('active');
-      pb.pb_list.style.height="0";
+      pb.pb_iactions.style.transform='';
       pb.pb_list.classList.remove('nomask');
       return;
     }
@@ -517,14 +518,10 @@ const pb={
       pb.pb_meta.classList.remove('active');
     }
     var vh=(pb.menusel<pb.menus.length-1)?window.innerHeight/13:0;
-    for (var i=3;((i<=pb.menusel)&&(i<pb.menus.length));i++){
+    for (var i=2;((i<=pb.menusel)&&(i<pb.menus.length));i++){
       vh+=pb.menus[i].offsetHeight;
     }
-    if (pb.menusel==pb.menus.length-1)
-      pb.pb_list.classList.add('nomask');
-    else
-      pb.pb_list.classList.remove('nomask');
-    pb.pb_list.style.height=vh+"px";
+    pb.pb_iactions.style.transform='translateY('+(window.innerHeight-vh)+'px)';
     if (pb.menus[pb.menusel]._sel){
       pb.menu_select(pb.menus[pb.menusel],pb.menus[pb.menusel]._sel);
     }
@@ -1024,11 +1021,11 @@ const pb={
   }
 };
 
-// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
+pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
 // pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
 // pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',0);
 //pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,0);
-pb.open('https://9anime.to/watch/gamers.47rx','',0);
+// pb.open('https://9anime.to/watch/gamers.47rx','',0);
 // pb.open('https://9anime.to/watch/the-pet-girl-of-sakurasou.rxm/ep-1','',0);
 
 /*
