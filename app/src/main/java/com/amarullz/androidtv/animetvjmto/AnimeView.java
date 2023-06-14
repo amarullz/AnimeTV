@@ -142,6 +142,9 @@ public class AnimeView extends WebViewClient {
           return new WebResourceResponse(cType[0], cType[1], stream);
         } catch (Exception ignored) {}
         return aApi.badRequest;
+      }else if (accept.startsWith("text/css")||accept.startsWith("image/")){
+        Log.d("ATVLOG","BLOCK CSS/IMG = "+url);
+        return aApi.badRequest;
       }
     }
     else if (host.contains("rosebudemphasizelesson.com")||
