@@ -394,7 +394,7 @@ c.loader {
   left: 0;
   right: 0;
   top: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .3) 20%, rgba(0, 0, 0, .8) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .95) 100%);
   text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000;
   transform: translateY(calc(100vh - 4vw));
   transition: all .2s cubic-bezier(.25, .8, .25, 1);

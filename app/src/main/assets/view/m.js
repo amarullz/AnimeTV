@@ -127,6 +127,11 @@ window.__GETVIEWCB=function(d,u){
     _API.viewcb(d,u);
 };
 
+window.__M3U8CB=function(d){
+  if(_API.m3u8cb)
+    _API.m3u8cb(d);
+}
+
 /* mp4upload url callback */
 window.__MP4CB=function(d){
   if(_API.mp4cb) 
@@ -149,9 +154,15 @@ const _API={
   messagecb:null,
   mp4cb:null,
   viewcb:null,
+  m3u8cb:null,
   viewid:0,
   genres:{"action":"1","adventure":"2","avant_garde":"2262888","boys_love":"2262603","comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9","girls_love":"2263743","gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552","josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18","mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25","reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31","shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38","supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"},
   
+  /* set vizcloud m3u8 callback */
+  setVizCb:function(f){
+    _API.m3u8cb=f;
+  },
+
   /* Set key handler */
   setKey:function(f){
     _API.keycb=f;
@@ -796,6 +807,19 @@ const pb={
       };
     };
 
+    _API.setVizCb(function(d){
+      try{
+        if (d.data.media.sources){
+          var urivid=d.data.media.sources[0].file;
+          console.log("ATVLOG Got VizCB = "+urivid);
+          pb.pb_vid.innerHTML='';
+          pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
+          _API.setMessage(null);
+          pb.init_video_mp4upload(urivid);
+        }
+      }catch(e){}
+    });
+
     pb.pb_vid.innerHTML='';
     pb.vid=$n('iframe','',{src:pb.data.stream_vurl,frameborder:'0'},pb.pb_vid,'');
   },
@@ -1021,8 +1045,8 @@ const pb={
   }
 };
 
-pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
-// pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
+// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
+pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
 // pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',0);
 //pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,0);
 // pb.open('https://9anime.to/watch/gamers.47rx','',0);
