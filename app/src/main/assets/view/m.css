@@ -632,19 +632,20 @@ c.loader {
   bottom: 0;
   left: 0;
   right: 0;
-  font-size: .9vw;
+  font-size: 1.4vw;
   display: block;
   font-weight: normal;
   margin: 0;
   overflow: hidden;
   word-break: normal;
   width: 12vw;
-  padding: .2vw;
-  background-color: rgba(0, 0, 0, .5);
+  padding: .4vw .2vw .4vw .2vw;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, .65) 100%);
+  text-align: center;
   white-space: break-spaces;
   word-wrap: break-word;
   box-sizing: border-box;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 #pb_recs.pb_menu.active div.active,
@@ -662,6 +663,7 @@ c.loader {
   opacity: .8;
 }
 
+#pb_track_title,
 #pb_track_dur,
 #pb_track_left {
   position: absolute;
@@ -670,7 +672,12 @@ c.loader {
   font-weight: bold;
   line-height: 2vw;
 }
-
+#pb_track_title{
+  font-size: 1vw;
+  left:20vw;
+  right: 20vw;
+  text-align: center;
+}
 #pb_track_pos{
   font-size: 1.3vw;
   font-weight: bold;

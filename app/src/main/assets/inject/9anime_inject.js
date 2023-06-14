@@ -138,6 +138,9 @@ function ___PLAYER(player){
                     rd.poster=ra.getElementsByTagName('img')[0].src;
                     rd.url=ra.href;
                     rd.title=ra.getElementsByClassName('d-title')[0].textContent.trim();
+                    var dtip=ra.querySelector('[data-tip]');
+                    if (dtip)
+                       rd.tip=dtip.getAttribute('data-tip');
                     data.related.push(rd);
                 }catch(e){}
             }
@@ -156,6 +159,9 @@ function ___PLAYER(player){
                         rd.url=ra.href;
                         rd.poster=ra.querySelector('img').src;
                         rd.title=ra.querySelector('div.d-title').textContent.trim();
+                        var dtip=ra.querySelector('[data-tip]');
+                        if (dtip)
+                           rd.tip=dtip.getAttribute('data-tip');
                         data.recs.push(rd);
                     }catch(e){}
                 }
