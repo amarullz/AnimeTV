@@ -32,6 +32,7 @@ function ___PLAYER(player){
         related:[],
         genres:[],
         seasons:[],
+        recs:[],
         info:{
             type:null,
             rating:null,
@@ -139,6 +140,25 @@ function ___PLAYER(player){
                     rd.title=ra.getElementsByClassName('d-title')[0].textContent.trim();
                     data.related.push(rd);
                 }catch(e){}
+            }
+        }
+
+        /* get recs */
+        var ws=document.getElementById('watch-second');
+        if (ws){
+            var wss=ws.querySelector('section.w-side-section');
+            if (wss){
+                var recs=wss.querySelectorAll('a.item');
+                for (var i=0;i<recs.length;i++){
+                    try{
+                        var ra=recs[i];
+                        var rd={};
+                        rd.url=ra.href;
+                        rd.poster=ra.querySelector('img').src;
+                        rd.title=ra.querySelector('div.d-title').textContent.trim();
+                        data.recs.push(rd);
+                    }catch(e){}
+                }
             }
         }
     }

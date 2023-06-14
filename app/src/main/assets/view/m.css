@@ -15,9 +15,15 @@
   --primary-1: #406;
   --primary-2: #608;
   --primary-3: #80a;
-
   --accent-1: #c5f;
+  --dimm-1: #234;
+}
 
+:root.theme_green {
+  --primary-1: #040;
+  --primary-2: #060;
+  --primary-3: #080;
+  --accent-1: #3b3;
   --dimm-1: #234;
 }
 
@@ -304,7 +310,7 @@ c.loader {
   opacity: 0;
   transform: translateX(25vw);
   position: absolute;
-  bottom: 4vw;
+  bottom: 5vw;
   transition: all 1s cubic-bezier(.25, .8, .25, 1);
   padding-bottom: 1vw;
 }
@@ -395,6 +401,7 @@ c.loader {
 
 /**** EPISODES & SEASONS ****/
 #pb_related,
+#pb_recs,
 #pb_episodes,
 #pb_seasons {
   padding: .2vw 5vw 1.5vw 5vw;
@@ -403,12 +410,14 @@ c.loader {
   opacity: .8;
 }
 
+#pb_recs.active,
 #pb_related.active,
 #pb_episodes.active,
 #pb_seasons.active {
   opacity: 1;
 }
 
+#pb_recs:before,
 #pb_related:before,
 #pb_episodes:before,
 #pb_seasons:before,
@@ -423,6 +432,7 @@ c.loader {
   height: 1.5vw;
 }
 
+#pb_recs.active:before,
 #pb_related.active:before,
 #pb_episodes.active:before,
 #pb_seasons.active:before {
@@ -470,6 +480,9 @@ c.loader {
 
 #pb_related:before {
   content: "Related";
+}
+#pb_recs:before{
+  content:"Recommendation";
 }
 
 #pb_episodes div {
@@ -554,6 +567,7 @@ c.loader {
 }
 
 /**** RELATED ****/
+#pb_recs div,
 #pb_seasons div,
 #pb_related div {
   padding: 0 !important;
@@ -572,11 +586,13 @@ c.loader {
   height: 17vw;
 }
 
+#pb_recs div img,
 #pb_related div img {
   width: 12vw;
   height: 17vw;
 }
 
+#pb_recs div img,
 #pb_related div img,
 #pb_seasons div img {
   opacity: .8;
@@ -584,6 +600,7 @@ c.loader {
   transition: all .2s cubic-bezier(.25, .8, .25, 1);
 }
 
+#pb_recs div.active img,
 #pb_related div.active img,
 #pb_seasons div.active img {
   filter: grayscale(0%);
@@ -606,6 +623,7 @@ c.loader {
   margin: 0;
 }
 
+#pb_recs div b,
 #pb_related div b {
   position: absolute;
   bottom: 0;
@@ -626,6 +644,7 @@ c.loader {
   line-height: 1.4;
 }
 
+#pb_recs.pb_menu.active div.active,
 #pb_seasons.pb_menu.active div.active,
 #pb_related.pb_menu.active div.active {
   background-color: #fff !important;
@@ -634,7 +653,7 @@ c.loader {
 
 /**** TRACK ****/
 #pb_tracks {
-  padding: 2vw 5vw 1vw 5vw;
+  padding: 2.5vw 5vw 1vw 5vw;
   position: relative;
   transition: all .2s cubic-bezier(.25, .8, .25, 1);
   opacity: .8;
@@ -646,14 +665,21 @@ c.loader {
   top: 0;
   font-size: 1.3vw;
   font-weight: bold;
+  line-height: 2vw;
 }
 
-#pb_track_pos,
-#pb_track_ctl {
+#pb_track_pos{
   font-size: 1.3vw;
   font-weight: bold;
 }
-
+#pb_track_ctl {
+  font-size: 2vw;
+  line-height: 2vw;
+  width:2vw;
+  height:2vw;
+  vertical-align: middle;
+  text-shadow: 0 0 .5vw #000, 0 0 .05vw #000;
+}
 #pb_track_pos {
   padding-left: .5vw;
 }

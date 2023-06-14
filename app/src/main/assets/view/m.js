@@ -238,7 +238,10 @@ const pb={
   pb_episodes:$('pb_episodes'),
   pb_seasons:$('pb_seasons'),
   pb_related:$('pb_related'),
+  pb_recs:$('pb_recs'),
   pb_settings:$('pb_settings'),
+
+  pb_vid:$('pb_vid'),
 
   pb_track_val:$('pb_track_val'),
   pb_track_pos:$('pb_track_pos'),
@@ -653,18 +656,40 @@ const pb={
       pb.pb_related.style.display='none';
     }
 
+    /* recommendations */
+    pb.pb_recs.innerHTML='';
+    if (pb.data.recs&&pb.data.recs.length){
+      pb.menus.push(pb.pb_recs);
+      for (var i=0;i<pb.data.recs.length;i++){
+        var d=pb.data.recs[i];
+        var ps=d.poster.split('-w100');
+        d.poster=ps[0];
+        var hl=$n('div','',{url:d.url},pb.pb_recs,'');
+        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._title=$n('b','',null,hl,special(d.title));
+      }
+      pb.menu_select(pb.pb_recs,pb.pb_recs.firstElementChild);
+      pb.pb_recs.style.display='';
+    }
+    else{
+      pb.pb_recs.style.display='none';
+    }
+
+    // pb_recs
+
     /* ACTIONS */
     pb.pb_genres._midx=4;
     pb.pb_settings._keycb=
     pb.pb_genres._keycb=
     pb.pb_episodes._keycb=
     pb.pb_seasons._keycb=
-    pb.pb_related._keycb=pb.menu_keycb;
+    pb.pb_related._keycb=
+    pb.pb_recs._keycb=pb.menu_keycb;
     pb.pb_tracks._keycb=pb.track_keycb;
     pb.menusel=1;
     _API.setKey(pb.keycb);
 
-    pb.pb_track_ctl.innerHTML='stream';
+    pb.pb_track_ctl.innerHTML='change_circle';
     pb.pb_track_ctl.className='loader';
     pb.pb_track_pos.innerHTML='STREAMING VIDEO';
     pb.pb_track_dur.innerHTML='';
@@ -675,7 +700,7 @@ const pb={
     pb.menu_show(1);
   },
 
-  open:function(uri, ttid){
+  open:function(uri, ttid, fresh){
     var open_stat=0;
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;
@@ -718,15 +743,31 @@ const pb={
         });
       }
       pb.state=0;
-      pb.pb.style.backgroundImage='';
+      if (fresh){
+        pb.pb.style.backgroundImage='';
+        pb.pb_meta.classList.remove('active');
+      }
+      pb.pb_vid.innerHTML='';
       pb.pb_loading.classList.add('active');
+      pb.pb_actions.classList.remove('active');
       pb.pb.classList.add('active');
+      _API.setKey(function(ke){
+        if (ke==KBACK){
+          uid=-1;
+          pb.state=2;
+          pb.pb.style.backgroundImage='';
+          pb.pb_loading.classList.remove('active');
+          pb.pb_meta.classList.remove('active');
+          pb.pb_actions.classList.remove('active');
+          pb.pb.classList.remove('active');
+        }
+      });
     }
     return uid;
   }
 };
 
-// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177);
-pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065);
-// pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', 14891);
-//pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049);
+// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,1);
+pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,1);
+// pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', 14891,1);
+//pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,1);
