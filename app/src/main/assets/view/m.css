@@ -765,3 +765,12 @@ c.loader {
   height: 100vh;
   background: #000;
 }
+
+#pb_vid iframe {
+  opacity: 0;
+  transition: opacity 1s cubic-bezier(.25, .8, .25, 1);
+}
+
+#pb_vid iframe.ready {
+  opacity: 1;
+}

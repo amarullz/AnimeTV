@@ -262,6 +262,9 @@ const pb={
     pb.pb_track_val.style.width="0%";
     pb.pb_list.style.height="0";
 
+    _API.setMessage(null);
+    _API.setKey(null);
+
     if (noclean){
       pb.pb_meta.classList.add('active');
     }
@@ -330,6 +333,7 @@ const pb={
   /* view data */
   data:null,
   ep_title:'',
+  ep_index:-1,
   lastkey:0,
   state:0,
 
@@ -593,8 +597,9 @@ const pb={
     }
   },
 
-  init_episode_title:function(d){
+  init_episode_title:function(d,idx){
     if (d.active){
+      pb.ep_index=idx;
       pb.ep_title='EPISODE '+(d.ep);
       if (d.title)
         pb.ep_title+='. '+(d.title.toUpperCase());
@@ -610,7 +615,7 @@ const pb={
         if (pb.data.ep.length>paging_sz){
           for (var i=0;i<pb.data.ep.length;i++){
             if (pb.data.ep[i].active){
-              pb.init_episode_title(pb.data.ep[i]);
+              pb.init_episode_title(pb.data.ep[i],i);
               start=Math.floor(i/paging_sz)*paging_sz;
               break;
             }
@@ -633,7 +638,7 @@ const pb={
           hl.setAttribute('data-title',d.title);
         if (d.active){
           act=hl;
-          pb.init_episode_title(d);
+          pb.init_episode_title(d,i);
         }
         if (d.filler){
           hl.classList.add('filler');
@@ -755,8 +760,47 @@ const pb={
       pb.vid.src=src;
   },
 
-  init_video_vidcloud:function(src){
+  init_video_vidcloud:function(){
+    console.log("ATVLOG VIDEO VIDCLOUD = "+pb.data.stream_vurl);
 
+    _API.setMessage(function(e){
+      if (e){
+        try{
+          var pd=JSON.parse(e.data);
+          if (pd){
+            if ('vcmd' in pd)
+              pb.vid_event(pd.vcmd,pd.val);
+            else if ('event' in pd){
+              if (pd.event=='PLAYER_READY'){
+                pb.vid_event('ready',0);
+                pb.vid_cmd_cb('ready',0);
+                pb.vid.classList.add('ready');
+              }
+            }
+          }
+        }catch(x){
+        }
+      }
+    });
+
+    /* Command Handler */
+    pb.vid_cmd_cb=function(c,v){
+      pb.vid.contentWindow.postMessage(JSON.stringify({
+          vcmd:c,
+          val:v
+      }),'*');
+    };
+
+    /* Time Handler */
+    pb.vid_get_time_cb=function(){
+      return {
+        position:pb.vid_stat.pos,
+        duration:pb.vid_stat.duration
+      };
+    };
+
+    pb.pb_vid.innerHTML='';
+    pb.vid=$n('iframe','',{src:pb.data.stream_vurl,frameborder:'0'},pb.pb_vid,'');
   },
 
   init:function(){
@@ -908,7 +952,7 @@ const pb={
     pb.state=1;
     pb.menu_show(1);
 
-    if (pb.data.mp4){
+    if (!pb.data.mp4){
       console.log("GOT STREAM MP4");
       _API.getMp4(pb.data.stream_url,function(d){
         try{
@@ -984,5 +1028,14 @@ const pb={
 // pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
 // pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',0);
 //pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,0);
+pb.open('https://9anime.to/watch/gamers.47rx','',0);
+// pb.open('https://9anime.to/watch/the-pet-girl-of-sakurasou.rxm/ep-1','',0);
 
-pb.open('https://9anime.to/watch/the-pet-girl-of-sakurasou.rxm/ep-1','',0);
+/*
+Blacklist domain:
+rosebudemphasizelesson.com
+simplewebanalysis.com
+rosebudemphasizelesson.com
+rosebudemphasizelesson.com
+
+*/
