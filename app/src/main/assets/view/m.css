@@ -726,6 +726,37 @@ c.loader {
   transition: all .2s cubic-bezier(.25, .8, .25, 1);
 }
 
+@keyframes trackbuffer_keyframe {
+  0% {
+    left: 0;
+    right: 88vw;
+  }
+
+  40% {
+    left: 15vw;
+  }
+
+  60% {
+    right: 15vw;
+  }
+
+  100% {
+    left: 88vw;
+    right: 0;
+  }
+}
+
+#pb_track.buffering:after {
+  content: ' ';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background-color: var(--primary-1);
+  display: block;
+  animation: trackbuffer_keyframe 2s ease-in-out infinite alternate;
+  border-radius: .5vw;
+}
+
 #pb_track_val {
   position: relative;
   border-radius: .5vw;

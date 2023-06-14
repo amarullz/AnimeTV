@@ -245,7 +245,6 @@ const pb={
   pb_actions:$('pb_actions'),
   pb_meta:$('pb_meta'),
   pb_genres:$('pb_genres'),
-  pb_tracks:$('pb_tracks'),
   pb_episodes:$('pb_episodes'),
   pb_seasons:$('pb_seasons'),
   pb_related:$('pb_related'),
@@ -255,6 +254,8 @@ const pb={
 
   pb_vid:$('pb_vid'),
 
+  pb_tracks:$('pb_tracks'),
+  pb_track:$('pb_track'),
   pb_track_val:$('pb_track_val'),
   pb_track_pos:$('pb_track_pos'),
   pb_track_dur:$('pb_track_dur'),
@@ -319,6 +320,7 @@ const pb={
     else if (c=='ready'){
       pb.state=2;
       pb.pb_track_ctl.className='';
+      pb.pb_track.className='';
     }
     else if (c=='play'){
       pb.vid_stat.play=true;
@@ -602,6 +604,10 @@ const pb={
       if (c==KLEFT||c==KRIGHT||c==KUP||c==KDOWN||c==KENTER){
         pb.menu_show(c==KUP?1:2);
       }
+      else if (c==KBACK){
+        pb.reset(1,0);
+        _JSAPI.appQuit();
+      }
     }
   },
 
@@ -808,16 +814,16 @@ const pb={
     };
 
     _API.setVizCb(function(d){
-      try{
-        if (d.data.media.sources){
-          var urivid=d.data.media.sources[0].file;
-          console.log("ATVLOG Got VizCB = "+urivid);
-          pb.pb_vid.innerHTML='';
-          pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
-          _API.setMessage(null);
-          pb.init_video_mp4upload(urivid);
-        }
-      }catch(e){}
+      // try{
+      //   if (d.data.media.sources){
+      //     var urivid=d.data.media.sources[0].file;
+      //     console.log("ATVLOG Got VizCB = "+urivid);
+      //     pb.pb_vid.innerHTML='';
+      //     pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
+      //     _API.setMessage(null);
+      //     pb.init_video_mp4upload(urivid);
+      //   }
+      // }catch(e){}
     });
 
     pb.pb_vid.innerHTML='';
@@ -964,6 +970,7 @@ const pb={
 
     pb.pb_track_ctl.innerHTML='change_circle';
     pb.pb_track_ctl.className='loader';
+    pb.pb_track.className='buffering';
     pb.pb_track_pos.innerHTML='STREAMING VIDEO';
     pb.pb_track_dur.innerHTML='';
     pb.pb_track_title.innerHTML=special(pb.ep_title);
@@ -1038,6 +1045,7 @@ const pb={
           uid=-1;
           open_stat=3;
           pb.reset(1,0);
+          _JSAPI.appQuit();
         }
       });
     }
@@ -1046,10 +1054,10 @@ const pb={
 };
 
 // pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
-pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
+// pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
 // pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',0);
 //pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,0);
-// pb.open('https://9anime.to/watch/gamers.47rx','',0);
+pb.open('https://9anime.to/watch/gamers.47rx','',0);
 // pb.open('https://9anime.to/watch/the-pet-girl-of-sakurasou.rxm/ep-1','',0);
 
 /*
