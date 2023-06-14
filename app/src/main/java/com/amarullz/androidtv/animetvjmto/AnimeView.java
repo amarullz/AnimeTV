@@ -142,7 +142,7 @@ public class AnimeView extends WebViewClient {
             host.contains("simplewebanalysis.com")||
       host.contains("addthis.com")||
       host.contains("amung.us")){
-      Log.d("ATVLOG","chromium BLOCK DOMAIN = "+url);
+      /* BLOCK DNS */
       return aApi.badRequest;
     }
     return super.shouldInterceptRequest(view, request);

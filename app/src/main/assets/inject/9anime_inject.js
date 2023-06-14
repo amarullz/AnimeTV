@@ -16,6 +16,7 @@ function ___PLAYER(player){
 
     var fetchTo=null;
     var episode_el=[];
+    var server_state = 0;
     var data={
         status:true,
         title:'-',
@@ -199,6 +200,11 @@ function ___PLAYER(player){
         }
         // dbg.value=JSON.stringify(data,null,4);
         _JSAPI.result(JSON.stringify(data));
+
+        /* Fix next server pickup */
+        if (server_state==1)
+            data.mp4=false;
+        server_state = 0;
     }
     function startFetchTimeout(ms){
         clearTimeout(fetchTo);
@@ -209,6 +215,7 @@ function ___PLAYER(player){
         if (svr){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
+                server_state=1;
                 server[0].click();
                 startFetchTimeout(4000);
                 return;
@@ -216,29 +223,47 @@ function ___PLAYER(player){
         }
         setTimeout(clickServer,5);
     }
+    function clickServerMp4(){
+        var svr=$('w-servers');
+        if (svr){
+            var server=svr.getElementsByTagName('li');
+            if (server.length>0){
+                var mp4upload=server[0].parentNode.lastElementChild;
+                if (mp4upload.textContent.toLowerCase()=='mp4upload'){
+                    server_state=2;
+                    mp4upload.click();
+                    data.mp4=true;
+                }
+            }
+        }
+        startFetchTimeout(4000);
+    }
     window.addEventListener('message',function(e) {
         try{
             var j=JSON.parse(e.data);
+            data.skip=j.val.value;
             if (j.cmd=='HOOK_READY'){
                 var svr=$('w-servers');
-                if (!data.mp4&&svr){
-                    var server=svr.getElementsByTagName('li');
-                    if (server.length>0){
-                        var mp4upload=server[0].parentNode.lastElementChild;
-                        if (mp4upload.textContent.toLowerCase()=='mp4upload'){
-                            data.stream_vurl=player.firstElementChild.src;
-                            console.log("ATVLOG --> Click Server MP4UPLOAD");
-                            mp4upload.click();
-                            data.mp4=true;
-                            startFetchTimeout(4000);
-                            return;
-                        }
+                if (!data.mp4||server_state==1){
+                    data.stream_vurl=player.firstElementChild.src;
+                    console.log("ATVLOG-VIDURL --> VIZCLOUD-URL = "+data.stream_vurl);
+                    if (!data.mp4){
+                        clickServerMp4();
+                    }
+                    else{
+                        startFetchTimeout(1);
                     }
                 }
-                console.log("ATVLOG --> Hook Ready = "+e.data);
-                data.skip=j.val.value;
-                data.stream_url=player.firstElementChild.src;
-                startFetchTimeout(1);
+                else{
+                    data.stream_url=player.firstElementChild.src;
+                    console.log("ATVLOG-VIDURL --> MP4UPLOAD-URL = "+data.stream_url);
+                    if (server_state==0){
+                        clickServer();
+                    }
+                    else{
+                        startFetchTimeout(1);
+                    }
+                }
             }
         }catch(e){}
     });
