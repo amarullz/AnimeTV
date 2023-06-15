@@ -391,7 +391,8 @@ const pb={
     if (close){
       pb.pb_loading.classList.remove('active');
       pb.pb.classList.remove('active');
-      pb.clearCb();
+      _API.clearCb();
+      _API.setKey(home.keycb);
     }
     else{
       pb.pb_loading.classList.add('active');
@@ -641,6 +642,9 @@ const pb={
     }
     if (n){
       pb.menu_select(g,n);
+      if (g.__selectcb){
+        g.__selectcb(g,n);
+      }
       return true;
     }
     return false;
@@ -1233,7 +1237,7 @@ const pb={
 // pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
 // pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',0);
 //pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,0);
-pb.open('https://9anime.to/watch/gamers.47rx/ep-4','',0);
+// pb.open('https://9anime.to/watch/gamers.47rx/ep-4','',0);
 // pb.open('https://9anime.to/watch/the-pet-girl-of-sakurasou.rxm/ep-1','',0);
 
 /*
@@ -1244,3 +1248,97 @@ rosebudemphasizelesson.com
 rosebudemphasizelesson.com
 
 */
+
+const home={
+  home_recent:$('home_recent'),
+  home_top:$('home_top'),
+
+  recent_data:[],
+  recent_parse:function(v){
+    var hd=$n('d','','',null,v.result);
+    var it=hd.querySelectorAll('div.item');
+    home.recent_data=[];
+    for (var i=0;i<it.length;i++){
+      var t=it[i];
+      try{
+        var d={};
+        var at=t.querySelector('a.d-title');
+        d.url=at.href;
+        d.poster=t.querySelector('img').src;
+        d.title=at.textContent.trim();
+        d.type=t.querySelector('div.right').textContent;
+        d.ep=t.querySelector('span.ep-status').textContent.trim();
+        d.tip=t.firstElementChild.getAttribute('data-tip');
+        home.recent_data.push(d);
+      }catch(e){
+        console.log(e);
+      }
+    }
+    hd.innerHTML='';
+    if (home.recent_data&&home.recent_data.length){
+      var act=null;
+      for (var i=0;i<home.recent_data.length;i++){
+        var d=home.recent_data[i];
+        var hl=$n('div',d.active?'playing':'',{action:d.url},home.home_recent,'');
+        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._title=$n('b','',null,hl,special(d.title));
+        if (!act) act=hl;
+      }
+      if (!home.home_recent._sel)
+        pb.menu_select(home.home_recent,act);
+    }
+  },
+  load_recent:function(){
+    home.home_recent._onload=1;
+    var load_page=home.home_recent._page;
+    $a('/ajax/home/widget/updated-sub?page='+load_page,function(r){
+      if (r.ok){
+        home.recent_parse(JSON.parse(r.responseText));
+        home.home_recent._onload=0;
+      }
+      else
+        setTimeout(home.load_recent,2000);
+    });
+  },
+  
+  init:function(){
+    home.home_recent._page=1;
+    home.home_recent.innerHTML='';
+    home.load_recent();
+
+    home.home_recent._keycb=pb.menu_keycb;
+    home.home_recent.__selectcb=function(g,c){
+      if (!c) return;
+      if (home.home_recent._onload!=0) return;
+      if (home.home_recent._page>50) return;
+      var n=0;
+      while(c){
+        c=c.nextElementSibling;
+        if (++n>4) return;
+      }
+      home.home_recent._page++;
+      console.log("Loading Next Page #"+home.home_recent._page);
+      home.load_recent();
+    };
+    _API.setKey(home.keycb);
+
+
+    home.home_recent.classList.add('active');
+  },
+
+  /* Root Key Callback */
+  keycb:function(c){
+      if (c==KBACK){
+        _JSAPI.appQuit();
+      }
+      else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
+          home.home_recent._keycb(home.home_recent,c);
+      }
+      else if (c==KUP){
+      }
+      else if (c==KDOWN){
+      }
+  },
+};
+
+home.init();
