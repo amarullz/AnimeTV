@@ -51,6 +51,7 @@ public class AnimeView extends WebViewClient {
     webSettings.setSupportMultipleWindows(false);
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);
+    webSettings.setDomStorageEnabled(true);
     webView.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     webView.setWebViewClient(this);
 
@@ -223,6 +224,7 @@ public class AnimeView extends WebViewClient {
   @Override
   public void onPageFinished(WebView view, String url) {
     webView.setVisibility(View.VISIBLE);
+    activity.runOnUiThread(() ->webView.requestFocus());
     webViewReady=true;
   }
 
