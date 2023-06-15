@@ -1276,16 +1276,14 @@ const home={
     }
     hd.innerHTML='';
     if (home.recent_data&&home.recent_data.length){
-      var act=null;
       for (var i=0;i<home.recent_data.length;i++){
         var d=home.recent_data[i];
-        var hl=$n('div',d.active?'playing':'',{action:d.url},home.home_recent,'');
+        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},home.home_recent,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
-        if (!act) act=hl;
       }
       if (!home.home_recent._sel)
-        pb.menu_select(home.home_recent,act);
+        pb.menu_select(home.home_recent,home.home_recent.firstElementChild);
     }
   },
   load_recent:function(){
