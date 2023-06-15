@@ -158,6 +158,14 @@ const _API={
   viewid:0,
   genres:{"action":"1","adventure":"2","avant_garde":"2262888","boys_love":"2262603","comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9","girls_love":"2263743","gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552","josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18","mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25","reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31","shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38","supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"},
   
+  clearCb:function(){
+    _API.keycb=null;
+    _API.messagecb=null;
+    _API.mp4cb=null;
+    _API.viewcb=null;
+    _API.m3u8cb=null;
+  },
+
   /* set vizcloud m3u8 callback */
   setVizCb:function(f){
     _API.m3u8cb=f;
@@ -383,6 +391,7 @@ const pb={
     if (close){
       pb.pb_loading.classList.remove('active');
       pb.pb.classList.remove('active');
+      pb.clearCb();
     }
     else{
       pb.pb_loading.classList.add('active');
@@ -768,7 +777,7 @@ const pb={
       }
       else if (c==KBACK){
         pb.reset(1,0);
-        _JSAPI.appQuit();
+        //_JSAPI.appQuit();
       }
     }
   },
@@ -860,13 +869,13 @@ const pb={
   init_settings:function(){
     pb.cfg_load();
     pb.pb_settings.innerHTML='';
-    $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
-    $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
+    // $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
+    // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
     $n('div','',{action:'-fav'},pb.pb_settings,'<c>bookmark_border</c> ADD TO WATCHLIST');
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings,'<c>clear</c> AUTO SKIP INTRO');
     pb.pb_settings._s_skipfiller=$n('div','',{action:'*skipfiller'},pb.pb_settings,'<c>clear</c> SKIP FILLER');
-    pb.menu_select(pb.pb_settings,pb.pb_settings.firstElementChild.nextElementSibling);
+    pb.menu_select(pb.pb_settings,pb.pb_settings.firstElementChild);
     pb.pb_settings._midx=2;
     pb.cfg_update_el();
   },
@@ -1212,7 +1221,7 @@ const pb={
           uid=-1;
           open_stat=3;
           pb.reset(1,0);
-          _JSAPI.appQuit();
+          // _JSAPI.appQuit();
         }
       });
     }
