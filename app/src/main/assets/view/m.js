@@ -641,10 +641,10 @@ const pb={
       }
     }
     if (n){
-      pb.menu_select(g,n);
       if (g.__selectcb){
         g.__selectcb(g,n);
       }
+      pb.menu_select(g,n);
       return true;
     }
     return false;
@@ -1281,13 +1281,17 @@ const home={
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
       }
-      if (!home.home_recent._sel)
-        pb.menu_select(home.home_recent,home.home_recent.firstElementChild);
       
       while (home.home_recent.childElementCount>30){
         home.home_recent._spre.push(home.home_recent.firstElementChild.nextElementSibling);
         home.home_recent.removeChild(home.home_recent.firstElementChild.nextElementSibling);
       }
+      home.home_recent.__update_pre();
+
+      if (!home.home_recent._sel)
+        pb.menu_select(home.home_recent,home.home_recent.firstElementChild);
+      else
+        pb.menu_select(home.home_recent,home.home_recent._sel);
     }
   },
   load_recent:function(){
@@ -1311,6 +1315,9 @@ const home={
     home.home_recent._keycb=pb.menu_keycb;
     home.home_recent._spre=[];
     home.home_recent._spost=[];
+    home.home_recent.__update_pre=function(){
+      home.home_recent.firstElementChild.style.marginRight=(12*home.home_recent._spre.length)+"vw";
+    };
     home.home_recent.__selectcb=function(g,c){
       if (!c) return;
       var k=c;
@@ -1324,6 +1331,8 @@ const home={
           home.home_recent.insertBefore(home.home_recent._spre.pop(), home.home_recent.firstElementChild.nextElementSibling);
           home.home_recent._spost.push(home.home_recent.lastElementChild);
           home.home_recent.removeChild(home.home_recent.lastElementChild);
+          home.home_recent.__update_pre();
+          pb.menu_select(home.home_recent,home.home_recent._sel);
         }
         return;
       }
@@ -1337,6 +1346,8 @@ const home={
         home.home_recent.appendChild(home.home_recent._spost.pop());
         home.home_recent._spre.push(home.home_recent.firstElementChild.nextElementSibling);
         home.home_recent.removeChild(home.home_recent.firstElementChild.nextElementSibling);
+        home.home_recent.__update_pre();
+        pb.menu_select(home.home_recent,home.home_recent._sel);
         return;
       }
       if (home.home_recent._page>60) return;

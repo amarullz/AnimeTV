@@ -354,9 +354,9 @@ c.loader {
   background-color: rgba(255, 255, 255, .1);
   padding: .2vw .8vw .2vw .8vw;
   border-radius: .2vw;
-  margin-right: .05vw;
+  margin-right: 0;
   margin-bottom: .2vw;
-  transition: all .2s cubic-bezier(.25, .8, .25, 1), margin-left .1s cubic-bezier(.25, .8, .25, 1);
+  transition: all .2s cubic-bezier(.25, .8, .25, 1), margin-left .1s cubic-bezier(.25, .8, .25, 1), margin-right 0s !important;
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
   transform: scale(.9);
 }
