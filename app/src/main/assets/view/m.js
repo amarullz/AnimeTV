@@ -546,7 +546,8 @@ const pb={
           var n = g._target_n;
           n.classList.add('active');
           var iw=window.innerWidth/g._midx;
-          var ol=n.offsetLeft+(n.offsetWidth/2);
+          var ow=(g._itemwidth)?g._itemwidth():n.offsetWidth;
+          var ol=n.offsetLeft+(ow/2);
           var xpos = ol-parseInt(getComputedStyle(g.firstElementChild).marginLeft); //g._margin;
           if (xpos>iw){
             g._margin= xpos-iw; 
@@ -1412,6 +1413,8 @@ const home={
       for (var i=0;i<td.length;i++){
         var d=td[i];
         var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},home.home_top,'');
+        var ps=d.poster.split('-w100');
+        d.poster=ps[0];
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
       }
@@ -1447,6 +1450,9 @@ const home={
       home.home_recent,
       home.home_top
     ];
+    home.home_slide._itemwidth=function(){
+      return (window.innerWidth * 0.17);
+    };
     home.home_slide._keycb=pb.menu_keycb;
     home.home_top._keycb=pb.menu_keycb;
     home.menus[home.menu_sel].classList.add('active');

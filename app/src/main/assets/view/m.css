@@ -34,7 +34,7 @@ html {
   font-family: robotoc, arial, tahoma, sans-serif;
   font-size: 10px;
   font-weight: normal;
-  background-color: #102;
+  background-color: var(--primary-1);
   color: #fff;
   scroll-behavior: smooth;
   overflow: hidden;
@@ -921,7 +921,6 @@ c.loader {
   margin: 0;
   overflow: hidden;
   word-break: normal;
-  width: 12vw;
   padding: .4vw .2vw .4vw .2vw;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, .65) 100%);
   text-align: center;
@@ -937,5 +936,6 @@ c.loader {
 
 #home_slide.home_list div,
 #home_slide.home_list div img{
-  width: 32vw !important;
+  width: 30vw !important;
+  object-fit: cover;
 }
