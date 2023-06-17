@@ -934,3 +934,8 @@ c.loader {
   background-color: #fff !important;
   outline: .25vw solid #fff !important;
 }
+
+#home_slide.home_list div,
+#home_slide.home_list div img{
+  width: 32vw !important;
+}

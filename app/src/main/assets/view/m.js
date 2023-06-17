@@ -1250,12 +1250,14 @@ rosebudemphasizelesson.com
 */
 
 const home={
+  home_onload:false,
+  home_slide:$('home_slide'),
   home_recent:$('home_recent'),
   home_top:$('home_top'),
 
   recent_parse:function(v){
     var g=home.home_recent;
-    var hd=$n('d','','',null,v.result);
+    var hd=$n('d','','',null,v);
     var it=hd.querySelectorAll('div.item');
     var rd=[];
     for (var i=0;i<it.length;i++){
@@ -1299,7 +1301,10 @@ const home={
     var load_page=home.home_recent._page;
     $a('/ajax/home/widget/updated-sub?page='+load_page,function(r){
       if (r.ok){
-        home.recent_parse(JSON.parse(r.responseText));
+        try{
+          var v=JSON.parse(r.responseText);
+          home.recent_parse(v.result);
+        }catch(e){}
         home.home_recent._onload=0;
       }
       else
@@ -1354,25 +1359,122 @@ const home={
     };
     home.recent_load();
   },
+
+  home_parser:function(v){
+    var h=$n('div','','',null,v);
+    hd=[];
+    td=[];
+    window.h=h;
+    try{
+      /* hottest */
+      var hots=h.querySelector('div#hotest').querySelectorAll('div.swiper-slide.item');
+      for (var i=0;i<hots.length;i++){
+        var t=hots[i];
+        var d={};
+        var tt=t.querySelector('h2.d-title');
+        d.title=tt.textContent.trim();
+        d.title_jp=tt.getAttribute('data-jp');
+        d.rating=t.querySelector('i.rating').textContent;
+        d.quality=t.querySelector('i.quality').textContent;
+        d.synopsis=t.querySelector('div.synopsis').textContent;
+        d.url=t.querySelector('a').href;
+        d.poster=t.querySelector('div.image div').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+        hd.push(d);
+      }
+    }catch(e){}
+
+    try{
+      var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
+      for (var i=0;i<tops.length;i++){
+        var t=tops[i];
+        var d={};
+        var tt=t.querySelector('div.d-title');
+        d.title=tt.textContent.trim();
+        d.title_jp=tt.getAttribute('data-jp');
+        d.url=t.href;
+        d.tip=t.querySelector('div.poster').getAttribute('data-tip');
+        d.poster=t.querySelector('img').src;
+        td.push(d);
+      }
+    }catch(e){}
+
+    if (hd.length>0){
+      for (var i=0;i<hd.length;i++){
+        var d=hd[i];
+        var hl=$n('div','',{action:d.url,arg:';0'},home.home_slide,'');
+        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._title=$n('b','',null,hl,special(d.title));
+      }
+      pb.menu_select(home.home_slide,home.home_slide.firstElementChild);
+    }
+
+    if (td.length>0){
+      for (var i=0;i<td.length;i++){
+        var d=td[i];
+        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},home.home_top,'');
+        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._title=$n('b','',null,hl,special(d.title));
+      }
+      pb.menu_select(home.home_top,home.home_top.firstElementChild);
+    }
+  },
+
+  home_load:function(){
+    home.home_onload=1;
+    $a('/home',function(r){
+      if (r.ok){
+        try{
+          home.home_parser(r.responseText);
+        }catch(e){}
+        home.home_onload=0;
+      }
+      else
+        setTimeout(home.home_load,2000);
+    });
+  },
   
+  menus:[],
+  menu_sel:0,
   init:function(){
     home.recent_init();
+
+    home.home_load();
+
     _API.setKey(home.keycb);
 
-    home.home_recent.classList.add('active');
+    home.menus=[
+      home.home_slide,
+      home.home_recent,
+      home.home_top
+    ];
+    home.home_slide._keycb=pb.menu_keycb;
+    home.home_top._keycb=pb.menu_keycb;
+    home.menus[home.menu_sel].classList.add('active');
+
+    // home.home_recent.classList.add('active');
   },
 
   /* Root Key Callback */
   keycb:function(c){
+      var pc=home.menu_sel;
       if (c==KBACK){
         _JSAPI.appQuit();
       }
       else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
-          home.home_recent._keycb(home.home_recent,c);
+        home.menus[home.menu_sel]._keycb(home.menus[home.menu_sel],c);
       }
       else if (c==KUP){
+        if (--pc<0) pc=0;
       }
       else if (c==KDOWN){
+        if (++pc>2) pc=2;
+      }
+
+      if (home.menu_sel!=pc){
+        home.menus[home.menu_sel].classList.remove('active');
+        home.menu_sel=pc;
+        home.menus[home.menu_sel].classList.add('active');
+        home.home_slide.style.marginTop=(0-(17*home.menu_sel))+"vw";
       }
   },
 };
