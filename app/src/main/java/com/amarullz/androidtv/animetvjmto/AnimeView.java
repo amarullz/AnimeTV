@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 public class AnimeView extends WebViewClient {
@@ -33,7 +32,7 @@ public class AnimeView extends WebViewClient {
   public String playerInjectString;
   public boolean webViewReady=false;
 
-  public static boolean USE_WEB_VIEW_ASSETS=true;
+  public static boolean USE_WEB_VIEW_ASSETS=false;
 
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {

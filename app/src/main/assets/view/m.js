@@ -1254,6 +1254,7 @@ const home={
   home_top:$('home_top'),
 
   recent_parse:function(v){
+    var g=home.home_recent;
     var hd=$n('d','','',null,v.result);
     var it=hd.querySelectorAll('div.item');
     var rd=[];
@@ -1277,24 +1278,23 @@ const home={
     if (rd&&rd.length){
       for (var i=0;i<rd.length;i++){
         var d=rd[i];
-        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},home.home_recent,'');
+        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
       }
-      
-      while (home.home_recent.childElementCount>30){
-        home.home_recent._spre.push(home.home_recent.firstElementChild.nextElementSibling);
-        home.home_recent.removeChild(home.home_recent.firstElementChild.nextElementSibling);
+      while (g.childElementCount>30){
+        g._spre.push(g.firstElementChild.nextElementSibling);
+        g.removeChild(g.firstElementChild.nextElementSibling);
       }
-      home.home_recent.__update_pre();
+      g.__update_pre();
 
-      if (!home.home_recent._sel)
-        pb.menu_select(home.home_recent,home.home_recent.firstElementChild);
+      if (!g._sel)
+        pb.menu_select(g,g.firstElementChild);
       else
-        pb.menu_select(home.home_recent,home.home_recent._sel);
+        pb.menu_select(g,g._sel);
     }
   },
-  load_recent:function(){
+  recent_load:function(){
     home.home_recent._onload=1;
     var load_page=home.home_recent._page;
     $a('/ajax/home/widget/updated-sub?page='+load_page,function(r){
@@ -1303,22 +1303,20 @@ const home={
         home.home_recent._onload=0;
       }
       else
-        setTimeout(home.load_recent,2000);
+        setTimeout(home.recent_load,2000);
     });
   },
-  
-  init:function(){
-    home.home_recent._page=1;
-    home.home_recent.innerHTML='';
-    home.load_recent();
-
-    home.home_recent._keycb=pb.menu_keycb;
-    home.home_recent._spre=[];
-    home.home_recent._spost=[];
-    home.home_recent.__update_pre=function(){
-      home.home_recent.firstElementChild.style.marginRight=(12*home.home_recent._spre.length)+"vw";
+  recent_init:function(){
+    var rc=home.home_recent;
+    rc._page=1;
+    rc.innerHTML='';
+    rc._keycb=pb.menu_keycb;
+    rc._spre=[];
+    rc._spost=[];
+    rc.__update_pre=function(){
+      rc.firstElementChild.style.marginRight=(12*rc._spre.length)+"vw";
     };
-    home.home_recent.__selectcb=function(g,c){
+    rc.__selectcb=function(g,c){
       if (!c) return;
       var k=c;
       var n=0;
@@ -1327,36 +1325,39 @@ const home={
         if (++n>7) break;
       }
       if (n<=6){
-        if (home.home_recent._spre.length>0){
-          home.home_recent.insertBefore(home.home_recent._spre.pop(), home.home_recent.firstElementChild.nextElementSibling);
-          home.home_recent._spost.push(home.home_recent.lastElementChild);
-          home.home_recent.removeChild(home.home_recent.lastElementChild);
-          home.home_recent.__update_pre();
-          pb.menu_select(home.home_recent,home.home_recent._sel);
+        if (g._spre.length>0){
+          g.insertBefore(g._spre.pop(), g.firstElementChild.nextElementSibling);
+          g._spost.push(g.lastElementChild);
+          g.removeChild(g.lastElementChild);
+          g.__update_pre();
+          pb.menu_select(g,g._sel);
         }
         return;
       }
-      if (home.home_recent._onload!=0) return;
+      if (g._onload!=0) return;
       n=0;
       while(c){
         c=c.nextElementSibling;
         if (++n>4) return;
       }
-      if (home.home_recent._spost.length>0){
-        home.home_recent.appendChild(home.home_recent._spost.pop());
-        home.home_recent._spre.push(home.home_recent.firstElementChild.nextElementSibling);
-        home.home_recent.removeChild(home.home_recent.firstElementChild.nextElementSibling);
-        home.home_recent.__update_pre();
-        pb.menu_select(home.home_recent,home.home_recent._sel);
+      if (g._spost.length>0){
+        g.appendChild(g._spost.pop());
+        g._spre.push(g.firstElementChild.nextElementSibling);
+        g.removeChild(g.firstElementChild.nextElementSibling);
+        g.__update_pre();
+        pb.menu_select(g,g._sel);
         return;
       }
-      if (home.home_recent._page>60) return;
-      home.home_recent._page++;
-      console.log("Loading Next Page #"+home.home_recent._page);
-      home.load_recent();
+      if (g._page>60) return;
+      g._page++;
+      home.recent_load();
     };
+    home.recent_load();
+  },
+  
+  init:function(){
+    home.recent_init();
     _API.setKey(home.keycb);
-
 
     home.home_recent.classList.add('active');
   },
