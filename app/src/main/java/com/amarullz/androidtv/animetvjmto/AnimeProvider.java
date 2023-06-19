@@ -1,6 +1,9 @@
 package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -60,17 +63,30 @@ public class AnimeProvider {
     private final CronetEngine cronet;
     private long CHANNEL_ID=0;
 
+    private boolean IS_NEW_CHANNEL=false;
+
     public HttpURLConnection initQuic(String url, String method) throws IOException {
         return AnimeApi.initCronetQuic(cronet,url,method);
     }
 
-    public AnimeProvider(Context c){
-        ctx=c;
-        cronet = AnimeApi.buildCronet(c);
+    public static void executeJob(Context c){
+        new AnimeProvider(c).startLoadRecent();
+        scheduleJob(c);
+    }
 
+    public static void scheduleJob(Context context) {
+        Log.d(_TAG,"SCHEDULING JOB");
+        ComponentName serviceComponent = new ComponentName(context, ChannelService.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setMinimumLatency(3600 * 1000); // Wait at least 30s
+        builder.setOverrideDeadline(3800 * 1000); // Maximum delay 60s
+        JobScheduler jobScheduler = (JobScheduler)context.getSystemService(context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.schedule(builder.build());
+    }
+
+    public void startLoadRecent(){
+        if (CHANNEL_ID<1) return;
         try {
-            CHANNEL_ID = initChannel();
-
             loadRecent(result -> {
                 try {
                     JSONArray ja = new JSONArray(result);
@@ -98,7 +114,16 @@ public class AnimeProvider {
                 }
                 Log.d(_TAG, "RES = " + result);
             });
+        }catch (Exception ignored){}
+    }
+
+    public AnimeProvider(Context c){
+        ctx=c;
+        cronet = AnimeApi.buildCronet(c);
+        try {
+            CHANNEL_ID = initChannel();
         }catch (Exception ex){
+            CHANNEL_ID=-1;
             Log.d(_TAG, ex.toString());
         }
     }
@@ -214,6 +239,7 @@ public class AnimeProvider {
         Log.d(_TAG, "channel id " + channelId);
         Bitmap bitmap = convertToBitmap(ctx, R.drawable.splash);
         ChannelLogoUtils.storeChannelLogo(ctx, channelId, bitmap);
+        IS_NEW_CHANNEL=true;
         return channelId;
     }
 

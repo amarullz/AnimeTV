@@ -69,7 +69,8 @@ public class AnimeView extends WebViewClient {
     playerInjectString=aApi.assetsString("inject/view_player.html");
     webView.loadUrl("https://9anime.to/__view/main.html");
 
-    AnimeProvider avp=new AnimeProvider(activity);
+    // Init Channel Provider
+    AnimeProvider.executeJob(activity);
   }
 
   @Override
