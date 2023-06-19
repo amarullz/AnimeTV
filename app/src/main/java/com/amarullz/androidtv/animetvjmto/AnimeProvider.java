@@ -48,11 +48,11 @@ public class AnimeProvider {
             TvContract.Programs.COLUMN_TITLE
     };
 
-    private static final String[] PLAYNEXT_PROJECTION = {
-            TvContractCompat.WatchNextPrograms._ID,
-            TvContract.WatchNextPrograms.COLUMN_INTENT_URI,
-            TvContract.WatchNextPrograms.COLUMN_TITLE
-    };
+//    private static final String[] PLAYNEXT_PROJECTION = {
+//            TvContractCompat.WatchNextPrograms._ID,
+//            TvContract.WatchNextPrograms.COLUMN_INTENT_URI,
+//            TvContract.WatchNextPrograms.COLUMN_TITLE
+//    };
     public interface RecentCallback {
         void onFinish(String result);
     }
@@ -71,36 +71,32 @@ public class AnimeProvider {
         try {
             CHANNEL_ID = initChannel();
 
-            loadRecent(new RecentCallback() {
-                @Override
-                public void onFinish(String result) {
-                    try {
-                        JSONArray ja = new JSONArray(result);
-                        if (ja.length() > 0) {
-                            clearPrograms();
-                            for (int i = 0; i < ja.length(); i++) {
-                                try {
-                                    JSONObject o = ja.getJSONObject(i);
-                                    String uri = o.getString("url");
-                                    String title = o.getString("title");
-                                    String poster = o.getString("poster");
-                                    String tip = o.getString("tip");
-                                    String ep = o.getString("ep");
-                                    String tp = o.getString("type");
-                                    String desc = tp;
-                                    if (!ep.equals("")) {
-                                        desc += " Episode " + ep;
-                                    }
-                                    desc = desc.trim();
-                                    addProgram(title, desc, poster, uri, tip);
-                                } catch (Exception ignored) {
+            loadRecent(result -> {
+                try {
+                    JSONArray ja = new JSONArray(result);
+                    if (ja.length() > 0) {
+                        clearPrograms();
+                        for (int i = 0; i < ja.length(); i++) {
+                            try {
+                                JSONObject o = ja.getJSONObject(i);
+                                String uri = o.getString("url");
+                                String title = o.getString("title");
+                                String poster = o.getString("poster");
+                                String tip = o.getString("tip");
+                                String ep = o.getString("ep");
+                                String desc = o.getString("type");
+                                if (!ep.equals("")) {
+                                    desc += " Episode " + ep;
                                 }
+                                desc = desc.trim();
+                                addProgram(title, desc, poster, uri, tip);
+                            } catch (Exception ignored) {
                             }
                         }
-                    } catch (JSONException ignored) {
                     }
-                    Log.d(_TAG, "RES = " + result);
+                } catch (JSONException ignored) {
                 }
+                Log.d(_TAG, "RES = " + result);
             });
         }catch (Exception ex){
             Log.d(_TAG, ex.toString());
@@ -129,19 +125,26 @@ public class AnimeProvider {
                     try {
                         Element el = els.get(i);
                         Element tt = el.firstElementChild();
-                        Element link = el.lastElementChild().firstElementChild();
-                        Element img = tt.getElementsByTag("img").get(0);
-                        Elements sb = tt.getElementsByClass("sub");
-                        Elements rg = tt.getElementsByClass("right");
-                        JSONObject d = new JSONObject("{}");
-                        d.put("url", link.attr("href"));
-                        d.put("title", link.text().trim());
-                        d.put("poster", img.attr("src"));
-                        d.put("ep", (sb.size() > 0)?sb.get(0).text().trim():"");
-                        d.put("type", (rg.size() > 0)?rg.get(0).text().trim():"");
-                        d.put("tip", tt.attr("data-tip"));
-                        r.put(d);
-                    }catch(Exception ignored){}
+                        Element info=el.lastElementChild();
+
+                        if (tt!=null&&info!=null) {
+                            Element link = info.firstElementChild();
+                            if (link!=null) {
+                                Element img = tt.getElementsByTag("img").get(0);
+                                Elements sb = tt.getElementsByClass("sub");
+                                Elements rg = tt.getElementsByClass("right");
+                                JSONObject d = new JSONObject("{}");
+                                d.put("url", link.attr("href"));
+                                d.put("title", link.text().trim());
+                                d.put("poster", img.attr("src"));
+                                d.put("ep", (sb.size() > 0) ? sb.get(0).text().trim() : "");
+                                d.put("type", (rg.size() > 0) ? rg.get(0).text().trim() : "");
+                                d.put("tip", tt.attr("data-tip"));
+                                r.put(d);
+                            }
+                        }
+                    }
+                    catch(Exception ignored){}
                 }
                 if (r.length()>0) {
                     cb.onFinish(r.toString());
@@ -182,11 +185,9 @@ public class AnimeProvider {
                                 null,
                                 null);
         if (cursor != null && cursor.moveToFirst()) {
-            do {
-                Channel channel = Channel.fromCursor(cursor);
-                Log.d(_TAG,"Existing channel = "+channel.getDisplayName());
-                return channel.getId();
-            } while (cursor.moveToNext());
+            Channel channel = Channel.fromCursor(cursor);
+            Log.d(_TAG,"Existing channel = "+channel.getDisplayName());
+            return channel.getId();
         }
         Intent myIntent = new Intent(ctx, MainActivity.class);
         myIntent.setPackage(ctx.getPackageName());
@@ -233,7 +234,7 @@ public class AnimeProvider {
     }
 
     @SuppressLint("RestrictedApi")
-    private Uri addProgram(String title, String desc, String image, String uri, String tip) {
+    private void addProgram(String title, String desc, String image, String uri, String tip) {
         PreviewProgram.Builder builder = new PreviewProgram.Builder();
         Intent myIntent = new Intent(ctx, MainActivity.class);
         myIntent.setPackage(ctx.getPackageName());
@@ -247,9 +248,8 @@ public class AnimeProvider {
                 .setPosterArtUri(Uri.parse(image))
                 .setIntentUri(intentUri);
         PreviewProgram previewProgram = builder.build();
-        Uri programUri = ctx.getContentResolver().insert(
+        ctx.getContentResolver().insert(
                                 TvContractCompat.PreviewPrograms.CONTENT_URI,
                                 previewProgram.toContentValues());
-        return programUri;
     }
 }
