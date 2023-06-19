@@ -441,8 +441,13 @@ const pb={
       pb.pb_track_ctl.innerHTML='play_circle';
       pb.pb_track_ctl.className='';
       if (pb.startpos_val>0){
-        pb.vid_cmd('seek',pb.startpos_val);
+        var SKIP_POS=pb.startpos_val;
         pb.startpos_val=0;
+        for (var i=0;i<5;i++){
+          setTimeout(function(){
+            pb.vid_cmd('seek',SKIP_POS);
+          },100*i);
+        }
       }
     }
     else if (c=='play'){
@@ -1228,6 +1233,7 @@ const pb={
       pb.tip_value=ttid?ttid:'';
       pb.url_value=uri;
       pb.startpos_val=(startpos!==undefined)?(startpos?parseInt(startpos):0):0;
+      console.log("ATVLOG OPENPB => POS="+pb.startpos_val);
       if (ttid&&!noclean){
         _API.getTooltip(ttid,function(d){
           if (d){
