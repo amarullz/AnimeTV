@@ -107,6 +107,40 @@ public class AnimeProvider {
         AsyncTask.execute(() ->loadRecentExec(cb));
     }
 
+    private void parseRecent(JSONArray r, String buf) throws JSONException{
+        JSONObject jo=new JSONObject(buf);
+        if (jo.has("result")){
+            String res=jo.getString("result");
+            Document doc = Jsoup.parse(res);
+            Elements els=doc.getElementsByClass("item");
+            for (int i=0;i<els.size();i++){
+                try {
+                    Element el = els.get(i);
+                    Element tt = el.firstElementChild();
+                    Element info=el.lastElementChild();
+
+                    if (tt!=null&&info!=null) {
+                        Element link = info.firstElementChild();
+                        if (link!=null) {
+                            Element img = tt.getElementsByTag("img").get(0);
+                            Elements sb = tt.getElementsByClass("sub");
+                            Elements rg = tt.getElementsByClass("right");
+                            JSONObject d = new JSONObject("{}");
+                            d.put("url", link.attr("href"));
+                            d.put("title", link.text().trim());
+                            d.put("poster", img.attr("src"));
+                            d.put("ep", (sb.size() > 0) ? sb.get(0).text().trim() : "");
+                            d.put("type", (rg.size() > 0) ? rg.get(0).text().trim() : "");
+                            d.put("tip", tt.attr("data-tip"));
+                            r.put(d);
+                        }
+                    }
+                }
+                catch(Exception ignored){}
+            }
+        }
+    }
+
     /* Get latest updated sub */
     private void loadRecentExec(RecentCallback cb){
         try {
@@ -115,41 +149,18 @@ public class AnimeProvider {
                     "GET"
             );
             ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
-            JSONObject jo=new JSONObject(buffer.toString());
-            if (jo.has("result")){
-                JSONArray r=new JSONArray("[]");
-                String res=jo.getString("result");
-                Document doc = Jsoup.parse(res);
-                Elements els=doc.getElementsByClass("item");
-                for (int i=0;i<els.size();i++){
-                    try {
-                        Element el = els.get(i);
-                        Element tt = el.firstElementChild();
-                        Element info=el.lastElementChild();
-
-                        if (tt!=null&&info!=null) {
-                            Element link = info.firstElementChild();
-                            if (link!=null) {
-                                Element img = tt.getElementsByTag("img").get(0);
-                                Elements sb = tt.getElementsByClass("sub");
-                                Elements rg = tt.getElementsByClass("right");
-                                JSONObject d = new JSONObject("{}");
-                                d.put("url", link.attr("href"));
-                                d.put("title", link.text().trim());
-                                d.put("poster", img.attr("src"));
-                                d.put("ep", (sb.size() > 0) ? sb.get(0).text().trim() : "");
-                                d.put("type", (rg.size() > 0) ? rg.get(0).text().trim() : "");
-                                d.put("tip", tt.attr("data-tip"));
-                                r.put(d);
-                            }
-                        }
-                    }
-                    catch(Exception ignored){}
-                }
-                if (r.length()>0) {
-                    cb.onFinish(r.toString());
-                    return;
-                }
+            JSONArray r=new JSONArray("[]");
+            parseRecent(r,buffer.toString());
+            conn = initQuic(
+                    "https://9anime.to/ajax/home/widget/updated-sub?page=2",
+                    "GET"
+            );
+            buffer = AnimeApi.getBody(conn, null);
+            parseRecent(r,buffer.toString());
+            if (r.length()>0) {
+                Log.d(_TAG,"GOT RECENTS => "+r.length());
+                cb.onFinish(r.toString());
+                return;
             }
         }catch(Exception ignored){}
         cb.onFinish("");
