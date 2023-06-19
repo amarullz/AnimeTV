@@ -64,9 +64,7 @@ public class AnimeProvider {
     }
     private final Context ctx;
     private final CronetEngine cronet;
-    private long CHANNEL_ID=0;
-
-    private boolean IS_NEW_CHANNEL=false;
+    private long CHANNEL_ID;
 
     public HttpURLConnection initQuic(String url, String method) throws IOException {
         return AnimeApi.initCronetQuic(cronet,url,method);
@@ -83,7 +81,7 @@ public class AnimeProvider {
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
         builder.setMinimumLatency(3600 * 1000); // Wait at least 30s
         builder.setOverrideDeadline(3800 * 1000); // Maximum delay 60s
-        JobScheduler jobScheduler = (JobScheduler)context.getSystemService(context.JOB_SCHEDULER_SERVICE);
+        JobScheduler jobScheduler = (JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.schedule(builder.build());
     }
 
@@ -242,7 +240,6 @@ public class AnimeProvider {
         Log.d(_TAG, "channel id " + channelId);
         Bitmap bitmap = convertToBitmap(ctx, R.drawable.splash);
         ChannelLogoUtils.storeChannelLogo(ctx, channelId, bitmap);
-        IS_NEW_CHANNEL=true;
         return channelId;
     }
 
@@ -293,54 +290,59 @@ public class AnimeProvider {
                                 previewProgram.toContentValues());
     }
 
-    public static void clearPlayNext(Context c) throws Exception{
+    @SuppressLint("RestrictedApi")
+    public static void clearPlayNext(Context c) {
         /* Clear Watch Next */
-        Cursor cursor =
-                c.getContentResolver()
-                        .query(
-                                TvContractCompat.WatchNextPrograms.CONTENT_URI,
-                                PLAYNEXT_PROJECTION,
-                                null,
-                                null,
-                                null);
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                WatchNextProgram wn = WatchNextProgram.fromCursor(cursor);
-                c.getContentResolver()
-                        .delete(
-                                TvContractCompat.buildWatchNextProgramUri(wn.getId()),
-                                null,
-                                null);
-            } while (cursor.moveToNext());
-        }
+        try {
+            Cursor cursor =
+                    c.getContentResolver()
+                            .query(
+                                    TvContractCompat.WatchNextPrograms.CONTENT_URI,
+                                    PLAYNEXT_PROJECTION,
+                                    null,
+                                    null,
+                                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    WatchNextProgram wn = WatchNextProgram.fromCursor(cursor);
+                    c.getContentResolver()
+                            .delete(
+                                    TvContractCompat.buildWatchNextProgramUri(wn.getId()),
+                                    null,
+                                    null);
+                } while (cursor.moveToNext());
+            }
+        }catch (Exception ignored){}
     }
 
     @SuppressLint("RestrictedApi")
     public static void setPlayNext(
             Context c,String title, String desc,
             String poster, String uri, String tip,
-            int pos, int duration) throws Exception{
-        clearPlayNext(c);
+            int pos, int duration){
+        try {
+            clearPlayNext(c);
 
-        Intent myIntent = new Intent(c, MainActivity.class);
-        myIntent.setPackage(c.getPackageName());
-        myIntent.putExtra("viewurl", uri);
-        myIntent.putExtra("viewtip", tip);
-        myIntent.putExtra("viewpos", pos+"");
-        Uri intentUri= Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
+            Intent myIntent = new Intent(c, MainActivity.class);
+            myIntent.setPackage(c.getPackageName());
+            myIntent.putExtra("viewurl", uri);
+            myIntent.putExtra("viewtip", tip);
+            myIntent.putExtra("viewpos", pos + "");
+            Uri intentUri = Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
 
-        WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
-        builder.setType(TvContractCompat.WatchNextPrograms.TYPE_MOVIE)
-                .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
-                .setDurationMillis(duration*1000)
-                .setLastPlaybackPositionMillis(pos*1000)
-                .setLastEngagementTimeUtcMillis(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis())
-                .setTitle(title)
-                .setDescription(desc)
-                .setPosterArtUri(Uri.parse(poster))
-                .setIntentUri(intentUri);
-        Uri watchNextProgramUri = c.getContentResolver()
-                .insert(TvContractCompat.WatchNextPrograms.CONTENT_URI, builder.build().toContentValues());
-        Log.d(_TAG,"New Watch Next Update = "+watchNextProgramUri);
+            WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
+            builder.setType(TvContractCompat.WatchNextPrograms.TYPE_MOVIE)
+                    .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
+                    .setDurationMillis(duration * 1000)
+                    .setLastPlaybackPositionMillis(pos * 1000)
+                    .setLastEngagementTimeUtcMillis(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis())
+                    .setTitle(title)
+                    .setDescription(desc)
+                    .setPosterArtUri(Uri.parse(poster))
+                    .setIntentUri(intentUri);
+            Uri watchNextProgramUri = c.getContentResolver()
+                    .insert(TvContractCompat.WatchNextPrograms.CONTENT_URI, builder.build().toContentValues());
+            Log.d(_TAG, "New Watch Next Update = " + watchNextProgramUri);
+        }catch (Exception ignored){}
     }
 }

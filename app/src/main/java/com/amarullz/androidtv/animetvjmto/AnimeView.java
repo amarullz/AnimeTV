@@ -2,7 +2,6 @@ package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
@@ -103,7 +102,7 @@ public class AnimeView extends WebViewClient {
                 conn.setRequestProperty(entry.getKey(), entry.getValue());
               }
               String[] cType = aApi.parseContentType(conn.getContentType());
-              ByteArrayOutputStream buffer = aApi.getBody(conn, null);
+              ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
               InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
               return new WebResourceResponse(cType[0], cType[1], stream);
             } catch (Exception ignored) {}
@@ -119,7 +118,7 @@ public class AnimeView extends WebViewClient {
           conn.setRequestProperty(entry.getKey(), entry.getValue());
         }
         String[] cType = aApi.parseContentType(conn.getContentType());
-        ByteArrayOutputStream buffer = aApi.getBody(conn, null);
+        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
         InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
         return new WebResourceResponse(cType[0], cType[1], stream);
       } catch (Exception ignored) {}
@@ -135,7 +134,7 @@ public class AnimeView extends WebViewClient {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
           }
           String[] cType = aApi.parseContentType(conn.getContentType());
-          ByteArrayOutputStream buffer = aApi.getBody(conn, null);
+          ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
           if (accept.startsWith("text/html")) {
             aApi.injectString(buffer, playerInjectString);
           }
@@ -217,17 +216,19 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public String getArg(String name){
-      if (name.equals("url")) {
-        if (MainActivity.ARG_URL != null)
-          return MainActivity.ARG_URL;
-      }
-      else if (name.equals("tip")) {
-        if (MainActivity.ARG_TIP != null)
-          return MainActivity.ARG_TIP;
-      }
-      else if (name.equals("pos")) {
-        if (MainActivity.ARG_POS != null)
-          return MainActivity.ARG_POS;
+      switch (name) {
+        case "url":
+          if (MainActivity.ARG_URL != null)
+            return MainActivity.ARG_URL;
+          break;
+        case "tip":
+          if (MainActivity.ARG_TIP != null)
+            return MainActivity.ARG_TIP;
+          break;
+        case "pos":
+          if (MainActivity.ARG_POS != null)
+            return MainActivity.ARG_POS;
+          break;
       }
       return "";
     }
@@ -256,7 +257,6 @@ public class AnimeView extends WebViewClient {
       pnUpdated=true;
       pnPos=pos;
       pnDuration=duration;
-      Log.d(_TAG,"Update Pos ("+pos+"/"+duration+")");
     }
     @JavascriptInterface
     public void playNextClear(){
@@ -277,7 +277,7 @@ public class AnimeView extends WebViewClient {
   @Override
   public void onPageFinished(WebView view, String url) {
     webView.setVisibility(View.VISIBLE);
-    activity.runOnUiThread(() ->webView.requestFocus());
+    activity.runOnUiThread(webView::requestFocus);
     webViewReady=true;
   }
 
