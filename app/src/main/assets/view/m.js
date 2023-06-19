@@ -1485,4 +1485,16 @@ const home={
   },
 };
 
+
+/* Argument Update */
+window.__ARGUPDATE=function(){
+    var uri=_JSAPI.getArg("url");
+    var tip=_JSAPI.getArg("tip");
+    if (uri){
+        console.log("ATVLOG ARGUPDATE -> "+uri);
+        pb.open("https://9anime.to"+uri, tip,0);
+    }
+};
+
+window.__ARGUPDATE();
 home.init();

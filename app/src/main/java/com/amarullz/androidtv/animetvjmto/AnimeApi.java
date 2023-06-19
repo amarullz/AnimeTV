@@ -2,6 +2,7 @@ package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Handler;
@@ -29,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class AnimeApi extends WebViewClient {
+  private static final String _TAG="ATVLOG-API";
+
   public static class Result{
     public String Text;
     public int status;
@@ -63,22 +66,52 @@ public class AnimeApi extends WebViewClient {
     }
   };
 
+  /* Cronet 9anime builder */
+  public static CronetEngine buildCronet(Context c){
+    /* Setup Cronet HTTP+QUIC Client */
+    CronetEngine.Builder myBuilder =
+            new CronetEngine.Builder(c)
+                    .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
+                    .enableHttp2(true)
+                    .enableQuic(true)
+                    .enableBrotli(true)
+                    .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
+                    .addQuicHint("9anime.to", 443, 443);
+    return myBuilder.build();
+  }
+
+  /* Cronet init quic */
+  public static HttpURLConnection initCronetQuic(CronetEngine c, String url, String method) throws IOException {
+    HttpURLConnection conn =
+            (HttpURLConnection) c.openConnection(new URL(url));
+    conn.setRequestMethod(method);
+    conn.setConnectTimeout(5000);
+    conn.setReadTimeout(5000);
+    conn.setDoOutput(false);
+    conn.setDoInput(true);
+    return conn;
+  }
+
+  /* http get body */
+  public static ByteArrayOutputStream getBody(HttpURLConnection conn,
+                                              ByteArrayOutputStream buffer) throws IOException {
+    if (buffer == null) buffer = new ByteArrayOutputStream();
+    InputStream is = conn.getInputStream();
+    int nRead;
+    byte[] data = new byte[1024];
+    while ((nRead = is.read(data, 0, data.length)) != -1) {
+      buffer.write(data, 0, nRead);
+    }
+    return buffer;
+  }
+
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeApi(Activity mainActivity) {
     activity = mainActivity;
     webView = new WebView(activity);
 //    webView = activity.findViewById(R.id.webview);
 
-    /* Setup Cronet HTTP+QUIC Client */
-    CronetEngine.Builder myBuilder =
-        new CronetEngine.Builder(activity)
-            .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
-            .enableHttp2(true)
-            .enableQuic(true)
-            .enableBrotli(true)
-            .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
-            .addQuicHint("9anime.to", 443, 443);
-    cronet = myBuilder.build();
+    cronet = buildCronet(activity);
 
     /* Init Bad Request */
     badRequest = new WebResourceResponse("text/plain",
@@ -113,7 +146,7 @@ public class AnimeApi extends WebViewClient {
     webView.evaluateJavascript("(window.__EPGET&&window.__EPGET('"+url+"'))" +
             "?1:0",
         s -> {
-          Log.d("ATVLOG","JAVASCRIPT VAL ["+s+"]");
+          Log.d(_TAG,"JAVASCRIPT VAL ["+s+"]");
           if (s.equals("0")){
             webView.loadUrl(url);
           }
@@ -123,28 +156,13 @@ public class AnimeApi extends WebViewClient {
     getData(url,cb,20000);
   }
 
+
+
   public HttpURLConnection initQuic(String url, String method) throws IOException {
-    HttpURLConnection conn =
-        (HttpURLConnection) cronet.openConnection(new URL(url));
-    conn.setRequestMethod(method);
-    conn.setConnectTimeout(5000);
-    conn.setReadTimeout(5000);
-    conn.setDoOutput(false);
-    conn.setDoInput(true);
-    return conn;
+    return initCronetQuic(cronet,url,method);
   }
 
-  public ByteArrayOutputStream getBody(HttpURLConnection conn,
-                                       ByteArrayOutputStream buffer) throws IOException {
-    if (buffer == null) buffer = new ByteArrayOutputStream();
-    InputStream is = conn.getInputStream();
-    int nRead;
-    byte[] data = new byte[1024];
-    while ((nRead = is.read(data, 0, data.length)) != -1) {
-      buffer.write(data, 0, nRead);
-    }
-    return buffer;
-  }
+
 
   public void injectString(ByteArrayOutputStream buffer, String inject){
     byte[] injectByte = inject.getBytes();
@@ -178,7 +196,7 @@ public class AnimeApi extends WebViewClient {
 
   public WebResourceResponse assetsRequest(String fn){
     try {
-      Log.d("ATVLOG", "ASSETS="+fn);
+      Log.d(_TAG, "ASSETS="+fn);
       String mime = getMimeFn(fn);
       InputStream is = activity.getAssets().open(fn);
       return new WebResourceResponse(mime,
@@ -252,7 +270,7 @@ public class AnimeApi extends WebViewClient {
         String[] cType = parseContentType(conn.getContentType());
         ByteArrayOutputStream buffer = getBody(conn, null);
         if (cType[0].startsWith("text/html")) {
-          Log.d("ATVLOG",
+          Log.d(_TAG,
               "QUIC==>" + url + " - " + accept);
           injectJs(buffer, "/__inject.js");
         }
@@ -260,7 +278,7 @@ public class AnimeApi extends WebViewClient {
         InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
         return new WebResourceResponse(cType[0], cType[1], stream);
       } catch (Exception e) {
-        Log.d("ATVLOG", "QUIC-ERR=" + url + " - " + e);
+        Log.d(_TAG, "QUIC-ERR=" + url + " - " + e);
       }
     }
     else if (host.contains("mp4upload.com")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
@@ -269,7 +287,7 @@ public class AnimeApi extends WebViewClient {
     else if (host.contains("cloudflare.com")||
         host.contains("bunnycdn.ru")) {
       if (!url.endsWith(".woff2")&&!accept.startsWith("text/css")) {
-        Log.d("ATVLOG_CDN", "CDN=>" + url + " - " + accept);
+        Log.d(_TAG, "CDN=>" + url + " - " + accept);
         return super.shouldInterceptRequest(view, request);
       }
     }

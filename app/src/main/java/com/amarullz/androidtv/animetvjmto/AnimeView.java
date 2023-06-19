@@ -25,9 +25,10 @@ import java.net.HttpURLConnection;
 import java.util.Map;
 
 public class AnimeView extends WebViewClient {
+  private static final String _TAG="ATVLOG-VIEW";
   private final Activity activity;
-  public WebView webView;
-  public AnimeApi aApi;
+  public final WebView webView;
+  public final AnimeApi aApi;
 
   public String playerInjectString;
   public boolean webViewReady=false;
@@ -54,7 +55,6 @@ public class AnimeView extends WebViewClient {
     webView.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     webView.setWebViewClient(this);
 
-
     webView.setWebChromeClient(new WebChromeClient() {
       @Override public Bitmap getDefaultVideoPoster() {
         final Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
@@ -68,6 +68,8 @@ public class AnimeView extends WebViewClient {
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
     webView.loadUrl("https://9anime.to/__view/main.html");
+
+    AnimeProvider avp=new AnimeProvider(activity);
   }
 
   @Override
@@ -91,7 +93,7 @@ public class AnimeView extends WebViewClient {
           if (!path.endsWith(".woff2") && !path.endsWith(".ttf")&& !accept.startsWith("image/")) {
             /* dev web */
             try {
-              Log.d("ATVLOG", "VIEW GET " + url + " = " + accept);
+              Log.d(_TAG, "VIEW GET " + url + " = " + accept);
               String newurl = url.replace("https://9anime.to", "http://192.168.100.245");
               HttpURLConnection conn = aApi.initQuic(newurl, request.getMethod());
               for (Map.Entry<String, String> entry :
@@ -123,7 +125,7 @@ public class AnimeView extends WebViewClient {
     }
     else if (host.contains("vizcloud.co")||host.contains("mcloud.to")){
       if (accept.startsWith("text/html")||url.startsWith("https://vizcloud.co/mediainfo")) {
-        Log.d("ATVLOG","VIEW PLAYER REQ = "+url);
+        Log.d(_TAG,"VIEW PLAYER REQ = "+url);
         try {
           HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
           for (Map.Entry<String, String> entry :
@@ -143,7 +145,7 @@ public class AnimeView extends WebViewClient {
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }else if (accept.startsWith("text/css")||accept.startsWith("image/")){
-        Log.d("ATVLOG","BLOCK CSS/IMG = "+url);
+        Log.d(_TAG,"BLOCK CSS/IMG = "+url);
         return aApi.badRequest;
       }
     }
@@ -212,6 +214,19 @@ public class AnimeView extends WebViewClient {
     }
 
     @JavascriptInterface
+    public String getArg(String name){
+      if (name.equals("url")) {
+        if (MainActivity.ARG_URL != null)
+          return MainActivity.ARG_URL;
+      }
+      else if (name.equals("tip")) {
+        if (MainActivity.ARG_TIP != null)
+          return MainActivity.ARG_TIP;
+      }
+      return "";
+    }
+
+    @JavascriptInterface
     public void getmp4vid(String url) {
       AsyncTask.execute(() -> {
         final String out=aApi.getMp4Video(url);
@@ -230,7 +245,7 @@ public class AnimeView extends WebViewClient {
   private void simulateClick(float xx, float yy) {
     int x=(int) ((webView.getMeasuredWidth()*xx)/100.0);
     int y=(int) ((webView.getMeasuredHeight()*yy)/100.0);
-    Log.d("VLOG","TAP: ("+x+", "+y+") -> "+xx+"%, "+yy+"%");
+    Log.d(_TAG,"TAP: ("+x+", "+y+") -> "+xx+"%, "+yy+"%");
     long downTime = SystemClock.uptimeMillis();
     long eventTime = SystemClock.uptimeMillis() + 150;
     int metaState = 0;
@@ -252,5 +267,9 @@ public class AnimeView extends WebViewClient {
         metaState
     );
     webView.dispatchTouchEvent(me);
+  }
+
+  public void updateArgs(){
+    activity.runOnUiThread(() -> webView.evaluateJavascript("__ARGUPDATE();",null));
   }
 }

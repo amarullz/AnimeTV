@@ -1,6 +1,7 @@
 package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
@@ -11,11 +12,33 @@ import androidx.fragment.app.FragmentActivity;
  */
 public class MainActivity extends FragmentActivity {
   public AnimeView aView;
+  public static String ARG_URL=null;
+  public static String ARG_TIP=null;
+
+  public void updateInstance(Bundle savedInstanceState){
+    /* Load Arguments */
+    if (savedInstanceState == null) {
+      Bundle extras = getIntent().getExtras();
+      if(extras != null) {
+        ARG_URL= extras.getString("viewurl");
+        ARG_TIP= extras.getString("viewtip");
+      }
+      else{
+        ARG_URL=null;
+        ARG_TIP=null;
+      }
+    } else {
+      ARG_URL= (String) savedInstanceState.getSerializable("viewurl");
+      ARG_TIP= (String) savedInstanceState.getSerializable("viewtip");
+    }
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    updateInstance(savedInstanceState);
     aView=new AnimeView(this);
 
 //    AnimeApi aApi=new AnimeApi(this);
@@ -90,7 +113,7 @@ public class MainActivity extends FragmentActivity {
   }
 
   @Override
-  protected void onSaveInstanceState(Bundle outState )
+  protected void onSaveInstanceState(Bundle outState)
   {
     super.onSaveInstanceState(outState);
     aView.webView.saveState(outState);
@@ -103,6 +126,14 @@ public class MainActivity extends FragmentActivity {
     super.onRestoreInstanceState(savedInstanceState);
     aView.webView.restoreState(savedInstanceState);
     aView.aApi.webView.restoreState(savedInstanceState);
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent){
+    super.onNewIntent(intent);
+    ARG_URL= intent.getStringExtra("viewurl");
+    ARG_TIP= intent.getStringExtra("viewtip");
+    aView.updateArgs();
   }
 
 }
