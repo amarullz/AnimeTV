@@ -1170,7 +1170,7 @@ const pb={
     try{
       pb.playnext_last_tick=$tick()+2000;
       _JSAPI.playNextMeta(
-        pb.data.title, 
+        pb.data.title+" - "+pb.ep_title,
         pb.ep_title, 
         pb.data.banner?pb.data.banner:pb.data.poster, 
         pb.url_value.substring("https://9anime.to".length),
