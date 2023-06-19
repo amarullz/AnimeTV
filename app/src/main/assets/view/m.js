@@ -821,7 +821,7 @@ const pb={
       pb.ep_index=idx;
       pb.ep_title='EPISODE '+(d.ep);
       if (pb.data.ep.length>1)
-        pb.ep_num='EP-'+(d.ep);
+        pb.ep_num='EP.'+(d.ep);
       else
         pb.ep_num='';
       if (d.title)
@@ -1176,7 +1176,7 @@ const pb={
     try{
       pb.playnext_last_tick=$tick()+2000;
       _JSAPI.playNextMeta(
-        pb.data.title+(pb.ep_num?(" - "+pb.ep_num):''),
+        pb.data.title+(pb.ep_num?(" ("+pb.ep_num+")"):''),
         pb.ep_title, 
         pb.data.banner?pb.data.banner:pb.data.poster, 
         pb.url_value.substring("https://9anime.to".length),
