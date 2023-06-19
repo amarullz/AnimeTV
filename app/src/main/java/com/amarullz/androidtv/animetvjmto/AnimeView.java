@@ -2,6 +2,7 @@ package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
@@ -224,6 +225,10 @@ public class AnimeView extends WebViewClient {
         if (MainActivity.ARG_TIP != null)
           return MainActivity.ARG_TIP;
       }
+      else if (name.equals("pos")) {
+        if (MainActivity.ARG_POS != null)
+          return MainActivity.ARG_POS;
+      }
       return "";
     }
 
@@ -233,6 +238,39 @@ public class AnimeView extends WebViewClient {
         final String out=aApi.getMp4Video(url);
         activity.runOnUiThread(() -> webView.evaluateJavascript("__MP4CB("+out+");",null));
       });
+    }
+
+    @JavascriptInterface
+    public void playNextMeta(String t, String d, String p, String u, String i){
+      pnUpdated=false;
+      pnTitle=t;
+      pnDesc=d;
+      pnPoster=p;
+      pnUri=u;
+      pnTip=i;
+      Log.d(_TAG,"Update Meta ("+u+"; "+t+"; "+d+"; "+i+")");
+    }
+
+    @JavascriptInterface
+    public void playNextPos(int pos, int duration){
+      pnUpdated=true;
+      pnPos=pos;
+      pnDuration=duration;
+      Log.d(_TAG,"Update Pos ("+pos+"/"+duration+")");
+    }
+    @JavascriptInterface
+    public void playNextClear(){
+      pnUpdated=false;
+      AsyncTask.execute(() -> {
+        try {
+          AnimeProvider.clearPlayNext(activity);
+        } catch (Exception ignored) {
+        }
+      });
+    }
+    @JavascriptInterface
+    public void playNextRegister(){
+      updatePlayNext();
     }
   }
 
@@ -272,5 +310,32 @@ public class AnimeView extends WebViewClient {
 
   public void updateArgs(){
     activity.runOnUiThread(() -> webView.evaluateJavascript("__ARGUPDATE();",null));
+  }
+
+  public boolean pnUpdated=false;
+  public String pnTitle="";
+  public String pnDesc="";
+  public String pnPoster="";
+  public String pnUri="";
+  public String pnTip="";
+  public int pnPos=0;
+  public int pnDuration=0;
+  public void updatePlayNext(){
+    AsyncTask.execute(() -> {
+      if (pnUpdated){
+        pnUpdated=false;
+        if (pnPos>10&&(pnDuration-pnPos>10)) {
+
+            try {
+              AnimeProvider.setPlayNext(
+                      activity, pnTitle, pnDesc,
+                      pnPoster, pnUri, pnTip,
+                      pnPos, pnDuration
+              );
+            } catch (Exception ignored) {
+            }
+        }
+      }
+    });
   }
 }

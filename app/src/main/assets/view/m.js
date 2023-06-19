@@ -276,6 +276,10 @@ const pb={
 
   pb_event_skip:$('pb_event_skip'),
 
+  tip_value:'',
+  url_value:'',
+  startpos_val:0,
+
   cfg_data:{
     autoskip:false,
     autonext:true,
@@ -389,6 +393,10 @@ const pb={
     }
     pb.pb_actions.classList.remove('active');
     if (close){
+      try{
+        _JSAPI.playNextRegister();
+      }catch(e){}
+
       pb.pb_loading.classList.remove('active');
       pb.pb.classList.remove('active');
       _API.clearCb();
@@ -422,6 +430,9 @@ const pb={
     if (c=='complete'){
       pb.vid_stat.play=false;
       pb.pb_track_ctl.innerHTML='replay';
+      try{
+        _JSAPI.playNextClear();
+      }catch(e){}
       pb.menu_show(1);
       pb.next_ep(0);
     }
@@ -429,6 +440,10 @@ const pb={
       pb.state=2;
       pb.pb_track_ctl.innerHTML='play_circle';
       pb.pb_track_ctl.className='';
+      if (pb.startpos_val>0){
+        pb.vid_cmd('seek',pb.startpos_val);
+        pb.startpos_val=0;
+      }
     }
     else if (c=='play'){
       pb.vid_stat.play=true;
@@ -460,8 +475,16 @@ const pb={
       }else if (pb.onskip){
         pb.setskip(false);
       }
+
+      try{
+        if (pb.playnext_last_tick<$tick()){
+          _JSAPI.playNextPos(Math.floor(pb.vid_stat.pos),Math.ceil(pb.vid_stat.duration));
+          pb.playnext_last_tick=$tick()+2000;
+        }
+      }catch(e){}
     }
   },
+  playnext_last_tick:0,
   vid_reset_stat:function(){
     pb.vid_stat.ready=false;
     pb.vid_stat.pos=0;
@@ -1138,6 +1161,18 @@ const pb={
       pb.pb_recs.style.display='none';
     }
 
+    /* playNext */
+    try{
+      pb.playnext_last_tick=$tick()+2000;
+      _JSAPI.playNextMeta(
+        pb.data.title, 
+        pb.ep_title, 
+        pb.data.banner?pb.data.banner:pb.data.poster, 
+        pb.url_value.substring("https://9anime.to".length),
+        pb.tip_value
+      );
+    }catch(e){}
+
     if (!pb.data.mp4){
       console.log("GOT STREAM MP4");
       _API.getMp4(pb.data.stream_url,function(d){
@@ -1178,7 +1213,7 @@ const pb={
     });
   },
 
-  open:function(uri, ttid, noclean){
+  open:function(uri, ttid, noclean, startpos){
     console.log("pb.open -> "+noclean+" / "+ttid);
     var open_stat=0;
     var uid=_API.getView(uri,function(d,u){
@@ -1190,6 +1225,9 @@ const pb={
       }
     });
     if (uid){
+      pb.tip_value=ttid?ttid:'';
+      pb.url_value=uri;
+      pb.startpos_val=(startpos!==undefined)?(startpos?parseInt(startpos):0):0;
       if (ttid&&!noclean){
         _API.getTooltip(ttid,function(d){
           if (d){
@@ -1490,9 +1528,10 @@ const home={
 window.__ARGUPDATE=function(){
     var uri=_JSAPI.getArg("url");
     var tip=_JSAPI.getArg("tip");
+    var pos=_JSAPI.getArg("pos");
     if (uri){
-        console.log("ATVLOG ARGUPDATE -> "+uri);
-        pb.open("https://9anime.to"+uri, tip,0);
+        console.log("ATVLOG ARGUPDATE -> "+uri+" / "+pos+" / "+tip);
+        pb.open("https://9anime.to"+uri, tip,0,pos);
     }
 };
 

@@ -3,6 +3,7 @@ package com.amarullz.androidtv.animetvjmto;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.fragment.app.FragmentActivity;
@@ -14,6 +15,7 @@ public class MainActivity extends FragmentActivity {
   public AnimeView aView;
   public static String ARG_URL=null;
   public static String ARG_TIP=null;
+  public static String ARG_POS=null;
 
   public void updateInstance(Bundle savedInstanceState){
     /* Load Arguments */
@@ -22,14 +24,17 @@ public class MainActivity extends FragmentActivity {
       if(extras != null) {
         ARG_URL= extras.getString("viewurl");
         ARG_TIP= extras.getString("viewtip");
+        ARG_POS=extras.getString("viewpos");
       }
       else{
         ARG_URL=null;
         ARG_TIP=null;
+        ARG_POS=null;
       }
     } else {
       ARG_URL= (String) savedInstanceState.getSerializable("viewurl");
       ARG_TIP= (String) savedInstanceState.getSerializable("viewtip");
+      ARG_POS= (String) savedInstanceState.getSerializable("viewpos");
     }
   }
 
@@ -121,6 +126,13 @@ public class MainActivity extends FragmentActivity {
   }
 
   @Override
+  protected void onStop() {
+    Log.d("ATVLOG-MAIN","ONSTOP");
+    aView.updatePlayNext();
+    super.onStop();
+  }
+
+  @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState)
   {
     super.onRestoreInstanceState(savedInstanceState);
@@ -133,6 +145,7 @@ public class MainActivity extends FragmentActivity {
     super.onNewIntent(intent);
     ARG_URL= intent.getStringExtra("viewurl");
     ARG_TIP= intent.getStringExtra("viewtip");
+    ARG_POS= intent.getStringExtra("viewpos");
     aView.updateArgs();
   }
 

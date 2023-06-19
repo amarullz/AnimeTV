@@ -13,6 +13,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
+import android.icu.util.Calendar;
+import android.icu.util.TimeZone;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -23,6 +25,7 @@ import androidx.tvprovider.media.tv.Channel;
 import androidx.tvprovider.media.tv.ChannelLogoUtils;
 import androidx.tvprovider.media.tv.PreviewProgram;
 import androidx.tvprovider.media.tv.TvContractCompat;
+import androidx.tvprovider.media.tv.WatchNextProgram;
 
 import org.chromium.net.CronetEngine;
 import org.json.JSONArray;
@@ -51,11 +54,11 @@ public class AnimeProvider {
             TvContract.Programs.COLUMN_TITLE
     };
 
-//    private static final String[] PLAYNEXT_PROJECTION = {
-//            TvContractCompat.WatchNextPrograms._ID,
-//            TvContract.WatchNextPrograms.COLUMN_INTENT_URI,
-//            TvContract.WatchNextPrograms.COLUMN_TITLE
-//    };
+    private static final String[] PLAYNEXT_PROJECTION = {
+            TvContractCompat.WatchNextPrograms._ID,
+            TvContract.WatchNextPrograms.COLUMN_INTENT_URI,
+            TvContract.WatchNextPrograms.COLUMN_TITLE
+    };
     public interface RecentCallback {
         void onFinish(String result);
     }
@@ -288,5 +291,56 @@ public class AnimeProvider {
         ctx.getContentResolver().insert(
                                 TvContractCompat.PreviewPrograms.CONTENT_URI,
                                 previewProgram.toContentValues());
+    }
+
+    public static void clearPlayNext(Context c) throws Exception{
+        /* Clear Watch Next */
+        Cursor cursor =
+                c.getContentResolver()
+                        .query(
+                                TvContractCompat.WatchNextPrograms.CONTENT_URI,
+                                PLAYNEXT_PROJECTION,
+                                null,
+                                null,
+                                null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                WatchNextProgram wn = WatchNextProgram.fromCursor(cursor);
+                c.getContentResolver()
+                        .delete(
+                                TvContractCompat.buildWatchNextProgramUri(wn.getId()),
+                                null,
+                                null);
+            } while (cursor.moveToNext());
+        }
+    }
+
+    @SuppressLint("RestrictedApi")
+    public static void setPlayNext(
+            Context c,String title, String desc,
+            String poster, String uri, String tip,
+            int pos, int duration) throws Exception{
+        clearPlayNext(c);
+
+        Intent myIntent = new Intent(c, MainActivity.class);
+        myIntent.setPackage(c.getPackageName());
+        myIntent.putExtra("viewurl", uri);
+        myIntent.putExtra("viewtip", tip);
+        myIntent.putExtra("viewpos", pos+"");
+        Uri intentUri= Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
+
+        WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
+        builder.setType(TvContractCompat.WatchNextPrograms.TYPE_MOVIE)
+                .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
+                .setDurationMillis(duration*1000)
+                .setLastPlaybackPositionMillis(pos*1000)
+                .setLastEngagementTimeUtcMillis(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis())
+                .setTitle(title)
+                .setDescription(desc)
+                .setPosterArtUri(Uri.parse(poster))
+                .setIntentUri(intentUri);
+        Uri watchNextProgramUri = c.getContentResolver()
+                .insert(TvContractCompat.WatchNextPrograms.CONTENT_URI, builder.build().toContentValues());
+        Log.d(_TAG,"New Watch Next Update = "+watchNextProgramUri);
     }
 }
