@@ -1302,6 +1302,7 @@ rosebudemphasizelesson.com
 
 const home={
   home_onload:false,
+  home:$('home'),
   home_slide:$('home_slide'),
   home_recent:$('home_recent'),
   home_top:$('home_top'),
@@ -1530,7 +1531,8 @@ const home={
         home.menus[home.menu_sel].classList.remove('active');
         home.menu_sel=pc;
         home.menus[home.menu_sel].classList.add('active');
-        home.home_slide.style.marginTop=(0-(17*home.menu_sel))+"vw";
+        home.home.style.transform="translateY("+(0-(17*home.menu_sel))+"vw)";
+        // home.home_slide.style.marginTop=(0-(17*home.menu_sel))+"vw";
       }
   },
 };
