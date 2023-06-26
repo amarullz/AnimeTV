@@ -520,6 +520,8 @@ const pb={
         _JSAPI.playNextRegister();
       }catch(e){}
 
+      $('home').style.display=$('search').style.display='';
+
       pb.pb_loading.classList.remove('active');
       pb.pb.classList.remove('active');
       _API.clearCb();
@@ -1275,6 +1277,8 @@ const pb={
   },
 
   init:function(){
+    $('home').style.display=$('search').style.display='none';
+    
     pb.menus=[
       pb.pb_genres,
       pb.pb_settings,
