@@ -367,7 +367,7 @@ c.loader {
   transition: all var(--tim-8s) cubic-bezier(.25, .8, .25, 1);
 }
 
-.pb_menu p{
+.pb_menu p {
   margin: 0;
   padding: 0;
   position: relative;
@@ -893,23 +893,43 @@ c.loader {
 
 
 /********************************* HOME *********************************/
-#home{
-  padding-top:5vw;
+#home {
+  padding-top: 5vw;
   position: relative;
   z-index: 0;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
 }
+
 .home_list {
   padding: .2vw 5vw 1.5vw 5vw;
   position: relative;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
   opacity: .8;
+  min-height: 20vw;
 }
+
+#home_slide.home_list {
+  min-height: 20vw;
+}
+
+.home_list p:empty::after {
+  content: 'LOADING...';
+  position: absolute;
+  left: 5vw;
+  top: 0;
+  right: 0;
+  line-height: 16vw;
+  text-align: center;
+  color: rgba(255, 255, 255, .5);
+  font-size: 3vw;
+}
+
 .home_list.active {
   opacity: 1;
 }
+
 .home_list:before {
-  content:attr(list-title);
+  content: attr(list-title);
   display: block;
   font-size: 1.2vw;
   font-weight: bold;
@@ -919,9 +939,11 @@ c.loader {
   color: #ccc;
   height: 1.5vw;
 }
+
 .home_list.active:before {
   color: #fff;
 }
+
 .home_list div {
   padding: 0 !important;
   padding-bottom: 0 !important;
@@ -933,17 +955,22 @@ c.loader {
   background-color: #333 !important;
   outline: .01vw solid #333 !important
 }
+
 .home_list div img {
   width: 12vw;
   height: 17vw;
 }
+
 .home_list div img {
   opacity: .8;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);;
+  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  ;
 }
+
 .home_list div.active img {
   opacity: 1;
 }
+
 .home_list div b {
   position: absolute;
   bottom: 0;
@@ -963,13 +990,14 @@ c.loader {
   box-sizing: border-box;
   line-height: 1.2;
 }
+
 .home_list.pb_menu.active div.active {
   background-color: #fff !important;
   outline: .25vw solid #fff !important;
 }
 
 #home_slide.home_list div,
-#home_slide.home_list div img{
+#home_slide.home_list div img {
   width: 30vw !important;
   object-fit: cover;
 }

@@ -1378,10 +1378,11 @@ const home={
   home:$('home'),
   home_slide:$('home_slide'),
   home_recent:$('home_recent'),
+  home_trending:$('home_trending'),
+  home_random:$('home_random'),
   home_top:$('home_top'),
 
-  recent_parse:function(v){
-    var g=home.home_recent;
+  recent_parse:function(g,v){
     var hd=$n('d','','',null,v);
     var it=hd.querySelectorAll('div.item');
     var rd=[];
@@ -1421,23 +1422,22 @@ const home={
         pb.menu_select(g,g._sel);
     }
   },
-  recent_load:function(){
-    home.home_recent._onload=1;
-    var load_page=home.home_recent._page;
-    $a('/ajax/home/widget/updated-sub?page='+load_page,function(r){
+  recent_load:function(g){
+    g._onload=1;
+    var load_page=g._page;
+    $a(g._ajaxurl+''+load_page,function(r){
       if (r.ok){
         try{
           var v=JSON.parse(r.responseText);
-          home.recent_parse(v.result);
+          home.recent_parse(g,v.result);
         }catch(e){}
-        home.home_recent._onload=0;
+        g._onload=0;
       }
       else
-        setTimeout(home.recent_load,2000);
+        setTimeout(function(){home.recent_load(g)},2000);
     });
   },
-  recent_init:function(){
-    var rc=home.home_recent;
+  recent_init:function(rc){
     rc._page=1;
     pb.menu_clear(rc);
     rc._keycb=pb.menu_keycb;
@@ -1480,9 +1480,9 @@ const home={
       }
       if (g._page>60) return;
       g._page++;
-      home.recent_load();
+      home.recent_load(rc);
     };
-    home.recent_load();
+    home.recent_load(rc);
   },
 
   home_parser:function(v){
@@ -1563,7 +1563,13 @@ const home={
   menus:[],
   menu_sel:0,
   init:function(){
-    home.recent_init();
+    home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
+    home.home_trending._ajaxurl='/ajax/home/widget/trending?page=';
+    home.home_random._ajaxurl='/ajax/home/widget/random?page=';
+    home.recent_init(home.home_recent);
+    home.recent_init(home.home_trending);
+    home.recent_init(home.home_random);
+    
 
     home.home_load();
 
@@ -1572,7 +1578,9 @@ const home={
     home.menus=[
       home.home_slide,
       home.home_recent,
-      home.home_top
+      home.home_trending,
+      home.home_top,
+      home.home_random
     ];
 
     pb.menu_clear(home.home_slide);
@@ -1599,7 +1607,7 @@ const home={
         if (--pc<0) pc=0;
       }
       else if (c==KDOWN){
-        if (++pc>2) pc=2;
+        if (++pc>=home.menus.length) pc=home.menus.length-1;
       }
 
       if (home.menu_sel!=pc){
