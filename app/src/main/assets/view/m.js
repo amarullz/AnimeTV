@@ -256,6 +256,82 @@ const _API={
   }
 };
 
+/****************************** HISTORY & WATCHLIST ******************************/
+const list={
+  history:{detail:{},list:[]},
+  fav:{detail:{},list:[]},
+  load_storage:function(name){
+    var itm=localStorage.getItem(name);
+    if (itm){
+      var j=JSON.parse(itm);
+      if (('detail' in j)&&('list' in j)){
+        return {detail:j.detail,list:j.list};
+      }
+    }
+    return {detail:{},list:[]};
+  },
+  save:function(o,name){
+    localStorage.setItem(name,JSON.stringify(o));
+    console.log(o);
+  },
+  del:function(o,id){
+    var pos=o.list.indexOf(id);
+    if (pos>=0){
+      o.list.splice(pos,1);
+      delete o.detail[id];
+    }
+  },
+  add:function(o,id,val,refirst){
+    var epos=o.list.indexOf(id);
+    if (epos>-1){
+      if (refirst){
+        o.list.splice(epos,1);
+        o.list.push(id);
+      }
+    }
+    else{
+      o.list.push(id);
+    }
+    o.detail[id]=val;
+    if (o.list.length>10){
+      var todel=o.list.shift();
+      delete o.detail[id];
+    }
+  },
+  exists:function(o,id){
+    return (o.list.indexOf(id)==-1)?false:true;
+  },
+  history_add:function(id,val,refirst){
+    list.add(list.history,id,val,refirst);
+    list.save(list.history,'list_history');
+  },
+  history_del:function(id,val){
+    list.del(list.history,id,val);
+    list.save(list.history,'list_history');
+  },
+  fav_add:function(id,val){
+    list.add(list.fav,id,val);
+    list.save(list.fav,'list_fav');
+  },
+  fav_del:function(id,val){
+    list.del(list.fav,id,val);
+    list.save(list.fav,'list_fav');
+  },
+  fav_exists(id){
+    return list.exists(list.fav,id);
+  },
+  history_exists(id){
+    return list.exists(list.history,id);
+  },
+  load:function(){
+    list.history=list.load_storage('list_history');
+    list.fav=list.load_storage('list_fav');
+    console.log(list.history);
+    console.log(list.fav);
+  }
+};
+
+
 /****************************** PLAYBACK ******************************/
 const pb={
   /* elements */
@@ -288,6 +364,17 @@ const pb={
   pb_desc:$('pb_desc'),
 
   pb_event_skip:$('pb_event_skip'),
+
+  listobj:function(){
+    var ob={
+      'url':pb.data.url,
+      'title':pb.data.title,
+      'poster':pb.data.poster,
+      'episode':pb.ep_title,
+      'tip':pb.tip_value
+    };
+    return ob;
+  },
 
   tip_value:'',
   url_value:'',
@@ -332,7 +419,18 @@ const pb={
   },
   cfg_update_el:function(key){
     if (key){
-      if (key in pb.cfg_data){
+      if (key=='fav'){
+        var el=pb.pb_settings['_s_'+key];
+        if (pb.data.animeid){
+          if (list.fav_exists(pb.data.animeid)){
+            el.innerHTML='<c>clear</c> REMOVE FROM WATCHLIST';
+          }
+          else{
+            el.innerHTML='<c>bookmark_border</c> ADD TO WATCHLIST';
+          }
+        }
+      }
+      else if (key in pb.cfg_data){
         var el=pb.pb_settings['_s_'+key];
         if (key=='server'){
           el.lastElementChild.innerHTML=pb.cfgserver_name[pb.cfg_data[key]];
@@ -349,6 +447,7 @@ const pb={
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('server');
+      pb.cfg_update_el('fav');
     }
   },
   cfg:function(v){
@@ -425,6 +524,7 @@ const pb={
       pb.pb.classList.remove('active');
       _API.clearCb();
       _API.setKey(home.keycb);
+      home.list_init();
     }
     else{
       pb.pb_loading.classList.add('active');
@@ -767,7 +867,16 @@ const pb={
     else if (action.startsWith("*")){
       var key=action.substring(1);
       console.log("ACTION SETTINGS = "+key);
-      if (key in pb.cfg_data){
+      if (key=="fav"){
+        if (list.fav_exists(pb.data.animeid)){
+          list.fav_del(pb.data.animeid);
+        }
+        else{
+          list.fav_add(pb.data.animeid,pb.listobj(),true);
+        }
+        pb.cfg_update_el(key);
+      }
+      else if (key in pb.cfg_data){
         if (key=="server"){
           if (pb.state){
             pb.state=0;
@@ -1154,7 +1263,8 @@ const pb={
     pb.menu_clear(pb.pb_settings);
     // $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
     // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
-    $n('div','',{action:'-fav'},pb.pb_settings.P,'<c>bookmark_border</c> ADD TO WATCHLIST');
+    //fav_exists
+    pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
     pb.pb_settings._s_skipfiller=$n('div','',{action:'*skipfiller'},pb.pb_settings.P,'<c>clear</c> SKIP FILLER');
@@ -1217,9 +1327,6 @@ const pb={
       }
       pb.menu_select(pb.pb_genres,pb.pb_genres.P.firstElementChild);
     }
-
-    /* settings */
-    pb.init_settings();
     
     /* Episode */
     pb.menu_clear(pb.pb_episodes);
@@ -1231,6 +1338,21 @@ const pb={
     else{
       pb.pb_episodes.style.display='none';
     }
+
+    /* Init Anime ID - Fav & History */
+    var url_parse=pb.data.url.split('/');
+    if (url_parse.length>=5){
+      pb.data.animeid=url_parse[4];
+      if (pb.data.animeid){
+        list.history_add(pb.data.animeid,pb.listobj(),true);
+        if (list.fav_exists(pb.data.animeid)){
+          list.fav_add(pb.data.animeid,pb.listobj(),false);
+        }
+      }
+    }
+    /* settings */
+    pb.init_settings();
+    console.log(pb.data);
 
     /* season */
     pb.menu_clear(pb.pb_seasons);
@@ -1336,6 +1458,7 @@ const pb={
       }
     });
     if (uid){
+      pb.menu_clear(pb.pb_settings);
       pb.tip_value=ttid?ttid:'';
       pb.url_value=uri;
       pb.startpos_val=(startpos!==undefined)?(startpos?parseInt(startpos):0):0;
@@ -1408,6 +1531,9 @@ const home={
   home_trending:$('home_trending'),
   home_random:$('home_random'),
   home_top:$('home_top'),
+
+  home_history:$('home_history'),
+  home_fav:$('home_fav'),
 
   home_header:$('home_header'),
   bgimg:null,
@@ -1592,7 +1718,33 @@ const home={
   
   menus:[],
   menu_sel:0,
+  list_init_name:function(o, h){
+    pb.menu_clear(h);
+    if (o.list.length>0){
+      for (var i=0;i<o.list.length;i++){
+        var id=o.list[o.list.length-(i+1)];
+        var d=o.detail[id];
+        if (d){
+          var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},h.P,'');
+          var ps=d.poster.split('-w100');
+          d.poster=ps[0];
+          hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+          hl._title=$n('b','',null,hl,special(d.title));
+        }
+      }
+      pb.menu_select(h,h.P.firstElementChild);
+    }
+    h._keycb=pb.menu_keycb;
+  },
+  list_init:function(){
+    console.log(home);
+    console.log(home.home_history);
+    home.list_init_name(list.fav,home.home_fav);
+    home.list_init_name(list.history,home.home_history);
+  },
   init:function(){
+    list.load();
+
     home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
     home.home_trending._ajaxurl='/ajax/home/widget/trending?page=';
     home.home_random._ajaxurl='/ajax/home/widget/random?page=';
@@ -1609,10 +1761,16 @@ const home={
       home.home_header,
       home.home_slide,
       home.home_recent,
-      home.home_trending,
+
+      home.home_fav,
+      home.home_history,
+      
       home.home_top,
+      home.home_trending,
       home.home_random
     ];
+
+    home.list_init();
 
     pb.menu_clear(home.home_slide);
     pb.menu_clear(home.home_top);
