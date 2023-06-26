@@ -749,6 +749,20 @@ const pb={
         args=arg.split(';');
       pb.open(action, args[0], parseInt(args[1]));
       return true;
+    } 
+    else if (action.startsWith("!")){
+      var src=action.substring(1);
+      home.search.open({
+        genre:src
+      });
+      pb.reset(1,0);
+    }
+    else if (action.startsWith("@")){
+      var src=action.substring(1);
+      home.search.open({
+        genre:'_'+src
+      });
+      pb.reset(1,0);
     }
     else if (action.startsWith("*")){
       var key=action.substring(1);
@@ -1669,23 +1683,32 @@ const home={
       }
       h.innerHTML='';
 
-      console.log(rd);
       var g=home.search.res;
-      pb.menu_clear(g);
+      g._havenext=false;
       if (rd&&rd.length){
+        g._havenext=(rd.length>=28);
         for (var i=0;i<rd.length;i++){
           var d=rd[i];
           var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
           hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
           hl._title=$n('b','',null,hl,special(d.title));
         }
-        pb.menu_select(g,g.P.firstElementChild);
+        while (g.P.childElementCount>60){
+          g._spre.push(g.P.firstElementChild.nextElementSibling);
+          g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+        }
+        g.__update_pre();
+  
+        if (!g._sel)
+          pb.menu_select(g,g.P.firstElementChild);
+        else
+          pb.menu_select(g,g._sel);
       }
       _API.showIme(false);
     },
-    dosearch:function(){
+    
+    dosearch:function(getpage){
       if (home.search.kw.value!=''||home.search.genreval.length>0){
-        // https://9anime.to/filter?keyword=&genre%5B%5D=26&sort=recently_updated
         var qv=[];
         qv.push('keyword='+enc(home.search.kw.value));
         for (var i=0;i<home.search.genreval.length;i++){
@@ -1698,15 +1721,83 @@ const home={
           }
         }
         qv.push('genre_mode=and');
+        if (getpage&&(getpage>1)){
+          qv.push('page='+getpage);
+        }
+        else{
+          var rc=home.search.res;
+          rc._page=1;
+          rc._havenext=false;
+          pb.menu_clear(rc);
+          rc._keycb=pb.menu_keycb;
+          rc._spre=[];
+          rc._spost=[];
+          rc._onload=0;
+          rc._sel=null;
+        }
         console.log(qv.join('&'));
         home.search.res.classList.add('searching');
+        home.search.res._onload=1;
         $a('/filter?'+qv.join('&'),function(r){
           if (r.ok){
             home.search.dosearch_parse(r.responseText);
           }
           home.search.res.classList.remove('searching');
+          home.search.res._onload=0;
         });
       }
+    },
+    initresult:function(rc){
+      var rc=home.search.res;
+      rc._page=1;
+      rc._havenext=false;
+      pb.menu_clear(rc);
+      rc._keycb=pb.menu_keycb;
+      rc._spre=[];
+      rc._spost=[];
+      rc._onload=0;
+      rc._sel=null;
+      rc.__update_pre=function(){
+        rc.P.firstElementChild.style.marginRight=(12*rc._spre.length)+"vw";
+      };
+      rc.__selectcb=function(g,c){
+        if (!c) return;
+        var k=c;
+        var n=0;
+        while(k){
+          k=k.previousElementSibling;
+          if (++n>7) break;
+        }
+        if (n<=6){
+          if (g._spre.length>0){
+            g.P.insertBefore(g._spre.pop(), g.P.firstElementChild.nextElementSibling);
+            g._spost.push(g.P.lastElementChild);
+            g.P.removeChild(g.P.lastElementChild);
+            g.__update_pre();
+            pb.menu_select(g,g._sel);
+          }
+          return;
+        }
+        if (g._onload!=0) return;
+        n=0;
+        while(c){
+          c=c.nextElementSibling;
+          if (++n>4) return;
+        }
+        if (g._spost.length>0){
+          g.P.appendChild(g._spost.pop());
+          g._spre.push(g.P.firstElementChild.nextElementSibling);
+          g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+          g.__update_pre();
+          pb.menu_select(g,g._sel);
+          return;
+        }
+        
+        if (g._havenext){
+          g._page++;
+          home.search.dosearch(g._page);
+        }
+      };
     },
     kwcb:function(g,c){
       if (c==KENTER){
@@ -1736,14 +1827,18 @@ const home={
         home.search.genres,
         home.search.res
       ];
+      home.search.initresult(home.search.res);
+
       home.onsearch=true;
       home.search.search.classList.add('active');
       home.search.sel=0;
       home.search.kw._keycb=home.search.kwcb;
       home.search.kw.value='';
-      home.search.res.classList.remove('searching');
-
       var srcgenre='';
+
+      home.search.kw.classList.remove('active');
+      home.search.genres.classList.remove('active');
+      home.search.res.classList.remove('active');
 
       if (arg){
         if (arg.kw){
@@ -1754,10 +1849,8 @@ const home={
         }
       }
 
-      pb.menu_clear(home.search.res);
       pb.menu_clear(home.search.genres);
       home.search.genreval=[];
-      home.search.res._keycb=
       home.search.genres._keycb=pb.menu_keycb;
       home.search.genres._enter_cb=home.search.genresel;
       home.search.genres._els={};

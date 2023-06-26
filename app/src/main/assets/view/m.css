@@ -934,7 +934,7 @@ c.loader {
 }
 
 .home_opt_list p div {
-  font-size: 1vw;
+  font-size: 1.6vw;
 }
 
 .home_list p:empty::after {
@@ -1073,7 +1073,7 @@ c.loader {
 #search {
   position: fixed;
   inset: 0;
-  background: rgba(20, 20, 20, .9);
+  background: linear-gradient(180deg, #000, var(--primary-bg) 100%);
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
@@ -1098,18 +1098,19 @@ c.loader {
   width: 90vw;
   box-sizing: border-box;
   height: 8vw;
-  border: .05vw solid #333;
-  background-color: #222;
+  border: .1vw solid #000;
+  background-color: var(--primary-bg);
   color: #fff;
   font-size: 3vw;
   line-height: 7vw;
   outline: none;
   border-radius: 1.5vw;
+  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
 }
 
 #search_keyword.active {
-  outline: .2vw solid var(--primary-3);
-  background-color: #333;
+  outline: .5vw solid var(--primary-3);
+  background-color: #080808;
 }
 
 #search_result.home_list p:empty::after {
