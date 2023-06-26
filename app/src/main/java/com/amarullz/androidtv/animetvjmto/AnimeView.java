@@ -10,6 +10,8 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -33,7 +35,7 @@ public class AnimeView extends WebViewClient {
   public String playerInjectString;
   public boolean webViewReady=false;
 
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {
@@ -212,6 +214,20 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public void appQuit() {
       activity.finish();
+    }
+
+    @JavascriptInterface
+    public void showIme(boolean show){
+      Log.d(_TAG,"SHOW IME = "+show);
+      activity.runOnUiThread(()->{
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (show){
+          imm.showSoftInput(webView, 0);
+        }
+        else{
+          imm.hideSoftInputFromWindow(webView.getWindowToken(), 0);
+        }
+      });
     }
 
     @JavascriptInterface
