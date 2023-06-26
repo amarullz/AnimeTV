@@ -1278,7 +1278,7 @@ const pb={
 
   init:function(){
     $('home').style.display=$('search').style.display='none';
-    
+
     pb.menus=[
       pb.pb_genres,
       pb.pb_settings,
@@ -1881,6 +1881,11 @@ const home={
           }
         }
         qv.push('genre_mode=and');
+        qv.push(enc('country[]')+'=120822');
+        qv.push(enc('language[]')+'=sub');
+        if (home.search.kw.value==''){
+          qv.push('sort=recently_updated');
+        }
         if (getpage&&(getpage>1)){
           qv.push('page='+getpage);
         }
