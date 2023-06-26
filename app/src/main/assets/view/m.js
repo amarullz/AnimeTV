@@ -1681,6 +1681,7 @@ const home={
         }
         pb.menu_select(g,g.P.firstElementChild);
       }
+      _API.showIme(false);
     },
     dosearch:function(){
       if (home.search.kw.value!=''||home.search.genreval.length>0){
@@ -1704,11 +1705,12 @@ const home={
             home.search.dosearch_parse(r.responseText);
           }
           home.search.res.classList.remove('searching');
-        })
+        });
       }
     },
     kwcb:function(g,c){
       if (c==KENTER){
+        _API.showIme(true);
         home.search.dosearch();
       }
     },
