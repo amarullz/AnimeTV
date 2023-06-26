@@ -949,6 +949,16 @@ c.loader {
   font-size: 3vw;
 }
 
+#home_fav.home_list p:empty::after {
+  content: 'WATCHLIST IS EMPTY' !important;
+  font-size: 2vw;
+}
+
+#home_history.home_list p:empty::after {
+  content: 'WATCH HISTORY IS EMPTY' !important;
+  font-size: 2vw;
+}
+
 .home_opt_list.active,
 .home_list.active {
   opacity: 1;

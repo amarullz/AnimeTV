@@ -1761,13 +1761,11 @@ const home={
       home.home_header,
       home.home_slide,
       home.home_recent,
-
-      home.home_fav,
-      home.home_history,
-      
       home.home_top,
       home.home_trending,
-      home.home_random
+      home.home_random,
+      home.home_fav,
+      home.home_history
     ];
 
     home.list_init();
