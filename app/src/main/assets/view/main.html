@@ -1,16 +1,27 @@
 <!DOCTYPE html>
 <html class="ani_quick">
 <head>
+    <link rel="preload" as="image" href="bg.webp">
     <link href="m.css?nocache" rel="stylesheet" type="text/css" />
     <title>AnimeTV JMTO</title>
 </head>
 <body>
 <div id="home">
+    <div id="home_header" class="home_header">
+        <c id="home_search">search</c>
+        <h1>AnimeTV JMTO</h1>
+        &nbsp;
+    </div>
     <div id="home_slide" list-title="Hot" class="home_list pb_menu"></div>
     <div id="home_recent" list-title="Recently Updated" class="home_list pb_menu"></div>
     <div id="home_trending" list-title="Trending Episodes" class="home_list pb_menu"></div>
     <div id="home_top" list-title="Top Anime" class="home_list pb_menu"></div>
     <div id="home_random" list-title="Random Anime" class="home_list pb_menu"></div>
+</div>
+<div id="search">
+    <input id="search_keyword" value="" placeholder="Search Anime...">
+    <div id="search_genre" list-title="Genre" class="home_opt_list pb_menu"></div>
+    <div id="search_result" list-title="Search Result" class="home_list pb_menu"><p></p></div>
 </div>
 <div id="pb">
     <div id="pb_vid"></div>

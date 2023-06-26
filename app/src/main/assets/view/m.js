@@ -156,8 +156,21 @@ const _API={
   viewcb:null,
   m3u8cb:null,
   viewid:0,
-  genres:{"action":"1","adventure":"2","avant_garde":"2262888","boys_love":"2262603","comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9","girls_love":"2263743","gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552","josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18","mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25","reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31","shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38","supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"},
+  genres:{
+  "_tv":"tv","_movie":"movie",
+  "_ova":"ova","_ona":"ona",
+  "_special":"special",
+
+  "action":"1","adventure":"2","avant_garde":"2262888",
+  /*"boys_love":"2262603",*/
+  "comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9",
+  /*"girls_love":"2263743",*/
+  "gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552","josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18","mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25","reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31","shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38","supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"},
   
+  showIme:function(show){
+    _JSAPI.showIme(show);
+  },
+
   clearCb:function(){
     _API.keycb=null;
     _API.messagecb=null;
@@ -1382,6 +1395,9 @@ const home={
   home_random:$('home_random'),
   home_top:$('home_top'),
 
+  home_header:$('home_header'),
+  bgimg:null,
+
   recent_parse:function(g,v){
     var hd=$n('d','','',null,v);
     var it=hd.querySelectorAll('div.item');
@@ -1576,6 +1592,7 @@ const home={
     _API.setKey(home.keycb);
 
     home.menus=[
+      home.home_header,
       home.home_slide,
       home.home_recent,
       home.home_trending,
@@ -1592,31 +1609,249 @@ const home={
     home.home_slide._keycb=pb.menu_keycb;
     home.home_top._keycb=pb.menu_keycb;
     home.menus[home.menu_sel].classList.add('active');
+
+    home.bgimg=new Image();
+    home.bgimg.className='mainbgimage nonactive';
+    home.bgimg.onload=function(){
+      body.appendChild(home.bgimg);
+      setTimeout(function(){
+        home.bgimg.className='mainbgimage';
+      },10);
+    };
+    home.bgimg.src='bg.webp';
+    home.bgimg.style.zIndex='1';
+
+    home.home_header._keycb=home.header_keycb;
+  },
+
+  search:{
+    sel:0,
+    search:$('search'),
+    kw:$('search_keyword'),
+    genres:$('search_genre'),
+    res:$('search_result'),
+    menus:[],
+    update:function(pc){
+      home.search.menus[home.search.sel].classList.remove('active');
+      home.search.sel=pc;
+      home.search.menus[home.search.sel].classList.add('active');
+      if (pc==0){
+        home.search.kw.focus();
+        _API.showIme(true);
+      }
+      else{
+        home.search.kw.blur();
+        _API.showIme(false);
+      }
+    },
+    close:function(){
+      home.onsearch=false;
+      home.search.search.classList.remove('active');
+      _API.showIme(false);
+    },
+    dosearch_parse:function(v){
+      var h=$n('div','','',null,v);
+      var rd=[];
+      var ls=h.querySelector('#list-items');
+      window._ls=ls;
+      if (ls){
+        var it=ls.querySelectorAll('div.item');
+        for (var i=0;i<it.length;i++){
+          var im=it[i];
+          var d={};
+          var tt=im.querySelector('a.d-title');
+          d.url=tt.href;
+          d.title=tt.textContent.trim();
+          d.poster=im.querySelector('img').src;
+          d.tip=im.querySelector('div.poster.tip').getAttribute('data-tip');
+          rd.push(d);
+        }
+      }
+      h.innerHTML='';
+
+      console.log(rd);
+      var g=home.search.res;
+      pb.menu_clear(g);
+      if (rd&&rd.length){
+        for (var i=0;i<rd.length;i++){
+          var d=rd[i];
+          var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
+          hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+          hl._title=$n('b','',null,hl,special(d.title));
+        }
+        pb.menu_select(g,g.P.firstElementChild);
+      }
+    },
+    dosearch:function(){
+      if (home.search.kw.value!=''||home.search.genreval.length>0){
+        // https://9anime.to/filter?keyword=&genre%5B%5D=26&sort=recently_updated
+        var qv=[];
+        qv.push('keyword='+enc(home.search.kw.value));
+        for (var i=0;i<home.search.genreval.length;i++){
+          var vl=home.search.genreval[i];
+          if (vl.charAt(0)=='_'){
+            qv.push(enc('type[]')+'='+enc(_API.genres[vl]));
+          }
+          else{
+            qv.push(enc('genre[]')+'='+enc(_API.genres[vl]));
+          }
+        }
+        qv.push('genre_mode=and');
+        console.log(qv.join('&'));
+        home.search.res.classList.add('searching');
+        $a('/filter?'+qv.join('&'),function(r){
+          if (r.ok){
+            home.search.dosearch_parse(r.responseText);
+          }
+          home.search.res.classList.remove('searching');
+        })
+      }
+    },
+    kwcb:function(g,c){
+      if (c==KENTER){
+        home.search.dosearch();
+      }
+    },
+    genreval:[],
+    genresel:function(g,s){
+      var i=s._key;
+      var t=s._title;
+      var gpos=home.search.genreval.indexOf(i);
+      if (gpos>-1){
+        home.search.genreval.splice(gpos,1);
+        s.innerHTML=special(t);
+      }
+      else{
+        home.search.genreval.push(i);
+        s.innerHTML='<c>check</c> '+special(t);
+      }
+      home.search.dosearch();
+    },
+    open:function(arg){
+      home.search.sel=0;
+      home.search.menus=[
+        home.search.kw,
+        home.search.genres,
+        home.search.res
+      ];
+      home.onsearch=true;
+      home.search.search.classList.add('active');
+      home.search.sel=0;
+      home.search.kw._keycb=home.search.kwcb;
+      home.search.kw.value='';
+      home.search.res.classList.remove('searching');
+
+      var srcgenre='';
+
+      if (arg){
+        if (arg.kw){
+          home.search.kw.value=arg.kw;
+        }
+        else if (arg.genre){
+          srcgenre=arg.genre;
+        }
+      }
+
+      pb.menu_clear(home.search.res);
+      pb.menu_clear(home.search.genres);
+      home.search.genreval=[];
+      home.search.res._keycb=
+      home.search.genres._keycb=pb.menu_keycb;
+      home.search.genres._enter_cb=home.search.genresel;
+      home.search.genres._els={};
+      var vsel=null;
+      for (var i in _API.genres){
+        var title=i.replace(/_/g," ").toUpperCase().trim();
+        var gn=$n('div','',{
+          action:'!'+i,'gid':_API.genres[i]
+        },
+        home.search.genres.P,special(title));
+        gn._title=title;
+        gn._key=i;
+        if (srcgenre){
+          if (srcgenre==i){
+            vsel=gn;
+            gn.innerHTML='<c>check</c> '+special(title);
+            home.search.genreval.push(i);
+          }
+        }
+        home.search.genres._els[i]=gn;
+      }
+      if (vsel){
+        pb.menu_select(home.search.genres,vsel);
+        home.search.sel=1;
+      }
+      else{
+        pb.menu_select(home.search.genres,home.search.genres.P.firstElementChild);
+      }
+
+      setTimeout(function(){
+        home.search.update(home.search.sel);
+      },500);
+      home.search.dosearch();
+    }
+  },
+  onsearch:false,
+  search_keycb:function(c){
+    var pc=home.search.sel;
+    if (c==KBACK){
+      home.search.close();
+    }
+    else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
+      home.search.menus[pc]._keycb(home.search.menus[pc],c);
+    }
+    else if (c==KUP){
+      if (--pc<0) pc=0;
+    }
+    else if (c==KDOWN){
+      if (++pc>=home.search.menus.length) pc=home.search.menus.length-1;
+    }
+    if (home.search.sel!=pc){
+      home.search.update(pc);
+    }
+  },
+
+  header_keycb:function(g,c){
+    if (c==KENTER){
+      home.search.open({
+        // genre:'romance'
+      });
+    }
   },
 
   /* Root Key Callback */
   keycb:function(c){
-      var pc=home.menu_sel;
-      if (c==KBACK){
+    if (home.onsearch){
+      return home.search_keycb(c);
+    }
+    var pc=home.menu_sel;
+    if (c==KBACK){
+      if (home.menu_sel==0){
         _JSAPI.appQuit();
       }
-      else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
-        home.menus[home.menu_sel]._keycb(home.menus[home.menu_sel],c);
+      else{
+        pc=0;
       }
-      else if (c==KUP){
-        if (--pc<0) pc=0;
-      }
-      else if (c==KDOWN){
-        if (++pc>=home.menus.length) pc=home.menus.length-1;
-      }
+    }
+    else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
+      home.menus[home.menu_sel]._keycb(home.menus[home.menu_sel],c);
+    }
+    else if (c==KUP){
+      if (--pc<0) pc=0;
+    }
+    else if (c==KDOWN){
+      if (++pc>=home.menus.length) pc=home.menus.length-1;
+    }
 
-      if (home.menu_sel!=pc){
-        home.menus[home.menu_sel].classList.remove('active');
-        home.menu_sel=pc;
-        home.menus[home.menu_sel].classList.add('active');
-        home.home.style.transform="translateY("+(0-(17*home.menu_sel))+"vw)";
-        // home.home_slide.style.marginTop=(0-(17*home.menu_sel))+"vw";
-      }
+    if (home.menu_sel!=pc){
+      home.menus[home.menu_sel].classList.remove('active');
+      home.menu_sel=pc;
+      home.menus[home.menu_sel].classList.add('active');
+      if (home.menu_sel>1)
+        home.home.style.transform="translateY("+(18-(21.65*(home.menu_sel-1)))+"vw)";
+      else
+        home.home.style.transform="translateY(0)";
+    }
   },
 };
 
