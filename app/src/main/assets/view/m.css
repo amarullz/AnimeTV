@@ -1020,8 +1020,8 @@ c.loader {
   margin: 0;
   overflow: hidden;
   word-break: normal;
-  padding: .4vw .2vw .4vw .2vw;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, .65) 100%);
+  padding: .4vw .2vw 1vw .2vw;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4) 30%, rgba(0, 0, 0, .8) 100%);
   text-align: center;
   white-space: break-spaces;
   word-wrap: break-word;
@@ -1080,6 +1080,12 @@ c.loader {
   box-shadow: 0 .14vw .28vw rgba(0, 0, 0, 0.25), 0 1vw 1vw rgba(0, 0, 0, 0.22);
 }
 
+#animebg{
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, var(--primary-bg), rgba(0,0,0,.5) 100%);
+  z-index: 0;
+}
 #search {
   position: fixed;
   inset: 0;
@@ -1129,4 +1135,58 @@ c.loader {
 
 #search_result.searching.home_list p:empty::after {
   content: 'Searching...';
+}
+
+/* PROGRESS */
+.home_list p div span.info {
+  display: block;
+  position: absolute;
+  z-index: 300;
+  top:.2vw;
+  right:.2vw;
+  font-size: .8vw;
+  line-height: 1.2vw;
+  opacity: .5;
+  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  border-radius: .2vw;
+  overflow: hidden;
+  background-color: var(--primary-bg);
+  box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
+}
+.home_list.active p div.active span.info{
+  opacity: 1;
+  box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
+}
+.home_list p div span.info span {
+  margin: 0;
+  padding:0 .3vw 0 .3vw;
+  display: inline-block;
+  line-height: 1.2vw;
+  border-left: .05vw solid rgba(255,255,255,.1);
+}
+.home_list p div span.info span:first-child{
+  border-left: none !important;
+}
+.home_list p div span.info span.info_ep{
+  background-color: var(--primary-1);
+  font-weight: bold;
+}
+.home_list p div i {
+  padding:0;
+  margin:0;
+  display: block;
+  position: absolute;
+  z-index: 300;
+  left: .4vw;
+  right: .4vw;
+  bottom: .4vw;
+  height: .3vw;
+  border-radius: .2vw;
+  overflow: hidden;
+  background-color: rgba(0,0,0,.5);
+}
+.home_list p div i em {
+  display: block;
+  height: .3vw;
+  background-color: rgba(255,255,255,.8);
 }

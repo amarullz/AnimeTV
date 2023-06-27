@@ -293,29 +293,35 @@ const list={
       o.list.push(id);
     }
     o.detail[id]=val;
-    if (o.list.length>10){
+    if (o.list.length>30){
       var todel=o.list.shift();
-      delete o.detail[id];
+      delete o.detail[todel];
     }
   },
   exists:function(o,id){
     return (o.list.indexOf(id)==-1)?false:true;
   },
+  history_save:function(){
+    list.save(list.history,'list_history');
+  },
   history_add:function(id,val,refirst){
     list.add(list.history,id,val,refirst);
-    list.save(list.history,'list_history');
+    list.history_save();
   },
   history_del:function(id,val){
     list.del(list.history,id,val);
-    list.save(list.history,'list_history');
+    list.history_save();
+  },
+  fav_save:function(){
+    list.save(list.fav,'list_fav');
   },
   fav_add:function(id,val){
     list.add(list.fav,id,val);
-    list.save(list.fav,'list_fav');
+    list.fav_save();
   },
   fav_del:function(id,val){
     list.del(list.fav,id,val);
-    list.save(list.fav,'list_fav');
+    list.fav_save();
   },
   fav_exists(id){
     return list.exists(list.fav,id);
@@ -370,10 +376,25 @@ const pb={
       'url':pb.data.url,
       'title':pb.data.title,
       'poster':pb.data.poster,
+      'ep':pb.ep_val,
       'episode':pb.ep_title,
       'tip':pb.tip_value
     };
     return ob;
+  },
+
+  playnext_update:function(pos,dur){
+    try{
+      list.history.detail[pb.data.animeid].play=[pos,dur];
+    }catch(e){}
+    try{
+      if (pb.data.animeid in list.fav.detail)
+        list.fav.detail[pb.data.animeid].play=[pos,dur];
+    }catch(e){}
+    try{
+      _JSAPI.playNextPos(pos,dur);
+      pb.playnext_last_tick=$tick()+2000;
+    }catch(e){}
   },
 
   tip_value:'',
@@ -517,6 +538,12 @@ const pb={
     pb.pb_actions.classList.remove('active');
     if (close){
       try{
+        list.history_save();
+        if (pb.data.animeid in list.fav.detail){
+          list.fav_save();
+        }
+      }catch(e){}
+      try{
         _JSAPI.playNextRegister();
       }catch(e){}
 
@@ -616,8 +643,7 @@ const pb={
 
       try{
         if (pb.playnext_last_tick<$tick()){
-          _JSAPI.playNextPos(Math.floor(pb.vid_stat.pos),Math.ceil(pb.vid_stat.duration));
-          pb.playnext_last_tick=$tick()+2000;
+          pb.playnext_update(Math.floor(pb.vid_stat.pos),Math.ceil(pb.vid_stat.duration));
         }
       }catch(e){}
     }
@@ -846,10 +872,12 @@ const pb={
     if (!action) return false;
     console.log("action_handler -> "+action+" / "+arg);
     if (action.startsWith("http")){
-      var args=[0,0];
+      var args=[0,0,0];
       if (arg)
         args=arg.split(';');
-      pb.open(action, args[0], parseInt(args[1]));
+      var startpos=0;
+      if (args.length>=3) startpos=parseInt(args[2]);
+      pb.open(action, args[0], parseInt(args[1]), startpos);
       return true;
     } 
     else if (action.startsWith("!")){
@@ -1015,7 +1043,8 @@ const pb={
         return true;
       }
       else{
-        n=g.P.firstElementChild;
+        if (!g._nojump)
+          n=g.P.firstElementChild;
       }
     }
     else if (c==KPGDOWN){
@@ -1024,7 +1053,8 @@ const pb={
         return true;
       }
       else{
-        n=g.P.lastElementChild;
+        if (!g._nojump)
+          n=g.P.lastElementChild;
       }
     }
     if (n){
@@ -1179,6 +1209,7 @@ const pb={
   init_episode_title:function(d,idx){
     if (d.active){
       pb.ep_index=idx;
+      pb.ep_val=d.ep+'';
       pb.ep_title='EPISODE '+(d.ep);
       if (pb.data.ep.length>1)
         pb.ep_num='EP.'+(d.ep);
@@ -1569,6 +1600,16 @@ const home={
         var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
+        var infotxt='';
+        if (d.type){
+          infotxt+='<span class="info_type">'+special(d.type)+'</span>';
+        }
+        if (d.ep){
+          infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+        }
+        if (infotxt){
+          hl._ep=$n('span','info',null,hl,infotxt);
+        }
       }
       while (g.P.childElementCount>30){
         g._spre.push(g.P.firstElementChild.nextElementSibling);
@@ -1600,6 +1641,7 @@ const home={
   recent_init:function(rc){
     rc._page=1;
     pb.menu_clear(rc);
+    rc._nojump=true;
     rc._keycb=pb.menu_keycb;
     rc._spre=[];
     rc._spost=[];
@@ -1729,11 +1771,33 @@ const home={
         var id=o.list[o.list.length-(i+1)];
         var d=o.detail[id];
         if (d){
-          var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},h.P,'');
+          var addarg='';
+          var vplay=null;
+          if (d.play&&(d.play.length==2)){
+            vplay=d.play;
+            addarg=';'+d.play[0];
+          }
+          var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'+addarg},h.P,'');
           var ps=d.poster.split('-w100');
           d.poster=ps[0];
           hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
           hl._title=$n('b','',null,hl,special(d.title));
+          var infotxt='';
+          if (d.type){
+            infotxt+='<span class="info_type">'+special(d.type)+'</span>';
+          }
+          if (d.ep){
+            infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+          }
+          if (infotxt){
+            hl._ep=$n('span','info',null,hl,infotxt);
+          }
+          if (vplay){
+            if (vplay[1]>0){
+              var pct=(parseFloat(vplay[0])/parseFloat(vplay[1]))*100.0;
+              hl._prog=$n('i','progress',null,hl,'<em style="width:'+pct+'%"></em>');
+            }
+          }
         }
       }
       pb.menu_select(h,h.P.firstElementChild);
@@ -1784,16 +1848,16 @@ const home={
     home.home_top._keycb=pb.menu_keycb;
     home.menus[home.menu_sel].classList.add('active');
 
-    home.bgimg=new Image();
-    home.bgimg.className='mainbgimage nonactive';
-    home.bgimg.onload=function(){
-      body.appendChild(home.bgimg);
-      setTimeout(function(){
-        home.bgimg.className='mainbgimage';
-      },10);
-    };
-    home.bgimg.src='bg.webp';
-    home.bgimg.style.zIndex='1';
+    // home.bgimg=new Image();
+    // home.bgimg.className='mainbgimage nonactive';
+    // home.bgimg.onload=function(){
+    //   body.appendChild(home.bgimg);
+    //   setTimeout(function(){
+    //     home.bgimg.className='mainbgimage';
+    //   },10);
+    // };
+    // home.bgimg.src='bg.webp';
+    // home.bgimg.style.zIndex='1';
 
     home.home_header._keycb=home.header_keycb;
   },
@@ -1838,6 +1902,15 @@ const home={
           d.title=tt.textContent.trim();
           d.poster=im.querySelector('img').src;
           d.tip=im.querySelector('div.poster.tip').getAttribute('data-tip');
+          var epel=im.querySelector('span.ep-status.total');
+          if (!epel)
+            epel=im.querySelector('span.ep-status.sub');
+          if (epel){
+            d.ep=(epel.textContent+'').trim();
+          }
+          try{
+            d.type=im.querySelector('div.right').textContent.trim();
+          }catch(e){}
           rd.push(d);
         }
       }
@@ -1852,6 +1925,16 @@ const home={
           var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
           hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
           hl._title=$n('b','',null,hl,special(d.title));
+          var infotxt='';
+          if (d.type){
+            infotxt+='<span class="info_type">'+special(d.type)+'</span>';
+          }
+          if (d.ep){
+            infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+          }
+          if (infotxt){
+            hl._ep=$n('span','info',null,hl,infotxt);
+          }
         }
         while (g.P.childElementCount>60){
           g._spre.push(g.P.firstElementChild.nextElementSibling);
@@ -1894,6 +1977,7 @@ const home={
           rc._page=1;
           rc._havenext=false;
           pb.menu_clear(rc);
+          rc._nojump=true;
           rc._keycb=pb.menu_keycb;
           rc._spre=[];
           rc._spost=[];
@@ -1917,6 +2001,7 @@ const home={
       rc._page=1;
       rc._havenext=false;
       pb.menu_clear(rc);
+      rc._nojump=true;
       rc._keycb=pb.menu_keycb;
       rc._spre=[];
       rc._spost=[];
