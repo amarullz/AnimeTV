@@ -248,12 +248,14 @@ c.loader {
   opacity: 0;
   visibility: hidden;
   z-index: 9999;
+  pointer-events: none;
 }
 
 #pb.active {
   transform: scale(1);
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 #pb_loading {
@@ -388,7 +390,8 @@ c.loader {
   padding: 0;
   position: relative;
   display: block;
-  transition: transform var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: transform var(--tim-3s) cubic-bezier(.25, .8, .25, 1),
+    margin-left var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
   transform: translateX(0);
   left: -5vw;
   padding-left: 5vw;
@@ -1098,12 +1101,14 @@ c.loader {
   opacity: 0;
   visibility: hidden;
   z-index: 100;
+  pointer-events: none;
 }
 
 #search.active {
   transform: scale(1);
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 #search_keyword {

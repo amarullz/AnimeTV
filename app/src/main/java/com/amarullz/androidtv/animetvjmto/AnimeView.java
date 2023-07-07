@@ -10,7 +10,6 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -35,7 +34,7 @@ public class AnimeView extends WebViewClient {
   public String playerInjectString;
   public boolean webViewReady=false;
 
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {

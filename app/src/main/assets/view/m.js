@@ -104,6 +104,21 @@ window._KEYEV=function(key){
   return false;
 };
 
+/**** NON KEY GESTURES ******/
+(function(){
+  window.addEventListener("wheel", event => {
+    if (event.deltaY < 0)
+    {
+      _KEYEV(KUP);
+    }
+    else if (event.deltaY > 0)
+    {
+      _KEYEV(KDOWN);
+    }
+  });
+})();
+/**** NON KEY GESTURES ******/
+
 /* JS default key event listener */
 document.addEventListener('keydown', function(e) { 
   var key = e.keyCode || e.which;
@@ -988,6 +1003,92 @@ const pb={
   },
 
   /* menu key handler */
+  gestures:{
+    pos:function(ev){
+      var pX=0;
+      var pY=0;
+      if (ev.touches){
+        if (ev.touches.length>0){
+          pX=ev.touches[0].screenX;
+          pY=ev.touches[0].screenY;
+        }
+      }
+      else{
+        pX=ev.screenX;
+        pY=ev.screenY;
+      }
+      return [pX,pY];
+    },
+    start:function(ev){
+      var p=pb.gestures.pos(ev);
+      if (p[0]&&p[1])
+        this.__gesture_start=p;
+      else
+        this.__gesture_start=null;
+      this.__gesture_moved=false;
+      ev.preventDefault();
+    },
+    move:function(ev){
+      var s=this.__gesture_start;
+      if (s){
+        var p=pb.gestures.pos(ev);
+        var xmove=p[0]-s[0];
+        if (this.P){
+          if (Math.abs(xmove)<(window.innerWidth*0.06)){
+            this.P.style.marginLeft=(xmove/1.5)+'px';
+          }
+          else{
+            this.P.style.marginLeft='';
+            this.__gesture_start=p;
+            this.__gesture_moved=true;
+            if (xmove<0){
+              this._keycb(this,KRIGHT);
+            }
+            else{
+              this._keycb(this,KLEFT);
+            }
+          }
+        }
+      }
+    },
+    end:function(ev){
+      this.P.style.marginLeft='';
+      this.__gesture_start=null;
+      if (!this.__gesture_moved){
+        var tp=ev.target;
+        while(tp){
+          if (tp.parentNode==this.P){
+            break;
+          }
+          else if (tp==this){
+            tp=null;
+            break;
+          }
+          tp=tp.parentNode;
+        }
+        if (tp){
+          if (tp.classList.contains('active')){
+            this._keycb(this,KENTER);
+          }
+          else{
+            pb.menu_select(this,tp);
+          }
+        }
+      }
+      this.__gesture_moved=false;
+      console.log([this,ev]);
+    },
+  },
+  menu_gesture_init:function(g){
+    g.ontouchstart=pb.gestures.start;
+    g.ontouchmove=pb.gestures.move;
+    g.ontouchend=pb.gestures.end;
+  },
+
+  menu_init:function(g){
+    g._keycb=pb.menu_keycb;
+    pb.menu_gesture_init(g);
+  },
   menu_keycb:function(g,c,z){
     var n=null;
     if (!('_margin' in g)){
@@ -1464,12 +1565,21 @@ const pb={
 
     /* ACTIONS */
     pb.pb_genres._midx=4;
-    pb.pb_settings._keycb=
-    pb.pb_genres._keycb=
-    pb.pb_episodes._keycb=
-    pb.pb_seasons._keycb=
-    pb.pb_related._keycb=
-    pb.pb_recs._keycb=pb.menu_keycb;
+    // pb.pb_settings._keycb=
+    // pb.pb_genres._keycb=
+    // pb.pb_episodes._keycb=
+    // pb.pb_seasons._keycb=
+    // pb.pb_related._keycb=
+    // pb.pb_recs._keycb=pb.menu_keycb;
+
+    pb.menu_init(pb.pb_settings);
+    pb.menu_init(pb.pb_genres);
+    pb.menu_init(pb.pb_episodes);
+    pb.menu_init(pb.pb_seasons);
+    pb.menu_init(pb.pb_related);
+    pb.menu_init(pb.pb_recs);
+    
+
     pb.pb_tracks._keycb=pb.track_keycb;
     pb.menusel=1;
     
@@ -1642,7 +1752,9 @@ const home={
     rc._page=1;
     pb.menu_clear(rc);
     rc._nojump=true;
-    rc._keycb=pb.menu_keycb;
+    // rc._keycb=pb.menu_keycb;
+    pb.menu_init(rc);
+
     rc._spre=[];
     rc._spost=[];
     rc.__update_pre=function(){
@@ -1802,7 +1914,8 @@ const home={
       }
       pb.menu_select(h,h.P.firstElementChild);
     }
-    h._keycb=pb.menu_keycb;
+    // h._keycb=pb.menu_keycb;
+    pb.menu_init(h);
   },
   list_init:function(){
     console.log(home);
@@ -1844,8 +1957,10 @@ const home={
     home.home_slide._itemwidth=function(){
       return (window.innerWidth * 0.3);
     };
-    home.home_slide._keycb=pb.menu_keycb;
-    home.home_top._keycb=pb.menu_keycb;
+    // home.home_slide._keycb=pb.menu_keycb;
+    // home.home_top._keycb=pb.menu_keycb;
+    pb.menu_init(home.home_slide);
+    pb.menu_init(home.home_top);
     home.menus[home.menu_sel].classList.add('active');
 
     // home.bgimg=new Image();
@@ -1978,7 +2093,8 @@ const home={
           rc._havenext=false;
           pb.menu_clear(rc);
           rc._nojump=true;
-          rc._keycb=pb.menu_keycb;
+          // rc._keycb=pb.menu_keycb;
+          pb.menu_init(rc);
           rc._spre=[];
           rc._spost=[];
           rc._onload=0;
@@ -2002,7 +2118,8 @@ const home={
       rc._havenext=false;
       pb.menu_clear(rc);
       rc._nojump=true;
-      rc._keycb=pb.menu_keycb;
+      // rc._keycb=pb.menu_keycb;
+      pb.menu_init(rc);
       rc._spre=[];
       rc._spost=[];
       rc._onload=0;
@@ -2101,7 +2218,8 @@ const home={
 
       pb.menu_clear(home.search.genres);
       home.search.genreval=[];
-      home.search.genres._keycb=pb.menu_keycb;
+      //home.search.genres._keycb=pb.menu_keycb;
+      pb.menu_init(home.search.genres);
       home.search.genres._enter_cb=home.search.genresel;
       home.search.genres._els={};
       var vsel=null;
