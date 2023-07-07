@@ -42,9 +42,9 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="true"
             android:hardwareAccelerated="true"
-            android:icon="@drawable/app_icon_your_company"
+            android:icon="@mipmap/ic_launcher"
             android:launchMode="singleInstance"
-            android:logo="@drawable/app_icon_your_company"
+            android:logo="@mipmap/ic_launcher"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
