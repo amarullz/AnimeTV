@@ -165,6 +165,33 @@ const KPGDOWN=34;
 
 /***************************** API HANDLERS *****************************/
 const _API={
+  theme_list:[
+    '',
+    'theme_blue',
+    'theme_teal',
+    'theme_green',
+    'theme_brown',
+    'theme_red',
+    'theme_grey'
+  ],
+  theme_sel:0,
+  theme_update:function(){
+    var itm=localStorage.getItem("theme");
+    if (itm){
+      document.documentElement.className=itm;
+      _API.theme_sel=_API.theme_list.indexOf(itm);
+      if (_API.theme_sel<0) _API.theme_sel=0;
+    }
+    else{
+      document.documentElement.className='';
+    }
+  },
+  theme_next:function(){
+    if (++_API.theme_sel>=_API.theme_list.length)
+      _API.theme_sel=0;
+    localStorage.setItem("theme", _API.theme_list[_API.theme_sel]);
+    _API.theme_update();
+  },
   keycb:null,
   messagecb:null,
   mp4cb:null,
@@ -332,6 +359,7 @@ const _API={
   }
 };
 _API.setVideo('');
+_API.theme_update();
 
 /****************************** HISTORY & WATCHLIST ******************************/
 const list={
@@ -1767,6 +1795,8 @@ const home={
   home_fav:$('home_fav'),
 
   home_header:$('home_header'),
+  home_search:$('home_search'),
+  home_theme:$('home_theme'),
   bgimg:null,
 
   recent_parse:function(g,v){
@@ -2061,6 +2091,7 @@ const home={
     // home.bgimg.style.zIndex='1';
 
     home.home_header._keycb=home.header_keycb;
+    home.home_search.classList.add('active');
   },
 
   search:{
@@ -2361,10 +2392,26 @@ const home={
   },
 
   header_keycb:function(g,c){
-    if (c==KENTER){
-      home.search.open({
-        // genre:'romance'
-      });
+    var ca=home.home_search.classList.contains('active');
+    if (c==KLEFT||c==KRIGHT){
+      if (ca){
+        home.home_theme.classList.add('active');
+        home.home_search.classList.remove('active');
+      }
+      else{
+        home.home_theme.classList.remove('active');
+        home.home_search.classList.add('active');
+      }
+    }
+    else if (c==KENTER){
+      if (ca){
+        home.search.open({
+          // genre:'romance'
+        });
+      }
+      else{
+        _API.theme_next();
+      }
     }
   },
 

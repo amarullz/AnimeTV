@@ -54,6 +54,51 @@
   --dimm-1: #234;
 }
 
+:root.theme_teal {
+  --primary-bg: #022;
+  --primary-1: #033;
+  --primary-2: #055;
+  --primary-3: #077;
+  --accent-1: #0aa;
+  --dimm-1: #234;
+}
+
+:root.theme_blue {
+  --primary-bg: #012;
+  --primary-1: #014;
+  --primary-2: #026;
+  --primary-3: #248;
+  --accent-1: #47b;
+  --dimm-1: #234;
+}
+
+:root.theme_brown {
+  --primary-bg: #210;
+  --primary-1: #420;
+  --primary-2: #640;
+  --primary-3: #852;
+  --accent-1: #b70;
+  --dimm-1: #234;
+}
+
+:root.theme_red {
+  --primary-bg: #200;
+  --primary-1: #400;
+  --primary-2: #600;
+  --primary-3: #822;
+  --accent-1: #b44;
+  --dimm-1: #234;
+}
+
+:root.theme_grey {
+  --primary-bg: #222;
+  --primary-1: #444;
+  --primary-2: #666;
+  --primary-3: #358;
+  --accent-1: #37b;
+  --dimm-1: #234;
+}
+
 :root.ani_quick {
   --tim-10s: .5s;
   --tim-1s: .05s;
@@ -245,7 +290,7 @@ c.loader {
   background-position: center center;
   background-repeat: no-repeat;
   transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
-  transform: scale(.5);
+  transform: scale(.2) translateY(80vh);
   opacity: 0;
   visibility: hidden;
   z-index: 9999;
@@ -254,7 +299,7 @@ c.loader {
 
 .playback_on_video #animebg,
 .playback_on_video #pb {
-  background: transparent !important;
+  background: rgba(0,0,0,0) !important;
   background-image: none !important;
 }
 
@@ -264,7 +309,7 @@ c.loader {
 }
 
 #pb.active {
-  transform: scale(1);
+  transform: scale(1) translateY(0);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -1105,6 +1150,23 @@ c.loader {
   transform: scale(.8);
 }
 
+#home_theme {
+  position: absolute;
+  left: 13.5vw;
+  top: 4vw;
+  width: 3vw;
+  height: 3vw;
+  line-height: 3vw;
+  font-size: 2vw;
+  padding-left: .5vw;
+  padding-right: .5vw;
+  text-align: center;
+  border-radius: 1vw;
+  background: var(--primary-1);
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  transform: scale(.8);
+}
+
 #home_about{
   text-align: center;
   padding-top: 1vw;
@@ -1118,8 +1180,8 @@ c.loader {
   font-size:1vw;
   box-shadow: 0 .14vw .28vw rgba(0, 0, 0, 0.25), 0 1vw 1vw rgba(0, 0, 0, 0.22);
 }
-
-#home_header.active #home_search {
+#home_header.active #home_theme.active,
+#home_header.active #home_search.active {
   transform: scale(1);
   background: var(--primary-3);
   box-shadow: 0 .14vw .28vw rgba(0, 0, 0, 0.25), 0 1vw 1vw rgba(0, 0, 0, 0.22);
@@ -1127,6 +1189,9 @@ c.loader {
 
 #home_header.scrolled h1 {
   font-size: 3vw;
+}
+#home_header.scrolled #home_theme {
+  opacity:0;
 }
 #home_header.scrolled #home_search {
   transform: scale(.6);
@@ -1150,7 +1215,7 @@ c.loader {
   background-position: center center;
   background-repeat: no-repeat;
   transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
-  transform: scale(.5);
+  transform: scaleY(.5) translateY(-50vh);
   opacity: 0;
   visibility: hidden;
   z-index: 100;
@@ -1158,7 +1223,7 @@ c.loader {
 }
 
 #search.active {
-  transform: scale(1);
+  transform: scaleY(1) translateY(0);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
