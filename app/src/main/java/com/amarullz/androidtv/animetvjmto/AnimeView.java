@@ -7,10 +7,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -44,10 +46,33 @@ public class AnimeView extends WebViewClient {
 
   public static boolean USE_WEB_VIEW_ASSETS=true;
 
+  private void setFullscreen(boolean fullscreen){
+    if (fullscreen){
+      activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+              WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+      View decorView = activity.getWindow().getDecorView();
+      int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
+              | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+              | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+              | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+              | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+      decorView.setSystemUiVisibility(uiOptions);
+    }
+    else{
+      View decorView = activity.getWindow().getDecorView();
+      decorView.setSystemUiVisibility(0);
+      activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+  }
+
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
     WebView.setWebContentsDebuggingEnabled(true);
+
+    setFullscreen(true);
+
     splash=activity.findViewById(R.id.splash);
     videoLayout= activity.findViewById(R.id.video_layout);
     videoView = activity.findViewById(R.id.videoview);
