@@ -323,7 +323,7 @@ const _API={
             }
           }
         }
-      },100);
+      },250);
     }
     else{
       body.classList.remove('playback_on_video');
