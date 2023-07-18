@@ -72,7 +72,8 @@ html {
   font-family: robotoc, arial, tahoma, sans-serif;
   font-size: 10px;
   font-weight: normal;
-  background-color: var(--primary-bg);
+  /* background-color: var(--primary-bg); */
+  background: transparent !important;
   color: #fff;
   scroll-behavior: smooth;
   overflow: hidden;
@@ -249,6 +250,17 @@ c.loader {
   visibility: hidden;
   z-index: 9999;
   pointer-events: none;
+}
+
+.playback_on_video #animebg,
+.playback_on_video #pb {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+.playback_on_video #animebg,
+.playback_on_video #home {
+  display: none !important;
 }
 
 #pb.active {
@@ -1083,12 +1095,13 @@ c.loader {
   box-shadow: 0 .14vw .28vw rgba(0, 0, 0, 0.25), 0 1vw 1vw rgba(0, 0, 0, 0.22);
 }
 
-#animebg{
+#animebg {
   position: fixed;
   inset: 0;
-  background: linear-gradient(180deg, var(--primary-bg), rgba(0,0,0,.5) 100%);
+  background: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%);
   z-index: 0;
 }
+
 #search {
   position: fixed;
   inset: 0;
@@ -1147,8 +1160,8 @@ c.loader {
   display: block;
   position: absolute;
   z-index: 300;
-  top:.2vw;
-  right:.2vw;
+  top: .2vw;
+  right: .2vw;
   font-size: .8vw;
   line-height: 1.2vw;
   opacity: .5;
@@ -1158,27 +1171,32 @@ c.loader {
   background-color: var(--primary-bg);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
 }
-.home_list.active p div.active span.info{
+
+.home_list.active p div.active span.info {
   opacity: 1;
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
 }
+
 .home_list p div span.info span {
   margin: 0;
-  padding:0 .3vw 0 .3vw;
+  padding: 0 .3vw 0 .3vw;
   display: inline-block;
   line-height: 1.2vw;
-  border-left: .05vw solid rgba(255,255,255,.1);
+  border-left: .05vw solid rgba(255, 255, 255, .1);
 }
-.home_list p div span.info span:first-child{
+
+.home_list p div span.info span:first-child {
   border-left: none !important;
 }
-.home_list p div span.info span.info_ep{
+
+.home_list p div span.info span.info_ep {
   background-color: var(--primary-1);
   font-weight: bold;
 }
+
 .home_list p div i {
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
   display: block;
   position: absolute;
   z-index: 300;
@@ -1188,10 +1206,11 @@ c.loader {
   height: .3vw;
   border-radius: .2vw;
   overflow: hidden;
-  background-color: rgba(0,0,0,.5);
+  background-color: rgba(0, 0, 0, .5);
 }
+
 .home_list p div i em {
   display: block;
   height: .3vw;
-  background-color: rgba(255,255,255,.8);
+  background-color: rgba(255, 255, 255, .8);
 }
