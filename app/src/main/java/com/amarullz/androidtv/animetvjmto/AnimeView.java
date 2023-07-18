@@ -290,10 +290,44 @@ public class AnimeView extends WebViewClient {
     public void videoSetUrl(String url){
       Log.d(_TAG,"Video Set URL = "+url);
       activity.runOnUiThread(()->{
-        videoView.setVideoURI(Uri.parse(url));
-        videoView.start();
+        if (url.equals("")){
+          videoView.stopPlayback();
+        }
+        else {
+          videoView.setVideoURI(Uri.parse(url));
+          videoView.start();
+        }
       });
+    }
 
+    @JavascriptInterface
+    public void videoSetPosition(int pos){
+      activity.runOnUiThread(()->{
+        videoView.seekTo(pos*1000);
+      });
+    }
+    @JavascriptInterface
+    public int videoGetDuration(){
+      return (int) Math.floor(videoView.getDuration()/1000.0f);
+    }
+
+    @JavascriptInterface
+    public boolean videoIsPlaying(){
+      return videoView.isPlaying();
+    }
+    @JavascriptInterface
+    public int videoGetPosition(){
+      return (int) Math.ceil(videoView.getCurrentPosition()/1000.0f);
+    }
+
+    @JavascriptInterface
+    public void videoPlay(boolean play){
+      activity.runOnUiThread(()->{
+        if (play)
+          videoView.start();
+        else
+          videoView.pause();
+      });
     }
 
     @JavascriptInterface
