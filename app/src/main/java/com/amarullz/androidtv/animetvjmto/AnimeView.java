@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.SystemClock;
@@ -18,6 +19,9 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.VideoView;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,17 +33,24 @@ public class AnimeView extends WebViewClient {
   private static final String _TAG="ATVLOG-VIEW";
   private final Activity activity;
   public final WebView webView;
+  public final VideoView videoView;
+  public final ImageView splash;
+  public final RelativeLayout videoLayout;
+
   public final AnimeApi aApi;
 
   public String playerInjectString;
   public boolean webViewReady=false;
 
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
     WebView.setWebContentsDebuggingEnabled(true);
+    splash=activity.findViewById(R.id.splash);
+    videoLayout= activity.findViewById(R.id.video_layout);
+    videoView = activity.findViewById(R.id.videoview);
     webView = activity.findViewById(R.id.webview);
     webView.requestFocus();
     webView.setBackgroundColor(0xffffffff);
@@ -65,6 +76,9 @@ public class AnimeView extends WebViewClient {
       }
     });
     webView.setVerticalScrollBarEnabled(false);
+    webView.setBackgroundColor(Color.TRANSPARENT);
+
+    initVideoView();
 
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
@@ -72,6 +86,10 @@ public class AnimeView extends WebViewClient {
 
     // Init Channel Provider
     AnimeProvider.executeJob(activity);
+  }
+
+  public void initVideoView(){
+//    videoView.setListe
   }
 
   @Override
@@ -125,8 +143,8 @@ public class AnimeView extends WebViewClient {
       } catch (Exception ignored) {}
       return aApi.badRequest;
     }
-    else if (host.contains("vizcloud.co")||host.contains("mcloud.to")){
-      if (accept.startsWith("text/html")||url.startsWith("https://vizcloud.co/mediainfo")) {
+    else if (host.contains("vidstream.pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
+      if (accept.startsWith("text/html")||url.startsWith("https://vizcloud.co/mediainfo")||url.startsWith("https://mcloud.to/mediainfo")||url.startsWith("https://vidstream.pro/mediainfo")) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
         try {
           HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
@@ -140,6 +158,7 @@ public class AnimeView extends WebViewClient {
             aApi.injectString(buffer, playerInjectString);
           }
           else{
+            Log.d(_TAG,"sendM3U8Req = "+buffer.toString("UTF-8"));
             sendM3U8Req(buffer.toString("UTF-8"));
           }
           InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
@@ -268,6 +287,16 @@ public class AnimeView extends WebViewClient {
     }
 
     @JavascriptInterface
+    public void videoSetUrl(String url){
+      Log.d(_TAG,"Video Set URL = "+url);
+      activity.runOnUiThread(()->{
+        videoView.setVideoURI(Uri.parse(url));
+        videoView.start();
+      });
+
+    }
+
+    @JavascriptInterface
     public void playNextPos(int pos, int duration){
       pnUpdated=true;
       pnPos=pos;
@@ -291,6 +320,8 @@ public class AnimeView extends WebViewClient {
 
   @Override
   public void onPageFinished(WebView view, String url) {
+    splash.setVisibility(View.GONE);
+    videoLayout.setVisibility(View.VISIBLE);
     webView.setVisibility(View.VISIBLE);
     activity.runOnUiThread(webView::requestFocus);
     webViewReady=true;

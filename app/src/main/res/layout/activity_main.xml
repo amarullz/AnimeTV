@@ -11,7 +11,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
+        android:id="@+id/splash"
         android:src="@drawable/splash" />
+    <RelativeLayout
+        android:background="#ff000000"
+        android:id="@+id/video_layout"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <VideoView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:id="@+id/videoview"
+            />
+    </RelativeLayout>
     <WebView
         android:visibility="invisible"
         android:layout_width="match_parent"
