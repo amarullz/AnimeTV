@@ -216,7 +216,8 @@ function ___PLAYER(player){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
                 server_state=1;
-                server[0].nextElementSibling.click();
+                /*server[0].nextElementSibling.click();*/
+                server[0].click();
                 startFetchTimeout(4000);
                 return;
             }

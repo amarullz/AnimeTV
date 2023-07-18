@@ -872,7 +872,7 @@ const pb={
     _API.setVizCb(function(d){
       try{
         if (d.data.media.sources){
-          var urivid=d.data.media.sources[1].file;
+          var urivid=(d.data.media.sources.length>1)?d.data.media.sources[1].file:d.data.media.sources[0].file;
           pb.data.vizm3u8=urivid;
           console.log("ATVLOG Got VizCB = "+urivid);
           if (pb.cfg('server')==1){
