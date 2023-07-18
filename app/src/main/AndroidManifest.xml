@@ -39,7 +39,7 @@
         <activity
             android:name=".MainActivity"
             android:banner="@drawable/app_icon_your_company"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|colorMode|density|fontScale|fontWeightAdjustment|layoutDirection|locale|mcc|mnc|navigation|screenLayout|smallestScreenSize|touchscreen|uiMode"
             android:exported="true"
             android:hardwareAccelerated="true"
             android:icon="@mipmap/ic_launcher"

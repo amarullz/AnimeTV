@@ -273,8 +273,8 @@ const _API={
   vidInterval:null,
   videoGetPos:function(){
     return {
-      position:_JSAPI.videoGetPosition(),
-      duration:_JSAPI.videoGetDuration()
+      position:_JSAPI.videoGetPosition()/1000.0,
+      duration:_JSAPI.videoGetDuration()/1000.0
     };
   },
   videoPlay:function(){
@@ -284,7 +284,7 @@ const _API={
     _JSAPI.videoPlay(false);
   },
   videoSeek:function(v){
-    _JSAPI.videoSetPosition(v);
+    _JSAPI.videoSetPosition(v*1000);
   },
   setVideo:function(src, cb){
     clearInterval(_API.vidInterval);
@@ -508,8 +508,8 @@ const pb={
     pb.cfg_data.server=0;
   },
   cfgserver_name:[
-    'VIZCLOUD',
     'VIZCLOUD M3U8',
+    'VIZCLOUD HTML5',
     'MP4UPLOAD'
   ],
   cfg_save:function(){
@@ -707,7 +707,7 @@ const pb={
       var ct=pb.vid_stat.pos;
       for (var i=0;i<pb.data.skip.length;i++){
           if ((pb.data.skip[i][0]<ct)&&(pb.data.skip[i][1]>ct)){
-              sk=pb.data.skip[i][1];
+              sk=pb.data.skip[i][1]+1;
           }
       }
       if (sk>0){
@@ -875,7 +875,7 @@ const pb={
           var urivid=(d.data.media.sources.length>1)?d.data.media.sources[1].file:d.data.media.sources[0].file;
           pb.data.vizm3u8=urivid;
           console.log("ATVLOG Got VizCB = "+urivid);
-          if (pb.cfg('server')==1){
+          if (pb.cfg('server')==0){
             pb.pb_vid.innerHTML='';
             pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
             _API.setMessage(null);
@@ -1171,7 +1171,7 @@ const pb={
 
   menu_init:function(g){
     g._keycb=pb.menu_keycb;
-    pb.menu_gesture_init(g);
+    // pb.menu_gesture_init(g);
   },
   menu_keycb:function(g,c,z){
     var n=null;
@@ -1755,6 +1755,8 @@ rosebudemphasizelesson.com
 const home={
   home_onload:false,
   home:$('home'),
+  home_scroll_mask:$('home_scroll_mask'),
+  home_scroll:$('home_scroll'),
   home_slide:$('home_slide'),
   home_recent:$('home_recent'),
   home_trending:$('home_trending'),
@@ -2395,9 +2397,13 @@ const home={
       home.menu_sel=pc;
       home.menus[home.menu_sel].classList.add('active');
       if (home.menu_sel>1)
-        home.home.style.transform="translateY("+(18-(21.65*(home.menu_sel-1)))+"vw)";
+        home.home_scroll.style.transform="translateY("+(18-(21.65*(home.menu_sel-1)))+"vw)";
       else
-        home.home.style.transform="translateY(0)";
+        home.home_scroll.style.transform="translateY(0)";
+      if (home.menu_sel>1)
+        home.home_header.classList.add('scrolled');
+      else
+        home.home_header.classList.remove('scrolled');
     }
   },
 };
@@ -2416,3 +2422,73 @@ window.__ARGUPDATE=function(){
 
 window.__ARGUPDATE();
 home.init();
+
+(function(){
+  var xDown = null;
+  var yDown = null;
+  var tIsMove=false;
+  function getTouches(evt) {
+    return evt.touches ||             // browser API
+           evt.originalEvent.touches; // jQuery
+  }
+  function handleTouchStart(evt) {
+      const firstTouch = getTouches(evt)[0];
+      xDown = firstTouch.clientX;
+      yDown = firstTouch.clientY;
+      tIsMove=false;
+  }
+  function handleTouchMove(evt) {
+      if ( ! xDown || ! yDown ) {
+          return;
+      }
+      var xUp = evt.touches[0].clientX;
+      var yUp = evt.touches[0].clientY;
+      var xDiff = xDown - xUp;
+      var yDiff = yDown - yUp;
+      var minMove=window.innerWidth*0.07;
+      var minCancel=window.innerWidth*0.02;
+      if ( Math.abs( xDiff ) < Math.abs( yDiff ) ) {
+        if (Math.abs( yDiff )>minMove){
+          if ( yDiff > 0 ) {
+            /* down swipe */
+            window._KEYEV(KDOWN);
+          } else {
+            /* up swipe */
+            window._KEYEV(KUP);
+          }
+          /* Update Values */
+          xDown = xUp;
+          yDown = yUp;
+        }
+        if (!tIsMove&&Math.abs( yDiff )>minCancel){
+          tIsMove=true;
+        }
+      }
+      else{
+        if (Math.abs( xDiff )>minMove){
+          if ( xDiff > 0 ) {
+            window._KEYEV(KRIGHT);
+          } else {
+            window._KEYEV(KLEFT);
+          }
+          /* Update Values */
+          xDown = xUp;
+          yDown = yUp;
+        }
+      }
+      if (!tIsMove){
+        if (Math.abs(xDiff)+Math.abs(yDiff)>minCancel){
+          tIsMove=true;
+        }
+      }
+  }
+  function handleTouchEnd(evt){
+    if (!tIsMove){
+      window._KEYEV(KENTER);
+    }
+    tIsMove=false;
+  }
+  document.addEventListener('touchstart', handleTouchStart, false);
+  document.addEventListener('touchmove', handleTouchMove, false);
+  document.addEventListener('touchend', handleTouchEnd, false);
+})();

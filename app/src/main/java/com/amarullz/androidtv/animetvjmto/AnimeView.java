@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -46,8 +45,7 @@ public class AnimeView extends WebViewClient {
 
   public static boolean USE_WEB_VIEW_ASSETS=false;
 
-  private void setFullscreen(boolean fullscreen){
-    if (fullscreen){
+  private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
               WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -58,12 +56,6 @@ public class AnimeView extends WebViewClient {
               | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
               | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
       decorView.setSystemUiVisibility(uiOptions);
-    }
-    else{
-      View decorView = activity.getWindow().getDecorView();
-      decorView.setSystemUiVisibility(0);
-      activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    }
   }
 
   @SuppressLint("SetJavaScriptEnabled")
@@ -71,7 +63,7 @@ public class AnimeView extends WebViewClient {
     activity = mainActivity;
     WebView.setWebContentsDebuggingEnabled(true);
 
-    setFullscreen(true);
+    setFullscreen();
 
     splash=activity.findViewById(R.id.splash);
     videoLayout= activity.findViewById(R.id.video_layout);
@@ -317,6 +309,7 @@ public class AnimeView extends WebViewClient {
       activity.runOnUiThread(()->{
         if (url.equals("")){
           videoView.stopPlayback();
+          videoView.setVideoURI(null);
         }
         else {
           videoView.setVideoURI(Uri.parse(url));
@@ -327,13 +320,11 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public void videoSetPosition(int pos){
-      activity.runOnUiThread(()->{
-        videoView.seekTo(pos*1000);
-      });
+      activity.runOnUiThread(()-> videoView.seekTo(pos));
     }
     @JavascriptInterface
     public int videoGetDuration(){
-      return (int) Math.floor(videoView.getDuration()/1000.0f);
+      return (int) Math.floor(videoView.getDuration());
     }
 
     @JavascriptInterface
@@ -342,7 +333,7 @@ public class AnimeView extends WebViewClient {
     }
     @JavascriptInterface
     public int videoGetPosition(){
-      return (int) Math.ceil(videoView.getCurrentPosition()/1000.0f);
+      return (int) Math.ceil(videoView.getCurrentPosition());
     }
 
     @JavascriptInterface
