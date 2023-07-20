@@ -112,5 +112,11 @@ function findjw(){
     setTimeout(findjw,200);
 }
 findjw();
+try{
+    if (!$('player')){
+        parent.postMessage('player.error','*');
+    }
+}catch(e){}
+
 })();
 </script>

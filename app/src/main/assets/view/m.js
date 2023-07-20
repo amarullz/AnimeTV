@@ -146,6 +146,10 @@ window.__M3U8CB=function(d){
   if(_API.m3u8cb)
     _API.m3u8cb(d);
 }
+window.__VIDPAGELOADCB=function(d){
+  if(_API.vidpageload)
+    _API.vidpageload(d);
+}
 
 /* mp4upload url callback */
 window.__MP4CB=function(d){
@@ -197,6 +201,7 @@ const _API={
   mp4cb:null,
   viewcb:null,
   m3u8cb:null,
+  vidpageload:null,
   viewid:0,
   genres:{
   "_tv":"tv","_movie":"movie",
@@ -219,11 +224,17 @@ const _API={
     _API.mp4cb=null;
     _API.viewcb=null;
     _API.m3u8cb=null;
+    _API.vidpageload=null;
   },
 
   /* set vizcloud m3u8 callback */
   setVizCb:function(f){
     _API.m3u8cb=f;
+  },
+
+  /* set vizcloud page loaded callback */
+  setVizPageCb:function(f){
+    _API.vidpageload=f;
   },
 
   /* Set key handler */
@@ -792,6 +803,7 @@ const pb={
     pb.vid_stat.play=false;
   },
   init_video_mp4upload:function(src){
+    pb.pb_track_pos.innerHTML='STREAMING VIDEO';
     pb.vid_get_time_cb=function(){
       return _API.videoGetPos();
     };
@@ -894,6 +906,11 @@ const pb={
     _API.setMessage(function(e){
       if (e){
         try{
+          console.log("ATVLOG messageVal = "+e.data);
+          if (e.data=='player.error'){
+            __VIDPAGELOADCB(3);
+            return;
+          }
           var pd=JSON.parse(e.data);
           if (pd){
             if ('vcmd' in pd)
@@ -927,8 +944,39 @@ const pb={
       };
     };
 
+    var mp3utrycount=0;
+
+    _API.setVizPageCb(function(d){
+      if (d==0)
+        pb.pb_track_pos.innerHTML='INITIALIZING';
+      else if (d==1)
+        pb.pb_track_pos.innerHTML='LOADING STREAM DATA';
+      else if ((d==2)&&(++mp3utrycount<3)){
+        pb.pb_track_pos.innerHTML='RETRY LOADING';
+        pb.pb_vid.innerHTML='';
+        (function(){
+          pb.vid=$n('iframe','',{src:pb.data.stream_vurl,frameborder:'0'},pb.pb_vid,'');
+        })();
+      }
+      else{
+        /* error loading page - load mp4upload */
+        pb.pb_track_pos.innerHTML='CHANGING SERVER';
+        _API.getMp4(pb.data.stream_url,function(d){
+          try{
+            if (d&&d.src){
+              pb.data.__mp4uploadurl=d.src;
+              pb.init_video_mp4upload(d.src);
+              return;
+            }
+          }catch(e){}
+          pb.init_video_vidcloud();
+        });
+      }
+    });
+
     _API.setVizCb(function(d){
       try{
+        _API.setVizPageCb(null);
         if (d.data.media.sources){
           var urivid=(d.data.media.sources.length>1)?d.data.media.sources[1].file:d.data.media.sources[0].file;
           pb.data.vizm3u8=urivid;
@@ -945,9 +993,9 @@ const pb={
     });
 
     pb.pb_vid.innerHTML='';
-    requestAnimationFrame(function(){
+    (function(){
       pb.vid=$n('iframe','',{src:pb.data.stream_vurl,frameborder:'0'},pb.pb_vid,'');
-    });
+    })();
   },
 
   init_video:function(){
@@ -963,7 +1011,7 @@ const pb={
       pb.track_update_pos();
       pb.pb_track_ctl.innerHTML='change_circle';
       pb.pb_track_ctl.className='loader';
-      pb.pb_track_pos.innerHTML='STREAMING VIDEO';
+      pb.pb_track_pos.innerHTML='LOADING SERVER';
       pb.pb_track_dur.innerHTML='';
 
       if (pb.data.mp4&&(pb.cfg('server')==2)){

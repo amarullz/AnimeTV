@@ -83,6 +83,7 @@ public class AnimeView extends WebViewClient {
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);
     webSettings.setDomStorageEnabled(true);
+    webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
     webView.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     webView.setWebViewClient(this);
 
@@ -167,6 +168,8 @@ public class AnimeView extends WebViewClient {
     else if (host.contains("vidstream.pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
       if (accept.startsWith("text/html")||url.startsWith("https://vizcloud.co/mediainfo")||url.startsWith("https://mcloud.to/mediainfo")||url.startsWith("https://vidstream.pro/mediainfo")) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
+        if (!accept.startsWith("text/html"))
+          sendVidpageLoaded(1);
         try {
           HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
           for (Map.Entry<String, String> entry :
@@ -174,17 +177,23 @@ public class AnimeView extends WebViewClient {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
           }
           String[] cType = aApi.parseContentType(conn.getContentType());
-          ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
-          if (accept.startsWith("text/html")) {
-            aApi.injectString(buffer, playerInjectString);
+          if (conn.getResponseCode()==200) {
+            ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+            if (accept.startsWith("text/html")) {
+              aApi.injectString(buffer, playerInjectString);
+              sendVidpageLoaded(0);
+            } else {
+              Log.d(_TAG, "sendM3U8Req = " + buffer.toString("UTF-8"));
+              sendM3U8Req(buffer.toString("UTF-8"));
+            }
+            InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
+            return new WebResourceResponse(cType[0], cType[1], stream);
           }
-          else{
-            Log.d(_TAG,"sendM3U8Req = "+buffer.toString("UTF-8"));
-            sendM3U8Req(buffer.toString("UTF-8"));
-          }
-          InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-          return new WebResourceResponse(cType[0], cType[1], stream);
         } catch (Exception ignored) {}
+        if (!accept.startsWith("text/html"))
+          sendVidpageLoaded(2);
+        else
+          sendVidpageLoaded(3);
         return aApi.badRequest;
       }else if (accept.startsWith("text/css")||accept.startsWith("image/")){
         Log.d(_TAG,"BLOCK CSS/IMG = "+url);
@@ -213,6 +222,14 @@ public class AnimeView extends WebViewClient {
     AsyncTask.execute(() ->activity.runOnUiThread(() ->
             webView.evaluateJavascript(
                     "__M3U8CB("+data+");",null)
+    ));
+  }
+
+  public void sendVidpageLoaded(int v){
+    Log.d(_TAG,"sendVidpageLoaded --> "+v);
+    AsyncTask.execute(() ->activity.runOnUiThread(() ->
+        webView.evaluateJavascript(
+            "__VIDPAGELOADCB("+v+");",null)
     ));
   }
 
