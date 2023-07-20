@@ -3,7 +3,6 @@ package com.amarullz.androidtv.animetvjmto;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
@@ -110,7 +109,7 @@ public class MainActivity extends FragmentActivity {
     }
     return super.dispatchKeyEvent(event);
   }
-  
+
   @Override
   protected void onStop() {
     aView.updatePlayNext();

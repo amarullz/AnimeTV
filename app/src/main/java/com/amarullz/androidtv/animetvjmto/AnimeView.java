@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -109,12 +108,6 @@ public class AnimeView extends WebViewClient {
 
   public void initVideoView(){
     videoView.setOnPreparedListener(mediaPlayer -> mediaPlayer.setScreenOnWhilePlaying(true));
-    videoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-      @Override
-      public boolean onInfo(MediaPlayer mediaPlayer, int i, int i1) {
-        return false;
-      }
-    });
   }
 
   @Override
