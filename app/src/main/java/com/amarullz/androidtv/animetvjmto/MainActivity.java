@@ -48,15 +48,6 @@ public class MainActivity extends FragmentActivity {
 
     updateInstance(savedInstanceState);
     aView=new AnimeView(this);
-
-//    AnimeApi aApi=new AnimeApi(this);
-//    // https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc.vpml/ep-1
-//    aApi.getData("https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc.vpml/ep-1",result -> {
-//      Log.d("ATVLOG","Result View = "+result.Text);
-//      aApi.getData("https://9anime.to/watch/kizuna-no-allele.vvq72/ep-10",result2 -> {
-//        Log.d("ATVLOG","Result View 2 = "+result2.Text);
-//      });
-//    });
   }
 
   @Override
@@ -119,28 +110,36 @@ public class MainActivity extends FragmentActivity {
     }
     return super.dispatchKeyEvent(event);
   }
-
-  @Override
-  protected void onSaveInstanceState(Bundle outState)
-  {
-    super.onSaveInstanceState(outState);
-    aView.webView.saveState(outState);
-    aView.aApi.webView.saveState(outState);
-  }
-
+  
   @Override
   protected void onStop() {
-    Log.d("ATVLOG-MAIN","ONSTOP");
     aView.updatePlayNext();
     super.onStop();
   }
 
   @Override
+  protected void onStart() {
+    aView.onStartPause(true);
+    super.onStart();
+  }
+
+  @Override
+  protected void onPause() {
+    aView.onStartPause(false);
+    super.onPause();
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState)
+  {
+    aView.onSaveRestore(true,outState);
+    super.onSaveInstanceState(outState);
+  }
+  @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState)
   {
+    aView.onSaveRestore(false,savedInstanceState);
     super.onRestoreInstanceState(savedInstanceState);
-    aView.webView.restoreState(savedInstanceState);
-    aView.aApi.webView.restoreState(savedInstanceState);
   }
 
   @Override

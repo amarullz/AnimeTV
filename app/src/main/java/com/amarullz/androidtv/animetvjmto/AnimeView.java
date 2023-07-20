@@ -5,8 +5,10 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -106,7 +108,13 @@ public class AnimeView extends WebViewClient {
   }
 
   public void initVideoView(){
-//    videoView.setListe
+    videoView.setOnPreparedListener(mediaPlayer -> mediaPlayer.setScreenOnWhilePlaying(true));
+    videoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+      @Override
+      public boolean onInfo(MediaPlayer mediaPlayer, int i, int i1) {
+        return false;
+      }
+    });
   }
 
   @Override
@@ -433,5 +441,51 @@ public class AnimeView extends WebViewClient {
         }
       }
     });
+  }
+
+  private int videoStatCurrentPosition=0;
+  private boolean videoStatIsPlaying=false;
+  public void onStartPause(boolean isStart){
+    if (isStart){
+      if (videoStatCurrentPosition>0) {
+        videoView.seekTo(videoStatCurrentPosition);
+        if (videoStatIsPlaying)
+          videoView.start();
+      }
+      Log.d(_TAG,"ONSTART -> "+videoStatCurrentPosition);
+    }
+    else{
+      if (videoView.getDuration()>0) {
+        videoStatCurrentPosition = videoView.getCurrentPosition();
+        videoStatIsPlaying = videoView.isPlaying();
+      }
+      else {
+        videoStatCurrentPosition = 0;
+        videoStatIsPlaying = false;
+      }
+      Log.d(_TAG,"ONPAUSE -> "+videoStatCurrentPosition);
+    }
+  }
+  public void onSaveRestore(boolean isSave, Bundle bundle)
+  {
+    if (isSave){
+      webView.saveState(bundle);
+      aApi.webView.saveState(bundle);
+      if (videoView.getDuration()>0)
+        bundle.putInt("VIDEO_CURRPOS", videoView.getCurrentPosition());
+      else
+        bundle.putInt("VIDEO_CURRPOS", 0);
+      Log.d(_TAG,"onSaveInstanceState -> "+videoView.getCurrentPosition());
+    }
+    else{
+      webView.restoreState(bundle);
+      aApi.webView.restoreState(bundle);
+      int savedPos=bundle.getInt("VIDEO_CURRPOS",0);
+      Log.d(_TAG,"ONRESTORE -> "+savedPos);
+      if (savedPos>0) {
+        videoView.seekTo(savedPos);
+        videoView.start();
+      }
+    }
   }
 }
