@@ -1310,6 +1310,7 @@ const pb={
   menus:[],
   menusel:0,
   menu_autohide_to:null,
+  menu_hide_tick:0,
   menu_autohide:function(){
     var autohide_duration=2500;
     if (pb.state>1&&pb.vid_stat.play){
@@ -1324,6 +1325,7 @@ const pb={
   },
   menu_hide:function(){
     clearTimeout(pb.menu_autohide_to);
+    pb.menu_hide_tick=$tick();
     pb.menus[pb.menusel].classList.remove('active');
     pb.menusel=0;
     pb.menus[pb.menusel].classList.add('active');
@@ -1440,7 +1442,10 @@ const pb={
         pb.menu_show(c==KUP?1:2);
       }
       else if (c==KBACK){
-        pb.reset(1,0);
+        if (pb.menu_hide_tick+1000<$tick()){
+          /* prevent accidential back */
+          pb.reset(1,0);
+        }
       }
     }
   },
