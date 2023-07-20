@@ -39,12 +39,9 @@ public class AnimeView extends WebViewClient {
   public final VideoView videoView;
   public final ImageView splash;
   public final RelativeLayout videoLayout;
-
   public final AnimeApi aApi;
-
   public String playerInjectString;
   public boolean webViewReady=false;
-
   public static boolean USE_WEB_VIEW_ASSETS=false;
 
   private void setFullscreen(){
@@ -109,7 +106,7 @@ public class AnimeView extends WebViewClient {
 
   public void initVideoView(){
     videoView.setVideoControls(null);
-//    videoView.setOnPreparedListener(mediaPlayer -> mediaPlayer.setScreenOnWhilePlaying(true));
+    videoView.setOnPreparedListener(videoView::start);
   }
 
   @Override
@@ -215,6 +212,27 @@ public class AnimeView extends WebViewClient {
     ));
   }
 
+  public void runOnUiThreadWait(Runnable r){
+    final Runnable rw=new Runnable() {
+      @Override
+      public void run() {
+        synchronized(this)
+        {
+          r.run();
+          this.notify();
+        }
+      }
+    };
+    //noinspection SynchronizationOnLocalVariableOrMethodParameter
+    synchronized(rw) {
+      activity.runOnUiThread(rw);
+      try {
+        rw.wait();
+      } catch (InterruptedException ignored) {
+      }
+    }
+  }
+
   public class JSViewApi{
     private String lastResultText="";
     private String lastResultUrl="";
@@ -309,6 +327,9 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public void videoSetUrl(String url){
       Log.d(_TAG,"Video Set URL = "+url);
+      videoIsPlaying=false;
+      videoDuration=0;
+      videoPosition=0;
       activity.runOnUiThread(()->{
         if (url.equals("")){
           videoView.stop();
@@ -328,7 +349,7 @@ public class AnimeView extends WebViewClient {
     }
     @JavascriptInterface
     public int videoGetDuration(){
-      activity.runOnUiThread(()->videoDuration=
+      runOnUiThreadWait(()->videoDuration=
           (int) Math.floor(videoView.getDuration()));
       return videoDuration;
     }
@@ -339,25 +360,18 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public boolean videoIsPlaying(){
-      activity.runOnUiThread(()->{
-        videoDuration=(int) Math.floor(videoView.getDuration());
-        videoPosition=(int) Math.ceil(videoView.getCurrentPosition());
-        videoIsPlaying=videoView.isPlaying();
-      });
+      runOnUiThreadWait(()-> videoIsPlaying=videoView.isPlaying());
       return videoIsPlaying;
     }
     @JavascriptInterface
     public int videoGetPosition(){
-      activity.runOnUiThread(()->videoPosition=
+      runOnUiThreadWait(()->videoPosition=
           (int) Math.ceil(videoView.getCurrentPosition()));
       return videoPosition;
     }
 
     @JavascriptInterface
     public void videoPlay(boolean play){
-      videoIsPlaying=false;
-      videoDuration=0;
-      videoPosition=0;
       activity.runOnUiThread(()->{
         if (play)
           videoView.start();
