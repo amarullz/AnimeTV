@@ -282,6 +282,7 @@ public class AnimeProvider {
                 .setType(TvContractCompat.PreviewProgramColumns.TYPE_TV_EPISODE)
                 .setTitle(title)
                 .setDescription(desc)
+                .setPosterArtAspectRatio(TvContractCompat.PreviewPrograms.ASPECT_RATIO_2_3)
                 .setPosterArtUri(Uri.parse(image))
                 .setIntentUri(intentUri);
         PreviewProgram previewProgram = builder.build();
