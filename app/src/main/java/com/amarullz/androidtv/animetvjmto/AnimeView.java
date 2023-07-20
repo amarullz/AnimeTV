@@ -24,6 +24,7 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
 
 import java.io.ByteArrayInputStream;
@@ -106,6 +107,7 @@ public class AnimeView extends WebViewClient {
 
   public void initVideoView(){
     videoView.setVideoControls(null);
+    videoView.setScaleType(ScaleType.FIT_CENTER);
     videoView.setOnPreparedListener(videoView::start);
   }
 
@@ -343,6 +345,21 @@ public class AnimeView extends WebViewClient {
       });
     }
 
+    private boolean videoIsPlaying=false;
+    private int videoDuration=0;
+    private int videoPosition=0;
+    @JavascriptInterface
+    public void videoSetScale(int type){
+      activity.runOnUiThread(()-> {
+        if (type==0)
+          videoView.setScaleType(ScaleType.FIT_CENTER);
+        else if (type==1)
+          videoView.setScaleType(ScaleType.CENTER_CROP);
+        else if (type==2)
+          videoView.setScaleType(ScaleType.FIT_XY);
+      });
+    }
+
     @JavascriptInterface
     public void videoSetPosition(int pos){
       activity.runOnUiThread(()-> videoView.seekTo(pos));
@@ -353,11 +370,6 @@ public class AnimeView extends WebViewClient {
           (int) Math.floor(videoView.getDuration()));
       return videoDuration;
     }
-
-    private boolean videoIsPlaying=false;
-    private int videoDuration=0;
-    private int videoPosition=0;
-
     @JavascriptInterface
     public boolean videoIsPlaying(){
       runOnUiThreadWait(()-> videoIsPlaying=videoView.isPlaying());
@@ -369,7 +381,6 @@ public class AnimeView extends WebViewClient {
           (int) Math.ceil(videoView.getCurrentPosition()));
       return videoPosition;
     }
-
     @JavascriptInterface
     public void videoPlay(boolean play){
       activity.runOnUiThread(()->{

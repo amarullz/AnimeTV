@@ -304,6 +304,9 @@ const _API={
       duration:_JSAPI.videoGetDuration()/1000.0
     };
   },
+  videoScale:function(scale){
+    _JSAPI.videoSetScale(scale);
+  },
   videoPlay:function(){
     _JSAPI.videoPlay(true);
   },
@@ -510,7 +513,8 @@ const pb={
     autoskip:false,
     autonext:true,
     skipfiller:false,
-    server:0
+    server:0,
+    scale:0
   },
   cfg_load:function(){
     var itm=localStorage.getItem('pb_cfg');
@@ -525,7 +529,12 @@ const pb={
         if ('server' in j){
           var sv=parseInt(j.server);
           if (sv&&sv>0&&sv<=2)
-          pb.cfg_data.server=sv;
+            pb.cfg_data.server=sv;
+        }
+        if ('scale' in j){
+          var sv=parseInt(j.scale);
+          if (sv&&sv>0&&sv<=2)
+            pb.cfg_data.scale=sv;
         }
         return;
       }
@@ -534,11 +543,17 @@ const pb={
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.server=0;
+    pb.cfg_data.scale=0;
   },
   cfgserver_name:[
     'VIZCLOUD M3U8',
     'VIZCLOUD HTML5',
     'MP4UPLOAD'
+  ],
+  cfgscale_name:[
+    'NORMAL',
+    'COVER',
+    'STRETCH'
   ],
   cfg_save:function(){
     localStorage.setItem('pb_cfg',JSON.stringify(pb.cfg_data));
@@ -561,6 +576,9 @@ const pb={
         if (key=='server'){
           el.lastElementChild.innerHTML=pb.cfgserver_name[pb.cfg_data[key]];
         }
+        else if (key=='scale'){
+          el.lastElementChild.innerHTML=pb.cfgscale_name[pb.cfg_data[key]];
+        }
         else{
           if (el){
             el.firstElementChild.innerHTML=pb.cfg_data[key]?'check':'clear';
@@ -573,11 +591,13 @@ const pb={
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('server');
+      pb.cfg_update_el('scale');
       pb.cfg_update_el('fav');
     }
   },
   cfg:function(v){
     if (v=='server') return pb.cfg_data.server;
+    if (v=='scale') return pb.cfg_data.scale;
     if (v in pb.cfg_data) return pb.cfg_data[v];
     return false;
   },
@@ -1043,6 +1063,12 @@ const pb={
             pb.startpos_val=pb.vid_stat.pos;
             pb.init_video();
           }
+        }
+        else if (key=="scale"){
+          if (++pb.cfg_data.scale>2) pb.cfg_data.scale=0;
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+          _API.videoScale(pb.cfg_data.scale);
         }
         else{
           pb.cfg_data[key]=!pb.cfg_data[key];
@@ -1514,10 +1540,12 @@ const pb={
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
     pb.pb_settings._s_skipfiller=$n('div','',{action:'*skipfiller'},pb.pb_settings.P,'<c>clear</c> SKIP FILLER');
+    pb.pb_settings._s_scale=$n('div','',{action:'*scale'},pb.pb_settings.P,'<c>aspect_ratio</c> <span>SCALE</span>');
     pb.pb_settings._s_server=$n('div','',{action:'*server'},pb.pb_settings.P,'<c>cloud_done</c> <span>SERVER</span>');
     pb.menu_select(pb.pb_settings,pb.pb_settings.P.firstElementChild);
     pb.pb_settings._midx=2;
     pb.cfg_update_el();
+    _API.videoScale(pb.cfg_data.scale);
   },
 
   init:function(){
