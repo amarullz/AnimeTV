@@ -361,6 +361,16 @@ const _API={
     }
   }
 };
+(function(){
+  /* VERSION INFO */
+  try{
+    var verel=$('home_version');
+    if (_JSAPI){
+      verel.innerHTML="ANIMETV ANDROID "+_JSAPI.getVersion(0)+" "+
+        "&copy; 2023 <b>AMARULLZ.COM</b> (BUILD:"+_JSAPI.getVersion(1)+")";
+    }
+  }catch(e){}
+})();
 _API.setVideo('');
 _API.theme_update();
 

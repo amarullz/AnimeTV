@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.Date;
 import java.util.Map;
 
 public class AnimeView extends WebViewClient {
@@ -64,6 +65,7 @@ public class AnimeView extends WebViewClient {
     WebView.setWebContentsDebuggingEnabled(true);
 
     setFullscreen();
+    VERSION_INIT();
 
     splash=activity.findViewById(R.id.splash);
     videoLayout= activity.findViewById(R.id.video_layout);
@@ -411,6 +413,13 @@ public class AnimeView extends WebViewClient {
     public void playNextRegister(){
       updatePlayNext();
     }
+    @JavascriptInterface
+    public String getVersion(int type){
+      if (type==0)
+        return APP_VERSION;
+      return BUILD_VERSION;
+    }
+
   }
 
   @Override
@@ -524,5 +533,14 @@ public class AnimeView extends WebViewClient {
         videoView.start();
       }
     }
+  }
+
+  /* Init & Versioning */
+  public static String APP_VERSION=BuildConfig.VERSION_NAME;
+  public static String BUILD_VERSION="2307210136";
+  public static void VERSION_INIT(){
+    BUILD_VERSION = (String) android.text.format.DateFormat.format(
+        "yyMMddHHmm", new Date(BuildConfig.TIMESTAMP)
+    );
   }
 }
