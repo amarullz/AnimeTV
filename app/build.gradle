@@ -32,4 +32,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-cronet:18.0.1'
     implementation 'org.jsoup:jsoup:1.16.1'
+    implementation 'com.devbrackets.android:exomedia:5.0.0-beta01'
+
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
 }

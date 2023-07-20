@@ -23,7 +23,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.VideoView;
+
+import com.devbrackets.android.exomedia.ui.widget.VideoView;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -107,7 +108,8 @@ public class AnimeView extends WebViewClient {
   }
 
   public void initVideoView(){
-    videoView.setOnPreparedListener(mediaPlayer -> mediaPlayer.setScreenOnWhilePlaying(true));
+    videoView.setVideoControls(null);
+//    videoView.setOnPreparedListener(mediaPlayer -> mediaPlayer.setScreenOnWhilePlaying(true));
   }
 
   @Override
@@ -309,11 +311,12 @@ public class AnimeView extends WebViewClient {
       Log.d(_TAG,"Video Set URL = "+url);
       activity.runOnUiThread(()->{
         if (url.equals("")){
-          videoView.stopPlayback();
-          videoView.setVideoURI(null);
+          videoView.stop();
+          // videoView.setMedia(null);
+          videoView.reset();
         }
         else {
-          videoView.setVideoURI(Uri.parse(url));
+          videoView.setMedia(Uri.parse(url));
           videoView.start();
         }
       });
@@ -325,20 +328,36 @@ public class AnimeView extends WebViewClient {
     }
     @JavascriptInterface
     public int videoGetDuration(){
-      return (int) Math.floor(videoView.getDuration());
+      activity.runOnUiThread(()->videoDuration=
+          (int) Math.floor(videoView.getDuration()));
+      return videoDuration;
     }
+
+    private boolean videoIsPlaying=false;
+    private int videoDuration=0;
+    private int videoPosition=0;
 
     @JavascriptInterface
     public boolean videoIsPlaying(){
-      return videoView.isPlaying();
+      activity.runOnUiThread(()->{
+        videoDuration=(int) Math.floor(videoView.getDuration());
+        videoPosition=(int) Math.ceil(videoView.getCurrentPosition());
+        videoIsPlaying=videoView.isPlaying();
+      });
+      return videoIsPlaying;
     }
     @JavascriptInterface
     public int videoGetPosition(){
-      return (int) Math.ceil(videoView.getCurrentPosition());
+      activity.runOnUiThread(()->videoPosition=
+          (int) Math.ceil(videoView.getCurrentPosition()));
+      return videoPosition;
     }
 
     @JavascriptInterface
     public void videoPlay(boolean play){
+      videoIsPlaying=false;
+      videoDuration=0;
+      videoPosition=0;
       activity.runOnUiThread(()->{
         if (play)
           videoView.start();
@@ -449,7 +468,7 @@ public class AnimeView extends WebViewClient {
     }
     else{
       if (videoView.getDuration()>0) {
-        videoStatCurrentPosition = videoView.getCurrentPosition();
+        videoStatCurrentPosition = (int) videoView.getCurrentPosition();
         videoStatIsPlaying = videoView.isPlaying();
       }
       else {
@@ -465,7 +484,7 @@ public class AnimeView extends WebViewClient {
       webView.saveState(bundle);
       aApi.webView.saveState(bundle);
       if (videoView.getDuration()>0)
-        bundle.putInt("VIDEO_CURRPOS", videoView.getCurrentPosition());
+        bundle.putInt("VIDEO_CURRPOS", (int) videoView.getCurrentPosition());
       else
         bundle.putInt("VIDEO_CURRPOS", 0);
       Log.d(_TAG,"onSaveInstanceState -> "+videoView.getCurrentPosition());

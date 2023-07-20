@@ -322,7 +322,7 @@ const _API={
       body.classList.remove('playback_on_video');
       _API.vidInterval=setInterval(function(){
         if (!initialized){
-          if (_JSAPI.videoIsPlaying()){
+          if (_JSAPI.videoIsPlaying()&&_JSAPI.videoGetDuration()>0){
             body.classList.add('playback_on_video');
             initialized=true;
             isplayed=true;
@@ -345,12 +345,12 @@ const _API={
           if (pl){
             var np=_API.videoGetPos();
             cb('time',np);
-            if (np.duration-1<=np.position){
+            if ((np.duration>0)&&(np.duration-1<=np.position)){
               cb('complete',0);
             }
           }
         }
-      },250);
+      },100);
     }
     else{
       body.classList.remove('playback_on_video');

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 /*
@@ -129,7 +130,7 @@ public class MainActivity extends FragmentActivity {
   }
 
   @Override
-  protected void onSaveInstanceState(Bundle outState)
+  protected void onSaveInstanceState(@NonNull Bundle outState)
   {
     aView.onSaveRestore(true,outState);
     super.onSaveInstanceState(outState);
