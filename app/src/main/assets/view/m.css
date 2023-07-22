@@ -109,10 +109,6 @@
   --tim-7s: .35s;
   --tim-8s: .4s;
 }
-#pb, #home, #search, #animebg{
-  transform: translate3d(0,0,0);
-}
-
 body,
 html {
   margin: 0;
