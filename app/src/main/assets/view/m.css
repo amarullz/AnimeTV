@@ -109,6 +109,9 @@
   --tim-7s: .35s;
   --tim-8s: .4s;
 }
+#pb, #home, #search, #animebg{
+  transform: translate3d(0,0,0);
+}
 
 body,
 html {
@@ -1133,6 +1136,30 @@ c.loader {
   margin: 0;
   padding: 0;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+}
+@keyframes logopaw_ani {
+  0% {
+    transform: rotate(5deg)
+  }
+
+  100% {
+    transform: rotate(25deg)
+  }
+}
+
+#home_header h1 c{
+  font-size:4vw;
+  position:relative;
+  top:-2vw;
+  margin-left:.8vw;
+  transform: rotate(6deg);
+  animation: logopaw_ani .5s linear infinite alternate;
+  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+}
+#home_header.scrolled h1 c{
+  font-size: 3vw;
+  font-size:2vw;
+  top:-1vw;
 }
 
 #home_search {

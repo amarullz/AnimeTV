@@ -169,6 +169,11 @@ const KPGDOWN=34;
 
 /***************************** API HANDLERS *****************************/
 const _API={
+  /* USER-MANAGEMENT */
+  user:'', /* current user prefix _API.user */
+  user_prefix:'', /* current localStorage user prefix _API.user_prefix */
+
+  /*** THEMES ***/
   theme_list:[
     '',
     'theme_blue',
@@ -180,7 +185,7 @@ const _API={
   ],
   theme_sel:0,
   theme_update:function(){
-    var itm=localStorage.getItem("theme");
+    var itm=localStorage.getItem(_API.user_prefix+"theme");
     if (itm){
       document.documentElement.className=itm;
       _API.theme_sel=_API.theme_list.indexOf(itm);
@@ -193,9 +198,29 @@ const _API={
   theme_next:function(){
     if (++_API.theme_sel>=_API.theme_list.length)
       _API.theme_sel=0;
-    localStorage.setItem("theme", _API.theme_list[_API.theme_sel]);
+    localStorage.setItem(_API.user_prefix+"theme", _API.theme_list[_API.theme_sel]);
     _API.theme_update();
   },
+
+  /*** GENRES ***/
+  genres:{
+    "_tv":"tv","_movie":"movie",
+    "_ova":"ova","_ona":"ona",
+    "_special":"special",
+
+    "action":"1","adventure":"2","avant_garde":"2262888",
+    /*"boys_love":"2262603",*/
+    "comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9",
+    /*"girls_love":"2263743",*/
+    "gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552",
+    "josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18",
+    "mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25",
+    "reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31",
+    "shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38",
+    "supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"
+  },
+
+  /*** JSAPI CALLBACKS ***/
   keycb:null,
   messagecb:null,
   mp4cb:null,
@@ -203,20 +228,6 @@ const _API={
   m3u8cb:null,
   vidpageload:null,
   viewid:0,
-  genres:{
-  "_tv":"tv","_movie":"movie",
-  "_ova":"ova","_ona":"ona",
-  "_special":"special",
-
-  "action":"1","adventure":"2","avant_garde":"2262888",
-  /*"boys_love":"2262603",*/
-  "comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9",
-  /*"girls_love":"2263743",*/
-  "gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552","josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18","mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25","reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31","shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38","supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"},
-  
-  showIme:function(show){
-    _JSAPI.showIme(show);
-  },
 
   clearCb:function(){
     _API.keycb=null;
@@ -262,6 +273,12 @@ const _API={
     _JSAPI.getmp4vid(url);
   },
 
+  /*** SHOW/HIDE IME ***/
+  showIme:function(show){
+    _JSAPI.showIme(show);
+  },
+
+  /*** FETCH AJAX ***/
   getTooltip:function(id, cb){
     $a("https://9anime.to/ajax/anime/tooltip/"+id+"?"+$tick(),function(r){
       if (r.ok){
@@ -308,6 +325,7 @@ const _API={
     });
   },
 
+  /*** VIDEO VIEW API ***/
   vidInterval:null,
   videoGetPos:function(){
     return {
@@ -372,6 +390,8 @@ const _API={
     }
   }
 };
+
+
 (function(){
   /* VERSION INFO */
   try{
@@ -381,16 +401,19 @@ const _API={
         "&copy; 2023 <b>AMARULLZ.COM</b> (BUILD:"+_JSAPI.getVersion(1)+")";
     }
   }catch(e){}
+
+  /* INITIALIZING */
+  _API.setVideo('');
+  _API.theme_update();
 })();
-_API.setVideo('');
-_API.theme_update();
+
 
 /****************************** HISTORY & WATCHLIST ******************************/
 const list={
   history:{detail:{},list:[]},
   fav:{detail:{},list:[]},
   load_storage:function(name){
-    var itm=localStorage.getItem(name);
+    var itm=localStorage.getItem(_API.user_prefix+""+name);
     if (itm){
       var j=JSON.parse(itm);
       if (('detail' in j)&&('list' in j)){
@@ -400,7 +423,7 @@ const list={
     return {detail:{},list:[]};
   },
   save:function(o,name){
-    localStorage.setItem(name,JSON.stringify(o));
+    localStorage.setItem(_API.user_prefix+""+name,JSON.stringify(o));
     console.log(o);
   },
   del:function(o,id){
@@ -538,7 +561,7 @@ const pb={
     scale:0
   },
   cfg_load:function(){
-    var itm=localStorage.getItem('pb_cfg');
+    var itm=localStorage.getItem(_API.user_prefix+'pb_cfg');
     if (itm){
       var j=JSON.parse(itm);
       if (j){
@@ -577,7 +600,7 @@ const pb={
     'STRETCH'
   ],
   cfg_save:function(){
-    localStorage.setItem('pb_cfg',JSON.stringify(pb.cfg_data));
+    localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
   },
   cfg_update_el:function(key){
     if (key){

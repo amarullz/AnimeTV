@@ -83,7 +83,12 @@ public class AnimeView extends WebViewClient {
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);
     webSettings.setDomStorageEnabled(true);
+
+    /* performance tweaks */
+    //noinspection deprecation
+    webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
     webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+
     webView.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     webView.setWebViewClient(this);
 
@@ -166,6 +171,7 @@ public class AnimeView extends WebViewClient {
       return aApi.badRequest;
     }
     else if (host.contains("vidstream.pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
+      String path=uri.getPath();
       if (accept.startsWith("text/html")||url.startsWith("https://vizcloud.co/mediainfo")||url.startsWith("https://mcloud.to/mediainfo")||url.startsWith("https://vidstream.pro/mediainfo")) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
         if (!accept.startsWith("text/html"))
@@ -195,7 +201,7 @@ public class AnimeView extends WebViewClient {
         else
           sendVidpageLoaded(3);
         return aApi.badRequest;
-      }else if (accept.startsWith("text/css")||accept.startsWith("image/")){
+      }else if (accept.startsWith("text/css")||accept.startsWith("image/")||path.startsWith("/assetz")){
         Log.d(_TAG,"BLOCK CSS/IMG = "+url);
         return aApi.badRequest;
       }

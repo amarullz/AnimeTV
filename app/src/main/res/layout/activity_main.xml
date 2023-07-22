@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:scaleType="centerInside"
         android:id="@+id/splash"
-        android:src="@drawable/splash" />
+        android:src="@drawable/ic_splash" />
     <RelativeLayout
         android:background="#ff000000"
         android:id="@+id/video_layout"

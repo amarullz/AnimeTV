@@ -1,5 +1,8 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.AnimeTVJMTO" parent="@style/Theme.Leanback">
-        <item name="android:windowBackground">#330044</item>
+        <item name="android:windowBackground">#222222</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">#222222</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@drawable/ic_splash</item>
+        <item name="android:windowSplashScreenAnimationDuration" tools:targetApi="s">1000</item>
     </style>
 </resources>
