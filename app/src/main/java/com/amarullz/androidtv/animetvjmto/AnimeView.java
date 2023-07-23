@@ -201,7 +201,7 @@ public class AnimeView extends WebViewClient {
         else
           sendVidpageLoaded(3);
         return aApi.badRequest;
-      }else if (accept.startsWith("text/css")||accept.startsWith("image/")||path.startsWith("/assetz")){
+      }else if (accept.startsWith("text/css")||accept.startsWith("image/")){
         Log.d(_TAG,"BLOCK CSS/IMG = "+url);
         return aApi.badRequest;
       }
@@ -210,7 +210,6 @@ public class AnimeView extends WebViewClient {
             host.contains("simplewebanalysis.com")||
       host.contains("addthis.com")||
       host.contains("amung.us")||
-      host.contains("cdnjs.cloudflare.com")||
       host.contains("www.googletagmanager.com")||
       host.contains("ontosocietyweary.com")
     ){
