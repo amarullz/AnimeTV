@@ -23,6 +23,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
@@ -191,6 +192,10 @@ public class AnimeView extends WebViewClient {
             } else {
               Log.d(_TAG, "sendM3U8Req = " + buffer.toString("UTF-8"));
               sendM3U8Req(buffer.toString("UTF-8"));
+              try {
+                Thread.sleep(500);
+              }catch(Exception ignored){}
+              Log.d(_TAG, "sendM3U8Req Wait = " + buffer.toString("UTF-8"));
             }
             InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
             return new WebResourceResponse(cType[0], cType[1], stream);
@@ -329,6 +334,13 @@ public class AnimeView extends WebViewClient {
           break;
       }
       return "";
+    }
+
+    @JavascriptInterface
+    public void showToast(String txt){
+      activity.runOnUiThread(() ->
+          Toast.makeText(activity,txt,Toast.LENGTH_SHORT).show()
+      );
     }
 
     @JavascriptInterface

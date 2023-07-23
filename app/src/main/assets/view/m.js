@@ -278,6 +278,11 @@ const _API={
     _JSAPI.showIme(show);
   },
 
+  /*** Toast ***/
+  showToast:function(txt){
+    _JSAPI.showToast(txt);
+  },
+
   /*** FETCH AJAX ***/
   getTooltip:function(id, cb){
     $a("https://9anime.to/ajax/anime/tooltip/"+id+"?"+$tick(),function(r){
@@ -1000,8 +1005,20 @@ const pb={
     _API.setVizCb(function(d){
       try{
         _API.setVizPageCb(null);
-        if (d.data.media.sources){
-          var urivid=(d.data.media.sources.length>1)?d.data.media.sources[1].file:d.data.media.sources[0].file;
+        var urivid="";
+        try{
+          if (d.data.media.sources){
+            urivid=(d.data.media.sources.length>1)?d.data.media.sources[1].file:d.data.media.sources[0].file;
+          }
+        }catch(e){}
+        if (!urivid){
+          try{
+            if (d.result.sources){
+              urivid=(d.result.sources.length>1)?d.result.sources[1].file:d.result.sources[0].file;
+            }
+          }catch(e){}
+        }
+        if (urivid){
           pb.data.vizm3u8=urivid;
           console.log("ATVLOG Got VizCB = "+urivid);
           if (pb.cfg('server')==0){
@@ -1526,6 +1543,10 @@ const pb={
         if (pb.menu_hide_tick+1000<$tick()){
           /* prevent accidential back */
           pb.reset(1,0);
+        }
+        else{
+          _API.showToast("Press back again to close watching...");
+          pb.menu_hide_tick=0;
         }
       }
     }
