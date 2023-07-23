@@ -2578,8 +2578,11 @@ const home={
       home.menus[home.menu_sel].classList.remove('active');
       home.menu_sel=pc;
       home.menus[home.menu_sel].classList.add('active');
-      if (home.menu_sel>1)
-        home.home_scroll.style.transform="translateY("+(18-(21.65*(home.menu_sel-1)))+"vw)";
+      if (home.menu_sel>1){
+        var ty=(home.menus[2].offsetTop+(home.menus[2].offsetHeight*(home.menu_sel))) - (window.innerHeight + (window.innerWidth*0.06));
+        if (ty<0) ty=0;
+        home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
+      }
       else
         home.home_scroll.style.transform="translateY(0)";
       if (home.menu_sel>1)
