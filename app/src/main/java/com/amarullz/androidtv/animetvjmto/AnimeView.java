@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -61,10 +60,8 @@ public class AnimeView extends WebViewClient {
               | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
               | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
       decorView.setSystemUiVisibility(uiOptions);
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-      }
+      activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
   }
 
   @SuppressLint("SetJavaScriptEnabled")
@@ -179,7 +176,6 @@ public class AnimeView extends WebViewClient {
       return aApi.badRequest;
     }
     else if (host.contains("vidstream.pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
-      String path=uri.getPath();
       if (accept.startsWith("text/html")||url.startsWith("https://vizcloud.co/mediainfo")||url.startsWith("https://mcloud.to/mediainfo")||url.startsWith("https://vidstream.pro/mediainfo")) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
         if (!accept.startsWith("text/html"))
