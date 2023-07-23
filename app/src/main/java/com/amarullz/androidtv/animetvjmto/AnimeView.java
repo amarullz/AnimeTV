@@ -371,7 +371,7 @@ public class AnimeView extends WebViewClient {
       activity.runOnUiThread(()->{
         if (url.equals("")){
           videoView.stop();
-          // videoView.setMedia(null);
+          videoView.setMedia((Uri) null);
           videoView.reset();
         }
         else {
