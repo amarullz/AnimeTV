@@ -96,7 +96,9 @@ function sec2ts(s,nohour){
 
 /**************************** GLOBAL LISTENERS ***************************/
 /* Key event handler */
-window._KEYEV=function(key){
+window._KEYEV=function(key, evSource){
+  if (!evSource) evSource=0;
+  _API.last_key_source=evSource;
   if (_API.keycb){
     if (_API.keycb(key))
       return true;
@@ -228,6 +230,8 @@ const _API={
   m3u8cb:null,
   vidpageload:null,
   viewid:0,
+
+  last_key_source:0,
 
   clearCb:function(){
     _API.keycb=null;
@@ -1465,12 +1469,11 @@ const pb={
 
   /* Track & Timings */
   track_keycb:function(g,c){
-    if (c==KLEFT){
-      pb.vid_cmd('seek',pb.vid_get_time().position-10);
-      pb.track_update_pos();
-    }
-    else if (c==KRIGHT){
-      pb.vid_cmd('seek',pb.vid_get_time().position+10);
+    if (c==KLEFT||c==KRIGHT){
+      if ((_API.last_key_source==1&&c==KLEFT)||(_API.last_key_source!=1&&c==KRIGHT))
+        pb.vid_cmd('seek',pb.vid_get_time().position+10);
+      else
+        pb.vid_cmd('seek',pb.vid_get_time().position-10);
       pb.track_update_pos();
     }
     else if (c==KENTER){
@@ -2636,10 +2639,10 @@ home.init();
         if (Math.abs( yDiff )>minMove){
           if ( yDiff > 0 ) {
             /* down swipe */
-            window._KEYEV(KDOWN);
+            window._KEYEV(KDOWN,1);
           } else {
             /* up swipe */
-            window._KEYEV(KUP);
+            window._KEYEV(KUP,1);
           }
           /* Update Values */
           xDown = xUp;
@@ -2652,9 +2655,9 @@ home.init();
       else{
         if (Math.abs( xDiff )>minMove){
           if ( xDiff > 0 ) {
-            window._KEYEV(KRIGHT);
+            window._KEYEV(KRIGHT,1);
           } else {
-            window._KEYEV(KLEFT);
+            window._KEYEV(KLEFT,1);
           }
           /* Update Values */
           xDown = xUp;
@@ -2669,7 +2672,7 @@ home.init();
   }
   function handleTouchEnd(evt){
     if (!tIsMove){
-      window._KEYEV(KENTER);
+      window._KEYEV(KENTER,1);
     }
     tIsMove=false;
   }
