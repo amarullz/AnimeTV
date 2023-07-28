@@ -96,6 +96,7 @@ public class AnimeView extends WebViewClient {
 
     webView.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     webView.setWebViewClient(this);
+    webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
     webView.setWebChromeClient(new WebChromeClient() {
       @Override public Bitmap getDefaultVideoPoster() {

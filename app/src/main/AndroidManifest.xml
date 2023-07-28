@@ -42,6 +42,7 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|colorMode|density|fontScale|fontWeightAdjustment|layoutDirection|locale|mcc|mnc|navigation|screenLayout|smallestScreenSize|touchscreen|uiMode"
             android:exported="true"
             android:hardwareAccelerated="true"
+            android:largeHeap="true"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleInstance"
             android:logo="@mipmap/ic_launcher"
