@@ -177,8 +177,13 @@ public class AnimeView extends WebViewClient {
       } catch (Exception ignored) {}
       return aApi.badRequest;
     }
-    else if (host.contains("vidstream.pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
-      if (accept.startsWith("text/html")||url.startsWith("https://vizcloud.co/mediainfo")||url.startsWith("https://mcloud.to/mediainfo")||url.startsWith("https://vidstream.pro/mediainfo")) {
+    else if (host.contains(Conf.STREAM_DOMAIN)||host.contains("vidstream" +
+        ".pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
+      if (accept.startsWith("text/html")||
+          url.startsWith("https://"+Conf.STREAM_DOMAIN+"/mediainfo")||
+          url.startsWith("https://vizcloud.co/mediainfo")||
+          url.startsWith("https://mcloud.to/mediainfo")||
+          url.startsWith("https://vidstream.pro/mediainfo")) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
         if (!accept.startsWith("text/html"))
           sendVidpageLoaded(1);

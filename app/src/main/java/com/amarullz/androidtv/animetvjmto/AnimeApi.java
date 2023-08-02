@@ -281,7 +281,8 @@ public class AnimeApi extends WebViewClient {
         Log.d(_TAG, "QUIC-ERR=" + url + " - " + e);
       }
     }
-    else if (host.contains("mp4upload.com")||host.contains("vidstream.pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
+    else if (host.contains("mp4upload.com")||host.contains(Conf.STREAM_DOMAIN)||host.contains(
+        "vidstream.pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
       return assetsRequest("inject/9anime_player.html");
     }
     else if (host.contains("cloudflare.com")||
