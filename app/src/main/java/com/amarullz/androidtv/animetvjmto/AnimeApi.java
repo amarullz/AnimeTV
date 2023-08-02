@@ -76,7 +76,7 @@ public class AnimeApi extends WebViewClient {
                     .enableQuic(true)
                     .enableBrotli(true)
                     .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
-                    .addQuicHint("9anime.to", 443, 443);
+                    .addQuicHint(Conf.DOMAIN, 443, 443);
     return myBuilder.build();
   }
 
@@ -256,7 +256,7 @@ public class AnimeApi extends WebViewClient {
       return super.shouldInterceptRequest(view, request);
     }
     else if (accept.startsWith("image/")) return badRequest;
-    else if (host.contains("9anime.to")) {
+    else if (host.contains(Conf.DOMAIN)) {
       if (uri.getPath().equals("/__inject.js")){
         return assetsRequest("inject/9anime_inject.js");
       }
@@ -312,7 +312,7 @@ public class AnimeApi extends WebViewClient {
   @Override
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
-    return !url.startsWith("https://9anime.to/");
+    return !url.startsWith("https://"+Conf.DOMAIN+"/");
   }
 
   public void pauseView(boolean pause){
@@ -357,6 +357,11 @@ public class AnimeApi extends WebViewClient {
         });
         pauseView(true);
       }
+    }
+
+    @JavascriptInterface
+    public String dns(){
+      return Conf.DOMAIN;
     }
   }
 }

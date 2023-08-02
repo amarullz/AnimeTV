@@ -1,6 +1,7 @@
 /* Body */
 const body=document.body;
-
+/* const _DNS="9anime.to"; */
+const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
 /* getId */
 function $(i){
   return document.getElementById(i);
@@ -289,7 +290,7 @@ const _API={
 
   /*** FETCH AJAX ***/
   getTooltip:function(id, cb){
-    $a("https://9anime.to/ajax/anime/tooltip/"+id+"?"+$tick(),function(r){
+    $a("https://"+__DNS+"/ajax/anime/tooltip/"+id+"?"+$tick(),function(r){
       if (r.ok){
         var d=$n('div','',0,0,r.responseText);
         var o={
@@ -1806,7 +1807,7 @@ const pb={
         pb.data.title+(pb.ep_num?(" ("+pb.ep_num+")"):''),
         pb.ep_title, 
         pb.data.banner?pb.data.banner:pb.data.poster, 
-        pb.url_value.substring("https://9anime.to".length),
+        pb.url_value.substring(("https://"+__DNS).length),
         pb.tip_value
       );
     }catch(e){}
@@ -1901,13 +1902,6 @@ const pb={
     return uid;
   }
 };
-
-// pb.open('https://9anime.to/watch/one-piece.ov8/ep-52',177,0);
-// pb.open('https://9anime.to/watch/demon-slayer-kimetsu-no-yaiba-swordsmith-village-arc.3r7p6/ep-1',15065,0);
-// pb.open('https://9anime.to/watch/insomniacs-after-school.522om/ep-10', '14891?/4324324',0);
-//pb.open('https://9anime.to/watch/vinland-saga-season-2.kwo44/ep-1', 14049,0);
-// pb.open('https://9anime.to/watch/gamers.47rx/ep-4','',0);
-// pb.open('https://9anime.to/watch/the-pet-girl-of-sakurasou.rxm/ep-1','',0);
 
 /*
 Blacklist domain:
@@ -2604,7 +2598,7 @@ window.__ARGUPDATE=function(){
     var pos=_JSAPI.getArg("pos");
     if (uri){
         console.log("ATVLOG ARGUPDATE -> "+uri+" / "+pos+" / "+tip);
-        pb.open("https://9anime.to"+uri, tip,0,pos);
+        pb.open("https://"+__DNS+uri, tip,0,pos);
     }
 };
 

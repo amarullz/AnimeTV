@@ -113,7 +113,7 @@ public class AnimeView extends WebViewClient {
 
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
-    webView.loadUrl("https://9anime.to/__view/main.html");
+    webView.loadUrl("https://"+Conf.DOMAIN+"/__view/main.html");
 
     // Init Channel Provider
     AnimeProvider.executeJob(activity);
@@ -128,7 +128,7 @@ public class AnimeView extends WebViewClient {
   @Override
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
-    return !url.startsWith("https://9anime.to/");
+    return !url.startsWith("https://"+Conf.DOMAIN+"/");
   }
 
   @Override
@@ -139,7 +139,7 @@ public class AnimeView extends WebViewClient {
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
     if (host==null||accept==null) return aApi.badRequest;
-    if (host.contains("9anime.to")) {
+    if (host.contains(Conf.DOMAIN)) {
       String path=uri.getPath();
       if (path.startsWith("/__view/")){
         if (USE_WEB_VIEW_ASSETS){
@@ -147,7 +147,8 @@ public class AnimeView extends WebViewClient {
             /* dev web */
             try {
               Log.d(_TAG, "VIEW GET " + url + " = " + accept);
-              String newurl = url.replace("https://9anime.to", "http://192.168.100.245");
+              String newurl = url.replace("https://"+Conf.DOMAIN, "http://192" +
+                  ".168.100.245");
               HttpURLConnection conn = aApi.initQuic(newurl, request.getMethod());
               for (Map.Entry<String, String> entry :
                       request.getRequestHeaders().entrySet()) {
@@ -429,6 +430,11 @@ public class AnimeView extends WebViewClient {
         else
           videoView.pause();
       });
+    }
+
+    @JavascriptInterface
+    public String dns(){
+      return Conf.DOMAIN;
     }
 
     @JavascriptInterface

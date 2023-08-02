@@ -171,14 +171,15 @@ public class AnimeProvider {
     private void loadRecentExec(RecentCallback cb){
         try {
             HttpURLConnection conn = initQuic(
-                    "https://9anime.to/ajax/home/widget/updated-sub",
+                    "https://"+Conf.DOMAIN+"/ajax/home/widget/updated-sub",
                     "GET"
             );
             ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
             JSONArray r=new JSONArray("[]");
             parseRecent(r,buffer.toString());
             conn = initQuic(
-                    "https://9anime.to/ajax/home/widget/updated-sub?page=2",
+                    "https://"+Conf.DOMAIN+"/ajax/home/widget/updated-sub" +
+                        "?page=2",
                     "GET"
             );
             buffer = AnimeApi.getBody(conn, null);
