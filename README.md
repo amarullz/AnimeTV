@@ -10,13 +10,13 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 - Easy to navigate with Android TV Remote
 - Change Theme Color
 - Home Anime List
-    - Hot
-    - Recently Updated
-    - Top Anime
-    - Trending Episodes
-    - Random Anime
-    - Watchlist Anime – You can set anime as favorite to watch
-    - Watch History – All anime has been watched before with last timestamp
+  - Hot
+  - Recently Updated
+  - Top Anime
+  - Trending Episodes
+  - Random Anime
+  - Watchlist Anime – You can set anime as favorite to watch
+  - Watch History – All anime has been watched before with last timestamp
 - List of episodes and seasons for show
 - Recommendation anime for current show
 - Auto Next episode
@@ -34,7 +34,11 @@ Source code is available at github ( https://github.com/amarullz/AnimeTV ). Rele
 And Please Contribute your bugfixes, reports & suggestions for next better update. If you find it useful, donation is welcome.
 
 ## WebView Based?
-Yes, it was webview based application, UI and Data Fetch Method is using webview, because I don't have access to *animewave* database, I just load the web and fetch site data info with javascript injection. Almost all data need javascript to make it available (It's not pure HTML that can easily parsed from text). The site also use QUIC rather than HTTP1X, so I need to include **CronetEngine** to make it works.
+Yes, it was webview based application. UI and Data Fetch Method is using webview, because I don't have access to *animewave* database, I just load the web in headless webview and fetch site data info with javascript injection, because it's not possible to use only http client to get data.
+
+Almost all data need javascript to make it available (It's not pure HTML that can easily parsed from text). The site also use **QUIC** rather than HTTP1X, so I need to include **CronetEngine** to make it works.
+
+But the good news is **AnimeTV** will block any analytics and ads domain (dns) when requesting & fetching data. All data like watchlist & watch history also stored local in **localStorage**.
 
 ## Screenshot
 More screenshot is available in my website: https://amarullz.com/2023/09/02/animetv-for-android-tv-google-tv/
