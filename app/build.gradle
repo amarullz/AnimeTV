@@ -10,8 +10,8 @@ android {
         applicationId "com.amarullz.androidtv.animetvjmto"
         minSdk 29
         targetSdk 33
-        versionCode 101
-        versionName "1.0.1"
+        versionCode 110
+        versionName "1.1.0"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
@@ -34,7 +34,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-cronet:18.0.1'
     implementation 'org.jsoup:jsoup:1.16.1'
-    implementation 'com.devbrackets.android:exomedia:5.0.0-beta01'
+    implementation 'com.devbrackets.android:exomedia:5.0.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0"
 }

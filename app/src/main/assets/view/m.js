@@ -175,6 +175,8 @@ const _API={
   /* USER-MANAGEMENT */
   user:'', /* current user prefix _API.user */
   user_prefix:'', /* current localStorage user prefix _API.user_prefix */
+  
+  html_class:'ani_quick',
 
   /*** THEMES ***/
   theme_list:[
@@ -190,12 +192,12 @@ const _API={
   theme_update:function(){
     var itm=localStorage.getItem(_API.user_prefix+"theme");
     if (itm){
-      document.documentElement.className=itm;
+      document.documentElement.className=itm+' '+_API.html_class;
       _API.theme_sel=_API.theme_list.indexOf(itm);
       if (_API.theme_sel<0) _API.theme_sel=0;
     }
     else{
-      document.documentElement.className='';
+      document.documentElement.className=_API.html_class;
     }
   },
   theme_next:function(){

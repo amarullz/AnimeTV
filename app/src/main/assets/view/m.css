@@ -109,6 +109,28 @@
   --tim-7s: .35s;
   --tim-8s: .4s;
 }
+
+:root.ani_super_quick {
+  --tim-10s: .25s;
+  --tim-1s: .025s;
+  --tim-2s: .05s;
+  --tim-3s: .075s;
+  --tim-4s: .1s;
+  --tim-5s: .125s;
+  --tim-7s: .175s;
+  --tim-8s: .2s;
+}
+
+.ani_super_quick *,
+.ani_quick *{
+  /* box-shadow: none !important; */
+  text-shadow: none !important;
+}
+/* .ani_super_quick #animebg,
+.ani_quick #animebg {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%) !important;
+} */
+
 body,
 html {
   margin: 0;
@@ -122,6 +144,12 @@ html {
   scroll-behavior: smooth;
   overflow: hidden;
 }
+
+/* body > div{
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+} */
 
 ::-webkit-scrollbar {
   width: 4px;
@@ -482,6 +510,11 @@ c.loader {
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
   transform: scale(1);
 }
+
+/* .pb_menu.active div:has(+ .active),
+.pb_menu.active div.active + div{
+  transform: scale(.95);
+} */
 
 /**** ACTIONS ****/
 #pb_actions {

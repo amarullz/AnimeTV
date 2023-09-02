@@ -118,9 +118,9 @@ public class MainActivity extends FragmentActivity {
   }
 
   @Override
-  protected void onStart() {
+  protected void onResume() {
+    super.onResume();
     aView.onStartPause(true);
-    super.onStart();
   }
 
   @Override
