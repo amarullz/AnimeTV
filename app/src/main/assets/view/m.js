@@ -529,6 +529,9 @@ const pb={
   pb_tracks:$('pb_tracks'),
   pb_track:$('pb_track'),
   pb_track_val:$('pb_track_val'),
+  pb_track_skip1:$('pb_track_skip1'),
+  pb_track_skip2:$('pb_track_skip2'),
+
   pb_track_pos:$('pb_track_pos'),
   pb_track_dur:$('pb_track_dur'),
   pb_track_ctl:$('pb_track_ctl'),
@@ -696,7 +699,26 @@ const pb={
       pb.skipauto_update(0);
     }
   },
-
+  setskip_track:function(haveduration){
+    /* Check Skip Data */
+    pb.pb_track_skip1.style.left=
+    pb.pb_track_skip1.style.width=
+    pb.pb_track_skip2.style.left=
+    pb.pb_track_skip2.style.width='0';
+    if (haveduration){
+      var tsk=[
+        pb.pb_track_skip1,
+        pb.pb_track_skip2
+      ];
+      var cd=pb.vid_stat.duration;
+      for (var i=0;(i<pb.data.skip.length) && (i<2);i++){
+        var l=(pb.data.skip[i][0] / cd) * 100.0;
+        var r=(pb.data.skip[i][1] / cd) * 100.0;
+        tsk[i].style.left=l+"%";
+        tsk[i].style.width=(r-l)+"%";
+      }
+    }
+  },
   
 
   /* reset */
@@ -802,6 +824,7 @@ const pb={
       pb.vid_stat.play=true;
       pb.pb_track_ctl.innerHTML='play_circle';
       pb.menu_autohide();
+      pb.setskip_track(1);
     }
     else if (c=='pause'){
       pb.vid_stat.play=false;
@@ -1669,6 +1692,7 @@ const pb={
 
   init:function(){
     $('home').style.display=$('search').style.display='none';
+    pb.setskip_track(0);
 
     pb.menus=[
       pb.pb_genres,
