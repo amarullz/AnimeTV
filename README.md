@@ -2,8 +2,8 @@
 
 AnimeTV is Android TV application for watching your favorite anime series and movies on your Android TV, It also runs on non-TV Android devices (Phones and Tablets) with some UI limitations.
 
-> Source data is from animewave and I don’t have any affiliation with animewave, and it may break on site updates.
-> **ANIWAVE** IS PREVIOUSLY **9ANIME**
+> Source data is from *one anime streaming website* and I don't have any affiliation with it, and it may break on site updates.
+> Take a look at source code for more info
 
 ## Features
 - Search and Advance Search with Genre & Anime Type filters
