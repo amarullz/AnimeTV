@@ -29,12 +29,12 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 - All Watchlist & History is saved locally – I don’t have any server to save your watch & history 🤣 So don’t worry.
 
 ## Open Source
-Source code is available at github ( https://github.com/amarullz/AnimeTV ). Release of source code may make *animewave* prevent this apps to run, but hope it work fine for long, and you will help me update it when it break 😂.
+Source code is available at github ( https://github.com/amarullz/AnimeTV ). Release of source code may make *source website* prevent this apps to run, but hope it work fine for long, and you will help me update it when it break 😂.
 
 And Please Contribute your bugfixes, reports & suggestions for next better update. If you find it useful, donation is welcome.
 
 ## WebView Based?
-Yes, it was webview based application. UI and Data Fetch Method is using webview, because I don't have access to *animewave* database, I just load the web in headless webview and fetch site data info with javascript injection, because it's not possible to use only http client to get data.
+Yes, it was webview based application. UI and Data Fetch Method is using webview, because I don't have access to *source website* database, I just load the web in headless webview and fetch site data info with javascript injection, because it's not possible to use only http client to get data.
 
 Almost all data need javascript to make it available (It's not pure HTML that can easily parsed from text). The site also use **QUIC** rather than HTTP1X, so I need to include **CronetEngine** to make it works.
 
