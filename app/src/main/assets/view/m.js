@@ -214,15 +214,20 @@ const _API={
     "_special":"special",
 
     "action":"1","adventure":"2","avant_garde":"2262888",
-    /*"boys_love":"2262603",*/
     "comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9",
-    /*"girls_love":"2263743",*/
     "gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552",
     "josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18",
     "mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25",
     "reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31",
     "shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38",
     "supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"
+  },
+
+  /*** URL API ***/
+  setUri:function(u){
+    try{
+      history.pushState({}, "", u);
+    }catch(e){}
   },
 
   /*** JSAPI CALLBACKS ***/
@@ -736,6 +741,7 @@ const pb={
       _API.clearCb();
       _API.setKey(home.keycb);
       home.list_init();
+      _API.setUri("/home");
     }
     else{
       pb.pb_loading.classList.add('active');
@@ -1852,6 +1858,7 @@ const pb={
       if (uid==u && d.status){
         console.log(d);
         pb.data=d;
+        _API.setUri(uri);
         pb.init();
       }
     });
@@ -2174,6 +2181,7 @@ const home={
     home.list_init_name(list.history,home.home_history);
   },
   init:function(){
+    _API.setUri("/home");
     list.load();
 
     home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
@@ -2252,6 +2260,7 @@ const home={
       home.onsearch=false;
       home.search.search.classList.remove('active');
       _API.showIme(false);
+      _API.setUri("/home");
     },
     dosearch_parse:function(v){
       var h=$n('div','','',null,v);
@@ -2446,6 +2455,8 @@ const home={
         home.search.res
       ];
       home.search.initresult(home.search.res);
+
+      _API.setUri("/filter");
 
       home.onsearch=true;
       home.search.search.classList.add('active');

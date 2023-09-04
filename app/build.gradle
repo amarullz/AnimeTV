@@ -10,8 +10,8 @@ android {
         applicationId "com.amarullz.androidtv.animetvjmto"
         minSdk 29
         targetSdk 33
-        versionCode 111
-        versionName "1.1.1"
+        versionCode 112
+        versionName "1.1.2"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
@@ -28,7 +28,7 @@ android {
 dependencies {
 
     implementation 'androidx.leanback:leanback:1.0.0'
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
 
     implementation 'androidx.tvprovider:tvprovider:1.0.0'
 
