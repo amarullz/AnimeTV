@@ -89,6 +89,13 @@ public class AnimeView extends WebViewClient {
     webSettings.setAllowContentAccess(true);
     webSettings.setDomStorageEnabled(true);
 
+    /* UAG */
+    webSettings.setUserAgentString(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"+
+            " (KHTML, like Gecko) Chrome/116.0.0.0 "+"" +
+            "Safari/537.36 Edg/116.0.1938.69"
+    );
+
     /* performance tweaks */
     //noinspection deprecation
     webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
