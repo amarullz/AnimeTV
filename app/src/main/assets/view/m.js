@@ -285,6 +285,14 @@ const _API={
     _JSAPI.getmp4vid(url);
   },
 
+  setStreamType:function(t,c){
+    _JSAPI.setStreamType(t,c);
+  },
+
+  getStreamType:function(){
+    return _JSAPI.getStreamType();
+  },
+
   /*** SHOW/HIDE IME ***/
   showIme:function(show){
     _JSAPI.showIme(show);
@@ -577,6 +585,7 @@ const pb={
     autoskip:false,
     autonext:true,
     skipfiller:false,
+    streamtype:0,
     server:0,
     scale:0
   },
@@ -595,6 +604,16 @@ const pb={
           if (sv&&sv>0&&sv<=2)
             pb.cfg_data.server=sv;
         }
+
+        pb.cfg_data.streamtype=0;
+        if ('streamtype' in j){
+          var svt=parseInt(j.streamtype);
+          if (svt&&svt>0&&svt<=2){
+            pb.cfg_data.streamtype=sv;
+          }
+        }
+        _API.setStreamType(pb.cfg_data.streamtype,0);
+
         if ('scale' in j){
           var sv=parseInt(j.scale);
           if (sv&&sv>0&&sv<=2)
@@ -606,6 +625,7 @@ const pb={
     pb.cfg_data.autoskip=false;
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
+    pb.cfg_data.streamtype=0;
     pb.cfg_data.server=0;
     pb.cfg_data.scale=0;
   },
@@ -614,13 +634,20 @@ const pb={
     'VIZCLOUD HTML5',
     'MP4UPLOAD'
   ],
+  cfgstreamtype_name:[
+    'HARDSUB',
+    'SOFTSUB',
+    'DUB'
+  ],
   cfgscale_name:[
     'NORMAL',
     'COVER',
     'STRETCH'
   ],
   cfg_save:function(){
+    var savingjs=JSON.stringify(pb.cfg_data);
     localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
+    console.log('ATVLOG STORAGE SAVE = '+savingjs);
   },
   cfg_update_el:function(key){
     if (key){
@@ -634,6 +661,10 @@ const pb={
             el.innerHTML='<c>bookmark_border</c> ADD TO WATCHLIST';
           }
         }
+      }
+      else if (key=='streamtype'){
+        var el=pb.pb_settings['_s_'+key];
+        el.lastElementChild.innerHTML=pb.cfgstreamtype_name[pb.cfg_data[key]];
       }
       else if (key in pb.cfg_data){
         var el=pb.pb_settings['_s_'+key];
@@ -655,12 +686,14 @@ const pb={
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('server');
+      pb.cfg_update_el('streamtype');
       pb.cfg_update_el('scale');
       pb.cfg_update_el('fav');
     }
   },
   cfg:function(v){
     if (v=='server') return pb.cfg_data.server;
+    if (v=='streamtype') return pb.cfg_data.streamtype;
     if (v=='scale') return pb.cfg_data.scale;
     if (v in pb.cfg_data) return pb.cfg_data[v];
     return false;
@@ -1204,6 +1237,15 @@ const pb={
           pb.cfg_save();
           _API.videoScale(pb.cfg_data.scale);
         }
+        else if (key=="streamtype"){
+          if (++pb.cfg_data.streamtype>2){
+            pb.cfg_data.streamtype=0;
+          }
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+          _API.setStreamType(pb.cfg_data.streamtype,1);
+          pb.open(pb.url_value, pb.tip_value,0,pb.vid_stat.pos);
+        }
         else{
           pb.cfg_data[key]=!pb.cfg_data[key];
           pb.cfg_update_el(key);
@@ -1679,6 +1721,7 @@ const pb={
     // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
     //fav_exists
     pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
+    pb.pb_settings._s_streamtype=$n('div','',{action:'*streamtype'},pb.pb_settings.P,'<c>closed_caption</c> <span>SUB</span>');
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
     pb.pb_settings._s_skipfiller=$n('div','',{action:'*skipfiller'},pb.pb_settings.P,'<c>clear</c> SKIP FILLER');
@@ -1875,7 +1918,7 @@ const pb={
   },
 
   open:function(uri, ttid, noclean, startpos){
-    console.log("pb.open -> "+noclean+" / "+ttid);
+    console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos);
     var open_stat=0;
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;
@@ -1952,6 +1995,7 @@ const home={
   home_scroll:$('home_scroll'),
   home_slide:$('home_slide'),
   home_recent:$('home_recent'),
+  home_dub:$('home_dub'),
   home_trending:$('home_trending'),
   home_random:$('home_random'),
   home_top:$('home_top'),
@@ -2205,13 +2249,17 @@ const home={
     home.list_init_name(list.history,home.home_history);
   },
   init:function(){
+    pb.cfg_load();
     _API.setUri("/home");
     list.load();
 
     home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
+    home.home_dub._ajaxurl='/ajax/home/widget/updated-dub?page=';
+
     home.home_trending._ajaxurl='/ajax/home/widget/trending?page=';
     home.home_random._ajaxurl='/ajax/home/widget/random?page=';
     home.recent_init(home.home_recent);
+    home.recent_init(home.home_dub);
     home.recent_init(home.home_trending);
     home.recent_init(home.home_random);
     
@@ -2224,6 +2272,7 @@ const home={
       home.home_header,
       home.home_slide,
       home.home_recent,
+      home.home_dub,
       home.home_top,
       home.home_trending,
       home.home_random,

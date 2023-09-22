@@ -352,12 +352,18 @@ public class AnimeApi extends WebViewClient {
         handler.removeCallbacks(timeoutRunnable);
         resData.status = 2;
         resData.Text = res;
+        Log.d(_TAG,"GETVIEW: "+res);
         activity.runOnUiThread(() -> {
           if (callback!=null)
             callback.onFinish(resData);
         });
         pauseView(true);
       }
+    }
+
+    @JavascriptInterface
+    public int streamType(){
+      return Conf.STREAM_TYPE;
     }
 
     @JavascriptInterface

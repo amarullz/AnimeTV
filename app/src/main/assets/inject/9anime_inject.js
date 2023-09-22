@@ -18,6 +18,8 @@ function ___PLAYER(player){
     var episode_el=[];
     var server_state = 0;
     var data={
+        streamtype:"",
+        stp:0,
         status:true,
         title:'-',
         title_jp:'-',
@@ -211,12 +213,30 @@ function ___PLAYER(player){
         fetchTo=setTimeout(startFetch,ms);
     }
     function clickServer(){
-        var svr=$('w-servers');
+        var wsvr=$('w-servers');
+        var svr=0;
+        var STREAM_TYPE=_JSAPI.streamType();
+        data.stp=STREAM_TYPE;
+        if (STREAM_TYPE==1){
+            svr=wsvr.querySelector("div[data-type=softsub]");
+            data.streamtype="softsub";
+        }
+        else if (STREAM_TYPE==2){
+            svr=wsvr.querySelector("div[data-type=dub]");
+            data.streamtype="dub";
+        }
+        if (!svr){
+            svr=wsvr.querySelector("div[data-type=sub]");
+            data.streamtype="sub";
+        }
+        if (!svr){
+            svr=wsvr;
+            data.streamtype="sub";
+        }
         if (svr){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
                 server_state=1;
-                /*server[0].nextElementSibling.click();*/
                 server[0].click();
                 startFetchTimeout(4000);
                 return;

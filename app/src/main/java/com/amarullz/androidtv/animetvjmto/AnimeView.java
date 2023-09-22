@@ -127,6 +127,12 @@ public class AnimeView extends WebViewClient {
     AnimeProvider.executeJob(activity);
   }
 
+  public void reloadView(){
+    aApi.cleanWebView();
+    webView.clearCache(true);
+    webView.loadUrl("https://"+Conf.DOMAIN+"/__view/main.html");
+  }
+
   public void videoViewSetScale(int type){
     videoStatScaleType=type;
     activity.runOnUiThread(()-> {
@@ -430,6 +436,19 @@ public class AnimeView extends WebViewClient {
       activity.runOnUiThread(()-> {
         videoViewSetScale(type);
       });
+    }
+
+    @JavascriptInterface
+    public void setStreamType(int type, int clean){
+      Log.d(_TAG,"setStreamType = "+type+" / clean="+clean);
+      if (clean==1)
+        lastResultUrl="";
+      Conf.STREAM_TYPE=type;
+    }
+
+    @JavascriptInterface
+    public int getStreamType(){
+      return Conf.STREAM_TYPE;
     }
 
     @JavascriptInterface

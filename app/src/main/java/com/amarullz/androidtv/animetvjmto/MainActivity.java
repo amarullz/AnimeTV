@@ -87,9 +87,7 @@ public class MainActivity extends FragmentActivity {
       case 183: /* red */
       case KeyEvent.KEYCODE_F5:
         if (send){
-          aView.aApi.cleanWebView();
-          aView.webView.clearCache(true);
-          aView.webView.reload();
+          aView.reloadView();
         }
         break;
     }
