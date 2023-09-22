@@ -545,11 +545,15 @@ const pb={
   pb_track_ctl:$('pb_track_ctl'),
   pb_track_title:$('pb_track_title'),
 
+  pb_action_streamtype:$('pb_action_streamtype'),
+
   /* meta elements */
   pb_title:$('pb_title'),
   pb_desc:$('pb_desc'),
 
   pb_event_skip:$('pb_event_skip'),
+
+  curr_stream_type:0,
 
   listobj:function(){
     var ob={
@@ -607,8 +611,8 @@ const pb={
 
         pb.cfg_data.streamtype=0;
         if ('streamtype' in j){
-          var svt=parseInt(j.streamtype);
-          if (svt&&svt>0&&svt<=2){
+          var sv=parseInt(j.streamtype);
+          if (sv&&sv>0&&sv<=2){
             pb.cfg_data.streamtype=sv;
           }
         }
@@ -639,6 +643,11 @@ const pb={
     'SOFTSUB',
     'DUB'
   ],
+  cfgstreamtype_ico:[
+    'subtitles',
+    'closed_caption',
+    'keyboard_voice'
+  ],
   cfgscale_name:[
     'NORMAL',
     'COVER',
@@ -664,6 +673,7 @@ const pb={
       }
       else if (key=='streamtype'){
         var el=pb.pb_settings['_s_'+key];
+        el.firstElementChild.innerHTML=pb.cfgstreamtype_ico[pb.cfg_data[key]];
         el.lastElementChild.innerHTML=pb.cfgstreamtype_name[pb.cfg_data[key]];
       }
       else if (key in pb.cfg_data){
@@ -751,6 +761,14 @@ const pb={
         tsk[i].style.width=(r-l)+"%";
       }
     }
+  },
+
+  reloadPlaybackTimeout:0,
+  reloadPlayback:function(delay){
+    clearTimeout(pb.reloadPlaybackTimeout);
+    pb.reloadPlaybackTimeout=setTimeout(function(){
+      pb.open(pb.url_value, pb.tip_value,0,pb.vid_stat.pos);
+    },delay);
   },
   
 
@@ -1244,7 +1262,7 @@ const pb={
           pb.cfg_update_el(key);
           pb.cfg_save();
           _API.setStreamType(pb.cfg_data.streamtype,1);
-          pb.open(pb.url_value, pb.tip_value,0,pb.vid_stat.pos);
+          pb.reloadPlayback(1500);
         }
         else{
           pb.cfg_data[key]=!pb.cfg_data[key];
@@ -1733,9 +1751,24 @@ const pb={
     _API.videoScale(pb.cfg_data.scale);
   },
 
+  updateStreamTypeInfo:function(){
+    if (pb.data.streamtype=="dub"){
+      pb.curr_stream_type=2;
+    }
+    else if (pb.data.streamtype=="softsub"){
+      pb.curr_stream_type=1;
+    }
+    else{
+      pb.curr_stream_type=0;
+    }
+    pb.pb_action_streamtype.innerHTML='<c>'+pb.cfgstreamtype_ico[pb.curr_stream_type]+'</c> '+pb.cfgstreamtype_name[pb.curr_stream_type];
+    pb.pb_action_streamtype.classList.add('active');
+  },
+
   init:function(){
     $('home').style.display=$('search').style.display='none';
     pb.setskip_track(0);
+    pb.updateStreamTypeInfo();
 
     pb.menus=[
       pb.pb_genres,
@@ -1919,6 +1952,7 @@ const pb={
 
   open:function(uri, ttid, noclean, startpos){
     console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos);
+    pb.pb_action_streamtype.classList.remove('active');
     var open_stat=0;
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;

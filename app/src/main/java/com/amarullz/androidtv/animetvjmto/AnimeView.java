@@ -46,7 +46,7 @@ public class AnimeView extends WebViewClient {
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -440,7 +440,7 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public void setStreamType(int type, int clean){
-      Log.d(_TAG,"setStreamType = "+type+" / clean="+clean);
+      Log.d(_TAG,"[X] setStreamType = "+type+" / clean="+clean);
       if (clean==1)
         lastResultUrl="";
       Conf.STREAM_TYPE=type;
