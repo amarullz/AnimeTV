@@ -531,6 +531,20 @@ c.loader {
   opacity: 1;
 }
 
+#vtt_subtitle{
+  position:absolute;
+  bottom:3vw;
+  left:3vw;
+  right:3vw;
+  text-align: center;
+  color: #fff;
+  font-size: 3.5vw;
+}
+#vtt_subtitle,
+#vtt_subtitle *{
+  text-shadow: 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
+}
+
 #pb_action_streamtype{
   position:absolute;
   top:1vw;

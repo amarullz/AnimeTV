@@ -46,7 +46,7 @@ public class AnimeView extends WebViewClient {
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=true;
+  public static boolean USE_WEB_VIEW_ASSETS=false;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -199,6 +199,22 @@ public class AnimeView extends WebViewClient {
           }
         }
         return aApi.assetsRequest(uri.getPath().substring(3));
+      }
+      else if (path.startsWith("/__proxy/")){
+        try {
+          String proxy_url=path.substring(9);
+          Log.d(_TAG, "PROXY-GET = " + proxy_url);
+          HttpURLConnection conn = aApi.initQuic(proxy_url, request.getMethod());
+          for (Map.Entry<String, String> entry :
+              request.getRequestHeaders().entrySet()) {
+            conn.setRequestProperty(entry.getKey(), entry.getValue());
+          }
+          String[] cType = aApi.parseContentType(conn.getContentType());
+          ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+          InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
+          return new WebResourceResponse(cType[0], cType[1], stream);
+        } catch (Exception ignored) {}
+        return aApi.badRequest;
       }
       try {
         HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
