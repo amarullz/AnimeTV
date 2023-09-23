@@ -202,7 +202,7 @@ public class AnimeView extends WebViewClient {
       }
       else if (path.startsWith("/__proxy/")){
         try {
-          String proxy_url=path.substring(9);
+          String proxy_url=url.replace("https://"+Conf.DOMAIN+"/__proxy/","");
           Log.d(_TAG, "PROXY-GET = " + proxy_url);
           HttpURLConnection conn = aApi.initQuic(proxy_url, request.getMethod());
           for (Map.Entry<String, String> entry :
@@ -449,9 +449,7 @@ public class AnimeView extends WebViewClient {
     private int videoPosition=0;
     @JavascriptInterface
     public void videoSetScale(int type){
-      activity.runOnUiThread(()-> {
-        videoViewSetScale(type);
-      });
+      activity.runOnUiThread(()-> videoViewSetScale(type));
     }
 
     @JavascriptInterface
