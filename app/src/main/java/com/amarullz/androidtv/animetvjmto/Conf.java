@@ -5,7 +5,10 @@ public class Conf {
   // https://api.mymemory.translated.net/get?q=Hello%20World!&langpair=en|id
   // public static final String DOMAIN = "9anime.to";
   public static final String DOMAIN = "aniwave.to";
-  public static final String STREAM_DOMAIN = "vidplay.site";
+
+  // History
+  // * vidplay.site
+  public static final String STREAM_DOMAIN = "vidplay.lol";
 
   /* Steam Selection */
   public static int STREAM_TYPE = 0;
