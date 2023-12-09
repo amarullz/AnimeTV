@@ -8,7 +8,7 @@ public class Conf {
 
   // History
   // * vidplay.site
-  public static String STREAM_DOMAIN = "vidplay.lol";
+  public static String STREAM_DOMAIN = "vidplay.online";
 
   public static String SERVER_VER = "1.0-APK";
 
