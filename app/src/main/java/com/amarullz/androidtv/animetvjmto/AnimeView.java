@@ -502,6 +502,11 @@ public class AnimeView extends WebViewClient {
     }
 
     @JavascriptInterface
+    public String dnsver(){
+      return Conf.SERVER_VER;
+    }
+
+    @JavascriptInterface
     public void playNextPos(int pos, int duration){
       pnUpdated=true;
       pnPos=pos;

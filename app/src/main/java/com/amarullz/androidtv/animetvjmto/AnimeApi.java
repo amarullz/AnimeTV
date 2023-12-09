@@ -3,8 +3,10 @@ package com.amarullz.androidtv.animetvjmto;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -17,6 +19,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.chromium.net.CronetEngine;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -105,18 +109,67 @@ public class AnimeApi extends WebViewClient {
     return buffer;
   }
 
+  public void updateServerVar(){
+    AsyncTask.execute(() -> {
+      try {
+        /* Get Server Data from Github */
+        HttpURLConnection conn = initCronetQuic(
+            cronet,
+            "https://raw.githubusercontent.com/amarullz/AnimeTV"+
+                "/master/server.json","GET"
+        );
+        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+        String serverjson=buffer.toString();
+        JSONObject j=new JSONObject(serverjson);
+        String update=j.getString("update");
+        if (!Conf.SERVER_VER.equals(update)){
+          /* Updated */
+          Log.d(_TAG,"SERVER-UPDATED: "+serverjson);
+          SharedPreferences.Editor ed=pref.edit();
+          ed.putString("server-json",serverjson);
+          ed.commit();
+          initPref();
+        }
+        else{
+          Log.d(_TAG,"SERVER UP TO DATE");
+        }
+      }catch(Exception ignored){}
+    });
+  }
+
+  public SharedPreferences pref;
+  public String prefServer="";
+  public void initPref(){
+    prefServer=pref.getString("server-json","");
+    if (!prefServer.equals("")){
+      try {
+        JSONObject j=new JSONObject(prefServer);
+        Conf.DOMAIN=j.getString("domain");
+        Conf.STREAM_DOMAIN=j.getString("stream_domain");
+        Conf.SERVER_VER=j.getString("update");
+      }catch(Exception ignored){}
+    }
+    Log.d(_TAG,"DOMAIN = "+Conf.DOMAIN+" / STREAM = "+Conf.STREAM_DOMAIN+" / " +
+        "UPDATE = "+Conf.SERVER_VER);
+  }
+
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeApi(Activity mainActivity) {
     activity = mainActivity;
     webView = new WebView(activity);
 //    webView = activity.findViewById(R.id.webview);
 
+    pref = activity.getSharedPreferences("SERVER", Context.MODE_PRIVATE );
+    initPref();
     cronet = buildCronet(activity);
 
     /* Init Bad Request */
     badRequest = new WebResourceResponse("text/plain",
         null, 400, "Bad " +
         "Request", null, null);
+
+    /* Update Server */
+    updateServerVar();
 
     /* Init Webview */
     webView.setBackgroundColor(0xffffffff);
@@ -369,6 +422,11 @@ public class AnimeApi extends WebViewClient {
     @JavascriptInterface
     public String dns(){
       return Conf.DOMAIN;
+    }
+
+    @JavascriptInterface
+    public String dnsver(){
+      return Conf.SERVER_VER;
     }
   }
 }

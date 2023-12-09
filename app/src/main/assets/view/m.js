@@ -438,7 +438,8 @@ const _API={
     var verel=$('home_version');
     if (_JSAPI){
       verel.innerHTML="ANIMETV ANDROID "+_JSAPI.getVersion(0)+" "+
-        "&copy; 2023 <b>AMARULLZ.COM</b> (BUILD:"+_JSAPI.getVersion(1)+")";
+        "&copy; 2023 <b>AMARULLZ.COM</b> (BUILD:"+_JSAPI.getVersion(1)
+        +" / SERVER:"+_JSAPI.dnsver()+")";
     }
   }catch(e){}
 
