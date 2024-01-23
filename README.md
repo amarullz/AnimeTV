@@ -10,7 +10,9 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 
 [Donate Here - https://paypal.me/amarullz](https://paypal.me/amarullz)
 
-[More detail information at https://amarullz.com/](https://amarullz.com/)
+
+**Detail Information :** [https://amarullz.com/](https://amarullz.com/)
+**Discussion on Discord :** [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
 
 ## Features
 - **NEW** - Soft-subtitle & Auto Translate to **134 Languages** (Only for supported contents)
