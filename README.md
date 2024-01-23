@@ -14,10 +14,11 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 
 ## Features
 - **NEW** - Soft-subtitle & Auto Translate to **134 Languages** (Only for supported contents)
+- **NEW** - Settings panel
 - **NEW** - Change Theme Color & Animation performance
 - **NEW** - Soft-subtitle Text Style Configuration
-- **NEW** - Playback Speed
-- **NEW** - Settings panel
+- **NEW** - Playback Speed (0.5x - 3.00x)
+- **NEW** - Include Non-Japan Anime Settings
 - Search and Advance Search with Genre & Anime Type filters
 - Auto Next episode
 - Auto Skip Intro & Outro

@@ -977,6 +977,7 @@ const pb={
     autoskip:false,
     autonext:true,
     skipfiller:false,
+    nonjapan:false,
     server:0,
     scale:0,
     lang:'',
@@ -991,6 +992,7 @@ const pb={
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
+        pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
         pb.cfg_data.lang=('lang' in j)?j.lang:'';
         _API.setStreamType(0,0);
 
@@ -1028,6 +1030,8 @@ const pb={
     pb.cfg_data.autoskip=false;
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
+    pb.cfg_data.nonjapan=false;
+    
     pb.cfg_data.server=0;
     pb.cfg_data.animation=0;
     pb.cfg_data.scale=0;
@@ -1121,6 +1125,8 @@ const pb={
       pb.cfg_update_el('autoskip');
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('skipfiller');
+      pb.cfg_update_el('nonjapan');
+      
       pb.cfg_update_el('server');
       pb.cfg_update_el('scale');
       pb.cfg_update_el('fav');
@@ -2916,6 +2922,14 @@ const home={
         "<c>closed_caption</c> <span>CC STYLE 1</span>"
       );
 
+      home.settings.more._s_nonjapan=$n(
+        'div','',{
+          action:'*nonjapan'
+        },
+        home.settings.more.P,
+        '<c>clear</c> WITH NON-JAPAN'
+      );
+
       home.settings.more._s_theme=$n(
         'div','',{
           action:'*theme'
@@ -3166,7 +3180,9 @@ const home={
           }
         }
         qv.push('genre_mode=and');
-        qv.push(enc('country[]')+'=120822');
+        if (!pb.cfg_data.nonjapan){
+          qv.push(enc('country[]')+'=120822');
+        }
         qv.push(enc('language[]')+'=sub');
         if (home.search.kw.value==''){
           qv.push('sort=recently_updated');
