@@ -883,18 +883,18 @@ const pb={
   startpos_val:0,
 
   updateanimation:function(){
-    var htmltag=document.getElementsByTagName("html")[0];
     switch(pb.cfg_data.animation){
       case 1:
-        htmltag.className='ani_super_quick';
+        _API.html_class='ani_super_quick';
         break;
       case 2:
-        htmltag.className='';
+        _API.html_class='';
         break;
       default:
-        htmltag.className='ani_quick';
+        _API.html_class='ani_quick';
         break;
     }
+    _API.theme_update();
   },
 
   cfg_data:{
@@ -1084,7 +1084,7 @@ const pb={
       var cd=pb.vid_stat.duration;
       for (var i=0;(i<pb.data.skip.length) && (i<2);i++){
         var l=(pb.data.skip[i][0] / cd) * 100.0;
-        var r=(pb.data.skip[i][1] / cd) * 100.0;fav_exists
+        var r=(pb.data.skip[i][1] / cd) * 100.0;
         tsk[i].style.left=l+"%";
         tsk[i].style.width=(r-l)+"%";
       }
@@ -2742,7 +2742,9 @@ const home={
         }
 
         home.settings.refreshlang();
-        pb.updateStreamTypeInfo();
+        if (pb.state){
+          pb.updateStreamTypeInfo();
+        }
       }
     },
     initmore:function(){
