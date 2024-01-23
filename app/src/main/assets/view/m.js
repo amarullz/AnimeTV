@@ -1597,6 +1597,11 @@ const pb={
       else if (key=='settings'){
         home.settings.open(1);
       }
+      else if (key=='donate'){
+        if (home.onsettings){
+          home.settings.open_donation();
+        }
+      }
       else if (key=="animation"){
         pb.state=0;
         if (++pb.cfg_data.animation>2) pb.cfg_data.animation=0;
@@ -2792,6 +2797,13 @@ const home={
         home.settings.more.P,
         "<c>animation</c> <span>FAST ANIMATION</span>"
       );
+      home.settings.more._s_donation=$n(
+        'div','',{
+          action:'*donate'
+        },
+        home.settings.more.P,
+        "<c>volunteer_activism</c> DONATE"
+      );
       pb.menu_select(home.settings.more,home.settings.more._s_autonext);
       pb.cfg_update_el();
     },
@@ -2859,8 +2871,22 @@ const home={
       home.settings.sel=pc;
       home.settings.menus[home.settings.sel].classList.add('active');
     },
+    open_donation:function(){
+      if (home.onsettings){
+        home.ondonate=true;
+        $('popupcontainer').className='active';
+      }
+    }
   },
   settings_keycb:function(c){
+    if (home.ondonate){
+      if (c==KBACK || c==KENTER){
+        $('popupcontainer').className='';
+        home.ondonate=false;
+      }
+      return;
+    }
+
     var pc=home.settings.sel;
     if (c==KBACK){
       home.settings.close();
@@ -2884,6 +2910,7 @@ const home={
     }
   },
   onsettings:false,
+  ondonate:false,
 
   search:{
     sel:0,
