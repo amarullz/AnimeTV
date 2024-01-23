@@ -342,9 +342,9 @@ const _API={
     return t;
   },
   setStreamType:function(t,c){
-    t=_API.streamTypeById(pb.cfg_data.lang);
-    _API.currentStreamType=t;
-    _JSAPI.setStreamType(t,c);
+    var ct=_API.streamTypeById(pb.cfg_data.lang);
+    _API.currentStreamType=ct;
+    _JSAPI.setStreamType(ct,c);
   },
 
   getStreamType:function(){
@@ -409,6 +409,11 @@ const _API={
   },
 
   /*** VIDEO VIEW API ***/
+  vidSpeed:1.0,
+  videoSpeed:function(s){
+    _API.vidSpeed=s;
+    _JSAPI.videoSetSpeed(s);
+  },
   vidInterval:null,
   videoGetPos:function(){
     return {
@@ -576,6 +581,9 @@ const list={
 /* subtitle libs (c) amarullz.com */
 const vtt={
   h:$('vtt_subtitle'),
+  set_style:function(n){
+    vtt.h.className=(n?("vtt_style_"+n):"");
+  },
   sel:0,
   listdef:[
     'english','portuguese (brazil)','spanish (latin_america)',
@@ -735,10 +743,10 @@ const vtt={
   },
   setobj:function(obj){
     if (('tz' in obj) && (pb.cfg_data.lang!='en')){
-      vtt.set(obj.tz?obj.tz:'');
+      vtt.set('<div class="vtt_obj">'+(obj.tz?obj.tz:'')+'</div>');
     }
     else if ('tx' in obj){
-      vtt.set(obj.tx?obj.tx:'');
+      vtt.set('<div class="vtt_obj">'+(obj.tx?obj.tx:'')+'</div>');
     }
   },
   playback:{
@@ -914,7 +922,8 @@ const pb={
     skipfiller:false,
     server:0,
     scale:0,
-    lang:''
+    lang:'',
+    ccstyle:0
   },
   cfg_load:function(){
     var itm=localStorage.getItem(_API.user_prefix+'pb_cfg');
@@ -928,6 +937,11 @@ const pb={
         _API.setStreamType(0,0);
 
         pb.cfg_data.server=0;
+
+
+        pb.cfg_data.ccstyle=('ccstyle' in j)?j.ccstyle:'';
+        vtt.set_style(pb.cfg_data.ccstyle);
+
         /*
         if ('server' in j){
           var sv=parseInt(j.server);
@@ -957,6 +971,7 @@ const pb={
     pb.cfg_data.animation=0;
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
+    pb.cfg_data.ccstyle=0;
   },
   cfgserver_name:[
     'VIZCLOUD M3U8',
@@ -997,7 +1012,13 @@ const pb={
       if (!el){
         return;
       }
-      if (key=='fav'){
+      if (key=='speed'){
+        el.lastElementChild.innerHTML="SPEED "+_API.vidSpeed.toFixed(2)+"x";
+      }
+      else if (key=='ccstyle'){
+        el.lastElementChild.innerHTML="CC STYLE "+(pb.cfg_data.ccstyle+1);
+      }
+      else if (key=='fav'){
         if (pb.data.animeid){
           if (list.fav_exists(pb.data.animeid)){
             el.innerHTML='<c>clear</c> REMOVE FROM WATCHLIST';
@@ -1038,6 +1059,8 @@ const pb={
       pb.cfg_update_el('server');
       pb.cfg_update_el('scale');
       pb.cfg_update_el('fav');
+      pb.cfg_update_el('speed');
+      pb.cfg_update_el('ccstyle');
     }
   },
   cfg:function(v){
@@ -1612,12 +1635,26 @@ const pb={
           home.settings.open_donation();
         }
       }
+      else if (key=="speed"){
+        _API.vidSpeed+=0.25;
+        if (_API.vidSpeed>3.0){
+          _API.vidSpeed=0.5;
+        }
+        _API.videoSpeed(_API.vidSpeed);
+        pb.cfg_update_el(key);
+      }
       else if (key=="animation"){
         pb.state=0;
         if (++pb.cfg_data.animation>2) pb.cfg_data.animation=0;
         pb.cfg_update_el(key);
         pb.cfg_save();
         pb.updateanimation();
+      }
+      else if (key=="ccstyle"){
+        if (++pb.cfg_data.ccstyle>=8) pb.cfg_data.ccstyle=0;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        vtt.set_style(pb.cfg_data.ccstyle);
       }
       else if (key in pb.cfg_data){
         if (key=="server"){
@@ -2111,12 +2148,15 @@ const pb={
   init_settings:function(){
     pb.cfg_load();
     pb.menu_clear(pb.pb_settings);
+    _API.videoSpeed(_API.vidSpeed);
+
     // $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
     // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
     //fav_exists
     
     pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> SETTINGS');
     pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
+    pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
     /*
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
@@ -2137,7 +2177,7 @@ const pb={
     }
     else if (pb.data.streamtype=="softsub"){
       pb.curr_stream_type=1;
-      txtadd+=' ['+pb.cfg_data.lang.toUpperCase()+']';
+      txtadd+=' <b class="softsub_lang">'+pb.cfg_data.lang.toUpperCase()+'</b>';
     }
     else{
       pb.curr_stream_type=0;
@@ -2746,7 +2786,10 @@ const home={
         pb.cfg_save();
         var nst=_API.streamTypeById(i);
         if (nst!=prevstype){
-          _API.setStreamType(0,home.settings.isplayback);
+          _API.setStreamType(nst,home.settings.isplayback?1:0);
+          if (home.settings.isplayback){
+            pb.reloadPlayback(2000);
+          }
         }
 
         if (i!='en' && nst==1 && prevstype==1){
@@ -2793,6 +2836,14 @@ const home={
         home.settings.more.P,
         '<c>aspect_ratio</c> <span>SCALE</span>'
       );
+      home.settings.more._s_ccstyle=$n(
+        'div','',{
+          action:'*ccstyle'
+        },
+        home.settings.more.P,
+        "<c>closed_caption</c> <span>CC STYLE 1</span>"
+      );
+
       home.settings.more._s_theme=$n(
         'div','',{
           action:'*theme'

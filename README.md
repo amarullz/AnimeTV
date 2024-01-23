@@ -5,13 +5,30 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 > Source data is from *one anime streaming website* and I don't have any affiliation with it, and it may break on site updates.
 > Take a look at source code for more info
 
+## Donation & More Information
+<img src="app/src/main/assets/view/paypal.png" width="200">
+
+[Donate Here - https://paypal.me/amarullz](https://paypal.me/amarullz)
+
+[More detail information at https://amarullz.com/](https://amarullz.com/)
+
 ## Features
+- **NEW** - Soft-subtitle & Auto Translate to **134 Languages** (Only for supported contents)
+- **NEW** - Change Theme Color & Animation performance
+- **NEW** - Soft-subtitle Text Style Configuration
+- **NEW** - Playback Speed
+- **NEW** - Settings panel
 - Search and Advance Search with Genre & Anime Type filters
+- Auto Next episode
+- Auto Skip Intro & Outro
+- Auto Skip Filler Episode
+- Genre & Type Tags
+- Video display style ( Centered, Fit, Scaled ) for non widescreen videos.
 - Easy to navigate with Android TV Remote
-- Change Theme Color
 - Home Anime List
   - Hot
   - Recently Updated
+  - Dub Update
   - Top Anime
   - Trending Episodes
   - Random Anime
@@ -19,12 +36,6 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
   - Watch History – All anime has been watched before with last timestamp
 - List of episodes and seasons for show
 - Recommendation anime for current show
-- Auto Next episode
-- Auto Skip Intro & Outro
-- Auto Skip Filler Episode
-- Genre & Type Tags
-- Video display style ( Centered, Fit, Scaled ) for non widescreen videos.
-- Multiple video server
 - Support for Android TV / Google TV home list and PlayNext
 - All Watchlist & History is saved locally – I don’t have any server to save your watch & history 🤣 So don’t worry.
 

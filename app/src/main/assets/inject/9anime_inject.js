@@ -265,6 +265,12 @@ function ___PLAYER(player){
             data.skip=j.val.value;
             if (j.cmd=='HOOK_READY'){
                 var svr=$('w-servers');
+                data.stream_vurl=player.firstElementChild.src;
+                console.log("ATVLOG-VIDURL --> VIZCLOUD-URL = "+data.stream_vurl);
+                startFetchTimeout(1);
+
+                /*
+                DISABLE MP4 UPLOAD SERVER
                 if (!data.mp4||server_state==1){
                     data.stream_vurl=player.firstElementChild.src;
                     console.log("ATVLOG-VIDURL --> VIZCLOUD-URL = "+data.stream_vurl);
@@ -285,6 +291,7 @@ function ___PLAYER(player){
                         startFetchTimeout(1);
                     }
                 }
+                */
             }
         }catch(e){}
     });

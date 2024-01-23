@@ -444,6 +444,13 @@ public class AnimeView extends WebViewClient {
       });
     }
 
+    @JavascriptInterface
+    public void videoSetSpeed(float speed){
+      activity.runOnUiThread(()-> {
+        videoView.setPlaybackSpeed(speed);
+      });
+    }
+
     private boolean videoIsPlaying=false;
     private int videoDuration=0;
     private int videoPosition=0;
@@ -455,8 +462,10 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public void setStreamType(int type, int clean){
       Log.d(_TAG,"[X] setStreamType = "+type+" / clean="+clean);
-      if (clean==1)
-        lastResultUrl="";
+      if (clean==1) {
+        lastResultUrl = "";
+        aApi.cleanWebView();
+      }
       Conf.STREAM_TYPE=type;
     }
 
