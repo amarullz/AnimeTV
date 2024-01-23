@@ -598,7 +598,7 @@ const vtt={
   ],
   init:function(subs){
     if (subs.length>0){
-      console.error(subs);
+      // console.error(JSON.stringify(subs));
       for (var i=0;i<subs.length;i++){
         if (subs[i].d){
           vtt.load(subs[i]);
@@ -623,7 +623,11 @@ const vtt={
   },
   parse:function(data){
     try{
-      var timelines = data.replace(/\r/g,'').trim().split("\n\n");
+      /* Cleanup carrige-return */
+      var cleanup=data.replace(/\r/g,'').trim();
+      /* Fix triple new line */
+      cleanup=cleanup.replace(/\n\n\n/g,"\n \n\n");
+      var timelines = cleanup.split("\n\n");
       if (timelines[0]!='WEBVTT') return [];
       timelines.shift();
       var n = timelines.length;
@@ -665,8 +669,50 @@ const vtt={
       }
     }
   },
+  translate_text:function(text, lang, cb){
+    var translate_url='https://translate.google.com/m?tl='+
+      lang+'&sl=en&q='+encodeURIComponent(text);
+    $ap(translate_url,function(r){
+      if (r.ok){
+        try{
+          var l=document.createElement('div');
+          l.innerHTML=r.responseText;
+          var txts=l.querySelector('div.result-container').outerText+'';
+
+          /* Fix space on tags xd */
+          txts=txts.replace(/\< /g,"<");
+          txts=txts.replace(/\< /g,"<");
+          txts=txts.replace(/\< /g,"<");
+          txts=txts.replace(/\<\/ /g,"</");
+          txts=txts.replace(/\<\/ /g,"</");
+          txts=txts.replace(/\<\/ /g,"</");
+          txts=txts.replace(/\ >/g,">");
+          txts=txts.replace(/\ >/g,">");
+          txts=txts.replace(/\ >/g,">");
+          cb(txts);
+          return;
+        }
+        catch(e){
+        }
+      }
+      cb(null);
+    });
+  },
   translate_chunk:function(timelines, lang, chunk, delay){
     setTimeout(function(){
+      vtt.translate_text(chunk.t,lang,function(txts){
+        if (txts){
+          txts=txts.split("A2Q7R");
+          console.log(txts);
+          for (var i=0;i<txts.length;i++){
+            var p=chunk.s+i;
+            if (p<=chunk.e){
+              timelines[p].tz=txts[i];
+            }
+          }
+        }
+      });
+      /*
       var translate_url='https://translate.google.com/m?tl='+
         lang+'&sl=en&q='+encodeURIComponent(chunk.t);
       $ap(translate_url,function(r){
@@ -676,7 +722,6 @@ const vtt={
             l.innerHTML=r.responseText;
             var txts=l.querySelector('div.result-container').outerText+'';
 
-            /* Fix space on tags xd */
             txts=txts.replace(/\< /g,"<");
             txts=txts.replace(/\< /g,"<");
             txts=txts.replace(/\< /g,"<");
@@ -699,6 +744,7 @@ const vtt={
           catch(e){}
         }
       });
+      */
     },delay);
   },
   set:function(s){
@@ -732,7 +778,8 @@ const vtt={
         vtt.playback.show=false;
         vtt.playback.sub=sub;
         window.__activesub=sub;
-        console.error(vtt.playback);
+
+        // console.log(JSON.stringify(sub,null, "\t"));
       }
       else{
         console.error("Try reload Playback - "+(n+1));
@@ -2306,7 +2353,44 @@ const pb={
         addb='<b>'+bb+'</b>';
       }
     }catch(e){}
-    pb.pb_desc.innerHTML=addb+special(pb.data.synopsis);
+    
+    // pb.pb_desc.innerHTML=addb+special(pb.data.synopsis);
+
+    var translate_desc=null;
+    if (pb.cfg_data.lang!='en' && 
+          pb.cfg_data.lang!='hard' && 
+          pb.cfg_data.lang!='dub' && 
+          pb.cfg_data.lang!=''){
+            translate_desc=pb.cfg_data.lang;
+    }
+    if (translate_desc){
+      /* Already Translated */
+      if ('_translated' in pb){
+        if (pb._translated[0]==pb.data.synopsis){
+          pb.pb_desc.innerHTML=addb+special(pb._translated[1]);
+          translate_desc=false;
+        }
+      }
+
+      /* Not Translated Yet! */
+      if (translate_desc){
+        vtt.translate_text(pb.data.synopsis,translate_desc,function(txts){
+          if (!txts){
+            /* fallback if translate failed */
+            txts=pb.data.synopsis;
+          }
+          pb._translated=[
+            pb.data.synopsis,
+            txts
+          ];
+          pb.pb_desc.innerHTML=addb+special(txts);
+        });
+      }
+    }
+    else{
+      pb.pb_desc.innerHTML=addb+special(pb.data.synopsis);
+    }
+
 
     /* Genres */
     pb.menu_clear(pb.pb_genres);
