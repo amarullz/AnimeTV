@@ -635,7 +635,7 @@ const vtt={
         chunks.push({t:timelines[i].tx,s:i,e:i});
       }
       else{
-        chunks[d].t+=" || "+timelines[i].tx;
+        chunks[d].t+=" <hr> "+timelines[i].tx;
         chunks[d].e=i;
       }
       if (++m==20){
@@ -654,7 +654,7 @@ const vtt={
     setTimeout(function(){
       var translate_url='https://translate.google.com/m?tl='+
         lang+'&sl=en&q='+encodeURIComponent(
-          chunk.t.replace(/\n/g,' |_| ')
+          chunk.t.replace(/\n/g,' <qr> ')
       );
       $ap(translate_url,function(r){
         if (r.ok){
@@ -662,12 +662,12 @@ const vtt={
             var l=document.createElement('div');
             l.innerHTML=r.responseText;
             var txts=l.querySelector('div.result-container').outerText+'';
-            txts=txts.split(" || ");
+            txts=txts.split("<hr>");
             console.error(txts);
             for (var i=0;i<txts.length;i++){
               var p=chunk.s+i;
               if (p<=chunk.e){
-                timelines[p].tz=txts[i].split(' |_| ').join('\n');
+                timelines[p].tz=txts[i].split('<qr>').join('\n');
               }
             }
           }
