@@ -882,7 +882,23 @@ const pb={
   url_value:'',
   startpos_val:0,
 
+  updateanimation:function(){
+    var htmltag=document.getElementsByTagName("html")[0];
+    switch(pb.cfg_data.animation){
+      case 1:
+        htmltag.className='ani_super_quick';
+        break;
+      case 2:
+        htmltag.className='';
+        break;
+      default:
+        htmltag.className='ani_quick';
+        break;
+    }
+  },
+
   cfg_data:{
+    animation:0,
     autoskip:false,
     autonext:true,
     skipfiller:false,
@@ -902,17 +918,25 @@ const pb={
         _API.setStreamType(0,0);
 
         pb.cfg_data.server=0;
+        /*
         if ('server' in j){
           var sv=parseInt(j.server);
           if (sv&&sv>0&&sv<=2)
             pb.cfg_data.server=sv;
-        }
+        }*/
 
         if ('scale' in j){
           var sv=parseInt(j.scale);
           if (sv&&sv>0&&sv<=2)
             pb.cfg_data.scale=sv;
         }
+
+        if ('animation' in j){
+          var sv=parseInt(j.animation);
+          if (sv&&sv>0&&sv<=2)
+            pb.cfg_data.animation=sv;
+        }
+        pb.updateanimation();
         return;
       }
     }
@@ -920,6 +944,7 @@ const pb={
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.server=0;
+    pb.cfg_data.animation=0;
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
   },
@@ -927,6 +952,11 @@ const pb={
     'VIZCLOUD M3U8',
     'VIZCLOUD HTML5',
     'MP4UPLOAD'
+  ],
+  cfganimation_name:[
+    'FAST ANIMATION',
+    'FASTER ANIMATION',
+    'NORMAL ANIMATION'
   ],
   cfgstreamtype_name:[
     'HARDSUB',
@@ -939,7 +969,7 @@ const pb={
     'keyboard_voice'
   ],
   cfgscale_name:[
-    'NORMAL',
+    'NORMAL SCALE',
     'COVER',
     'STRETCH'
   ],
@@ -948,10 +978,16 @@ const pb={
     localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
     console.log('ATVLOG STORAGE SAVE = '+savingjs);
   },
-  cfg_update_el:function(key){
+  cfg_update_el_root:function(key, root){
+    if (!root){
+      root=pb.pb_settings;
+    }
     if (key){
+      var el=root['_s_'+key];
+      if (!el){
+        return;
+      }
       if (key=='fav'){
-        var el=pb.pb_settings['_s_'+key];
         if (pb.data.animeid){
           if (list.fav_exists(pb.data.animeid)){
             el.innerHTML='<c>clear</c> REMOVE FROM WATCHLIST';
@@ -962,9 +998,11 @@ const pb={
         }
       }
       else if (key in pb.cfg_data){
-        var el=pb.pb_settings['_s_'+key];
         if (key=='server'){
           el.lastElementChild.innerHTML=pb.cfgserver_name[pb.cfg_data[key]];
+        }
+        else if (key=='animation'){
+          el.lastElementChild.innerHTML=pb.cfganimation_name[pb.cfg_data[key]];
         }
         else if (key=='scale'){
           el.lastElementChild.innerHTML=pb.cfgscale_name[pb.cfg_data[key]];
@@ -976,7 +1014,14 @@ const pb={
         }
       }
     }
+  },
+  cfg_update_el:function(key){
+    if (key){
+      pb.cfg_update_el_root(key,pb.pb_settings);
+      pb.cfg_update_el_root(key,home.settings.more);
+    }
     else{
+      pb.cfg_update_el('animation');
       pb.cfg_update_el('autoskip');
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('skipfiller');
@@ -1039,7 +1084,7 @@ const pb={
       var cd=pb.vid_stat.duration;
       for (var i=0;(i<pb.data.skip.length) && (i<2);i++){
         var l=(pb.data.skip[i][0] / cd) * 100.0;
-        var r=(pb.data.skip[i][1] / cd) * 100.0;
+        var r=(pb.data.skip[i][1] / cd) * 100.0;fav_exists
         tsk[i].style.left=l+"%";
         tsk[i].style.width=(r-l)+"%";
       }
@@ -1546,8 +1591,18 @@ const pb={
         }
         pb.cfg_update_el(key);
       }
+      else if (key=='theme'){
+        _API.theme_next();
+      }
       else if (key=='settings'){
         home.settings.open(1);
+      }
+      else if (key=="animation"){
+        pb.state=0;
+        if (++pb.cfg_data.animation>2) pb.cfg_data.animation=0;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
       }
       else if (key in pb.cfg_data){
         if (key=="server"){
@@ -2047,11 +2102,13 @@ const pb={
     
     pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> SETTINGS');
     pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
+    /*
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
     pb.pb_settings._s_skipfiller=$n('div','',{action:'*skipfiller'},pb.pb_settings.P,'<c>clear</c> SKIP FILLER');
     pb.pb_settings._s_scale=$n('div','',{action:'*scale'},pb.pb_settings.P,'<c>aspect_ratio</c> <span>SCALE</span>');
     pb.pb_settings._s_server=$n('div','',{action:'*server'},pb.pb_settings.P,'<c>cloud_done</c> <span>SERVER</span>');
+    */
     pb.menu_select(pb.pb_settings,pb.pb_settings.P.firstElementChild);
     pb.pb_settings._midx=2;
     pb.cfg_update_el();
@@ -2656,7 +2713,7 @@ const home={
     sel:0,
     settings:$('settings'),
     tlang:$('settings_lang'),
-    tthemes:$('settings_theme'),
+    more:$('settings_more'),
     isplayback:0,
     menus:[],
     langsel:function(g,s){
@@ -2685,7 +2742,56 @@ const home={
         }
 
         home.settings.refreshlang();
+        pb.updateStreamTypeInfo();
       }
+    },
+    initmore:function(){
+      pb.menu_clear(home.settings.more);
+      pb.menu_init(home.settings.more);
+      home.settings.more._s_autonext=$n(
+        'div','',{
+          action:'*autonext'
+        },
+        home.settings.more.P,
+        '<c>check</c> AUTO NEXT'
+      );
+      home.settings.more._s_autoskip=$n(
+        'div','',{
+          action:'*autoskip'
+        },
+        home.settings.more.P,
+        '<c>clear</c> AUTO SKIP INTRO'
+      );
+      home.settings.more._s_skipfiller=$n(
+        'div','',{
+          action:'*skipfiller'
+        },
+        home.settings.more.P,
+        '<c>clear</c> SKIP FILLER'
+      );
+      home.settings.more._s_scale=$n(
+        'div','',{
+          action:'*scale'
+        },
+        home.settings.more.P,
+        '<c>aspect_ratio</c> <span>SCALE</span>'
+      );
+      home.settings.more._s_theme=$n(
+        'div','',{
+          action:'*theme'
+        },
+        home.settings.more.P,
+        "<c>palette</c> CHANGE COLOR"
+      );
+      home.settings.more._s_animation=$n(
+        'div','',{
+          action:'*animation'
+        },
+        home.settings.more.P,
+        "<c>animation</c> <span>FAST ANIMATION</span>"
+      );
+      pb.menu_select(home.settings.more,home.settings.more._s_autonext);
+      pb.cfg_update_el();
     },
     refreshlang:function(){
       /* Init Langs */
@@ -2734,12 +2840,13 @@ const home={
       home.settings.sel=0;
       home.settings.menus=[
         home.settings.tlang,
-        home.settings.tthemes
+        home.settings.more
       ];
       home.onsettings=true;
       home.settings.settings.classList.add('active');
       home.settings.update(0);
       home.settings.refreshlang();
+      home.settings.initmore();
     },
     close:function(){
       home.onsettings=false;
@@ -2767,8 +2874,7 @@ const home={
     }
     else if (c==KDOWN){
       if (++pc>=home.settings.menus.length){
-        home.settings.close();
-        return;
+        pc=home.settings.menus.length-1;
       }
     }
     if (home.settings.sel!=pc){

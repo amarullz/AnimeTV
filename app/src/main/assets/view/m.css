@@ -1442,7 +1442,7 @@ c.loader {
   visibility: hidden;
   z-index: 19999;
   pointer-events: none;
-  border-top:.5vh solid var(--primary-1);
+  border-top:1vh solid var(--primary-1);
 }
 
 #settings.active {
