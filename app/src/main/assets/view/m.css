@@ -540,6 +540,10 @@ c.loader {
   color: #fff;
   font-size: 3.5vw;
 }
+#pb.onsettings #vtt_subtitle{
+  bottom:auto !important;
+  top:3vw;
+}
 #vtt_subtitle,
 #vtt_subtitle *{
   text-shadow: 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;

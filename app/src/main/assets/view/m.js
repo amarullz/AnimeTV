@@ -635,10 +635,10 @@ const vtt={
         chunks.push({t:timelines[i].tx,s:i,e:i});
       }
       else{
-        chunks[d].t+=" <hr> "+timelines[i].tx;
+        chunks[d].t+="  A2Q7R  "+timelines[i].tx;
         chunks[d].e=i;
       }
-      if (++m==20){
+      if (++m==15){
         m=0;
         d++;
       }
@@ -653,21 +653,31 @@ const vtt={
   translate_chunk:function(timelines, lang, chunk, delay){
     setTimeout(function(){
       var translate_url='https://translate.google.com/m?tl='+
-        lang+'&sl=en&q='+encodeURIComponent(
-          chunk.t.replace(/\n/g,' <qr> ')
-      );
+        lang+'&sl=en&q='+encodeURIComponent(chunk.t);
       $ap(translate_url,function(r){
         if (r.ok){
           try{
             var l=document.createElement('div');
             l.innerHTML=r.responseText;
             var txts=l.querySelector('div.result-container').outerText+'';
-            txts=txts.split("<hr>");
-            console.error(txts);
+
+            /* Fix space on tags xd */
+            txts=txts.replace(/\< /g,"<");
+            txts=txts.replace(/\< /g,"<");
+            txts=txts.replace(/\< /g,"<");
+            txts=txts.replace(/\<\/ /g,"</");
+            txts=txts.replace(/\<\/ /g,"</");
+            txts=txts.replace(/\<\/ /g,"</");
+            txts=txts.replace(/\ >/g,">");
+            txts=txts.replace(/\ >/g,">");
+            txts=txts.replace(/\ >/g,">");
+
+            txts=txts.split("A2Q7R");
+            console.log(txts);
             for (var i=0;i<txts.length;i++){
               var p=chunk.s+i;
               if (p<=chunk.e){
-                timelines[p].tz=txts[i].split('<qr>').join('\n');
+                timelines[p].tz=txts[i];
               }
             }
           }
@@ -2861,9 +2871,11 @@ const home={
       home.settings.update(0);
       home.settings.refreshlang();
       home.settings.initmore();
+      pb.pb.classList.add('onsettings');
     },
     close:function(){
       home.onsettings=false;
+      pb.pb.classList.remove('onsettings');
       home.settings.settings.classList.remove('active');
     },
     update:function(pc){
