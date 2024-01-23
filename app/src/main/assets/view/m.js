@@ -654,7 +654,7 @@ const vtt={
     if (chunks.length>0){
       var chunkn = chunks.length;
       for (var i=0;i<chunkn;i++){
-        vtt.translate_chunk(timelines, lang, chunks[i],i*900);
+        vtt.translate_chunk(timelines, lang, chunks[i],i*400);
       }
     }
   },
@@ -741,21 +741,71 @@ const vtt={
     vtt.playback.show=false;
     vtt.set('');
   },
-  setobj:function(obj){
+  setobj:function(txt){
+    if (txt){
+      vtt.set('<div class="vtt_obj">'+(txt)+'</div>');
+    }
+    else{
+      vtt.set('');
+    }
+  },
+  getobj:function(obj){
     if (('tz' in obj) && (pb.cfg_data.lang!='en')){
-      vtt.set('<div class="vtt_obj">'+(obj.tz?obj.tz:'')+'</div>');
+      return (obj.tz?obj.tz:'');
     }
     else if ('tx' in obj){
-      vtt.set('<div class="vtt_obj">'+(obj.tx?obj.tx:'')+'</div>');
+      return (obj.tx?obj.tx:'');
     }
+    return '';
   },
   playback:{
     intv:null,
     sub:null,
     pos:0,
     posid:0,
+    prevs:'',
     show:false,
     monitor:function(){
+      if (!vtt.playback.sub||!vtt.playback.sub.p){
+        return;
+      }
+      var p=pb.vid_stat.pos;
+      var o=vtt.playback.sub.p;
+      var s='';
+      var v=[];
+      for (var i=0;i<o.length;i++){ 
+        if (p>=o[i].ts&&p<=o[i].te){
+          s+=i+';';
+          var vt=vtt.getobj(o[i]);
+          if (vt){
+            v.push(vt);
+          }
+        }
+        else if (p<o[i].ts){
+          break;
+        }
+      }
+      if (s.length==0){
+        if (vtt.playback.show){
+          vtt.playback.show=false;
+          vtt.set('');
+        }
+      }
+      else if (vtt.playback.prevs!=s){
+        vtt.playback.prevs=s;
+        if (v.length>0){
+          vtt.playback.show=true;
+          vtt.setobj(v.join('<br>'));
+        }
+        else{
+          vtt.playback.show=false;
+          vtt.set('');
+        }
+      }
+    },
+
+    /* Delete later */
+    monitor_old:function(){
       if (!vtt.playback.sub||!vtt.playback.sub.p){
         return;
       }
@@ -2883,6 +2933,12 @@ const home={
         if (lid!='hard' && lid!='dub'){
           title+=' <b>'+special(lid.toUpperCase())+'</b>';
         }
+        else if (lid=='hard'){
+          title='<c>subtitles</c> '+title;
+        }
+        else if (lid=='dub'){
+          title='<c>keyboard_voice</c> '+title;
+        }
         if (lid!='-'){
           var gn=$n('div','',{
             action:'@'+lid,'gid':lid
@@ -2890,6 +2946,7 @@ const home={
           home.settings.tlang.P,(title));
           gn._title=title;
           gn._key=lid;
+
           home.settings.tlang._els[i]=gn;
 
           if (lid==pb.cfg_data.lang){
