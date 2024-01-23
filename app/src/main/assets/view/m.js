@@ -238,6 +238,36 @@ const _API={
     "supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"
   },
 
+  /*** TRANSLATE LANGUAGES ***/
+  tlangs:[
+    ["Hardsub","hard"],
+    ["Dub","dub"],
+    ["English Softsub","en"],
+    ["Indonesian","id"],
+    ["Arabic","ar"],["Chinese (Simplified)","zh-CN"],["Chinese (Traditional)","zh-TW"],
+    ["Danish","da"], ["Dutch","nl"], ["Filipino","tl"],["Finnish","fi"],["French","fr"],
+    ["German","de"],["Greek","el"],["Hindi","hi"],["Italian","it"],["Japanese","ja"],
+    ["Korean","ko"],["Latin","la"],["Malay","ms"],["Portuguese","pt"],["Russian","ru"],
+    ["Spanish","es"],["Thai","th"],["Vietnamese","vi"],
+    ["--- MORE ---","-"],
+    ["Afrikaans","af"],["Albanian","sq"],["Amharic","am"],["Armenian","hy"],["Assamese","as"],
+    ["Aymara","ay"],["Azerbaijani","az"],["Bambara","bm"],["Basque","eu"],["Belarusian","be"],["Bengali","bn"],["Bhojpuri","bho"],["Bosnian","bs"],
+    ["Bulgarian","bg"],["Catalan","ca"],["Cebuano","ceb"],["Chichewa","ny"],
+    ["Corsican","co"],["Croatian","hr"],["Czech","cs"],["Dhivehi","dv"],["Dogri","doi"],["Esperanto","eo"],
+    ["Estonian","et"],["Ewe","ee"],["Frisian","fy"],["Galician","gl"],["Georgian","ka"],
+    ["Guarani","gn"],["Gujarati","gu"],["Haitian Creole","ht"],["Hausa","ha"],["Hawaiian","haw"],["Hebrew","iw"],["Hmong","hmn"],
+    ["Hungarian","hu"],["Icelandic","is"],["Igbo","ig"],["Ilocano","ilo"],["Irish","ga"],
+    ["Javanese","jw"],["Kannada","kn"],["Kazakh","kk"],["Khmer","km"],["Kinyarwanda","rw"],["Konkani","gom"],["Krio","kri"],
+    ["Kurdish (Kurmanji)","ku"],["Kurdish (Sorani)","ckb"],["Kyrgyz","ky"],["Lao","lo"],["Latvian","lv"],["Lingala","ln"],
+    ["Lithuanian","lt"],["Luganda","lg"],["Luxembourgish","lb"],["Macedonian","mk"],["Maithili","mai"],["Malagasy","mg"],
+    ["Malayalam","ml"],["Maltese","mt"],["Maori","mi"],["Marathi","mr"],["Meiteilon (Manipuri)","mni-Mtei"],["Mizo","lus"],["Mongolian","mn"],
+    ["Myanmar (Burmese)","my"],["Nepali","ne"],["Norwegian","no"],["Odia (Oriya)","or"],["Oromo","om"],["Pashto","ps"],["Persian","fa"],["Polish","pl"],
+    ["Punjabi","pa"],["Quechua","qu"],["Romanian","ro"],["Samoan","sm"],["Sanskrit","sa"],["Scots Gaelic","gd"],
+    ["Sepedi","nso"],["Serbian","sr"],["Sesotho","st"],["Shona","sn"],["Sindhi","sd"],["Sinhala","si"],["Slovak","sk"],["Slovenian","sl"],["Somali","so"],
+    ["Sundanese","su"],["Swahili","sw"],["Swedish","sv"],["Tajik","tg"],["Tamil","ta"],["Tatar","tt"],["Telugu","te"],["Tigrinya","ti"],
+    ["Tsonga","ts"],["Turkish","tr"],["Turkmen","tk"],["Twi","ak"],["Ukrainian","uk"],["Urdu","ur"],["Uyghur","ug"],["Uzbek","uz"],["Welsh","cy"],
+    ["Xhosa","xh"],["Yiddish","yi"],["Yoruba","yo"],["Zulu","zu"]],
+
   /*** URL API ***/
   setUri:function(u){
     try{
@@ -300,7 +330,20 @@ const _API={
     _JSAPI.getmp4vid(url);
   },
 
+  currentStreamType:0,
+  streamTypeById:function(l){
+    t=1;
+    if (l=='dub'){
+      t=2;
+    }
+    else if (l=='hard' || l==''){
+      t=0;
+    }
+    return t;
+  },
   setStreamType:function(t,c){
+    t=_API.streamTypeById(pb.cfg_data.lang);
+    _API.currentStreamType=t;
     _JSAPI.setStreamType(t,c);
   },
 
@@ -611,7 +654,7 @@ const vtt={
     setTimeout(function(){
       var translate_url='https://translate.google.com/m?tl='+
         lang+'&sl=en&q='+encodeURIComponent(
-          chunk.t.replace(/\n/g,' // ')
+          chunk.t.replace(/\n/g,' |_| ')
       );
       $ap(translate_url,function(r){
         if (r.ok){
@@ -624,7 +667,7 @@ const vtt={
             for (var i=0;i<txts.length;i++){
               var p=chunk.s+i;
               if (p<=chunk.e){
-                timelines[p].tz=txts[i].split(' // ').join('\n');
+                timelines[p].tz=txts[i].split(' |_| ').join('\n');
               }
             }
           }
@@ -653,10 +696,14 @@ const vtt={
         sub.v=r.responseText;
         sub.p=vtt.parse(sub.v);
 
-        if (1){
+        if (pb.cfg_data.lang!='en' && 
+          pb.cfg_data.lang!='hard' && 
+          pb.cfg_data.lang!='dub' && 
+          pb.cfg_data.lang!=''){
           /* If auto translate */
-          vtt.translate(sub.p, 'id');
+          vtt.translate(sub.p, pb.cfg_data.lang);
         }
+
         vtt.playback.show=false;
         vtt.playback.sub=sub;
         window.__activesub=sub;
@@ -677,7 +724,7 @@ const vtt={
     vtt.set('');
   },
   setobj:function(obj){
-    if ('tz' in obj){
+    if (('tz' in obj) && (pb.cfg_data.lang!='en')){
       vtt.set(obj.tz?obj.tz:'');
     }
     else if ('tx' in obj){
@@ -839,9 +886,9 @@ const pb={
     autoskip:false,
     autonext:true,
     skipfiller:false,
-    streamtype:0,
     server:0,
-    scale:0
+    scale:0,
+    lang:''
   },
   cfg_load:function(){
     var itm=localStorage.getItem(_API.user_prefix+'pb_cfg');
@@ -851,6 +898,8 @@ const pb={
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
+        pb.cfg_data.lang=('lang' in j)?j.lang:'';
+        _API.setStreamType(0,0);
 
         pb.cfg_data.server=0;
         if ('server' in j){
@@ -858,15 +907,6 @@ const pb={
           if (sv&&sv>0&&sv<=2)
             pb.cfg_data.server=sv;
         }
-
-        pb.cfg_data.streamtype=0;
-        if ('streamtype' in j){
-          var sv=parseInt(j.streamtype);
-          if (sv&&sv>0&&sv<=2){
-            pb.cfg_data.streamtype=sv;
-          }
-        }
-        _API.setStreamType(pb.cfg_data.streamtype,0);
 
         if ('scale' in j){
           var sv=parseInt(j.scale);
@@ -879,9 +919,9 @@ const pb={
     pb.cfg_data.autoskip=false;
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
-    pb.cfg_data.streamtype=0;
     pb.cfg_data.server=0;
     pb.cfg_data.scale=0;
+    pb.cfg_data.lang='';
   },
   cfgserver_name:[
     'VIZCLOUD M3U8',
@@ -921,11 +961,6 @@ const pb={
           }
         }
       }
-      else if (key=='streamtype'){
-        var el=pb.pb_settings['_s_'+key];
-        el.firstElementChild.innerHTML=pb.cfgstreamtype_ico[pb.cfg_data[key]];
-        el.lastElementChild.innerHTML=pb.cfgstreamtype_name[pb.cfg_data[key]];
-      }
       else if (key in pb.cfg_data){
         var el=pb.pb_settings['_s_'+key];
         if (key=='server'){
@@ -946,14 +981,12 @@ const pb={
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('server');
-      pb.cfg_update_el('streamtype');
       pb.cfg_update_el('scale');
       pb.cfg_update_el('fav');
     }
   },
   cfg:function(v){
     if (v=='server') return pb.cfg_data.server;
-    if (v=='streamtype') return pb.cfg_data.streamtype;
     if (v=='scale') return pb.cfg_data.scale;
     if (v in pb.cfg_data) return pb.cfg_data[v];
     return false;
@@ -1513,6 +1546,9 @@ const pb={
         }
         pb.cfg_update_el(key);
       }
+      else if (key=='settings'){
+        home.settings.open(1);
+      }
       else if (key in pb.cfg_data){
         if (key=="server"){
           if (pb.state){
@@ -1529,15 +1565,6 @@ const pb={
           pb.cfg_update_el(key);
           pb.cfg_save();
           _API.videoScale(pb.cfg_data.scale);
-        }
-        else if (key=="streamtype"){
-          if (++pb.cfg_data.streamtype>2){
-            pb.cfg_data.streamtype=0;
-          }
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-          _API.setStreamType(pb.cfg_data.streamtype,1);
-          pb.reloadPlayback(1500);
         }
         else{
           pb.cfg_data[key]=!pb.cfg_data[key];
@@ -1871,6 +1898,10 @@ const pb={
 
   /* Root Key Callback */
   keycb:function(c){
+    if (home.onsettings){
+      return home.settings_keycb(c);
+    }
+
     pb.lastkey=$tick();
     if (pb.pb_actions.classList.contains('active')){
       if (c==KBACK){
@@ -2013,8 +2044,9 @@ const pb={
     // $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
     // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
     //fav_exists
+    
+    pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> SETTINGS');
     pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
-    pb.pb_settings._s_streamtype=$n('div','',{action:'*streamtype'},pb.pb_settings.P,'<c>closed_caption</c> <span>SUB</span>');
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
     pb.pb_settings._s_skipfiller=$n('div','',{action:'*skipfiller'},pb.pb_settings.P,'<c>clear</c> SKIP FILLER');
@@ -2027,16 +2059,18 @@ const pb={
   },
 
   updateStreamTypeInfo:function(){
+    var txtadd='';
     if (pb.data.streamtype=="dub"){
       pb.curr_stream_type=2;
     }
     else if (pb.data.streamtype=="softsub"){
       pb.curr_stream_type=1;
+      txtadd+=' ['+pb.cfg_data.lang.toUpperCase()+']';
     }
     else{
       pb.curr_stream_type=0;
     }
-    pb.pb_action_streamtype.innerHTML='<c>'+pb.cfgstreamtype_ico[pb.curr_stream_type]+'</c> '+pb.cfgstreamtype_name[pb.curr_stream_type];
+    pb.pb_action_streamtype.innerHTML='<c>'+pb.cfgstreamtype_ico[pb.curr_stream_type]+'</c> '+pb.cfgstreamtype_name[pb.curr_stream_type]+txtadd;
     pb.pb_action_streamtype.classList.add('active');
   },
 
@@ -2314,7 +2348,7 @@ const home={
 
   home_header:$('home_header'),
   home_search:$('home_search'),
-  home_theme:$('home_theme'),
+  home_settings:$('home_settings'),
   bgimg:null,
 
   recent_parse:function(g,v){
@@ -2617,6 +2651,131 @@ const home={
     home.home_header._keycb=home.header_keycb;
     home.home_search.classList.add('active');
   },
+
+  settings:{
+    sel:0,
+    settings:$('settings'),
+    tlang:$('settings_lang'),
+    tthemes:$('settings_theme'),
+    isplayback:0,
+    menus:[],
+    langsel:function(g,s){
+      var prevlang=pb.cfg_data.lang;
+      var prevstype=_API.currentStreamType;
+      var i=s._key;
+      var t=s._title;
+      if (i=='hard'){
+        i='';
+      }
+      
+      if (prevlang!=i){
+        console.log("ATVLOG Changelang = "+i);
+        pb.cfg_data.lang=i;
+        pb.cfg_save();
+        var nst=_API.streamTypeById(i);
+        if (nst!=prevstype){
+          _API.setStreamType(0,home.settings.isplayback);
+        }
+
+        if (i!='en' && nst==1 && prevstype==1){
+          /* If auto translate */
+          try{
+            vtt.translate(vtt.playback.sub.p, i);
+          }catch(e){}
+        }
+
+        home.settings.refreshlang();
+      }
+    },
+    refreshlang:function(){
+      /* Init Langs */
+      pb.menu_clear(home.settings.tlang);
+      pb.menu_init(home.settings.tlang);
+      // home.settings.tlang._midx=6;
+      home.settings.tlang._enter_cb=home.settings.langsel;
+      home.settings.tlang._els=[];
+      var vsel=null;
+      var vprev=null;
+      for (var i=0;i<_API.tlangs.length;i++){
+        var lid=_API.tlangs[i][1];
+        var title=special(_API.tlangs[i][0]);
+        if (lid!='hard' && lid!='dub'){
+          title+=' <b>'+special(lid.toUpperCase())+'</b>';
+        }
+        if (lid!='-'){
+          var gn=$n('div','',{
+            action:'@'+lid,'gid':lid
+          },
+          home.settings.tlang.P,(title));
+          gn._title=title;
+          gn._key=lid;
+          home.settings.tlang._els[i]=gn;
+
+          if (lid==pb.cfg_data.lang){
+            vsel=gn;
+            gn.innerHTML='<c>check</c> '+(title);
+          }
+          vprev=gn;
+        }
+        else{
+          vprev.style.paddingRight='5vw !important';
+        }
+      }
+      if (!vsel){
+        vsel=home.settings.tlang._els[0];
+        vsel.innerHTML='<c>check</c> '+special(vsel._title);
+      }
+      if (vsel){
+        pb.menu_select(home.settings.tlang,vsel);
+      }
+    },
+    open:function(arg){
+      home.settings.isplayback=arg;
+      home.settings.sel=0;
+      home.settings.menus=[
+        home.settings.tlang,
+        home.settings.tthemes
+      ];
+      home.onsettings=true;
+      home.settings.settings.classList.add('active');
+      home.settings.update(0);
+      home.settings.refreshlang();
+    },
+    close:function(){
+      home.onsettings=false;
+      home.settings.settings.classList.remove('active');
+    },
+    update:function(pc){
+      home.settings.menus[home.settings.sel].classList.remove('active');
+      home.settings.sel=pc;
+      home.settings.menus[home.settings.sel].classList.add('active');
+    },
+  },
+  settings_keycb:function(c){
+    var pc=home.settings.sel;
+    if (c==KBACK){
+      home.settings.close();
+    }
+    else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
+      home.settings.menus[pc]._keycb(home.settings.menus[pc],c);
+    }
+    else if (c==KUP){
+      if (--pc<0){
+        home.settings.close();
+        return;
+      }
+    }
+    else if (c==KDOWN){
+      if (++pc>=home.settings.menus.length){
+        home.settings.close();
+        return;
+      }
+    }
+    if (home.settings.sel!=pc){
+      home.settings.update(pc);
+    }
+  },
+  onsettings:false,
 
   search:{
     sel:0,
@@ -2922,11 +3081,11 @@ const home={
     var ca=home.home_search.classList.contains('active');
     if (c==KLEFT||c==KRIGHT){
       if (ca){
-        home.home_theme.classList.add('active');
+        home.home_settings.classList.add('active');
         home.home_search.classList.remove('active');
       }
       else{
-        home.home_theme.classList.remove('active');
+        home.home_settings.classList.remove('active');
         home.home_search.classList.add('active');
       }
     }
@@ -2937,7 +3096,9 @@ const home={
         });
       }
       else{
-        _API.theme_next();
+        // OPEN SETTINGS
+        home.settings.open(0);
+        // _API.theme_next();
       }
     }
   },
@@ -2946,6 +3107,9 @@ const home={
   keycb:function(c){
     if (home.onsearch){
       return home.search_keycb(c);
+    }
+    if (home.onsettings){
+      return home.settings_keycb(c);
     }
     var pc=home.menu_sel;
     if (c==KBACK){
