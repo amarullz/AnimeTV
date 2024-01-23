@@ -175,6 +175,9 @@ window.__MP4CB=function(d){
   _API.mp4cb(d);
 };
 
+/* Number of bgimage */
+const BGIMG_NUM=9;
+
 /* Key codes */
 const KUP=38;
 const KDOWN=40;
@@ -220,6 +223,10 @@ const _API={
       _API.theme_sel=0;
     localStorage.setItem(_API.user_prefix+"theme", _API.theme_list[_API.theme_sel]);
     _API.theme_update();
+  },
+
+  bgimg_update:function(){
+    $('animebg').className='bg'+pb.cfg_data.bgimg;
   },
 
   /*** GENRES ***/
@@ -973,7 +980,8 @@ const pb={
     server:0,
     scale:0,
     lang:'',
-    ccstyle:0
+    ccstyle:0,
+    bgimg:0
   },
   cfg_load:function(){
     var itm=localStorage.getItem(_API.user_prefix+'pb_cfg');
@@ -991,6 +999,9 @@ const pb={
 
         pb.cfg_data.ccstyle=('ccstyle' in j)?j.ccstyle:'';
         vtt.set_style(pb.cfg_data.ccstyle);
+
+        pb.cfg_data.bgimg=('bgimg' in j)?j.bgimg:'';
+        _API.bgimg_update();
 
         /*
         if ('server' in j){
@@ -1022,6 +1033,7 @@ const pb={
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
     pb.cfg_data.ccstyle=0;
+    pb.cfg_data.bgimg=0;
   },
   cfgserver_name:[
     'VIZCLOUD M3U8',
@@ -1068,6 +1080,9 @@ const pb={
       else if (key=='ccstyle'){
         el.lastElementChild.innerHTML="CC STYLE "+(pb.cfg_data.ccstyle+1);
       }
+      else if (key=='bgimg'){
+        el.lastElementChild.innerHTML="WALLPAPER "+(pb.cfg_data.bgimg+1);
+      }
       else if (key=='fav'){
         if (pb.data.animeid){
           if (list.fav_exists(pb.data.animeid)){
@@ -1111,6 +1126,7 @@ const pb={
       pb.cfg_update_el('fav');
       pb.cfg_update_el('speed');
       pb.cfg_update_el('ccstyle');
+      pb.cfg_update_el('bgimg');
     }
   },
   cfg:function(v){
@@ -1705,6 +1721,12 @@ const pb={
         pb.cfg_update_el(key);
         pb.cfg_save();
         vtt.set_style(pb.cfg_data.ccstyle);
+      }
+      else if (key=="bgimg"){
+        if (++pb.cfg_data.bgimg>=BGIMG_NUM) pb.cfg_data.bgimg=0;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        _API.bgimg_update();
       }
       else if (key in pb.cfg_data){
         if (key=="server"){
@@ -2901,6 +2923,15 @@ const home={
         home.settings.more.P,
         "<c>palette</c> CHANGE COLOR"
       );
+      
+      home.settings.more._s_bgimg=$n(
+        'div','',{
+          action:'*bgimg'
+        },
+        home.settings.more.P,
+        "<c>wallpaper</c> <span>WALLPAPER 1</span>"
+      );
+
       home.settings.more._s_animation=$n(
         'div','',{
           action:'*animation'
@@ -3418,6 +3449,7 @@ window.__ARGUPDATE=function(){
 
 window.__ARGUPDATE();
 home.init();
+_API.bgimg_update();
 
 (function(){
   var xDown = null;

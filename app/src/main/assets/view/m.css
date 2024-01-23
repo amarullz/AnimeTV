@@ -1352,8 +1352,32 @@ c.loader {
   background-repeat:no-repeat;
   background-size: cover;
   background-position: center center;
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg.webp);
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/0.webp);
   z-index: 0;
+}
+#animebg.bg1 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/1.webp);
+}
+#animebg.bg2 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/2.jpg);
+}
+#animebg.bg3 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/3.jpg);
+}
+#animebg.bg4 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/4.jpg);
+}
+#animebg.bg5 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/5.webp);
+}
+#animebg.bg6 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/6.jpg);
+}
+#animebg.bg7 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/7.png);
+}
+#animebg.bg8 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%);
 }
 
 #search {
