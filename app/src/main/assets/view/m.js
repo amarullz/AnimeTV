@@ -256,7 +256,6 @@ const _API={
     ["German","de"],["Greek","el"],["Hindi","hi"],["Italian","it"],["Japanese","ja"],
     ["Korean","ko"],["Latin","la"],["Malay","ms"],["Portuguese","pt"],["Russian","ru"],
     ["Spanish","es"],["Thai","th"],["Vietnamese","vi"],
-    ["--- MORE ---","-"],
     ["Afrikaans","af"],["Albanian","sq"],["Amharic","am"],["Armenian","hy"],["Assamese","as"],
     ["Aymara","ay"],["Azerbaijani","az"],["Bambara","bm"],["Basque","eu"],["Belarusian","be"],["Bengali","bn"],["Bhojpuri","bho"],["Bosnian","bs"],
     ["Bulgarian","bg"],["Catalan","ca"],["Cebuano","ceb"],["Chichewa","ny"],
@@ -417,9 +416,14 @@ const _API={
 
   /*** VIDEO VIEW API ***/
   vidSpeed:1.0,
+  vidSpeedTimeout:null,
   videoSpeed:function(s){
     _API.vidSpeed=s;
-    _JSAPI.videoSetSpeed(s);
+    clearTimeout(_API.vidSpeedTimeout);
+    _API.vidSpeedTimeout=setTimeout(function(){
+      _JSAPI.videoSetSpeed(s);
+      _API.vidSpeedTimeout=null;
+    },800);
   },
   vidInterval:null,
   videoGetPos:function(){
@@ -1770,7 +1774,7 @@ const pb={
         pb.updateanimation();
       }
       else if (key=="ccstyle"){
-        if (++pb.cfg_data.ccstyle>=8) pb.cfg_data.ccstyle=0;
+        if (++pb.cfg_data.ccstyle>15) pb.cfg_data.ccstyle=0;
         pb.cfg_update_el(key);
         pb.cfg_save();
         vtt.set_style(pb.cfg_data.ccstyle);
@@ -3055,42 +3059,36 @@ const home={
       home.settings.tlang._enter_cb=home.settings.langsel;
       home.settings.tlang._els=[];
       var vsel=null;
-      var vprev=null;
       for (var i=0;i<_API.tlangs.length;i++){
         var lid=_API.tlangs[i][1];
         var title=special(_API.tlangs[i][0]);
-        if (lid!='hard' && lid!='dub'){
-          title+=' <b>'+special(lid.toUpperCase())+'</b>';
-        }
-        else if (lid=='hard'){
+        if (lid=='hard'){
           title='<c>subtitles</c> '+title;
         }
         else if (lid=='dub'){
           title='<c>keyboard_voice</c> '+title;
         }
-        if (lid!='-'){
-          var gn=$n('div','',{
-            action:'@'+lid,'gid':lid
-          },
-          home.settings.tlang.P,(title));
-          gn._title=title;
-          gn._key=lid;
-
-          home.settings.tlang._els[i]=gn;
-
-          if (lid==pb.cfg_data.lang){
-            vsel=gn;
-            gn.innerHTML='<c>check</c> '+(title);
-          }
-          vprev=gn;
-        }
         else{
-          vprev.style.paddingRight='5vw !important';
+          title+=' <b>'+special(lid.toUpperCase())+'</b>';
+        }
+
+        var gn=$n('div','',{
+          action:'@'+lid,'gid':lid
+        },
+        home.settings.tlang.P,(title));
+        gn._title=title;
+        gn._key=lid;
+
+        home.settings.tlang._els[i]=gn;
+
+        if (lid==pb.cfg_data.lang){
+          vsel=gn;
+          gn.innerHTML='<c>check</c> '+(title);
         }
       }
       if (!vsel){
         vsel=home.settings.tlang._els[0];
-        vsel.innerHTML='<c>check</c> '+special(vsel._title);
+        vsel.innerHTML='<c>check</c> '+vsel._title;
       }
       if (vsel){
         pb.menu_select(home.settings.tlang,vsel);
