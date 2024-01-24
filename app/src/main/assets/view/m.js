@@ -1415,7 +1415,7 @@ const pb={
     pb.vid_stat.duration=0;
     pb.vid_stat.play=false;
   },
-  init_video_mp4upload:function(src){
+  init_video_player_url:function(src){
     pb.pb_track_pos.innerHTML='STREAMING VIDEO';
     pb.vid_get_time_cb=function(){
       return _API.videoGetPos();
@@ -1437,6 +1437,50 @@ const pb={
     _API.setVideo(src,function(c,v){
       pb.vid_event(c,v);
     });
+  },
+  m3u8_parse_main:function(src,dt){
+    var d=(dt+"").replace(/\r/g,'').trim();
+    var l=d.split('\n');
+    var r=0;
+    var t=[];
+    var lsrc=src.substr(0,src.lastIndexOf("/")+1);
+    for (var i=0;i<l.length;i++){
+      var ln=(l[i]+"").trim();
+      if (ln.indexOf("#")==0){
+        if (ln.indexOf("RESOLUTION=")>0){
+          var n=ln.split("RESOLUTION=");
+          if (n.length==2){
+            n=n[1].split('x');
+            if (n.length==2){
+              r=(n[1]+"").trim();
+            }
+          }
+        }
+      }
+      else if (r && ln){
+        t.push({
+          "r":r,
+          "u":lsrc+ln
+        });
+        r=0;
+      }
+    }
+    console.log("PARSED-M3u8="+JSON.stringify(t));
+  },
+  init_video_mp4upload:function(src){
+    // pb.startpos_val
+    if (!pb.data.vsources){
+      pb.data.vsources=[
+        src
+      ];
+      $ap(src,function(r){
+        if (r.ok){
+          pb.m3u8_parse_main(src,r.responseText);
+          return;
+        }
+      });
+    }
+    pb.init_video_player_url(src);
   },
   init_video_mp4upload_html5:function(src){
     pb.data.mp4url=src;
