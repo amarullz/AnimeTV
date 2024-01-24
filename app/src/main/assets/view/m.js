@@ -625,31 +625,41 @@ const vtt={
     }
     return toFloat(k[2])+(toInt(k[1])*60)+(toInt(k[0])*3600);
   },
-  parse:function(data){
+  parse:function(dt){
+    var d=(dt+"").replace(/\r/g,'').trim();
+    var l=d.split('\n');
+    var t=[];
+    var p=-1;
     try{
-      /* Cleanup carrige-return */
-      var cleanup=data.replace(/\r/g,'').trim();
-      /* Fix triple new line */
-      cleanup=cleanup.replace(/\n\n\n/g,"\n \n\n");
-      var timelines = cleanup.split("\n\n");
-      if (timelines[0]!='WEBVTT') return [];
-      timelines.shift();
-      var n = timelines.length;
-      for (var i=0;i<n;i++){
-        var timeline=timelines[i].split('\n');
-        var range=timeline.shift().replace(/ /g,'').split("-->",2);
-        var data={
-          ti:i,
-          ts:vtt.ts2pos(range[0]),
-          te:vtt.ts2pos(range[1]),
-          tr:range,
-          tx:timeline.join("\n")
-        };
-        timelines[i]=data;
+      for (var n=0;n<l.length;n++){
+        var s=false;
+        var ln=l[n];
+        if (ln.indexOf("-->")>0){
+          try{
+            var range=ln.replace(/ /g,'').split("-->",2);
+            if (range.length==2){
+              t.push(
+                {
+                  ti:p+1,
+                  ts:vtt.ts2pos(range[0]),
+                  te:vtt.ts2pos(range[1]),
+                  tr:range,
+                  tx:''
+                }
+              );
+              s=true;
+              p++;
+            }
+          }catch(ee){}
+        }
+        if (!s&&p>=0){
+          t[p].tx+='\n'+ln;
+          t[p].tx=t[p].tx.trim();
+        }
       }
-      return timelines;
-    }catch(e){}
-    return [];
+    }catch(e){
+    }
+    return t;
   },
   translate:function(timelines, lang){
     var chunks=[],m=0,d=0,n=timelines.length;
