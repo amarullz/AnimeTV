@@ -8,10 +8,10 @@ android {
 
     defaultConfig {
         applicationId "com.amarullz.androidtv.animetvjmto"
-        minSdk 29
+        minSdk 28
         targetSdk 33
-        versionCode 150
-        versionName "1.5.0"
+        versionCode 152
+        versionName "1.5.2-beta2"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
