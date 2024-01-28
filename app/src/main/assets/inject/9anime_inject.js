@@ -24,8 +24,12 @@ function ___PLAYER(player){
         title:'-',
         title_jp:'-',
         synopsis:'',
+        stream_url:{
+            hard:'',
+            soft:'',
+            dub:''
+        },
         stream_vurl:'',
-        stream_url:'',
         mp4:false,
         poster:'',
         banner:null,
@@ -172,6 +176,22 @@ function ___PLAYER(player){
         }
     }
     function startFetch(){
+        /* URL Selection */
+        var STREAM_TYPE=_JSAPI.streamType();
+        data.streamtype="sub";
+        if (STREAM_TYPE==1){
+            if (data.stream_url.soft){
+                data.stream_vurl=data.stream_url.soft;
+                data.streamtype="softsub";
+            }
+        }
+        else if (STREAM_TYPE==2){
+            if (data.stream_url.dub){
+                data.stream_vurl=data.stream_url.dub;
+                data.streamtype="dub";
+            }
+        }
+
         data.ep=[];
         episode_el=[];
         data.url=location+'';
@@ -202,11 +222,6 @@ function ___PLAYER(player){
         }
         // dbg.value=JSON.stringify(data,null,4);
         _JSAPI.result(JSON.stringify(data));
-
-        /* Fix next server pickup */
-        if (server_state==1)
-            data.mp4=false;
-        server_state = 0;
     }
     function startFetchTimeout(ms){
         clearTimeout(fetchTo);
@@ -214,25 +229,7 @@ function ___PLAYER(player){
     }
     function clickServer(){
         var wsvr=$('w-servers');
-        var svr=0;
-        var STREAM_TYPE=_JSAPI.streamType();
-        data.stp=STREAM_TYPE;
-        if (STREAM_TYPE==1){
-            svr=wsvr.querySelector("div[data-type=softsub]");
-            data.streamtype="softsub";
-        }
-        else if (STREAM_TYPE==2){
-            svr=wsvr.querySelector("div[data-type=dub]");
-            data.streamtype="dub";
-        }
-        if (!svr){
-            svr=wsvr.querySelector("div[data-type=sub]");
-            data.streamtype="sub";
-        }
-        if (!svr){
-            svr=wsvr;
-            data.streamtype="sub";
-        }
+        var svr=wsvr.querySelector("div[data-type=sub]");
         if (svr){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
@@ -244,54 +241,54 @@ function ___PLAYER(player){
         }
         setTimeout(clickServer,5);
     }
-    function clickServerMp4(){
-        var svr=$('w-servers');
-        if (svr){
-            var server=svr.getElementsByTagName('li');
-            if (server.length>0){
-                var mp4upload=server[0].parentNode.lastElementChild;
-                if (mp4upload.textContent.toLowerCase()=='mp4upload'){
-                    server_state=2;
-                    mp4upload.click();
-                    data.mp4=true;
+    function clickNextServer(){
+        var srcquery=[
+            "div[data-type=softsub]",
+            "div[data-type=dub]"
+        ];
+        var wsvr=$('w-servers');
+        
+        server_state++;
+        var n=server_state-2;
+        if (n==0||n==1){
+            var svr=wsvr.querySelector(srcquery[n]);
+            if (svr){
+                var server=svr.getElementsByTagName('li');
+                if (server.length>0){
+                    server[0].click();
+                    startFetchTimeout(2000);
+                    return;
                 }
             }
         }
-        startFetchTimeout(4000);
+        else{
+            startFetchTimeout(1);
+        }
+        clickNextServer();
     }
     window.addEventListener('message',function(e) {
         try{
-            var j=JSON.parse(e.data);
-            data.skip=j.val.value;
-            if (j.cmd=='HOOK_READY'){
-                var svr=$('w-servers');
-                data.stream_vurl=player.firstElementChild.src;
-                console.log("ATVLOG-VIDURL --> VIZCLOUD-URL = "+data.stream_vurl);
-                startFetchTimeout(1);
-
-                /*
-                DISABLE MP4 UPLOAD SERVER
-                if (!data.mp4||server_state==1){
+            if (server_state==1){
+                var j=JSON.parse(e.data);
+                if (j.cmd=='HOOK_READY'){
+                    data.skip=j.val.value;
+                    data.stream_url.hard=
                     data.stream_vurl=player.firstElementChild.src;
-                    console.log("ATVLOG-VIDURL --> VIZCLOUD-URL = "+data.stream_vurl);
-                    if (!data.mp4){
-                        clickServerMp4();
-                    }
-                    else{
-                        startFetchTimeout(1);
-                    }
+                    console.log("ATVLOG-VIDURL [HARD] = "+data.stream_vurl);
+                    clickNextServer();
+                }
+            }
+            else{
+                if (server_state==2){
+                    data.stream_url.soft=player.firstElementChild.src;
+                    console.log("ATVLOG-VIDURL [SOFT] = "+data.stream_url.soft);
+                    clickNextServer();
                 }
                 else{
-                    data.stream_url=player.firstElementChild.src;
-                    console.log("ATVLOG-VIDURL --> MP4UPLOAD-URL = "+data.stream_url);
-                    if (server_state==0){
-                        clickServer();
-                    }
-                    else{
-                        startFetchTimeout(1);
-                    }
+                    console.log("ATVLOG-VIDURL [DUB] = "+data.stream_url.soft);
+                    data.stream_url.dub=player.firstElementChild.src;
+                    startFetchTimeout(1);
                 }
-                */
             }
         }catch(e){}
     });

@@ -550,14 +550,18 @@ c.loader {
   right:3vw;
   text-align: center;
   color: #fff;
-  font-size: 3.5vw;
+  font-size: 3vw;
   font-family: Times, serif;
 }
 #pb.onsettings #vtt_subtitle{
   bottom:35vh !important;
 }
 #vtt_subtitle{
-  text-shadow: 0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000;
+  text-shadow: -.1vw -.1vw .05vw #000,
+  .1vw -.1vw .05vw #000,
+   -.1vw .1vw .05vw #000,
+   .1vw .1vw .05vw #000,
+  0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000;
 }
 #vtt_subtitle .vtt_obj{
   display: inline !important;
@@ -616,7 +620,7 @@ c.loader {
 #vtt_subtitle.vtt_style_11,
 #vtt_subtitle.vtt_style_14,
 #vtt_subtitle.vtt_style_15{
-  font-size: 2.8vw;
+  font-size: 2.5vw;
 }
 
 #pb_action_streamtype{

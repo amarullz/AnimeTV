@@ -352,6 +352,10 @@ const _API={
     _API.currentStreamType=ct;
     _JSAPI.setStreamType(ct,c);
   },
+  setStreamTypeValue:function(t,c){
+    _API.currentStreamType=t;
+    _JSAPI.setStreamType(t,c);
+  },
 
   getStreamType:function(){
     return _JSAPI.getStreamType();
@@ -1158,6 +1162,17 @@ const pb={
           }
         }
       }
+      else if (key=="hardsub" || key=="softsub"||key=="dub"){
+        var subel=[
+          'hardsub','softsub','dub'
+        ];
+        for (var i=0;i<3;i++){
+          var kel=root['_s_'+subel[i]];
+          if (kel){
+            kel.firstElementChild.innerHTML=(_API.currentStreamType==i)?'check':'';
+          }
+        }
+      }
       else if (key in pb.cfg_data){
         if (key=='server'){
           el.lastElementChild.innerHTML=pb.cfgserver_name[pb.cfg_data[key]];
@@ -1194,6 +1209,10 @@ const pb={
       pb.cfg_update_el('speed');
       pb.cfg_update_el('ccstyle');
       pb.cfg_update_el('bgimg');
+
+      pb.cfg_update_el('hardsub');
+      pb.cfg_update_el('softsub');
+      pb.cfg_update_el('dub');
     }
   },
   cfg:function(v){
@@ -1465,7 +1484,7 @@ const pb={
         r=0;
       }
     }
-    console.log("PARSED-M3u8="+JSON.stringify(t));
+    console.log("PARSED-M3u8="+JSON.stringify(t,null,'\t'));
   },
   init_video_mp4upload:function(src){
     // pb.startpos_val
@@ -1695,6 +1714,8 @@ const pb={
     
     pb.lastkey=$tick();
     _API.setMessage(null);
+
+
     
     requestAnimationFrame(function(){
       pb.state=1;
@@ -1704,27 +1725,23 @@ const pb={
       pb.pb_track_pos.innerHTML='LOADING SERVER';
       pb.pb_track_dur.innerHTML='';
 
-      if (pb.data.mp4&&(pb.cfg('server')==2)){
-        if (pb.data.__mp4uploadurl){
-          pb.init_video_mp4upload(pb.data.__mp4uploadurl);
-        }
-        else{
-          console.log("GOT STREAM MP4");
-          _API.getMp4(pb.data.stream_url,function(d){
-            try{
-              if (d&&d.src){
-                pb.data.__mp4uploadurl=d.src;
-                pb.init_video_mp4upload(d.src);
-                return;
-              }
-            }catch(e){}
-            pb.init_video_vidcloud();
-          });
+      pb.data.stream_vurl = pb.data.stream_url.hard;
+      pb.data.streamtype="sub";
+      if (_API.currentStreamType==1){
+        if (pb.data.stream_url.soft){
+          pb.data.stream_vurl = pb.data.stream_url.soft;
+          pb.data.streamtype="softsub";
         }
       }
-      else{
-        pb.init_video_vidcloud();
+      else if (_API.currentStreamType==2){
+        if (pb.data.stream_url.dub){
+          pb.data.stream_vurl = pb.data.stream_url.dub;
+          pb.data.streamtype="dub";
+        }
       }
+      pb.updateStreamTypeInfo();
+
+      pb.init_video_vidcloud();
     });
   },
 
@@ -1812,9 +1829,21 @@ const pb={
           home.settings.open_donation();
         }
       }
+      else if (key=="hardsub" || key=="softsub"|| key=="dub"){
+        var sel=0;
+        if (key=="softsub") sel=1;
+        else if (key=="dub") sel=2;
+        _API.setStreamTypeValue(sel,1);
+        pb.startpos_val=pb.vid_stat.pos;
+        console.log("Change Stream Type = "+sel+" => "+_API.currentStreamType);
+        pb.init_video();
+        pb.cfg_update_el("hardsub");
+        pb.cfg_update_el("softsub");
+        pb.cfg_update_el("dub");
+      }
       else if (key=="speed"){
         _API.vidSpeed+=0.25;
-        if (_API.vidSpeed>3.0){
+        if (_API.vidSpeed>2.0){
           _API.vidSpeed=0.5;
         }
         _API.videoSpeed(_API.vidSpeed);
@@ -2347,6 +2376,19 @@ const pb={
     pb.pb_settings._s_scale=$n('div','',{action:'*scale'},pb.pb_settings.P,'<c>aspect_ratio</c> <span>SCALE</span>');
     pb.pb_settings._s_server=$n('div','',{action:'*server'},pb.pb_settings.P,'<c>cloud_done</c> <span>SERVER</span>');
     */
+
+    pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARDSUB');
+    if (pb.data.stream_url.soft){
+      pb.pb_settings._s_softsub=$n('div','',{action:'*softsub'},pb.pb_settings.P,'<c>clear</c> SOFTSUB');
+    }
+    if (pb.data.stream_url.dub){
+      pb.pb_settings._s_dub=$n('div','',{action:'*dub'},pb.pb_settings.P,'<c>clear</c> DUB');
+    }
+    /*
+    sub, softsub, dub
+    */
+
+
     pb.menu_select(pb.pb_settings,pb.pb_settings.P.firstElementChild);
     pb.pb_settings._midx=2;
     pb.cfg_update_el();
@@ -2598,7 +2640,7 @@ const pb={
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;
       if (uid==u && d.status){
-        console.log(d);
+        console.log("GETVIEW: "+JSON.stringify(d,null,'\t'));
         pb.data=d;
         _API.setUri(uri);
         pb.init();
@@ -3008,7 +3050,10 @@ const home={
         if (nst!=prevstype){
           _API.setStreamType(nst,home.settings.isplayback?1:0);
           if (home.settings.isplayback){
-            pb.reloadPlayback(2000);
+            // pb.reloadPlayback(2000);
+
+            pb.startpos_val=pb.vid_stat.pos;
+            pb.init_video();
           }
         }
 
