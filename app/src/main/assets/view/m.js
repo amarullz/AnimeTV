@@ -1690,18 +1690,8 @@ const pb={
         })();
       }
       else{
-        /* error loading page - load mp4upload */
-        pb.pb_track_pos.innerHTML='CHANGING SERVER';
-        _API.getMp4(pb.data.stream_url,function(d){
-          try{
-            if (d&&d.src){
-              pb.data.__mp4uploadurl=d.src;
-              pb.init_video_mp4upload(d.src);
-              return;
-            }
-          }catch(e){}
-          pb.init_video_vidcloud();
-        });
+        pb.pb_track_pos.innerHTML='PLAYER ERROR';
+        pb.pb_vid.innerHTML='';
       }
     });
 

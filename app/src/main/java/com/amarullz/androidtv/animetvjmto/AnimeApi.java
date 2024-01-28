@@ -35,6 +35,7 @@ import java.util.Map;
 
 public class AnimeApi extends WebViewClient {
   private static final String _TAG="ATVLOG-API";
+  private static final boolean _USECRONET=false;
 
   public static class Result{
     public String Text;
@@ -73,21 +74,32 @@ public class AnimeApi extends WebViewClient {
   /* Cronet 9anime builder */
   public static CronetEngine buildCronet(Context c){
     /* Setup Cronet HTTP+QUIC Client */
-    CronetEngine.Builder myBuilder =
+    if (_USECRONET) {
+      try {
+        CronetEngine.Builder myBuilder =
             new CronetEngine.Builder(c)
-                    .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
-                    .enableHttp2(true)
-                    .enableQuic(true)
-                    .enableBrotli(true)
-                    .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
-                    .addQuicHint(Conf.DOMAIN, 443, 443);
-    return myBuilder.build();
+                .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
+                .enableHttp2(true)
+                .enableQuic(true)
+                .enableBrotli(true)
+                .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
+                .addQuicHint(Conf.DOMAIN, 443, 443);
+        return myBuilder.build();
+      }catch(Exception ignored){}
+    }
+    return null;
   }
 
   /* Cronet init quic */
   public static HttpURLConnection initCronetQuic(CronetEngine c, String url, String method) throws IOException {
-    HttpURLConnection conn =
-            (HttpURLConnection) c.openConnection(new URL(url));
+    HttpURLConnection conn=null;
+    if (c!=null){
+      conn = (HttpURLConnection) c.openConnection(new URL(url));
+    }
+    else{
+      URL netConn = new URL(url);
+      conn = (HttpURLConnection) netConn.openConnection();
+    }
     conn.setRequestMethod(method);
     conn.setConnectTimeout(5000);
     conn.setReadTimeout(5000);
@@ -114,7 +126,7 @@ public class AnimeApi extends WebViewClient {
       try {
         /* Get Server Data from Github */
         HttpURLConnection conn = initCronetQuic(
-            cronet,
+            null,
             "https://raw.githubusercontent.com/amarullz/AnimeTV"+
                 "/master/server.json","GET"
         );
@@ -156,6 +168,10 @@ public class AnimeApi extends WebViewClient {
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeApi(Activity mainActivity) {
     activity = mainActivity;
+
+    /* Update Server */
+    updateServerVar();
+
     webView = new WebView(activity);
 //    webView = activity.findViewById(R.id.webview);
 
@@ -168,8 +184,7 @@ public class AnimeApi extends WebViewClient {
         null, 400, "Bad " +
         "Request", null, null);
 
-    /* Update Server */
-    updateServerVar();
+
 
     /* Init Webview */
     webView.setBackgroundColor(0xffffffff);

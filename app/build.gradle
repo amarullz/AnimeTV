@@ -10,8 +10,8 @@ android {
         applicationId "com.amarullz.androidtv.animetvjmto"
         minSdk 28
         targetSdk 33
-        versionCode 152
-        versionName "1.5.2-beta2"
+        versionCode 153
+        versionName "1.5.3-beta3"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
@@ -32,7 +32,7 @@ dependencies {
 
     implementation 'androidx.tvprovider:tvprovider:1.0.0'
 
-    implementation 'com.google.android.gms:play-services-cronet:18.0.1'
+    implementation 'com.google.android.gms:play-services-cronet:18.0.0'
     implementation 'org.jsoup:jsoup:1.16.1'
     implementation 'com.devbrackets.android:exomedia:5.0.0'
 
