@@ -1047,7 +1047,8 @@ const pb={
     scale:0,
     lang:'',
     ccstyle:0,
-    bgimg:0
+    bgimg:0,
+    quality:0
   },
   cfg_load:function(){
     var itm=localStorage.getItem(_API.user_prefix+'pb_cfg');
@@ -1077,6 +1078,12 @@ const pb={
             pb.cfg_data.server=sv;
         }*/
 
+        if ('quality' in j){
+          var sv=parseInt(j.quality);
+          if (sv&&sv>0&&sv<=3)
+            pb.cfg_data.quality=sv;
+        }
+
         if ('scale' in j){
           var sv=parseInt(j.scale);
           if (sv&&sv>0&&sv<=2)
@@ -1103,6 +1110,7 @@ const pb={
     pb.cfg_data.lang='';
     pb.cfg_data.ccstyle=0;
     pb.cfg_data.bgimg=0;
+    pb.cfg_data.quality=0;
   },
   cfgserver_name:[
     'VIZCLOUD M3U8',
@@ -1151,6 +1159,9 @@ const pb={
       }
       else if (key=='bgimg'){
         el.lastElementChild.innerHTML="WALLPAPER "+(pb.cfg_data.bgimg+1);
+      }
+      else if (key=='quality'){
+        el.lastElementChild.innerHTML=pb.sel_quality;
       }
       else if (key=='fav'){
         if (pb.data.animeid){
@@ -1209,6 +1220,8 @@ const pb={
       pb.cfg_update_el('speed');
       pb.cfg_update_el('ccstyle');
       pb.cfg_update_el('bgimg');
+
+      pb.cfg_update_el('quality');
 
       pb.cfg_update_el('hardsub');
       pb.cfg_update_el('softsub');
@@ -1461,8 +1474,9 @@ const pb={
     var d=(dt+"").replace(/\r/g,'').trim();
     var l=d.split('\n');
     var r=0;
-    var t=[];
     var lsrc=src.substr(0,src.lastIndexOf("/")+1);
+    var t=[];
+    var nsrc={};
     for (var i=0;i<l.length;i++){
       var ln=(l[i]+"").trim();
       if (ln.indexOf("#")==0){
@@ -1477,29 +1491,47 @@ const pb={
         }
       }
       else if (r && ln){
-        t.push({
-          "r":r,
-          "u":lsrc+ln
-        });
+        var tr=toInt(r);
+        t.push(tr);
+        nsrc["p"+tr]=lsrc+ln;
         r=0;
       }
     }
-    console.log("PARSED-M3u8="+JSON.stringify(t,null,'\t'));
+    t.sort(function(a, b){return b - a});
+    for (var i=0;i<t.length;i++){
+      pb.data.vsources.push(
+        {
+          r:t[i]+"p",
+          u:nsrc["p"+(t[i])]
+        }
+      );
+    }
+    console.log("PARSED-M3u8="+JSON.stringify(pb.data.vsources,null,'\t'));
   },
+  sel_quality:"AUTO",
   init_video_mp4upload:function(src){
-    // pb.startpos_val
-    if (!pb.data.vsources){
-      pb.data.vsources=[
-        src
-      ];
-      $ap(src,function(r){
-        if (r.ok){
-          pb.m3u8_parse_main(src,r.responseText);
+    pb.data.vsources=[
+      {
+        r:"AUTO",
+        u:src
+      }
+    ];
+    console.log("PARSED-M3u8 QUALITY="+pb.cfg_data.quality);
+    $ap(src,function(r){
+      if (r.ok){
+        pb.m3u8_parse_main(src,r.responseText);
+        if (pb.cfg_data.quality<pb.data.vsources.length){
+          var sl=pb.data.vsources[pb.cfg_data.quality];
+          pb.sel_quality=sl.r;
+          pb.init_video_player_url(sl.u);
+          pb.cfg_update_el("quality");
           return;
         }
-      });
-    }
-    pb.init_video_player_url(src);
+      }
+      pb.sel_quality="AUTO";
+      pb.init_video_player_url(src);
+      pb.cfg_update_el("quality");
+    });
   },
   init_video_mp4upload_html5:function(src){
     pb.data.mp4url=src;
@@ -1711,6 +1743,7 @@ const pb={
     pb.pb_vid.innerHTML='';
     pb.vid=pb.vid_get_time_cb=pb.vid_cmd_cb=null;
     pb.vid_reset_stat();
+    _API.setVideo('');
     
     pb.lastkey=$tick();
     _API.setMessage(null);
@@ -1833,13 +1866,14 @@ const pb={
         var sel=0;
         if (key=="softsub") sel=1;
         else if (key=="dub") sel=2;
-        _API.setStreamTypeValue(sel,1);
-        pb.startpos_val=pb.vid_stat.pos;
-        console.log("Change Stream Type = "+sel+" => "+_API.currentStreamType);
-        pb.init_video();
-        pb.cfg_update_el("hardsub");
-        pb.cfg_update_el("softsub");
-        pb.cfg_update_el("dub");
+        if (_API.currentStreamType!=sel){
+          pb.startpos_val=pb.vid_stat.pos;
+          _API.setStreamTypeValue(sel,1);
+          pb.init_video();
+          pb.cfg_update_el("hardsub");
+          pb.cfg_update_el("softsub");
+          pb.cfg_update_el("dub");
+        }
       }
       else if (key=="speed"){
         _API.vidSpeed+=0.25;
@@ -1848,6 +1882,13 @@ const pb={
         }
         _API.videoSpeed(_API.vidSpeed);
         pb.cfg_update_el(key);
+      }
+      else if (key=="quality"){
+        if (++pb.cfg_data.quality>3) pb.cfg_data.quality=0;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.startpos_val=pb.vid_stat.pos;
+        pb.init_video();
       }
       else if (key=="animation"){
         pb.state=0;
@@ -2369,6 +2410,9 @@ const pb={
     pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> SETTINGS');
     pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
     pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
+
+    pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
+
     /*
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
