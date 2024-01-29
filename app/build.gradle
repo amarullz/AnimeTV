@@ -10,8 +10,8 @@ android {
         applicationId "com.amarullz.androidtv.animetvjmto"
         minSdk 28
         targetSdk 33
-        versionCode 153
-        versionName "1.5.3-beta3"
+        versionCode 155
+        versionName "1.5.5-beta5"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
