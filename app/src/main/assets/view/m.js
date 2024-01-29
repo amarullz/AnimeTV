@@ -250,12 +250,15 @@ const _API={
     ["Hardsub","hard"],
     ["Dub","dub"],
     ["English Softsub","en"],
+    /* sources */
+    ["Arabic","ar"],["German","de"], ["Italian","it"], ["French","fr"],["Russian","ru"], ["Spanish","es"],
+    /* translates - start=9 */
     ["Indonesian","id"],
-    ["Arabic","ar"],["Chinese (Simplified)","zh-CN"],["Chinese (Traditional)","zh-TW"],
-    ["Danish","da"], ["Dutch","nl"], ["Filipino","tl"],["Finnish","fi"],["French","fr"],
-    ["German","de"],["Greek","el"],["Hindi","hi"],["Italian","it"],["Japanese","ja"],
-    ["Korean","ko"],["Latin","la"],["Malay","ms"],["Portuguese","pt"],["Russian","ru"],
-    ["Spanish","es"],["Thai","th"],["Vietnamese","vi"],
+    ["Chinese (Simplified)","zh-CN"],["Chinese (Traditional)","zh-TW"],
+    ["Danish","da"], ["Dutch","nl"], ["Filipino","tl"],["Finnish","fi"],
+    ["Greek","el"],["Hindi","hi"],["Japanese","ja"],
+    ["Korean","ko"],["Latin","la"],["Malay","ms"],["Portuguese","pt"],
+    ["Thai","th"],["Vietnamese","vi"],
     ["Afrikaans","af"],["Albanian","sq"],["Amharic","am"],["Armenian","hy"],["Assamese","as"],
     ["Aymara","ay"],["Azerbaijani","az"],["Bambara","bm"],["Basque","eu"],["Belarusian","be"],["Bengali","bn"],["Bhojpuri","bho"],["Bosnian","bs"],
     ["Bulgarian","bg"],["Catalan","ca"],["Cebuano","ceb"],["Chichewa","ny"],
@@ -613,12 +616,23 @@ const vtt={
     vtt.h.className=(n?("vtt_style_"+n):"");
   },
   sel:0,
+  substyle:0,
   listdef:[
     'english','portuguese (brazil)','spanish (latin_america)',
     'Spanish','Arabic','French','German','Italian','Russian'
   ],
   init:function(subs){
     if (subs.length>0){
+      if (pb.cfg_data.lang!='' && pb.cfg_data.lang!='en'){
+        var ffind = vtt.find_match(subs, pb.cfg_data.lang);
+        console.log("SUBTITLES SOFT = "+pb.cfg_data.lang+" => "+ffind+" // "+JSON.stringify(subs,null,'\t'));
+        if (ffind>-1){
+          console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
+          vtt.load(subs[ffind], 1);
+          return;
+        }
+      }
+
       // console.error(JSON.stringify(subs));
       for (var i=0;i<subs.length;i++){
         if (subs[i].d){
@@ -627,13 +641,36 @@ const vtt={
         }
       }
       for (var i=0;i<subs.length;i++){
-        if (subs[i].l.startsWith("english")){
+        if (subs[i].l.indexOf("eng")>-1){
           vtt.load(subs[i]);
           return;
         }
       }
       vtt.load(subs[0]);
     }
+  },
+  match_lang:{ 
+    it:['ita'], 
+    es:['esp','spa'], 
+    ar:['ara'], 
+    fr:['fra','fre'], 
+    ru:['rus'], 
+    de:['deu','ger'] 
+  },
+  find_match:function(t, lang){
+    if (lang in vtt.match_lang){
+      console.log("SUBTITLES FIND = "+pb.cfg_data.lang);
+      var y=vtt.match_lang[lang];
+      for (var i=0;i<t.length;i++){
+          var u=t[i];
+          for (var j=0;j<y.length;j++){
+              if (u.l.toLowerCase().indexOf(y[j])>-1){
+                  return i;
+              }
+          }
+      }
+    }
+    return -1;
   },
   ts2pos:function(ts){
     var k=ts.split(":");
@@ -782,16 +819,11 @@ const vtt={
     vtt.h.innerHTML=s?nlbr(s+''):'';
   },
   load:function(sub,n){
-    if (n&&n>3){
-      return;
-    }
-    else{
-      n=0;
-    }
     vtt.set('');
     vtt.playback.sub=null;
     vtt.playback.pos=0;
     vtt.playback.posid=0;
+    vtt.substyle=0;
     vtt.playback.show=false;
     $ap(sub.u,function(r){
       if (r.ok){
@@ -801,8 +833,10 @@ const vtt={
         if (pb.cfg_data.lang!='en' && 
           pb.cfg_data.lang!='hard' && 
           pb.cfg_data.lang!='dub' && 
-          pb.cfg_data.lang!=''){
+          pb.cfg_data.lang!='' &&
+          !n){
           /* If auto translate */
+          vtt.substyle=1;
           vtt.translate(sub.p, pb.cfg_data.lang);
         }
 
@@ -810,11 +844,9 @@ const vtt={
         vtt.playback.sub=sub;
         window.__activesub=sub;
 
+        pb.updateStreamTypeInfo();
+
         // console.log(JSON.stringify(sub,null, "\t"));
-      }
-      else{
-        console.error("Try reload Playback - "+(n+1));
-        vtt.load(sub,n+1);
       }
     });
   },
@@ -2468,7 +2500,7 @@ const pb={
     }
     else if (pb.data.streamtype=="softsub"){
       pb.curr_stream_type=1;
-      txtadd+=' <b class="softsub_lang">'+pb.cfg_data.lang.toUpperCase()+'</b>';
+      txtadd+=(vtt.substyle?' <c>g_translate</c>':'')+' <b class="softsub_lang">'+pb.cfg_data.lang.toUpperCase()+'</b>';
     }
     else{
       pb.curr_stream_type=0;
@@ -3119,23 +3151,20 @@ const home={
           _API.setStreamTypeValue(-1,home.settings.isplayback?1:0);
           if (home.settings.isplayback){
             // pb.reloadPlayback(2000);
-
             pb.startpos_val=pb.vid_stat.pos;
             pb.init_video();
           }
         }
 
-        if (i!='en' && nst==1 && prevstype==1){
+        if (nst==1 && prevstype==1){
           /* If auto translate */
           try{
-            vtt.translate(vtt.playback.sub.p, i);
+            // vtt.translate(vtt.playback.sub.p, i);
+            vtt.init(pb.subtitles);
           }catch(e){}
         }
 
         home.settings.refreshlang();
-        if (pb.state){
-          pb.updateStreamTypeInfo();
-        }
       }
     },
     initmore:function(){
@@ -3236,6 +3265,12 @@ const home={
           title='<c>keyboard_voice</c> '+title;
         }
         else{
+          if (i>=9){
+            title='<c>g_translate</c> '+title;
+          }
+          else{
+            title='<c>closed_caption</c> '+title;
+          }
           title+=' <b>'+special(lid.toUpperCase())+'</b>';
         }
 
