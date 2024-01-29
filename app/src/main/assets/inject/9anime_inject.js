@@ -51,6 +51,7 @@ function ___PLAYER(player){
     window.__EPGET=function(u){
         for (var i=0;i<episode_el.length;i++){
             if (u==episode_el[i].href){
+                server_state=1;
                 episode_el[i].click();
                 return true;
             }
@@ -241,6 +242,18 @@ function ___PLAYER(player){
         }
         setTimeout(clickServer,5);
     }
+    function clickLastServer(){
+        var wsvr=$('w-servers');
+        var svr=wsvr.querySelector("div[data-type=sub]");
+        if (svr){
+            var server=svr.getElementsByTagName('li');
+            if (server.length>0){
+                server_state++;
+                server[0].click();
+            }
+        }
+        startFetchTimeout(1);
+    }
     function clickNextServer(){
         var srcquery=[
             "div[data-type=softsub]",
@@ -250,7 +263,7 @@ function ___PLAYER(player){
         
         server_state++;
         var n=server_state-2;
-        if (n==0||n==1){
+        if (n<=1){
             var svr=wsvr.querySelector(srcquery[n]);
             if (svr){
                 var server=svr.getElementsByTagName('li');
@@ -262,7 +275,9 @@ function ___PLAYER(player){
             }
         }
         else{
-            startFetchTimeout(1);
+            clickLastServer();
+            return;
+            
         }
         clickNextServer();
     }
@@ -278,17 +293,15 @@ function ___PLAYER(player){
                     clickNextServer();
                 }
             }
-            else{
-                if (server_state==2){
-                    data.stream_url.soft=player.firstElementChild.src;
-                    console.log("ATVLOG-VIDURL [SOFT] = "+data.stream_url.soft);
-                    clickNextServer();
-                }
-                else{
-                    console.log("ATVLOG-VIDURL [DUB] = "+data.stream_url.soft);
-                    data.stream_url.dub=player.firstElementChild.src;
-                    startFetchTimeout(1);
-                }
+            else if (server_state==2){
+                data.stream_url.soft=player.firstElementChild.src;
+                console.log("ATVLOG-VIDURL [SOFT] = "+data.stream_url.soft);
+                clickNextServer();
+            }
+            else if(server_state==3){
+                console.log("ATVLOG-VIDURL [DUB] = "+data.stream_url.soft);
+                data.stream_url.dub=player.firstElementChild.src;
+                clickLastServer();
             }
         }catch(e){}
     });
