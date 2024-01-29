@@ -251,13 +251,13 @@ const _API={
     ["Dub","dub"],
     ["English Softsub","en"],
     /* sources */
-    ["Arabic","ar"],["German","de"], ["Italian","it"], ["French","fr"],["Russian","ru"], ["Spanish","es"],
+    ["Arabic","ar"],["German","de"], ["French","fr"], ["Italian","it"], ["Portuguese","pt"], ["Russian","ru"], ["Spanish","es"],
     /* translates - start=9 */
     ["Indonesian","id"],
     ["Chinese (Simplified)","zh-CN"],["Chinese (Traditional)","zh-TW"],
     ["Danish","da"], ["Dutch","nl"], ["Filipino","tl"],["Finnish","fi"],
     ["Greek","el"],["Hindi","hi"],["Japanese","ja"],
-    ["Korean","ko"],["Latin","la"],["Malay","ms"],["Portuguese","pt"],
+    ["Korean","ko"],["Latin","la"],["Malay","ms"],
     ["Thai","th"],["Vietnamese","vi"],
     ["Afrikaans","af"],["Albanian","sq"],["Amharic","am"],["Armenian","hy"],["Assamese","as"],
     ["Aymara","ay"],["Azerbaijani","az"],["Bambara","bm"],["Basque","eu"],["Belarusian","be"],["Bengali","bn"],["Bhojpuri","bho"],["Bosnian","bs"],
@@ -655,7 +655,8 @@ const vtt={
     ar:['ara'], 
     fr:['fra','fre'], 
     ru:['rus'], 
-    de:['deu','ger'] 
+    de:['deu','ger'],
+    pt:['por','bra'],
   },
   find_match:function(t, lang){
     if (lang in vtt.match_lang){
