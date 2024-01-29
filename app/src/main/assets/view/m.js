@@ -252,7 +252,7 @@ const _API={
     ["English Softsub","en"],
     /* sources */
     ["Arabic","ar"],["German","de"], ["French","fr"], ["Italian","it"], ["Portuguese","pt"], ["Russian","ru"], ["Spanish","es"],
-    /* translates - start=9 */
+    /* translates - start=10 */
     ["Indonesian","id"],
     ["Chinese (Simplified)","zh-CN"],["Chinese (Traditional)","zh-TW"],
     ["Danish","da"], ["Dutch","nl"], ["Filipino","tl"],["Finnish","fi"],
@@ -3266,7 +3266,7 @@ const home={
           title='<c>keyboard_voice</c> '+title;
         }
         else{
-          if (i>=9){
+          if (i>=10){
             title='<c>g_translate</c> '+title;
           }
           else{
