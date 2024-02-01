@@ -2,13 +2,21 @@ package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Html;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
@@ -17,6 +25,9 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
+
+import androidx.core.content.FileProvider;
 
 import org.chromium.net.CronetEngine;
 import org.json.JSONArray;
@@ -25,12 +36,15 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 public class AnimeApi extends WebViewClient {
@@ -124,6 +138,14 @@ public class AnimeApi extends WebViewClient {
   public void updateServerVar(){
     AsyncTask.execute(() -> {
       try {
+        File fp = new File(apkTempFile());
+        fp.delete();
+        Log.d(_TAG,"TEMP APK FILE DELETED");
+      }catch(Exception ignored){
+        Log.d(_TAG,"NO TEMP APK FILE");
+      }
+
+      try {
         /* Get Server Data from Github */
         HttpURLConnection conn = initCronetQuic(
             null,
@@ -145,8 +167,84 @@ public class AnimeApi extends WebViewClient {
         else{
           Log.d(_TAG,"SERVER UP TO DATE");
         }
+
+        // BuildConfig.VERSION_CODE
+        int appnum=j.getInt("appnum");
+        if (appnum>BuildConfig.VERSION_CODE){
+          Log.d(_TAG,"NEW APK VERSION AVAILABLE");
+          String appurl=j.getString("appurl");
+          String appver=j.getString("appver");
+          String appnote=j.getString("appnote");
+          Log.d(_TAG,"showUpdateDialog = "+appver+" / "+appurl+" / "+appnote);
+           activity.runOnUiThread(() ->showUpdateDialog(appurl, appver,
+              appnote));
+        }
       }catch(Exception ignored){}
     });
+  }
+
+  private String apkTempFile(){
+    return activity.getFilesDir() + "/update.apk";
+  }
+  private void installApk(File apkfile) {
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    Uri uri = FileProvider.getUriForFile(activity, activity.getPackageName() +
+              ".provider",apkfile);
+    List<ResolveInfo> resInfoList =
+        activity.getPackageManager().queryIntentActivities(intent,
+            PackageManager.MATCH_DEFAULT_ONLY);
+    for (ResolveInfo resolveInfo : resInfoList) {
+      String packageName = resolveInfo.activityInfo.packageName;
+      activity.grantUriPermission(packageName, uri,
+          Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    }
+    Intent intentApp = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+    intentApp.setData(uri);
+    Log.d(_TAG,"INSTALLING APK = "+uri);
+    intentApp.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    activity.startActivity(intentApp);
+  }
+  private void startUpdateApk(String url){
+    AsyncTask.execute(() -> {
+      try {
+        Log.d(_TAG,"DOWNLOADING APK = "+url);
+        HttpURLConnection conn = initCronetQuic(
+            null,
+            url,"GET"
+        );
+
+        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+        Log.d(_TAG,"DOWNLOADED APK = "+buffer.size());
+        activity.runOnUiThread(() ->{
+          Toast.makeText(activity,
+              "Update has been downloaded ("+((buffer.size()/1024)/1024)+"MB)",
+              Toast.LENGTH_SHORT).show();
+        });
+        String apkpath=apkTempFile();
+        FileOutputStream fos = new FileOutputStream(apkpath);
+        buffer.writeTo(fos);
+        File fp=new File(apkpath);
+        installApk(fp);
+      }catch(Exception er){
+        activity.runOnUiThread(() ->{
+          Toast.makeText(activity,"Update Failed: "+er.toString(),
+              Toast.LENGTH_SHORT).show();
+        });
+        Log.d(_TAG,"DOWNLOAD ERR = "+er.toString());
+      }
+    });
+  }
+
+  private void showUpdateDialog(String url, String ver, String changelog){
+    new AlertDialog.Builder(activity)
+        .setTitle("Update Available - Version "+ver)
+        .setMessage(changelog)
+        .setNegativeButton("Later", null)
+        .setPositiveButton("Update Now", (dialog, which) -> {
+          Toast.makeText(activity,"Downloading Update...",
+              Toast.LENGTH_SHORT).show();
+          startUpdateApk(url);
+        }).show();
   }
 
   public SharedPreferences pref;

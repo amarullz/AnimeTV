@@ -46,7 +46,7 @@ public class AnimeView extends WebViewClient {
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -414,6 +414,13 @@ public class AnimeView extends WebViewClient {
       AsyncTask.execute(() -> {
         final String out=aApi.getMp4Video(url);
         activity.runOnUiThread(() -> webView.evaluateJavascript("__MP4CB("+out+");",null));
+      });
+    }
+
+    @JavascriptInterface
+    public void reloadHome() {
+      AsyncTask.execute(() -> {
+        reloadView();
       });
     }
 

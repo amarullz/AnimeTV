@@ -231,6 +231,12 @@ function ___PLAYER(player){
     function clickServer(){
         var wsvr=$('w-servers');
         var svr=wsvr.querySelector("div[data-type=sub]");
+        if (!svr){
+            svr=wsvr.querySelector("div[data-type=softsub]");
+        }
+        if (!svr){
+            svr=wsvr.querySelector("div[data-type=dub]");
+        }
         if (svr){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
@@ -245,6 +251,12 @@ function ___PLAYER(player){
     function clickLastServer(){
         var wsvr=$('w-servers');
         var svr=wsvr.querySelector("div[data-type=sub]");
+        if (!svr){
+            svr=wsvr.querySelector("div[data-type=softsub]");
+        }
+        if (!svr){
+            svr=wsvr.querySelector("div[data-type=dub]");
+        }
         if (svr){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){

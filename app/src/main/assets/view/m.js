@@ -284,6 +284,13 @@ const _API={
     }catch(e){}
   },
 
+  reload:function(){
+    try{
+      // _JSAPI.reloadHome();
+      location="/__view/main.html";
+    }catch(e){}
+  },
+
   /*** JSAPI CALLBACKS ***/
   keycb:null,
   messagecb:null,
@@ -1964,6 +1971,13 @@ const pb={
         pb.cfg_save();
         _API.bgimg_update();
       }
+      else if (key=='nonjapan'){
+        // Update Home
+        pb.cfg_data.nonjapan=!pb.cfg_data.nonjapan;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        home.settings.needreload=true;
+      }
       else if (key in pb.cfg_data){
         if (key=="server"){
           if (pb.state){
@@ -2817,6 +2831,7 @@ const home={
   home_trending:$('home_trending'),
   home_random:$('home_random'),
   home_top:$('home_top'),
+  home_chinese:$('home_chinese'),
 
   home_history:$('home_history'),
   home_fav:$('home_fav'),
@@ -3073,14 +3088,12 @@ const home={
 
     home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
     home.home_dub._ajaxurl='/ajax/home/widget/updated-dub?page=';
-
     home.home_trending._ajaxurl='/ajax/home/widget/trending?page=';
     home.home_random._ajaxurl='/ajax/home/widget/random?page=';
     home.recent_init(home.home_recent);
     home.recent_init(home.home_dub);
     home.recent_init(home.home_trending);
     home.recent_init(home.home_random);
-    
 
     home.home_load();
 
@@ -3093,10 +3106,24 @@ const home={
       home.home_dub,
       home.home_top,
       home.home_trending,
-      home.home_random,
-      home.home_fav,
-      home.home_history
+      home.home_random
     ];
+
+    if (pb.cfg_data.nonjapan){
+      home.home_chinese.className='home_list pb_menu';
+      home.home_chinese.style.display='';
+      home.home_chinese._ajaxurl='/ajax/home/widget/updated-china?page=';
+      home.recent_init(home.home_chinese);
+      home.menus.push(home.home_chinese);
+    }
+    else{
+      home.home_chinese.style.display='none !important';
+      home.home_chinese.innerHTML='';
+      home.home_chinese.className='';
+    }
+
+    home.menus.push(home.home_fav);
+    home.menus.push(home.home_history);
 
     home.list_init();
 
@@ -3129,6 +3156,7 @@ const home={
 
   settings:{
     sel:0,
+    needreload:false,
     settings:$('settings'),
     tlang:$('settings_lang'),
     more:$('settings_more'),
@@ -3299,6 +3327,7 @@ const home={
     },
     open:function(arg){
       home.settings.isplayback=arg;
+      home.settings.needreload=false;
       home.settings.sel=0;
       home.settings.menus=[
         home.settings.tlang,
@@ -3312,6 +3341,12 @@ const home={
       pb.pb.classList.add('onsettings');
     },
     close:function(){
+      if (home.settings.needreload){
+        home.settings.needreload=false;
+        if (!home.settings.isplayback){
+          _API.reload();
+        }
+      }
       home.onsettings=false;
       pb.pb.classList.remove('onsettings');
       home.settings.settings.classList.remove('active');
