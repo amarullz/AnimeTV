@@ -194,7 +194,7 @@ const _API={
   user:'', /* current user prefix _API.user */
   user_prefix:'', /* current localStorage user prefix _API.user_prefix */
   
-  html_class:'ani_quick',
+  html_class:'',
 
   /*** THEMES ***/
   theme_list:[
@@ -1078,20 +1078,24 @@ const pb={
   updateanimation:function(){
     switch(pb.cfg_data.animation){
       case 1:
-        _API.html_class='ani_super_quick';
-        break;
-      case 2:
-        _API.html_class='';
-        break;
-      default:
         _API.html_class='ani_quick';
         break;
+      case 2:
+        _API.html_class='ani_super_quick';
+        break;
+      default:
+        _API.html_class='';
+        break;
+    }
+    if (pb.cfg_data.performance){
+      _API.html_class+=' ui_performance'
     }
     _API.theme_update();
   },
 
   cfg_data:{
     animation:0,
+    performance:false,
     autoskip:false,
     autonext:true,
     skipfiller:false,
@@ -1112,6 +1116,8 @@ const pb={
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
+        pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):false;
+        
         pb.cfg_data.lang=('lang' in j)?j.lang:'';
         _API.setStreamType(0,0);
 
@@ -1156,6 +1162,7 @@ const pb={
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.nonjapan=false;
+    pb.cfg_data.performance=false;
     
     pb.cfg_data.server=0;
     pb.cfg_data.animation=0;
@@ -1171,9 +1178,9 @@ const pb={
     'MP4UPLOAD'
   ],
   cfganimation_name:[
+    'NORMAL ANIMATION',
     'FAST ANIMATION',
-    'FASTER ANIMATION',
-    'NORMAL ANIMATION'
+    'FASTER ANIMATION'
   ],
   cfgstreamtype_name:[
     'HARDSUB',
@@ -1272,6 +1279,8 @@ const pb={
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('nonjapan');
+      pb.cfg_update_el('performance');
+      
       
       pb.cfg_update_el('server');
       pb.cfg_update_el('scale');
@@ -1977,6 +1986,12 @@ const pb={
         pb.cfg_update_el(key);
         pb.cfg_save();
         home.settings.needreload=true;
+      }
+      else if (key=='performance'){
+        pb.cfg_data.performance=!pb.cfg_data.performance;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
       }
       else if (key in pb.cfg_data){
         if (key=="server"){
@@ -3266,6 +3281,15 @@ const home={
         home.settings.more.P,
         "<c>animation</c> <span>FAST ANIMATION</span>"
       );
+
+      home.settings.more._s_performance=$n(
+        'div','',{
+          action:'*performance'
+        },
+        home.settings.more.P,
+        '<c>clear</c> PERFORMANCE-UI'
+      );
+
       home.settings.more._s_donation=$n(
         'div','',{
           action:'*donate'

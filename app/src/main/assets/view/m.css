@@ -1,7 +1,8 @@
 /****************************** COMMON ******************************/
 @font-face {
   font-family: 'robotoc';
-  src: url('robotoc.ttf') format('truetype');
+  /*src: url('robotoc.ttf') format('truetype');*/
+  src: url('firac.ttf') format('truetype');
 }
 
 @font-face {
@@ -121,10 +122,13 @@
   --tim-8s: .2s;
 }
 
-.ani_super_quick *,
+.ui_performance *{
+  box-shadow: none !important;
+  -webkit-mask-image: none !important;
+}
 .ani_quick *{
   /* box-shadow: none !important; */
-  text-shadow: none !important;
+  /* text-shadow: none !important; */
 }
 /* .ani_super_quick #animebg,
 .ani_quick #animebg {
@@ -135,7 +139,7 @@ body,
 html {
   margin: 0;
   padding: 0;
-  font-family: robotoc, arial, tahoma, sans-serif;
+  font-family: robotoc, Arial, Helvetica, sans-serif;
   font-size: 10px;
   font-weight: normal;
   /* background-color: var(--primary-bg); */
@@ -670,7 +674,7 @@ c.loader {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .95) 100%);
   text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000;
   transform: translateY(calc(100vh - 4vw));
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-4s) cubic-bezier(.25, .8, .25, 1);
 }
 
 #pb_lists {
@@ -1296,7 +1300,7 @@ c.loader {
   position: relative;
   display: block;
   z-index:0;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: transform var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
 }
 #home_scroll_mask{
   position: relative;
