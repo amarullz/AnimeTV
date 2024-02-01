@@ -12,9 +12,12 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 
 
 **Detail Information :** [https://amarullz.com/](https://amarullz.com/)
+
 **Discussion on Discord :** [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
 
 ## Features
+- **NEW** - Mirror Stream Server
+- **NEW** - Auto Update App
 - **NEW** - Soft-subtitle & Auto Translate to **134 Languages** (Only for supported contents)
 - **NEW** - Settings panel
 - **NEW** - Change Theme Color & Animation performance
