@@ -149,8 +149,8 @@ public class AnimeApi extends WebViewClient {
         /* Get Server Data from Github */
         HttpURLConnection conn = initCronetQuic(
             null,
-            "https://raw.githubusercontent.com/amarullz/AnimeTV"+
-                "/master/server.json","GET"
+            "https://raw.githubusercontent.com/amarullz/AnimeTV/master/server" +
+                ".json?"+System.currentTimeMillis(),"GET"
         );
         ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
         String serverjson=buffer.toString();
@@ -175,9 +175,15 @@ public class AnimeApi extends WebViewClient {
           String appurl=j.getString("appurl");
           String appver=j.getString("appver");
           String appnote=j.getString("appnote");
-          Log.d(_TAG,"showUpdateDialog = "+appver+" / "+appurl+" / "+appnote);
+          String appsize=j.getString("appsize");
+          Log.d(_TAG,
+              "showUpdateDialog = "+appver+" / "+appsize+" / "+appurl+" / "+
+                  appnote);
            activity.runOnUiThread(() ->showUpdateDialog(appurl, appver,
-              appnote));
+              appnote,appsize));
+        }
+        else{
+          Log.d(_TAG,"APP UP TO DATE");
         }
       }catch(Exception ignored){}
     });
@@ -235,10 +241,11 @@ public class AnimeApi extends WebViewClient {
     });
   }
 
-  private void showUpdateDialog(String url, String ver, String changelog){
+  private void showUpdateDialog(String url, String ver, String changelog,
+                                String sz){
     new AlertDialog.Builder(activity)
         .setTitle("Update Available - Version "+ver)
-        .setMessage(changelog)
+        .setMessage("Download Size : "+sz+"\n\nChangelogs:\n"+changelog)
         .setNegativeButton("Later", null)
         .setPositiveButton("Update Now", (dialog, which) -> {
           Toast.makeText(activity,"Downloading Update...",

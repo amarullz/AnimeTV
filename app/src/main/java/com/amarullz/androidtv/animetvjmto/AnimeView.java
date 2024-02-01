@@ -46,7 +46,7 @@ public class AnimeView extends WebViewClient {
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=true;
+  public static boolean USE_WEB_VIEW_ASSETS=false;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
