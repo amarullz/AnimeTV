@@ -1,7 +1,7 @@
 {
   "latestVersion": "1.5.6-beta6",
   "latestVersionCode": 156,
-  "url": "https://github.com/amarullz/AnimeTV/releases",
+  "url": "https://github.com/amarullz/AnimeTV/releases/download/1.5.6-beta6/animetv-1.5.6-beta6.apk",
   "releaseNotes": [
     "- Fix change episode stuck at previous video",
     "- Add softsub non-translated for Arabic, German, Italian, French, Russian & Spanish (If available)"
