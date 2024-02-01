@@ -4,10 +4,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-231209",
 
-  "appnum": 156,
-  "appver": "1.5.6",
-  "appsize": "21.9 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/1.5.6-beta6/animetv-1.5.6-beta6.apk",
+  "appnum": 160,
+  "appver": "1.6.0",
+  "appsize": "22.1 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/1.6.0/animetv-1.6.0.apk",
   "appnote": 
-    "- Add autoupdate\n- Add chinese update list anime in home (non-anime should be checked)\n- Fix hardsub not-available (ex: Gintama Session 1)"
+    "- Add auto-update feature\n- Add chinese list at homelist\n- Fix hardsub unavailable (ex: gintama s1)\n- Add performance-ui\n- Add mirror stream server"
 }
