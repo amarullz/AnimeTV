@@ -10,8 +10,11 @@ public class Conf {
   // * vidplay.site
   public static String STREAM_DOMAIN = "vidplay.online";
 
+  public static String STREAM_DOMAIN2 = "mcloud.bz";
+
   public static String SERVER_VER = "1.0-APK";
 
   /* Steam Selection */
   public static int STREAM_TYPE = 0;
+  public static int STREAM_SERVER = 0;
 }

@@ -233,13 +233,10 @@ public class AnimeView extends WebViewClient {
       }
       return aApi.badRequest;
     }
-    else if (host.contains(Conf.STREAM_DOMAIN)||host.contains("vidstream" +
-        ".pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
+    else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       if (accept.startsWith("text/html")||
           url.startsWith("https://"+Conf.STREAM_DOMAIN+"/mediainfo")||
-          url.startsWith("https://vizcloud.co/mediainfo")||
-          url.startsWith("https://mcloud.to/mediainfo")||
-          url.startsWith("https://vidstream.pro/mediainfo")) {
+          url.startsWith("https://"+Conf.STREAM_DOMAIN2+"/mediainfo")) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
         if (!accept.startsWith("text/html"))
           sendVidpageLoaded(1);
@@ -485,6 +482,16 @@ public class AnimeView extends WebViewClient {
         aApi.cleanWebView();
       }
       Conf.STREAM_TYPE=type;
+    }
+
+    @JavascriptInterface
+    public void setStreamServer(int mirror, int clean){
+      Log.d(_TAG,"[X] setStreamServer = "+mirror+" / clean="+clean);
+      if (clean==1) {
+        lastResultUrl = "";
+        aApi.cleanWebView();
+      }
+      Conf.STREAM_SERVER=mirror;
     }
 
     @JavascriptInterface

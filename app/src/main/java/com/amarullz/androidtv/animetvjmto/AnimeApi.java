@@ -264,6 +264,7 @@ public class AnimeApi extends WebViewClient {
         Conf.DOMAIN=j.getString("domain");
         Conf.STREAM_DOMAIN=j.getString("stream_domain");
         Conf.SERVER_VER=j.getString("update");
+        Conf.STREAM_DOMAIN2=j.getString("stream_domain2");
       }catch(Exception ignored){}
     }
     Log.d(_TAG,"DOMAIN = "+Conf.DOMAIN+" / STREAM = "+Conf.STREAM_DOMAIN+" / " +
@@ -454,8 +455,7 @@ public class AnimeApi extends WebViewClient {
         Log.d(_TAG, "QUIC-ERR=" + url + " - " + e);
       }
     }
-    else if (host.contains("mp4upload.com")||host.contains(Conf.STREAM_DOMAIN)||host.contains(
-        "vidstream.pro")||host.contains("vizcloud.co")||host.contains("mcloud.to")){
+    else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       return assetsRequest("inject/9anime_player.html");
     }
     else if (host.contains("cloudflare.com")||
@@ -539,6 +539,10 @@ public class AnimeApi extends WebViewClient {
       return Conf.STREAM_TYPE;
     }
 
+    @JavascriptInterface
+    public int streamServer(){
+      return Conf.STREAM_SERVER;
+    }
     @JavascriptInterface
     public String dns(){
       return Conf.DOMAIN;

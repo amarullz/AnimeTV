@@ -4,6 +4,7 @@ function $(i){
 }
 /* PLAYER INJECT */
 function ___PLAYER(player){
+    var _SERVER_ID=_JSAPI.streamServer();;
     var dbg=document.createElement('textarea');
     dbg.style.position='absolute';
     dbg.style.zIndex='9999999';
@@ -228,6 +229,17 @@ function ___PLAYER(player){
         clearTimeout(fetchTo);
         fetchTo=setTimeout(startFetch,ms);
     }
+    function clickServerId(server){
+        if (_SERVER_ID<server.length){
+            try{
+                if (server[_SERVER_ID].innerText.toLowerCase()=='mycloud'){
+                    server[_SERVER_ID].click();
+                    return;
+                }
+            }catch(ee){}
+        }
+        server[0].click();
+    }
     function clickServer(){
         var wsvr=$('w-servers');
         var svr=wsvr.querySelector("div[data-type=sub]");
@@ -241,7 +253,7 @@ function ___PLAYER(player){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
                 server_state=1;
-                server[0].click();
+                clickServerId(server);
                 startFetchTimeout(4000);
                 return;
             }
@@ -261,7 +273,7 @@ function ___PLAYER(player){
             var server=svr.getElementsByTagName('li');
             if (server.length>0){
                 server_state++;
-                server[0].click();
+                clickServerId(server);
             }
         }
         startFetchTimeout(1);
@@ -280,7 +292,7 @@ function ___PLAYER(player){
             if (svr){
                 var server=svr.getElementsByTagName('li');
                 if (server.length>0){
-                    server[0].click();
+                    clickServerId(server);
                     startFetchTimeout(2000);
                     return;
                 }

@@ -358,6 +358,9 @@ const _API={
     }
     return t;
   },
+  setStreamServer:function(t,c){
+    _JSAPI.setStreamServer(t,c);
+  },
   setStreamType:function(t,c){
     if (_API.currentStreamTypeValue){
       _JSAPI.setStreamType(_API.currentStreamType,c);
@@ -1105,7 +1108,8 @@ const pb={
     lang:'',
     ccstyle:0,
     bgimg:0,
-    quality:0
+    quality:0,
+    mirrorserver:false
   },
   cfg_load:function(){
     var itm=localStorage.getItem(_API.user_prefix+'pb_cfg');
@@ -1117,6 +1121,10 @@ const pb={
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
         pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):false;
+        pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver?true:false):false;
+
+        _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
+        
         
         pb.cfg_data.lang=('lang' in j)?j.lang:'';
         _API.setStreamType(0,0);
@@ -1163,6 +1171,7 @@ const pb={
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.nonjapan=false;
     pb.cfg_data.performance=false;
+    pb.cfg_data.mirrorserver=false;
     
     pb.cfg_data.server=0;
     pb.cfg_data.animation=0;
@@ -1280,7 +1289,7 @@ const pb={
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('nonjapan');
       pb.cfg_update_el('performance');
-      
+      pb.cfg_update_el('mirrorserver');
       
       pb.cfg_update_el('server');
       pb.cfg_update_el('scale');
@@ -1993,6 +2002,15 @@ const pb={
         pb.cfg_save();
         pb.updateanimation();
       }
+      else if (key=='mirrorserver'){
+        pb.cfg_data.mirrorserver=!pb.cfg_data.mirrorserver;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,pb.state?1:0);
+        if (pb.state){
+          pb.reloadPlayback(1000);
+        }
+      }
       else if (key in pb.cfg_data){
         if (key=="server"){
           if (pb.state){
@@ -2497,6 +2515,8 @@ const pb={
 
     pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
 
+    
+
     /*
     pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
     pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
@@ -2512,6 +2532,15 @@ const pb={
     if (pb.data.stream_url.dub){
       pb.pb_settings._s_dub=$n('div','',{action:'*dub'},pb.pb_settings.P,'<c>clear</c> DUB');
     }
+
+    pb.pb_settings._s_mirrorserver=$n(
+      'div','',{
+        action:'*mirrorserver'
+      },
+      pb.pb_settings.P,
+      '<c>clear</c> MIRROR SERVER'
+    );
+    
     /*
     sub, softsub, dub
     */
@@ -2767,6 +2796,7 @@ const pb={
     console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos);
     pb.pb_action_streamtype.classList.remove('active');
     var open_stat=0;
+    _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;
       if (uid==u && d.status){
