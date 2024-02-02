@@ -125,6 +125,7 @@
 .ui_performance *{
   box-shadow: none !important;
   -webkit-mask-image: none !important;
+  text-shadow: none;
 }
 .ani_quick *{
   /* box-shadow: none !important; */
@@ -560,12 +561,12 @@ c.loader {
 #pb.onsettings #vtt_subtitle{
   bottom:35vh !important;
 }
-#vtt_subtitle{
+#vtt_subtitle *{
   text-shadow: -.1vw -.1vw .05vw #000,
   .1vw -.1vw .05vw #000,
    -.1vw .1vw .05vw #000,
    .1vw .1vw .05vw #000,
-  0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000;
+  0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
 }
 #vtt_subtitle .vtt_obj{
   display: inline !important;
@@ -579,10 +580,10 @@ c.loader {
   background:rgba(0,0,0,.4);
 }
 
-#vtt_subtitle.vtt_style_8,
-#vtt_subtitle.vtt_style_9,
-#vtt_subtitle.vtt_style_10,
-#vtt_subtitle.vtt_style_11{
+#vtt_subtitle.vtt_style_8 *,
+#vtt_subtitle.vtt_style_9 *,
+#vtt_subtitle.vtt_style_10 *,
+#vtt_subtitle.vtt_style_11 *{
   color:#000;
   text-shadow:
    -.1vw -.1vw .05vw #fff,  
@@ -592,10 +593,10 @@ c.loader {
     0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
 }
 
-#vtt_subtitle.vtt_style_12,
-#vtt_subtitle.vtt_style_13,
-#vtt_subtitle.vtt_style_14,
-#vtt_subtitle.vtt_style_15{
+#vtt_subtitle.vtt_style_12 *,
+#vtt_subtitle.vtt_style_13 *,
+#vtt_subtitle.vtt_style_14 *,
+#vtt_subtitle.vtt_style_15 *{
   color:var(--primary-2);
   text-shadow:
    -.1vw -.1vw .05vw #fff,  
@@ -613,7 +614,7 @@ c.loader {
 #vtt_subtitle.vtt_style_11,
 #vtt_subtitle.vtt_style_13,
 #vtt_subtitle.vtt_style_15{
-  font-family: Arial, Helvetica, sans-serif !important;
+  font-family: robotoc, Arial, Helvetica, sans-serif !important;
 }
 
 #vtt_subtitle.vtt_style_2,
@@ -944,6 +945,10 @@ c.loader {
   opacity: .8;
 }
 
+#pb_tracks *{
+  text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000 !important;
+}
+
 #pb_track_title,
 #pb_track_dur,
 #pb_track_left {
@@ -977,7 +982,7 @@ c.loader {
   height: 2vw;
   vertical-align: middle;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
-  text-shadow: 0 0 .2vw #000;
+  text-shadow: 0 0 .2vw #000 !important;
 }
 
 #pb_tracks.active #pb_track_ctl {
@@ -1261,19 +1266,31 @@ c.loader {
   bottom: 0;
   left: 0;
   right: 0;
-  font-size: 1.4vw;
+  font-size: 1.2vw;
   display: block;
   font-weight: normal;
   margin: 0;
   overflow: hidden;
   word-break: normal;
-  padding: .4vw .2vw 1vw .2vw;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4) 30%, rgba(0, 0, 0, .8) 100%);
+  padding: .4vw .2vw .4vw .2vw;
+  /* background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4) 30%, rgba(0, 0, 0, .8) 100%); */
   text-align: center;
   white-space: break-spaces;
   word-wrap: break-word;
   box-sizing: border-box;
   line-height: 1.2;
+
+  background-color: rgba(0,0,0,.5);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home_list.active div.active b{
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+  background-color: var(--primary-1);
 }
 
 .home_list.pb_menu.active div.active {
@@ -1340,6 +1357,9 @@ c.loader {
   animation: logopaw_ani .5s linear infinite alternate;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
 }
+.ui_performance #home_header h1 c{
+  animation: none;
+}
 #home_header.scrolled h1 c{
   font-size: 3vw;
   font-size:2vw;
@@ -1401,11 +1421,11 @@ c.loader {
     opacity: 0;
     transform: translateY(-1vw);
   }
-  5% {
+  3% {
     opacity: 1;
     transform: translateY(0);
   }
-  95% {
+  97% {
     opacity: 1;
     transform: translateY(0);
   }
@@ -1421,7 +1441,7 @@ c.loader {
 }
 #home_discord_info #home_discord_info_value div.active{
   display: block;
-  animation: discord_message_keyframe 6s linear;
+  animation: discord_message_keyframe 10s linear;
 }
 #home_discord_info #home_discord_info_value span{
   color: var(--accent-1);
@@ -1487,7 +1507,7 @@ c.loader {
 }
 
 #animebg {
-  position: fixed;
+  position: absolute;
   /* inset: 0; */
   top:0;
   left:0;
@@ -1521,9 +1541,9 @@ c.loader {
   background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/7.png);
 }
 #animebg.bg8 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%);
+  background-image: none !important;
+  background-color: var(--primary-bg) !important;
 }
-
 #search {
   position: fixed;
   /* inset: 0; */
@@ -1628,7 +1648,7 @@ c.loader {
   z-index: 300;
   left: .4vw;
   right: .4vw;
-  bottom: .4vw;
+  bottom: .2vw;
   height: .3vw;
   border-radius: .2vw;
   overflow: hidden;
@@ -1638,7 +1658,7 @@ c.loader {
 .home_list p div i em {
   display: block;
   height: .3vw;
-  background-color: rgba(255, 255, 255, .8);
+  background-color: var(--accent-1);
 }
 
 /* Settings */
