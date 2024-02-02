@@ -3246,7 +3246,7 @@ const home={
             }
           }
           start_discord_message();
-          setInterval(start_discord_message,6000);
+          setInterval(start_discord_message,10000);
         }catch(e){
           console.log("ERROR "+e);
           iv.innerHTML='';
