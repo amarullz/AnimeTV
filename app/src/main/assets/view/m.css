@@ -1671,8 +1671,8 @@ c.loader {
   padding:0;
   box-sizing: border-box;
   background: #222;
-  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
-  transform: translateY(-50vh);
+  transition: all var(--tim-4s) cubic-bezier(.25, .8, .25, 1);
+  transform: translateY(-100%);
   opacity: 0;
   visibility: hidden;
   z-index: 19999;
@@ -1683,7 +1683,7 @@ c.loader {
   border-radius: 0 0 .5vw .5vw;
 }
 #settings.active {
-  transform: scaleY(1) translateY(0);
+  transform: translateY(0);
   opacity: 1;
   visibility: visible;
 }

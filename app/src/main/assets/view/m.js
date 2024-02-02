@@ -3496,7 +3496,6 @@ const home={
       }
     },
     open:function(arg){
-      home.settings.settings.style.height='';
       home.settings.isplayback=arg;
       home.settings.needreload=false;
       home.settings.sel=0;
@@ -3521,11 +3520,13 @@ const home={
       home.settings.about._midx=4;
 
       home.onsettings=true;
-      home.settings.settings.classList.add('active');
       home.settings.update(0);
       home.settings.refreshlang();
       home.settings.initmore();
       pb.pb.classList.add('onsettings');
+      requestAnimationFrame(function(){
+        home.settings.settings.classList.add('active');
+      });
     },
     close:function(){
       if (home.settings.needreload){
@@ -3537,7 +3538,6 @@ const home={
       home.onsettings=false;
       pb.pb.classList.remove('onsettings');
       home.settings.settings.classList.remove('active');
-      home.settings.settings.style.height='';
     },
     update:function(pc){
       home.settings.menus[home.settings.sel].classList.remove('active');
