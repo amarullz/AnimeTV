@@ -11,7 +11,7 @@ android {
         minSdk 28
         targetSdk 33
         versionCode 160
-        versionName "1.6.1"
+        versionName "1.6.1c"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"

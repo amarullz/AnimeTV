@@ -407,6 +407,11 @@ public class AnimeView extends WebViewClient {
     }
 
     @JavascriptInterface
+    public void checkUpdate(){
+      aApi.updateServerVar(true);
+    }
+
+    @JavascriptInterface
     public void getmp4vid(String url) {
       AsyncTask.execute(() -> {
         final String out=aApi.getMp4Video(url);

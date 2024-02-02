@@ -258,7 +258,7 @@ const _API={
   tlangs:[
     ["Hardsub","hard"],
     ["Dub","dub"],
-    ["English Softsub","en"],
+    ["English","en"],
     /* sources */
     ["Arabic","ar"],["German","de"], ["French","fr"], ["Italian","it"], ["Portuguese","pt"], ["Russian","ru"], ["Spanish","es"],
     /* translates - start=10 */
@@ -298,6 +298,10 @@ const _API={
       // _JSAPI.reloadHome();
       location="/__view/main.html";
     }catch(e){}
+  },
+  
+  checkUpdate(){
+    _JSAPI.checkUpdate();
   },
 
   /*** JSAPI CALLBACKS ***/
@@ -1295,7 +1299,7 @@ const pb={
   cfg_update_el:function(key){
     if (key){
       pb.cfg_update_el_root(key,pb.pb_settings);
-      pb.cfg_update_el_root(key,home.settings.more);
+      pb.cfg_update_el_root(key,home.settings.tools);
     }
     else{
       pb.cfg_update_el('animation');
@@ -1956,7 +1960,17 @@ const pb={
       }
       else if (key=='donate'){
         if (home.onsettings){
-          home.settings.open_donation();
+          home.settings.open_donation(1);
+        }
+      }
+      else if (key=='discord'){
+        if (home.onsettings){
+          home.settings.open_donation(0);
+        }
+      }
+      else if (key=='checkupdate'){
+        if (home.onsettings){
+          _API.checkUpdate();
         }
       }
       else if (key=="hardsub" || key=="softsub"|| key=="dub"){
@@ -3261,6 +3275,11 @@ const home={
     settings:$('settings'),
     tlang:$('settings_lang'),
     more:$('settings_more'),
+    video:$('settings_video'),
+    styling:$('settings_style'),
+    performance:$('settings_performance'),
+    about:$('settings_about'),
+    tools:{},
     isplayback:0,
     menus:[],
     langsel:function(g,s){
@@ -3298,99 +3317,140 @@ const home={
       }
     },
     initmore:function(){
+      pb.menu_clear(home.settings.video);
+      pb.menu_init(home.settings.video);
+
+      pb.menu_clear(home.settings.styling);
+      pb.menu_init(home.settings.styling);
+
+      pb.menu_clear(home.settings.performance);
+      pb.menu_init(home.settings.performance);
+
       pb.menu_clear(home.settings.more);
       pb.menu_init(home.settings.more);
-      home.settings.more._s_autonext=$n(
+
+      pb.menu_clear(home.settings.about);
+      pb.menu_init(home.settings.about);
+
+      home.settings.tools={};
+
+      /* Video */
+      home.settings.tools._s_autonext=$n(
         'div','',{
           action:'*autonext'
         },
-        home.settings.more.P,
+        home.settings.video.P,
         '<c>check</c> AUTO NEXT'
       );
-      home.settings.more._s_autoskip=$n(
+      home.settings.tools._s_autoskip=$n(
         'div','',{
           action:'*autoskip'
         },
-        home.settings.more.P,
+        home.settings.video.P,
         '<c>clear</c> AUTO SKIP INTRO'
       );
-      home.settings.more._s_skipfiller=$n(
+      home.settings.tools._s_skipfiller=$n(
         'div','',{
           action:'*skipfiller'
         },
-        home.settings.more.P,
+        home.settings.video.P,
         '<c>clear</c> SKIP FILLER'
       );
-      home.settings.more._s_scale=$n(
+      home.settings.tools._s_scale=$n(
         'div','',{
           action:'*scale'
         },
-        home.settings.more.P,
+        home.settings.video.P,
         '<c>aspect_ratio</c> <span>SCALE</span>'
       );
-      home.settings.more._s_ccstyle=$n(
+
+
+      /* Style */
+      home.settings.tools._s_ccstyle=$n(
         'div','',{
           action:'*ccstyle'
         },
-        home.settings.more.P,
+        home.settings.styling.P,
         "<c>closed_caption</c> <span>CC STYLE 1</span>"
       );
+      home.settings.tools._s_theme=$n(
+        'div','',{
+          action:'*theme'
+        },
+        home.settings.styling.P,
+        "<c>palette</c> CHANGE COLOR"
+      );
+      
+      home.settings.tools._s_bgimg=$n(
+        'div','',{
+          action:'*bgimg'
+        },
+        home.settings.styling.P,
+        "<c>wallpaper</c> <span>WALLPAPER 1</span>"
+      );
 
-      home.settings.more._s_nonjapan=$n(
+      
+      /* Performance */
+      home.settings.tools._s_animation=$n(
+        'div','',{
+          action:'*animation'
+        },
+        home.settings.performance.P,
+        "<c>animation</c> <span>FAST ANIMATION</span>"
+      );
+      home.settings.tools._s_performance=$n(
+        'div','',{
+          action:'*performance'
+        },
+        home.settings.performance.P,
+        '<c>clear</c> PERFORMANCE-UI'
+      );
+
+
+      /* Others */
+      home.settings.tools._s_nonjapan=$n(
         'div','',{
           action:'*nonjapan'
         },
         home.settings.more.P,
-        '<c>clear</c> WITH NON-JAPAN'
+        '<c>clear</c> CHINESE ANIME'
       );
 
-      home.settings.more._s_theme=$n(
-        'div','',{
-          action:'*theme'
-        },
-        home.settings.more.P,
-        "<c>palette</c> CHANGE COLOR"
-      );
-      
-      home.settings.more._s_bgimg=$n(
-        'div','',{
-          action:'*bgimg'
-        },
-        home.settings.more.P,
-        "<c>wallpaper</c> <span>WALLPAPER 1</span>"
-      );
-
-      home.settings.more._s_animation=$n(
-        'div','',{
-          action:'*animation'
-        },
-        home.settings.more.P,
-        "<c>animation</c> <span>FAST ANIMATION</span>"
-      );
-
-      home.settings.more._s_performance=$n(
-        'div','',{
-          action:'*performance'
-        },
-        home.settings.more.P,
-        '<c>clear</c> PERFORMANCE-UI'
-      );
-
-      home.settings.more._s_donation=$n(
+      /* About */
+      home.settings.tools._s_donation=$n(
         'div','',{
           action:'*donate'
         },
-        home.settings.more.P,
+        home.settings.about.P,
         "<c>volunteer_activism</c> DONATE"
       );
-      pb.menu_select(home.settings.more,home.settings.more._s_autonext);
+      home.settings.tools._s_discord=$n(
+        'div','',{
+          action:'*discord'
+        },
+        home.settings.about.P,
+        "<c>sports_esports</c> DISCORD"
+      );
+      home.settings.tools._s_checkupdate=$n(
+        'div','',{
+          action:'*checkupdate'
+        },
+        home.settings.about.P,
+        "<c>system_update</c> CHECK FOR UPDATE"
+      );
+
+      pb.menu_select(home.settings.video,home.settings.tools._s_autonext);
+      pb.menu_select(home.settings.styling,home.settings.tools._s_ccstyle);
+      pb.menu_select(home.settings.performance,home.settings.tools._s_animation);
+      pb.menu_select(home.settings.more,home.settings.tools._s_nonjapan);
+      pb.menu_select(home.settings.about,home.settings.tools._s_donation);
       pb.cfg_update_el();
     },
     refreshlang:function(){
       /* Init Langs */
       pb.menu_clear(home.settings.tlang);
       pb.menu_init(home.settings.tlang);
-      // home.settings.tlang._midx=6;
+      
       home.settings.tlang._enter_cb=home.settings.langsel;
       home.settings.tlang._els=[];
       var vsel=null;
@@ -3436,13 +3496,30 @@ const home={
       }
     },
     open:function(arg){
+      home.settings.settings.style.height='';
       home.settings.isplayback=arg;
       home.settings.needreload=false;
       home.settings.sel=0;
       home.settings.menus=[
         home.settings.tlang,
-        home.settings.more
+        home.settings.video,
+        home.settings.styling,
+        home.settings.performance,
+        home.settings.more,
+        home.settings.about
       ];
+
+      for (var i=0;i<home.settings.menus.length;i++){
+        home.settings.menus[i].classList.remove('active');
+      }
+
+      home.settings.tlang._midx=
+      home.settings.video._midx=
+      home.settings.styling._midx=
+      home.settings.performance._midx=
+      home.settings.more._midx=
+      home.settings.about._midx=4;
+
       home.onsettings=true;
       home.settings.settings.classList.add('active');
       home.settings.update(0);
@@ -3460,16 +3537,21 @@ const home={
       home.onsettings=false;
       pb.pb.classList.remove('onsettings');
       home.settings.settings.classList.remove('active');
+      home.settings.settings.style.height='';
     },
     update:function(pc){
       home.settings.menus[home.settings.sel].classList.remove('active');
       home.settings.sel=pc;
       home.settings.menus[home.settings.sel].classList.add('active');
     },
-    open_donation:function(){
+    open_donation:function(ispaypal){
       if (home.onsettings){
         home.ondonate=true;
         $('popupcontainer').className='active';
+        var v1=ispaypal?'':'none';
+        var v2=ispaypal?'none':'';
+        $('popup_paypal').style.display=v1;
+        $('popup_discord').style.display=v2;
       }
     }
   },
@@ -3497,7 +3579,9 @@ const home={
     }
     else if (c==KDOWN){
       if (++pc>=home.settings.menus.length){
-        pc=home.settings.menus.length-1;
+        // pc=home.settings.menus.length-1;
+        home.settings.close();
+        return;
       }
     }
     if (home.settings.sel!=pc){

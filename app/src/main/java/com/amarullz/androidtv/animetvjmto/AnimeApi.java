@@ -135,7 +135,7 @@ public class AnimeApi extends WebViewClient {
     return buffer;
   }
 
-  public void updateServerVar(){
+  public void updateServerVar(boolean showMessage){
     AsyncTask.execute(() -> {
       try {
         File fp = new File(apkTempFile());
@@ -179,10 +179,28 @@ public class AnimeApi extends WebViewClient {
           Log.d(_TAG,
               "showUpdateDialog = "+appver+" / "+appsize+" / "+appurl+" / "+
                   appnote);
-           activity.runOnUiThread(() ->showUpdateDialog(appurl, appver,
-              appnote,appsize));
+          boolean updateState=pref.getBoolean("update-disable",false);
+
+          if (!updateState || showMessage) {
+            activity.runOnUiThread(() -> showUpdateDialog(appurl, appver,
+                appnote, appsize));
+          }
+          else{
+            activity.runOnUiThread(() ->{
+              Toast.makeText(activity,
+                  "Update version "+appver+" is available...",
+                  Toast.LENGTH_SHORT).show();
+            });
+          }
         }
         else{
+          if (showMessage){
+            activity.runOnUiThread(() ->{
+              Toast.makeText(activity,
+                  "AnimeTV already up to date...",
+                  Toast.LENGTH_SHORT).show();
+            });
+          }
           Log.d(_TAG,"APP UP TO DATE");
         }
       }catch(Exception ignored){}
@@ -243,10 +261,20 @@ public class AnimeApi extends WebViewClient {
 
   private void showUpdateDialog(String url, String ver, String changelog,
                                 String sz){
+
     new AlertDialog.Builder(activity)
         .setTitle("Update Available - Version "+ver)
         .setMessage("Download Size : "+sz+"\n\nChangelogs:\n"+changelog)
-        .setNegativeButton("Later", null)
+        .setNegativeButton("Later", (dialogInterface, i) -> {
+          SharedPreferences.Editor ed=pref.edit();
+          ed.putBoolean("update-disable",false);
+          ed.commit();
+        })
+        .setNeutralButton("Don't Remind Me", (dialogInterface, i) -> {
+          SharedPreferences.Editor ed=pref.edit();
+          ed.putBoolean("update-disable",true);
+          ed.commit();
+        })
         .setPositiveButton("Update Now", (dialog, which) -> {
           Toast.makeText(activity,"Downloading Update...",
               Toast.LENGTH_SHORT).show();
@@ -276,7 +304,7 @@ public class AnimeApi extends WebViewClient {
     activity = mainActivity;
 
     /* Update Server */
-    updateServerVar();
+    updateServerVar(false);
 
     webView = new WebView(activity);
 //    webView = activity.findViewById(R.id.webview);
