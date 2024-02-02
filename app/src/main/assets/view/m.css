@@ -1361,6 +1361,83 @@ c.loader {
   transform: scale(.8);
 }
 
+#home_discord_info{
+  position: absolute;
+  top:2vw;
+  width:48vw;
+  height:7vw;
+  left:19vw;
+  font-size:1.2vw;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 0 .1vw #000;
+
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  visibility: visible;
+  opacity: 1;
+  transform: scale(1);
+}
+#home_header.scrolled #home_discord_info{
+  transform: scale(.8);
+  opacity: 0;
+  visibility: hidden;
+}
+#home_discord_info #home_discord_info_value:empty{
+  display: none;
+}
+#home_discord_info #home_discord_info_value{
+  box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
+  background-color: var(--primary-bg);
+  border: .1vw solid var(--primary-1);
+  width:100%;
+  padding:.5vw;
+  border-radius: .5vw;
+  overflow: hidden;
+}
+@keyframes discord_message_keyframe {
+  0% {
+    opacity: 0;
+    transform: translateY(-1vw);
+  }
+  5% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  95% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(1vw);
+  }
+}
+#home_discord_info #home_discord_info_value div{
+  position: relative;
+  top:0;
+  display:none;
+}
+#home_discord_info #home_discord_info_value div.active{
+  display: block;
+  animation: discord_message_keyframe 6s linear;
+}
+#home_discord_info #home_discord_info_value span{
+  color: var(--accent-1);
+  font-size:.9vw;
+  float: right;
+  display: block;
+  padding-left:1vw;
+}
+#home_discord_info #home_discord_info_value p{
+  margin:0;
+  padding:0;
+}
+#home_discord_info #home_discord_info_value p t{
+  color: var(--accent-1);
+}
+
 #home_settings {
   position: absolute;
   left: 13.5vw;
@@ -1391,6 +1468,7 @@ c.loader {
   font-size:1vw;
   box-shadow: 0 .14vw .28vw rgba(0, 0, 0, 0.25), 0 1vw 1vw rgba(0, 0, 0, 0.22);
 }
+
 #home_header.active #home_settings.active,
 #home_header.active #home_search.active {
   transform: scale(1);

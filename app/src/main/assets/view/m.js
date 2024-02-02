@@ -110,6 +110,15 @@ function sec2ts(s,nohour){
   return o;
 }
 
+function md2html(text){
+  return nlbr(special(text))
+    .replace(/(?:\*\*)([^*<\n]+)(?:\*\*)/g, "<strong>$1</strong>")
+    .replace(/(?:__)([^_<\n]+)(?:__)/g, "<u>$1</u>")
+    .replace(/(?:\*)([^*<\n]+)(?:\*)/g, "<i>$1</i>")
+    .replace(/(?:_)([^_<\n]+)(?:_)/g, "<i>$1</i>")
+    .replace(/(?:`)([^`<\n]+)(?:`)/g, "<t>$1</t>")
+}
+
 /**************************** GLOBAL LISTENERS ***************************/
 /* Key event handler */
 window._KEYEV=function(key, evSource){
@@ -517,6 +526,12 @@ const _API={
       body.classList.remove('playback_on_video');
       _JSAPI.videoSetUrl("");
     }
+  },
+
+  /* Fetch animetv-info last message */
+  discord_info_url:"https://amarullz.com/animetv-discord-info.txt",
+  discordFetch:function(cb){
+    $ap(_API.discord_info_url+"?"+$tick(), cb);
   }
 };
 
@@ -3197,6 +3212,47 @@ const home={
 
     home.home_header._keycb=home.header_keycb;
     home.home_search.classList.add('active');
+
+    home.init_discord_message();
+  },
+  init_discord_message:function(){
+    // Discord Info & Announchments
+    var iv=$('home_discord_info_value');
+    iv.innerHTML='';
+    iv._msg=[];
+    iv._msg_pos=-1;
+    function start_discord_message(){
+      if (iv._msg_pos>=0){
+        iv._msg[iv._msg_pos].className='';
+      }
+      if (++iv._msg_pos>=iv._msg.length){
+        iv._msg_pos=0;
+      }
+      iv._msg[iv._msg_pos].className='active';
+    }
+    _API.discordFetch(function(r){  
+      if (r.ok){
+        try{
+          var j=JSON.parse(r.responseText);
+          for (var i=0;i<j.length;i++){
+            var m=j[i];
+            if (m.content){
+              var g=document.createElement('div');
+              g.innerHTML=
+                '<span><c>info</c> '+((new Date(m.timestamp)).toLocaleString())+'</span>'+
+                '<p>'+md2html(m.content)+'</p>';
+              iv._msg.push(g);
+              iv.appendChild(g);
+            }
+          }
+          start_discord_message();
+          setInterval(start_discord_message,6000);
+        }catch(e){
+          console.log("ERROR "+e);
+          iv.innerHTML='';
+        }
+      }
+    });
   },
 
   settings:{
