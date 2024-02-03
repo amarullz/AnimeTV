@@ -26,6 +26,21 @@ function $a(uri, cb){
 function $ap(uri, cb){
   $a("/__proxy/"+uri,cb);
 }
+function $amal(uri, method, cb){
+  var xhttp = new XMLHttpRequest();
+  xhttp.onload = function() {
+      xhttp.ok=true;
+      cb(xhttp);
+  };
+  xhttp.onerror = function() {
+      xhttp.ok=false;
+      cb(xhttp);
+  };
+  xhttp.open(method, "/__proxy/https://api.myanimelist.net"+uri, true);
+  xhttp.setRequestHeader('Accept', 'application/json' );
+  xhttp.setRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjUyZmZjNjIyYjMxMDdhMDBjYmFiMzQ3ZjRhZmY1NzY0OTQ3ZGM4MzMzNzI1YjIxZTg2ZDU3YmVhMDdiOTc1YTc4ODcyNGI5MjM0ZGJhMjhmIn0.eyJhdWQiOiI3YjVhOTE1NWUzODcwZmQ5MTM4MjQ0NWVmMDRiMTMzYyIsImp0aSI6IjUyZmZjNjIyYjMxMDdhMDBjYmFiMzQ3ZjRhZmY1NzY0OTQ3ZGM4MzMzNzI1YjIxZTg2ZDU3YmVhMDdiOTc1YTc4ODcyNGI5MjM0ZGJhMjhmIiwiaWF0IjoxNzA2OTkzMTE5LCJuYmYiOjE3MDY5OTMxMTksImV4cCI6MTcwOTQ5ODcxOSwic3ViIjoiMTc4MjU5NjciLCJzY29wZXMiOltdfQ.VzVsrKQGkrdOfqiL_knUlZ1fPobmTo4X_rL8nUdsNZ6Uvg9xWivBrxuSsXNTEbaQr0uayXxMSQC-VLkp1TvuPGMxuNhBr6pNMs2GJGda7vIcoI8vyacB4EEe38tL94BN5EatzAcu8mr9fZGqsOR6bozXo2IlGKK-e2F-ThLg-uzrjUzWiQlRLIJYi9densppJD17iOkVw8LHpN9UwYQ9WSwp-gKkPezUZ-vx4w0sLWhrFd5gvAXB7RP7ULv1ja-Wxl7BK_0Rc2biNPeTWXX2L_70i4-w02HHZQkzNJm1HRymTKfygLHg_SZ3Il7n1gPv23IlAF1MNLaAB37leE_EbA");
+  xhttp.send();
+}
 
 /* new element */
 function $n(t,c,a,p,h){
@@ -2040,6 +2055,10 @@ const pb={
           pb.reloadPlayback(1000);
         }
       }
+      else if (key=='malaccount'){
+        // Update Home
+        _JSAPI.malLogin();
+      }
       else if (key in pb.cfg_data){
         if (key=="server"){
           if (pb.state){
@@ -3416,6 +3435,14 @@ const home={
         '<c>clear</c> CHINESE ANIME'
       );
 
+      home.settings.tools._s_malaccount=$n(
+        'div','',{
+          action:'*malaccount'
+        },
+        home.settings.more.P,
+        '<c>clear</c> MY ANIME LIST'
+      );
+
       /* About */
       home.settings.tools._s_donation=$n(
         'div','',{
@@ -3980,6 +4007,25 @@ window.__ARGUPDATE=function(){
 window.__ARGUPDATE();
 home.init();
 _API.bgimg_update();
+
+// $amal("/v2/users/@me/animelist?fields=list_status,start_season&alternative_titles,studios&status=watching&limit=10&nsfw=true", 
+//   "GET", function(r){
+//   if (r.ok){
+//     console.log("MAL-RESPONSE: "+r.responseText);
+//     return;
+//   }
+//   console.log("MAL-RESPONSE: ERROR");
+// });
+
+
+// $amal("/v2/anime/52299/my_list_status?num_watched_episodes=7", 
+//   "PUT", function(r){
+//   if (r.ok){
+//     console.log("MAL-RESPONSE: "+r.responseText);
+//     return;
+//   }
+//   console.log("MAL-RESPONSE: ERROR");
+// });
 
 (function(){
   var xDown = null;

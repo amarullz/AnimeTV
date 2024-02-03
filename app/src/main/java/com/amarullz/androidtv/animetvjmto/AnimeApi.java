@@ -3,7 +3,6 @@ package com.amarullz.androidtv.animetvjmto;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,11 +11,8 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Html;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
@@ -30,7 +26,6 @@ import android.widget.Toast;
 import androidx.core.content.FileProvider;
 
 import org.chromium.net.CronetEngine;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;

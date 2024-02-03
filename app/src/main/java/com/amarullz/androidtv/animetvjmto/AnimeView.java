@@ -2,6 +2,8 @@ package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,17 +25,21 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
+import com.google.common.base.Charsets;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Map;
 
@@ -205,11 +212,33 @@ public class AnimeView extends WebViewClient {
       else if (path.startsWith("/__proxy/")){
         try {
           String proxy_url=url.replace("https://"+Conf.DOMAIN+"/__proxy/","");
-          Log.d(_TAG, "PROXY-GET = " + proxy_url);
-          HttpURLConnection conn = aApi.initQuic(proxy_url, request.getMethod());
+          String method=request.getMethod();
+          boolean isPost=method.equals("POST")||method.equals("PUT");
+          String queryData=request.getUrl().getQuery();
+          if (isPost){
+            int queryLength=queryData.length();
+            if (queryLength>0) {
+              proxy_url = proxy_url.substring(0,
+                  proxy_url.length() - (queryLength + 1)
+              );
+            }
+            Log.d(_TAG, "PROXY-"+method+" = " +
+                proxy_url+" >> "+queryData);
+          }
+          else{
+            Log.d(_TAG, "PROXY-GET = " + proxy_url);
+          }
+          HttpURLConnection conn = aApi.initQuic(proxy_url, method);
           for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
+          }
+          if (isPost){
+            conn.setDoOutput(true);
+            OutputStream os = conn.getOutputStream();
+            os.write(queryData.getBytes());
+            os.flush();
+            os.close();
           }
           String[] cType = aApi.parseContentType(conn.getContentType());
           ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
@@ -522,6 +551,18 @@ public class AnimeView extends WebViewClient {
       });
       return videoDuration;
     }
+
+    @JavascriptInterface
+    public void malLogin(){
+      runOnUiThreadWait(()-> {
+        try {
+          malLoginDialog();
+        }catch(Exception ignored){
+          Log.e(_TAG,"Error Dialog",ignored);
+        }
+      });
+    }
+
     @JavascriptInterface
     public boolean videoIsPlaying(){
       runOnUiThreadWait(()->{
@@ -731,5 +772,55 @@ public class AnimeView extends WebViewClient {
     BUILD_VERSION = (String) android.text.format.DateFormat.format(
         "yyMMddHHmm", new Date(BuildConfig.TIMESTAMP)
     );
+  }
+
+  /* MAL Functions */
+  public void malStartLogin(String username, String password){
+    Log.d(_TAG,
+        "Login Mal -> "+username+":"+password);
+    AsyncTask.execute(() -> {
+      try {
+        /* Get Server Data from Github */
+        HttpURLConnection conn = aApi.initQuic(
+            "https://api.myanimelist.net/v2/auth/token", "POST"
+        );
+        conn.setRequestProperty("X-MAL-Client-ID",Conf.MAL_CLIENT_ID);
+        conn.setRequestProperty("Accept","application/json");
+        String userenc= URLEncoder.encode(username, Charsets.UTF_8.name());
+        String passenc= URLEncoder.encode(password, Charsets.UTF_8.name());
+        String data="client_id="+Conf.MAL_CLIENT_ID+"&grant_type" +
+            "=password&password="+passenc+"&username="+userenc;
+        conn.setDoOutput(true);
+        OutputStream os = conn.getOutputStream();
+        os.write(data.getBytes());
+        os.flush();
+        os.close();
+        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+        String serverjson = buffer.toString();
+        Log.d(_TAG,
+            "Login Mal -> RESULT = "+serverjson);
+      }catch (Exception ignored){
+        Log.d(_TAG,
+            "Login Mal -> ERROR = "+ignored.toString());
+      }
+    });
+  }
+  public void malLoginDialog() {
+    Context c=activity;
+    LayoutInflater factory = LayoutInflater.from(c);
+    final View textEntryView = factory.inflate(R.layout.mal_login_dialog, null);
+    final EditText usernameInput =
+        (EditText) textEntryView.findViewById(R.id.user);
+    final EditText passwordInput =
+        (EditText) textEntryView.findViewById(R.id.password);
+    AlertDialog.Builder alert =
+        new AlertDialog.Builder(c).setTitle("MyAnimeList Login")
+            .setView(textEntryView)
+            .setPositiveButton("Login", (dialog, whichButton) -> {
+                malStartLogin(usernameInput.getText().toString(),
+                    passwordInput.getText().toString());
+            }).setNegativeButton("Cancel", (dialog, whichButton) -> {
+            });
+    alert.show();
   }
 }
