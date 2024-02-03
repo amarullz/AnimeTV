@@ -795,7 +795,9 @@ public class AnimeView extends WebViewClient {
         os.write(data.getBytes());
         os.flush();
         os.close();
-        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+        Log.d(_TAG,
+            "Login Mal -> RESPONSE_CODE = "+conn.getResponseCode());
+        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null, true);
         String serverjson = buffer.toString();
         Log.d(_TAG,
             "Login Mal -> RESULT = "+serverjson);

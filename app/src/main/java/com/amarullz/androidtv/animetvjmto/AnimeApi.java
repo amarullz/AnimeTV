@@ -119,15 +119,29 @@ public class AnimeApi extends WebViewClient {
 
   /* http get body */
   public static ByteArrayOutputStream getBody(HttpURLConnection conn,
-                                              ByteArrayOutputStream buffer) throws IOException {
+                                              ByteArrayOutputStream buffer,
+                                              boolean withErrorBody) throws IOException {
     if (buffer == null) buffer = new ByteArrayOutputStream();
-    InputStream is = conn.getInputStream();
+    InputStream is;
+    if (withErrorBody) {
+      if (conn.getResponseCode() == 200)
+        is = conn.getInputStream();
+      else
+        is = conn.getErrorStream();
+    }
+    else{
+      is=conn.getInputStream();
+    }
     int nRead;
     byte[] data = new byte[1024];
     while ((nRead = is.read(data, 0, data.length)) != -1) {
       buffer.write(data, 0, nRead);
     }
     return buffer;
+  }
+  public static ByteArrayOutputStream getBody(HttpURLConnection conn,
+                                              ByteArrayOutputStream buffer) throws IOException {
+    return getBody(conn,buffer,false);
   }
 
   public void updateServerVar(boolean showMessage){
