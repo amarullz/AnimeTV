@@ -26,21 +26,6 @@ function $a(uri, cb){
 function $ap(uri, cb){
   $a("/__proxy/"+uri,cb);
 }
-function $amal(uri, method, cb){
-  var xhttp = new XMLHttpRequest();
-  xhttp.onload = function() {
-      xhttp.ok=true;
-      cb(xhttp);
-  };
-  xhttp.onerror = function() {
-      xhttp.ok=false;
-      cb(xhttp);
-  };
-  xhttp.open(method, "/__proxy/https://api.myanimelist.net"+uri, true);
-  xhttp.setRequestHeader('Accept', 'application/json' );
-  xhttp.setRequestHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjUyZmZjNjIyYjMxMDdhMDBjYmFiMzQ3ZjRhZmY1NzY0OTQ3ZGM4MzMzNzI1YjIxZTg2ZDU3YmVhMDdiOTc1YTc4ODcyNGI5MjM0ZGJhMjhmIn0.eyJhdWQiOiI3YjVhOTE1NWUzODcwZmQ5MTM4MjQ0NWVmMDRiMTMzYyIsImp0aSI6IjUyZmZjNjIyYjMxMDdhMDBjYmFiMzQ3ZjRhZmY1NzY0OTQ3ZGM4MzMzNzI1YjIxZTg2ZDU3YmVhMDdiOTc1YTc4ODcyNGI5MjM0ZGJhMjhmIiwiaWF0IjoxNzA2OTkzMTE5LCJuYmYiOjE3MDY5OTMxMTksImV4cCI6MTcwOTQ5ODcxOSwic3ViIjoiMTc4MjU5NjciLCJzY29wZXMiOltdfQ.VzVsrKQGkrdOfqiL_knUlZ1fPobmTo4X_rL8nUdsNZ6Uvg9xWivBrxuSsXNTEbaQr0uayXxMSQC-VLkp1TvuPGMxuNhBr6pNMs2GJGda7vIcoI8vyacB4EEe38tL94BN5EatzAcu8mr9fZGqsOR6bozXo2IlGKK-e2F-ThLg-uzrjUzWiQlRLIJYi9densppJD17iOkVw8LHpN9UwYQ9WSwp-gKkPezUZ-vx4w0sLWhrFd5gvAXB7RP7ULv1ja-Wxl7BK_0Rc2biNPeTWXX2L_70i4-w02HHZQkzNJm1HRymTKfygLHg_SZ3Il7n1gPv23IlAF1MNLaAB37leE_EbA");
-  xhttp.send();
-}
 
 /* new element */
 function $n(t,c,a,p,h){
@@ -79,6 +64,10 @@ function enc(s){
 function $tick() {
   var dt = new Date();
   return dt.getTime();
+}
+
+function $time(){
+  return Math.floor($tick()/1000);
 }
 
 /* make search query url from object */
@@ -2056,8 +2045,7 @@ const pb={
         }
       }
       else if (key=='malaccount'){
-        // Update Home
-        _JSAPI.malLogin();
+        _MAL.login();
       }
       else if (key in pb.cfg_data){
         if (key=="server"){
@@ -3427,6 +3415,14 @@ const home={
 
 
       /* Others */
+      home.settings.tools._s_malaccount=$n(
+        'div','',{
+          action:'*malaccount'
+        },
+        home.settings.more.P,
+        _MAL.islogin()?'<c>lock_open</c> MAL LOGOUT':'<c>list_alt</c> MAL LOGIN'
+      );
+
       home.settings.tools._s_nonjapan=$n(
         'div','',{
           action:'*nonjapan'
@@ -3435,13 +3431,7 @@ const home={
         '<c>clear</c> CHINESE ANIME'
       );
 
-      home.settings.tools._s_malaccount=$n(
-        'div','',{
-          action:'*malaccount'
-        },
-        home.settings.more.P,
-        '<c>clear</c> MY ANIME LIST'
-      );
+      
 
       /* About */
       home.settings.tools._s_donation=$n(
@@ -3463,13 +3453,13 @@ const home={
           action:'*checkupdate'
         },
         home.settings.about.P,
-        "<c>system_update</c> CHECK FOR UPDATE"
+        "<c>update</c> CHECK FOR UPDATE"
       );
 
       pb.menu_select(home.settings.video,home.settings.tools._s_autonext);
       pb.menu_select(home.settings.styling,home.settings.tools._s_ccstyle);
       pb.menu_select(home.settings.performance,home.settings.tools._s_animation);
-      pb.menu_select(home.settings.more,home.settings.tools._s_nonjapan);
+      pb.menu_select(home.settings.more,home.settings.tools._s_malaccount);
       pb.menu_select(home.settings.about,home.settings.tools._s_donation);
       pb.cfg_update_el();
     },
@@ -3544,7 +3534,7 @@ const home={
       home.settings.styling._midx=
       home.settings.performance._midx=
       home.settings.more._midx=
-      home.settings.about._midx=4;
+      home.settings.about._midx=2.3;
 
       home.onsettings=true;
       home.settings.update(0);
@@ -3600,15 +3590,17 @@ const home={
     }
     else if (c==KUP){
       if (--pc<0){
-        home.settings.close();
-        return;
+        // home.settings.close();
+        // return;
+        pc=home.settings.menus.length-1;
       }
     }
     else if (c==KDOWN){
       if (++pc>=home.settings.menus.length){
         // pc=home.settings.menus.length-1;
-        home.settings.close();
-        return;
+        // home.settings.close();
+        // return;
+        pc=0;
       }
     }
     if (home.settings.sel!=pc){
@@ -4004,7 +3996,99 @@ window.__ARGUPDATE=function(){
     }
 };
 
+/* MAL API */
+const _MAL={
+  token:"",
+  auth:null,
+  islogin:function(){
+    return (_MAL.token?true:false);
+  },
+  init:function(){
+    var maldata=localStorage.getItem(_API.user_prefix+"mal_auth");
+    console.log("MAL-INIT: "+maldata);
+    if (maldata){
+      try{
+        _MAL.auth = JSON.parse(maldata);
+        if ('access_token' in _MAL.auth){
+          _MAL.token=_MAL.auth.access_token;
+          if (_MAL.exp<$time()){
+            // Expire
+            _MAL.token="";
+            _MAL.auth=null;
+          }
+        }
+      }catch(ee){
+        _MAL.token="";
+        _MAL.auth=null;
+      }
+    }
+    console.log("MAL-TOKEN: "+_MAL.token);
+  },
+  req:function(uri, method, cb){
+    var xhttp = new XMLHttpRequest();
+    xhttp.onload = function() {
+        xhttp.ok=true;
+        cb(xhttp);
+    };
+    xhttp.onerror = function() {
+        xhttp.ok=false;
+        cb(xhttp);
+    };
+    xhttp.open(method, "/__proxy/https://api.myanimelist.net"+uri, true);
+    xhttp.setRequestHeader('Accept', 'application/json' );
+    xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.token);
+    xhttp.send();
+  },
+  list:function(offset,cb){
+    var uri='/v2/users/@me/animelist?nsfw=true&'+
+      'fields=list_status,start_season&alternative_titles,studios&'+
+      'status=watching&'+
+      'limit=10';
+    if (offset){
+      uri+='offset='+offset;
+    }
+    _MAL.req(uri,"GET",cb);
+  },
+  set_ep:function(animeid, ep){
+    var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
+    _MAL.req(uri,"PUT",cb);
+  },
+  login:function(){
+    if (_MAL.token){
+      if (confirm('Are you sure you want to logout MyAnimeList integration?')){
+        localStorage.removeItem(_API.user_prefix+"mal_auth");
+        _API.showToast("MyAnimeList logout sucessfull...");
+        _API.reload();
+      }
+    }
+    else{
+      _JSAPI.malLogin();
+    }
+  },
+  onlogin:function(d){
+    if (d){
+      if (('access_token' in d) && ('expires_in' in d)){
+        var dt={
+          access_token:d.access_token,
+          exp:d.expires_in+$time(),
+          expires_in:d.expires_in,
+          refresh_token:d.refresh_token,
+          user:d.user
+        };
+        localStorage.setItem(_API.user_prefix+"mal_auth",JSON.stringify(dt));
+        console.log("MAL-ONLOGIN: "+JSON.stringify(dt));
+        _API.showToast("MyAnimeList login sucessfull...");
+        _API.reload();
+      }
+      else{
+        _API.showToast("MyAnimeList Login Failed"+(('message' in d)?": "+d.message:""));
+      }
+    }
+  }
+};
+
 window.__ARGUPDATE();
+_MAL.init();
 home.init();
 _API.bgimg_update();
 

@@ -3,6 +3,7 @@ package com.amarullz.androidtv.animetvjmto;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -19,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -33,6 +35,8 @@ import android.widget.Toast;
 import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
 import com.google.common.base.Charsets;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -118,6 +122,29 @@ public class AnimeView extends WebViewClient {
         Canvas canvas = new Canvas(bitmap);
         canvas.drawARGB(255, 0, 0, 0);
         return bitmap;
+      }
+
+      @Override
+      public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+        new AlertDialog.Builder(activity)
+            .setTitle("AnimeTV")
+            .setMessage(message)
+            .setPositiveButton("Yes",
+                (dialog, which) -> result.confirm())
+            .setNegativeButton("No",
+                (dialog, which) -> result.cancel())
+            .create()
+            .show();
+        return true;
+      }
+      @Override
+      public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+            activity);
+        builder.setMessage(message)
+            .setNeutralButton(android.R.string.ok, (dialog, arg1) -> dialog.dismiss()).show();
+        result.cancel();
+        return true;
       }
     });
     webView.setVerticalScrollBarEnabled(false);
@@ -774,10 +801,20 @@ public class AnimeView extends WebViewClient {
     );
   }
 
+  public void malCallback(String data){
+    activity.runOnUiThread(() -> webView.evaluateJavascript(
+        "_MAL.onlogin("+data+");",null)
+    );
+  }
+
   /* MAL Functions */
   public void malStartLogin(String username, String password){
     Log.d(_TAG,
         "Login Mal -> "+username+":"+password);
+    final ProgressDialog loginProgress = new ProgressDialog(activity);
+    loginProgress.setMessage("Login to MyAnimeList..");
+    loginProgress.show();
+
     AsyncTask.execute(() -> {
       try {
         /* Get Server Data from Github */
@@ -799,12 +836,17 @@ public class AnimeView extends WebViewClient {
             "Login Mal -> RESPONSE_CODE = "+conn.getResponseCode());
         ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null, true);
         String serverjson = buffer.toString();
+        JSONObject j = new JSONObject(serverjson);
+        j.put("user",username);
         Log.d(_TAG,
             "Login Mal -> RESULT = "+serverjson);
+        malCallback(j.toString());
       }catch (Exception ignored){
+        malCallback("null");
         Log.d(_TAG,
             "Login Mal -> ERROR = "+ignored.toString());
       }
+      loginProgress.dismiss();
     });
   }
   public void malLoginDialog() {
