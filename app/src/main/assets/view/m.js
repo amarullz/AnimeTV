@@ -2870,6 +2870,7 @@ const home={
   home_scroll:$('home_scroll'),
   home_slide:$('home_slide'),
   home_recent:$('home_recent'),
+  home_mal:$('home_mal'),
   home_dub:$('home_dub'),
   home_trending:$('home_trending'),
   home_random:$('home_random'),
@@ -2949,7 +2950,7 @@ const home={
         setTimeout(function(){home.recent_load(g)},2000);
     });
   },
-  recent_init:function(rc){
+  recent_init:function(rc, loader){
     rc._page=1;
     pb.menu_clear(rc);
     rc._nojump=true;
@@ -2995,9 +2996,19 @@ const home={
       }
       if (g._page>60) return;
       g._page++;
-      home.recent_load(rc);
+      if (loader){
+        loader(rc);
+      }
+      else{
+        home.recent_load(rc);
+      }
     };
-    home.recent_load(rc);
+    if (loader){
+      loader(rc);
+    }
+    else{
+      home.recent_load(rc);
+    }
   },
 
   home_parser:function(v){
@@ -3145,12 +3156,20 @@ const home={
     home.menus=[
       home.home_header,
       home.home_slide,
-      home.home_recent,
-      home.home_dub,
-      home.home_top,
-      home.home_trending,
-      home.home_random
+      home.home_recent
     ];
+
+    if (_MAL.islogin()){
+      home.home_mal.className='home_list pb_menu';
+      home.home_mal.style.display=''; 
+      home.recent_init(home.home_mal, _MAL.home_loader);
+      home.menus.push(home.home_mal); 
+    }
+
+    home.menus.push(home.home_dub);
+    home.menus.push(home.home_top);
+    home.menus.push(home.home_trending);
+    home.menus.push(home.home_random);
 
     if (pb.cfg_data.nonjapan){
       home.home_chinese.className='home_list pb_menu';
@@ -3962,6 +3981,7 @@ window.__ARGUPDATE=function(){
 const _MAL={
   token:"",
   auth:null,
+  limit:12,
   islogin:function(){
     return (_MAL.token?true:false);
   },
@@ -3985,16 +4005,6 @@ const _MAL={
       }
     }
     console.log("MAL-TOKEN: "+_MAL.token);
-
-    if (_MAL.token){
-      _MAL.list(0, function(r){
-        if (r.ok){
-          console.log("MAL-LIST: "+r.responseText);
-          return;
-        }
-        console.log("MAL-LIST: ERROR");
-      });
-    }
   },
   req:function(uri, method, cb){
     if (!_MAL.token){
@@ -4017,11 +4027,11 @@ const _MAL={
   },
   list:function(offset,cb){
     var uri='/v2/users/@me/animelist?nsfw=true&'+
-      'fields=list_status,start_season&alternative_titles,studios&'+
+      'fields=list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
       'status=watching&'+
-      'limit=10';
+      'limit='+_MAL.limit;
     if (offset){
-      uri+='offset='+offset;
+      uri+='&offset='+offset;
     }
     _MAL.req(uri,"GET",cb);
   },
@@ -4059,6 +4069,70 @@ const _MAL={
       else{
         _API.showToast("MyAnimeList Login Failed"+(('message' in d)?": "+d.message:""));
       }
+    }
+  },
+  home_loader:function(g){
+    g._onload=1;
+    var load_page=(g._page-1)*_MAL.limit;
+    _MAL.list(load_page, function(r){
+      if (r.ok){
+        console.log("MAL-LIST: "+r.responseText);
+        try{
+          var v=JSON.parse(r.responseText);
+          _MAL.list_parse(g,v);
+        }catch(e){
+        }
+        g._onload=0;
+      }
+      else{
+        setTimeout(function(){_MAL.home_loader(g)},10000);
+        console.log("MAL-LIST: ERROR");
+      }
+    });
+  },
+  list_parse:function(g,v){
+    if ('paging' in v){
+      if (!('next' in v.paging)){
+        g._page=100;
+      }
+    }
+    else{
+      g._page=100;
+    }
+
+    if ('data' in v){
+      try{
+        if (v.data.length>0){
+          for (var i=0;i<v.data.length;i++){
+            var d=v.data[i];
+            var hl=$n('div','',{action:"#"+d.node.id,arg:JSON.stringify(d)},g.P,'');
+            hl._img=$n('img','',{loading:'lazy',src:d.node.main_picture.medium},hl,'');
+            hl._title=$n('b','',null,hl,special(d.node.title));
+            var infotxt='';
+            var numep=d.list_status.num_episodes_watched;
+            var mtp=d.node.media_type;
+            if (mtp&&(mtp!='unknown')){
+              infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
+            }
+            if (numep){
+              infotxt+='<span class="info_ep">'+special(numep+"")+'</span>';
+            }
+            if (infotxt){
+              hl._ep=$n('span','info',null,hl,infotxt);
+            }
+          }
+          while (g.P.childElementCount>30){
+            g._spre.push(g.P.firstElementChild.nextElementSibling);
+            g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+          }
+          g.__update_pre();
+    
+          if (!g._sel)
+            pb.menu_select(g,g.P.firstElementChild);
+          else
+            pb.menu_select(g,g._sel);
+        }
+      }catch(e){}
     }
   }
 };
