@@ -78,21 +78,17 @@
     <div id="settings_more" list-title="Others" class="home_opt_list pb_menu"></div>
     <div id="settings_about" list-title="About" class="home_opt_list pb_menu"></div>
 </div>
-<div id="malview">
-    <img id="malview_img" src="https://static.bunnycdn.ru/i/cache/images/a/a1/a11b7f986f01cb0bfb741948fcb44076.jpg" />
-    <div id="malview_data">
-        <h3>Tales of Wedding Rings And More Long Title</h3>
-        <div>
-            <span>Progress</span>
-            <b>EP-2</b>
-        </div>
-        <div>
-            <span>Total Episode</span>
-            <b>EP-12</b>
+<div id="popupcontainer">
+    <div id="malview">
+        <img id="malview_img" loading="lazy" />
+        <h3 id="malview_title"></h3>
+        <div id="malview_data">
+            <div id="malplay_begin"><c>replay</c> Play from Begining</div>
+            <div id="malplay_resume"><c>play_arrow</c><b id="malplay_resume_ep"></b> Resume</div>
+            <div id="malplay_next"><c>next_plan</c><b id="malplay_next_ep"></b> Play Next</div>
+            <div id="malplay_ep"><c>remove</c><c class="right">add</c><span id="malplay_ep_val"></span></div>
         </div>
     </div>
-</div>
-<div id="popupcontainer">
     <div id="aboutpopup">
         <div id="popup_paypal" style="display: none;">
             DONATION<br/>

@@ -2690,6 +2690,55 @@ const pb={
         }
       }
     }
+
+    /* MAL Init */
+    if (pb.malidreq){
+      if (pb.data.animeid){
+        pb.malidanime=pb.data.animeid;
+        pb.malidsave=pb.malidreq;
+      }
+      pb.malidreq=null;
+    }
+
+    /* MAL Update Watched Episode */
+    if (pb.malidsave && (pb.malidanime==pb.data.animeid)){
+      console.log("MAL-PLAY #"+pb.malidsave+" / animeid="+pb.data.animeid);
+      var malid="mal_"+pb.malidsave;
+      if (malid in _MAL.data){
+        var d=_MAL.data[malid];
+        var cep=toInt(pb.ep_val);
+        if (cep>d.list_status.num_episodes_watched){
+          console.log("MAL-PLAY #Update-Watched -> "+d.list_status.num_episodes_watched+" / Play="+pb.ep_val);
+          d.list_status.num_episodes_watched=cep;
+          _MAL.set_ep(pb.malidsave, cep, function(r){
+            console.log("MAL-PLAY #Update-Resp: "+r.responseText);
+          });
+          if (d._elm && d._elm._ep){
+            var sp=d._elm._ep.querySelector("span.info_ep");
+            if (!sp){
+              d._elm._ep.innerHTML+='<span class="info_ep">'+special(cep+"")+'</span>';
+            }
+            else{
+              sp.innerHTML=special(cep+"");
+            }
+          }
+        }
+      }
+      else{
+        pb.malidanime=null;
+        pb.malidsave=null;  
+        console.log("MAL-PLAY #RESET-NOTFOUND");
+      }
+    }
+    else{
+      if (pb.malidsave){
+        console.log("MAL-PLAY #RESET");
+      }
+      pb.malidanime=null;
+      pb.malidsave=null;
+    }
+
+
     /* settings */
     pb.init_settings();
     // console.log(pb.data);
@@ -2795,11 +2844,17 @@ const pb={
     });
   },
 
-  open:function(uri, ttid, noclean, startpos){
+  malidreq:null,
+  malidsave:null,
+  malidanime:null,
+
+  open:function(uri, ttid, noclean, startpos, malid){
     console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos);
     pb.pb_action_streamtype.classList.remove('active');
     var open_stat=0;
     _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
+    pb.malidreq=malid?malid:null;
+
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;
       if (uid==u && d.status){
@@ -3552,6 +3607,7 @@ const home={
       if (home.onsettings){
         home.ondonate=true;
         $('popupcontainer').className='active';
+        $('aboutpopup').className='active';
         var v1=ispaypal?'':'none';
         var v2=ispaypal?'none':'';
         $('popup_paypal').style.display=v1;
@@ -3562,6 +3618,7 @@ const home={
   settings_keycb:function(c){
     if (home.ondonate){
       if (c==KBACK || c==KENTER){
+        $('aboutpopup').className='';
         $('popupcontainer').className='';
         home.ondonate=false;
       }
@@ -3639,14 +3696,22 @@ const home={
           d.poster=im.querySelector('img').src;
           d.tip=im.querySelector('div.poster.tip').getAttribute('data-tip');
           var epel=im.querySelector('span.ep-status.sub');
-          if (!epel)
+          if (!epel){
             epel=im.querySelector('span.ep-status.total');
+            d.epavail=0;
+          }
+          else{
+            d.epavail=toInt((epel.textContent+'').trim());
+          }
           if (epel){
             d.ep=(epel.textContent+'').trim();
           }
           epel=im.querySelector('span.ep-status.total');
           if (epel){
-            d.eptotal=(epel.textContent+'').trim();
+            d.eptotal=toInt((epel.textContent+'').trim());
+          }
+          else{
+            d.eptotal=0;
           }
           try{
             d.type=im.querySelector('div.right').textContent.trim();
@@ -3940,6 +4005,9 @@ const home={
     if (home.onsettings){
       return home.settings_keycb(c);
     }
+    if (_MAL.onpopup){
+      return _MAL.pop_keycb(c);
+    }
     var pc=home.menu_sel;
     if (c==KBACK){
       if (home.menu_sel==0){
@@ -4040,7 +4108,7 @@ const _MAL={
     xhttp.send();
   },
   list:function(offset,cb){
-    var uri='/v2/users/@me/animelist?nsfw=true&sort=list_updated_at&'+
+    var uri='/v2/users/@me/animelist?nsfw=true&'+
       'fields=list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
       'status=watching&'+
       'limit='+_MAL.limit;
@@ -4049,7 +4117,7 @@ const _MAL={
     }
     _MAL.req(uri,"GET",cb);
   },
-  set_ep:function(animeid, ep){
+  set_ep:function(animeid, ep, cb){
     var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
     _MAL.req(uri,"PUT",cb);
   },
@@ -4123,6 +4191,7 @@ const _MAL={
             var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
             hl._img=$n('img','',{loading:'lazy',src:d.node.main_picture.medium},hl,'');
             var title=d.node.title;
+            _MAL.data[malid]._elm=hl;
             if ('alternative_titles' in d.node){
               if ('en' in d.node.alternative_titles){
                 if (d.node.alternative_titles.en.trim()){
@@ -4140,9 +4209,7 @@ const _MAL={
             if (numep){
               infotxt+='<span class="info_ep">'+special(numep+"")+'</span>';
             }
-            if (infotxt){
-              hl._ep=$n('span','info',null,hl,infotxt);
-            }
+            hl._ep=$n('span','info',null,hl,infotxt);
           }
           while (g.P.childElementCount>30){
             g._spre.push(g.P.firstElementChild.nextElementSibling);
@@ -4182,18 +4249,196 @@ const _MAL={
   },
   action_handler:function(id){
     try{
+      _MAL.pop.mv.className='active loading';
+      $('popupcontainer').className='active';
+      _MAL.pop.var.ready=false;
+      _MAL.onpopup=true;
+
       if (id in _MAL.data){
         var d=_MAL.data[id];
         _MAL.srcanime(d,function(r){
           if (r.length>0){
             console.log("MAL ACTION START...");
             // pb.open(r[0].url, r[0].tip);
+            _MAL.popup(
+              r[0].url,
+              r[0].tip,
+              r[0].title,
+              r[0].poster,
+              r[0].epavail,
+              d.list_status.num_episodes_watched,
+              d.node.id
+            );
+            return;
           }
+          _MAL.popup_close();
+          _API.showToast("Matching anime not found...");
         });
       }
     }catch(e){
       console.log("Error MAL Action : "+e);
+      _MAL.popup_close();
     }
+  },
+  pop:{
+    mv:$('malview'),
+    title:$('malview_title'),
+    img:$('malview_img'),
+    begin:$('malplay_begin'),
+    resume:$('malplay_resume'),
+    next:$('malplay_next'),
+    ep:$('malplay_ep'),
+    epval:$('malplay_ep_val'),
+    resume_ep:$('malplay_resume_ep'),
+    next_ep:$('malplay_next_ep'),
+    menu:[],
+    menusel:0,
+    var:{
+      next:0,
+      resume:0,
+      ep:1,
+      num:0,
+      url:'',
+      ttip:'',
+      malid:0,
+      ready:false
+    },
+    setEp:function(){
+      if (_MAL.pop.var.num>0){
+        _MAL.pop.epval.innerHTML='Episode '+_MAL.pop.var.ep+' / '+_MAL.pop.var.num;
+        _MAL.pop.ep.classList.remove('disable');
+      }
+      else{
+        _MAL.pop.epval.innerHTML='-';
+        _MAL.pop.ep.className='disable';
+      }
+    }
+  },
+  onpopup:false,
+  pop_keycb:function(c){
+    if (!_MAL.pop.var.ready){
+      return;
+    }
+    var pc=_MAL.pop.menusel;
+    if (c==KBACK){
+      _MAL.popup_close();
+    }
+    else if (c==KENTER){
+      var openurl=_MAL.pop.var.url;
+      var el=_MAL.pop.menu[pc];
+      if (el==_MAL.pop.next){
+        openurl+='/ep-'+_MAL.pop.var.next;
+      }
+      else if (el==_MAL.pop.resume){
+        openurl+='/ep-'+_MAL.pop.var.resume;
+      }
+      else if (el==_MAL.pop.ep){
+        openurl+='/ep-'+_MAL.pop.var.ep;
+      }
+      console.log("MAL Open Anime = "+openurl);
+      _MAL.popup_close();
+      pb.open(openurl, _MAL.pop.var.ttip, undefined, undefined, _MAL.pop.var.malid);
+    }
+    else if (c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
+      if (_MAL.pop.ep==_MAL.pop.menu[pc]){
+        if (c==KLEFT){
+          if (--_MAL.pop.var.ep<1){
+            _MAL.pop.var.ep=1;
+          }
+        }
+        else if (c==KRIGHT){
+          if (++_MAL.pop.var.ep>_MAL.pop.var.num){
+            _MAL.pop.var.ep=_MAL.pop.var.num;
+          }
+        }
+        else if (c==KPGUP){
+          _MAL.pop.var.ep-=10;
+          if (_MAL.pop.var.ep<1){
+            _MAL.pop.var.ep=1;
+          }
+        }
+        else if (c==KPGDOWN){
+          _MAL.pop.var.ep+=10;
+          if (_MAL.pop.var.ep>_MAL.pop.var.num){
+            _MAL.pop.var.ep=_MAL.pop.var.num;
+          }
+        }
+        _MAL.pop.setEp();
+      }
+    }
+    else if (c==KUP){
+      if (--pc<0){
+        pc=_MAL.pop.menu.length-1;
+      }
+    }
+    else if (c==KDOWN){
+      if (++pc>=_MAL.pop.menu.length){
+        pc=0;
+      }
+    }
+    if (_MAL.pop.menusel!=pc){
+      _MAL.pop.menusel=pc;
+      _MAL.popup_update();
+    }
+  },
+  popup_close:function(){
+    _MAL.pop.mv.className='';
+    $('popupcontainer').className='';
+    _MAL.pop.var.ready=false;
+    _MAL.onpopup=false;
+  },
+  popup_update:function(){
+    for (var i=0;i<_MAL.pop.menu.length;i++){
+      if (i==_MAL.pop.menusel)
+        _MAL.pop.menu[i].classList.add('active');
+      else
+        _MAL.pop.menu[i].classList.remove('active');
+    }
+  },
+  popup:function(url, ttip, title, img, numep, currep, malid){
+    _MAL.pop.title.innerHTML=special(title);
+    _MAL.pop.img.src=img;
+    _MAL.pop.menu=[
+      _MAL.pop.begin
+    ];
+    _MAL.pop.var.url=url;
+    _MAL.pop.var.ttip=ttip;
+    _MAL.pop.var.malid=malid;
+    _MAL.pop.menusel=0;
+    if (currep>0){
+      _MAL.pop.menu.push(_MAL.pop.resume);
+      if (numep>currep){
+        _MAL.pop.menu.push(_MAL.pop.next);
+        _MAL.pop.next_ep.innerHTML='EP-'+(currep+1);
+        _MAL.pop.next.className='';
+        _MAL.pop.var.next=currep+1;
+      }
+      else{
+        _MAL.pop.next_ep.innerHTML='';
+        _MAL.pop.next.className='disable';
+      }
+      _MAL.pop.resume_ep.innerHTML='EP-'+(currep);
+      _MAL.pop.resume.className='';
+      _MAL.pop.var.resume=currep;
+      _MAL.pop.menusel=1;
+    }
+    else{
+      _MAL.pop.next_ep.innerHTML=
+      _MAL.pop.resume_ep.innerHTML='';
+      _MAL.pop.next.className=
+      _MAL.pop.resume.className='disable';
+    }
+    _MAL.pop.var.num=numep;
+    _MAL.pop.var.ep=(currep>0)?currep:1;
+    _MAL.pop.setEp();
+    if (_MAL.pop.var.num>0){
+      _MAL.pop.menu.push(_MAL.pop.ep);
+    }
+    _MAL.popup_update();
+    _MAL.pop.mv.className='active';
+    $('popupcontainer').className='active';
+    _MAL.pop.var.ready=true;
+    _MAL.onpopup=true;
   }
 };
 
