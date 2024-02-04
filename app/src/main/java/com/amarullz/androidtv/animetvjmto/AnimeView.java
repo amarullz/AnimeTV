@@ -268,7 +268,7 @@ public class AnimeView extends WebViewClient {
             os.close();
           }
           String[] cType = aApi.parseContentType(conn.getContentType());
-          ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+          ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null, true);
           InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
           return new WebResourceResponse(cType[0], cType[1], stream);
         } catch (Exception ignored) {}
@@ -284,8 +284,8 @@ public class AnimeView extends WebViewClient {
         ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
         InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
         return new WebResourceResponse(cType[0], cType[1], stream);
-      } catch (Exception ignored) {
-        Log.e(_TAG, "VIEW-GET-DOMAIN-ERR: " + url,ignored);
+      } catch (Exception erd) {
+        Log.e(_TAG, "VIEW-GET-DOMAIN-ERR: " + url,erd);
       }
       return aApi.badRequest;
     }
@@ -477,9 +477,7 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public void reloadHome() {
-      AsyncTask.execute(() -> {
-        reloadView();
-      });
+      AsyncTask.execute(AnimeView.this::reloadView);
     }
 
     @JavascriptInterface
@@ -584,9 +582,7 @@ public class AnimeView extends WebViewClient {
       runOnUiThreadWait(()-> {
         try {
           malLoginDialog();
-        }catch(Exception ignored){
-          Log.e(_TAG,"Error Dialog",ignored);
-        }
+        }catch(Exception ignored){}
       });
     }
 
@@ -811,7 +807,8 @@ public class AnimeView extends WebViewClient {
   public void malStartLogin(String username, String password){
     Log.d(_TAG,
         "Login Mal -> "+username+":"+password);
-    final ProgressDialog loginProgress = new ProgressDialog(activity);
+    @SuppressWarnings("deprecation") final ProgressDialog loginProgress = new ProgressDialog(activity);
+    //noinspection deprecation
     loginProgress.setMessage("Login to MyAnimeList..");
     loginProgress.show();
 
@@ -841,10 +838,10 @@ public class AnimeView extends WebViewClient {
         Log.d(_TAG,
             "Login Mal -> RESULT = "+serverjson);
         malCallback(j.toString());
-      }catch (Exception ignored){
+      }catch (Exception ermal){
         malCallback("null");
         Log.d(_TAG,
-            "Login Mal -> ERROR = "+ignored.toString());
+            "Login Mal -> ERROR = "+ermal);
       }
       loginProgress.dismiss();
     });
@@ -853,17 +850,13 @@ public class AnimeView extends WebViewClient {
     Context c=activity;
     LayoutInflater factory = LayoutInflater.from(c);
     final View textEntryView = factory.inflate(R.layout.mal_login_dialog, null);
-    final EditText usernameInput =
-        (EditText) textEntryView.findViewById(R.id.user);
-    final EditText passwordInput =
-        (EditText) textEntryView.findViewById(R.id.password);
+    final EditText usernameInput = textEntryView.findViewById(R.id.user);
+    final EditText passwordInput = textEntryView.findViewById(R.id.password);
     AlertDialog.Builder alert =
         new AlertDialog.Builder(c).setTitle("MyAnimeList Login")
             .setView(textEntryView)
-            .setPositiveButton("Login", (dialog, whichButton) -> {
-                malStartLogin(usernameInput.getText().toString(),
-                    passwordInput.getText().toString());
-            }).setNegativeButton("Cancel", (dialog, whichButton) -> {
+            .setPositiveButton("Login", (dialog, whichButton) -> malStartLogin(usernameInput.getText().toString(),
+                passwordInput.getText().toString())).setNegativeButton("Cancel", (dialog, whichButton) -> {
             });
     alert.show();
   }

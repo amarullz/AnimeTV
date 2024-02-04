@@ -577,7 +577,6 @@ const list={
   },
   save:function(o,name){
     localStorage.setItem(_API.user_prefix+""+name,JSON.stringify(o));
-    console.log(o);
   },
   del:function(o,id){
     var pos=o.list.indexOf(id);
@@ -637,8 +636,6 @@ const list={
   load:function(){
     list.history=list.load_storage('list_history');
     list.fav=list.load_storage('list_fav');
-    console.log(list.history);
-    console.log(list.fav);
   }
 };
 
@@ -658,9 +655,9 @@ const vtt={
     if (subs.length>0){
       if (pb.cfg_data.lang!='' && pb.cfg_data.lang!='en'){
         var ffind = vtt.find_match(subs, pb.cfg_data.lang);
-        console.log("SUBTITLES SOFT = "+pb.cfg_data.lang+" => "+ffind+" // "+JSON.stringify(subs,null,'\t'));
+        // console.log("SUBTITLES SOFT = "+pb.cfg_data.lang+" => "+ffind+" // "+JSON.stringify(subs,null,'\t'));
         if (ffind>-1){
-          console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
+          // console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
           vtt.load(subs[ffind], 1);
           return;
         }
@@ -693,7 +690,7 @@ const vtt={
   },
   find_match:function(t, lang){
     if (lang in vtt.match_lang){
-      console.log("SUBTITLES FIND = "+pb.cfg_data.lang);
+      // console.log("SUBTITLES FIND = "+pb.cfg_data.lang);
       var y=vtt.match_lang[lang];
       for (var i=0;i<t.length;i++){
           var u=t[i];
@@ -805,7 +802,7 @@ const vtt={
       vtt.translate_text(chunk.t,lang,function(txts){
         if (txts){
           txts=txts.split("A2Q7R");
-          console.log(txts);
+          // console.log(txts);
           for (var i=0;i<txts.length;i++){
             var p=chunk.s+i;
             if (p<=chunk.e){
@@ -814,39 +811,6 @@ const vtt={
           }
         }
       });
-      /*
-      var translate_url='https://translate.google.com/m?tl='+
-        lang+'&sl=en&q='+encodeURIComponent(chunk.t);
-      $ap(translate_url,function(r){
-        if (r.ok){
-          try{
-            var l=document.createElement('div');
-            l.innerHTML=r.responseText;
-            var txts=l.querySelector('div.result-container').outerText+'';
-
-            txts=txts.replace(/\< /g,"<");
-            txts=txts.replace(/\< /g,"<");
-            txts=txts.replace(/\< /g,"<");
-            txts=txts.replace(/\<\/ /g,"</");
-            txts=txts.replace(/\<\/ /g,"</");
-            txts=txts.replace(/\<\/ /g,"</");
-            txts=txts.replace(/\ >/g,">");
-            txts=txts.replace(/\ >/g,">");
-            txts=txts.replace(/\ >/g,">");
-
-            txts=txts.split("A2Q7R");
-            console.log(txts);
-            for (var i=0;i<txts.length;i++){
-              var p=chunk.s+i;
-              if (p<=chunk.e){
-                timelines[p].tz=txts[i];
-              }
-            }
-          }
-          catch(e){}
-        }
-      });
-      */
     },delay);
   },
   set:function(s){
@@ -879,8 +843,6 @@ const vtt={
         window.__activesub=sub;
 
         pb.updateStreamTypeInfo();
-
-        // console.log(JSON.stringify(sub,null, "\t"));
       }
     });
   },
@@ -1238,7 +1200,7 @@ const pb={
   cfg_save:function(){
     var savingjs=JSON.stringify(pb.cfg_data);
     localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
-    console.log('ATVLOG STORAGE SAVE = '+savingjs);
+    // console.log('ATVLOG STORAGE SAVE = '+savingjs);
   },
   cfg_update_el_root:function(key, root){
     if (!root){
@@ -1609,7 +1571,7 @@ const pb={
         }
       );
     }
-    console.log("PARSED-M3u8="+JSON.stringify(pb.data.vsources,null,'\t'));
+    // console.log("PARSED-M3u8="+JSON.stringify(pb.data.vsources,null,'\t'));
   },
   sel_quality:"AUTO",
   init_video_mp4upload:function(src){
@@ -2208,7 +2170,7 @@ const pb={
         }
       }
       this.__gesture_moved=false;
-      console.log([this,ev]);
+      // console.log([this,ev]);
     },
   },
   menu_gesture_init:function(g){
@@ -2725,7 +2687,7 @@ const pb={
     }
     /* settings */
     pb.init_settings();
-    console.log(pb.data);
+    // console.log(pb.data);
 
     /* season */
     pb.menu_clear(pb.pb_seasons);
@@ -2939,7 +2901,7 @@ const home={
         d.tip=t.firstElementChild.getAttribute('data-tip');
         rd.push(d);
       }catch(e){
-        console.log(e);
+        // console.log(e);
       }
     }
     hd.innerHTML='';
@@ -3157,8 +3119,8 @@ const home={
     pb.menu_init(h);
   },
   list_init:function(){
-    console.log(home);
-    console.log(home.home_history);
+    // console.log(home);
+    // console.log(home.home_history);
     home.list_init_name(list.fav,home.home_fav);
     home.list_init_name(list.history,home.home_history);
   },
@@ -4023,8 +3985,22 @@ const _MAL={
       }
     }
     console.log("MAL-TOKEN: "+_MAL.token);
+
+    if (_MAL.token){
+      _MAL.list(0, function(r){
+        if (r.ok){
+          console.log("MAL-LIST: "+r.responseText);
+          return;
+        }
+        console.log("MAL-LIST: ERROR");
+      });
+    }
   },
   req:function(uri, method, cb){
+    if (!_MAL.token){
+      cb({ok:false,responseText:''});
+      return;
+    }
     var xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
         xhttp.ok=true;
@@ -4091,25 +4067,6 @@ window.__ARGUPDATE();
 _MAL.init();
 home.init();
 _API.bgimg_update();
-
-// $amal("/v2/users/@me/animelist?fields=list_status,start_season&alternative_titles,studios&status=watching&limit=10&nsfw=true", 
-//   "GET", function(r){
-//   if (r.ok){
-//     console.log("MAL-RESPONSE: "+r.responseText);
-//     return;
-//   }
-//   console.log("MAL-RESPONSE: ERROR");
-// });
-
-
-// $amal("/v2/anime/52299/my_list_status?num_watched_episodes=7", 
-//   "PUT", function(r){
-//   if (r.ok){
-//     console.log("MAL-RESPONSE: "+r.responseText);
-//     return;
-//   }
-//   console.log("MAL-RESPONSE: ERROR");
-// });
 
 (function(){
   var xDown = null;

@@ -101,7 +101,7 @@ public class AnimeApi extends WebViewClient {
 
   /* Cronet init quic */
   public static HttpURLConnection initCronetQuic(CronetEngine c, String url, String method) throws IOException {
-    HttpURLConnection conn=null;
+    HttpURLConnection conn;
     if (c!=null){
       conn = (HttpURLConnection) c.openConnection(new URL(url));
     }
@@ -148,10 +148,13 @@ public class AnimeApi extends WebViewClient {
     AsyncTask.execute(() -> {
       try {
         File fp = new File(apkTempFile());
-        fp.delete();
-        Log.d(_TAG,"TEMP APK FILE DELETED");
+        if (fp.delete()) {
+          Log.d(_TAG, "TEMP APK FILE DELETED");
+        }
+        else{
+          Log.d(_TAG, "NO TEMP APK FILE");
+        }
       }catch(Exception ignored){
-        Log.d(_TAG,"NO TEMP APK FILE");
       }
 
       try {
@@ -170,7 +173,7 @@ public class AnimeApi extends WebViewClient {
           Log.d(_TAG,"SERVER-UPDATED: "+serverjson);
           SharedPreferences.Editor ed=pref.edit();
           ed.putString("server-json",serverjson);
-          ed.commit();
+          ed.apply();
           initPref();
         }
         else{
@@ -195,20 +198,20 @@ public class AnimeApi extends WebViewClient {
                 appnote, appsize));
           }
           else{
-            activity.runOnUiThread(() ->{
+            activity.runOnUiThread(() ->
               Toast.makeText(activity,
                   "Update version "+appver+" is available...",
-                  Toast.LENGTH_SHORT).show();
-            });
+                  Toast.LENGTH_SHORT).show()
+            );
           }
         }
         else{
           if (showMessage){
-            activity.runOnUiThread(() ->{
+            activity.runOnUiThread(() ->
               Toast.makeText(activity,
                   "AnimeTV already up to date...",
-                  Toast.LENGTH_SHORT).show();
-            });
+                  Toast.LENGTH_SHORT).show()
+            );
           }
           Log.d(_TAG,"APP UP TO DATE");
         }
@@ -248,22 +251,22 @@ public class AnimeApi extends WebViewClient {
 
         ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
         Log.d(_TAG,"DOWNLOADED APK = "+buffer.size());
-        activity.runOnUiThread(() ->{
+        activity.runOnUiThread(() ->
           Toast.makeText(activity,
               "Update has been downloaded ("+((buffer.size()/1024)/1024)+"MB)",
-              Toast.LENGTH_SHORT).show();
-        });
+              Toast.LENGTH_SHORT).show()
+        );
         String apkpath=apkTempFile();
         FileOutputStream fos = new FileOutputStream(apkpath);
         buffer.writeTo(fos);
         File fp=new File(apkpath);
         installApk(fp);
       }catch(Exception er){
-        activity.runOnUiThread(() ->{
-          Toast.makeText(activity,"Update Failed: "+er.toString(),
-              Toast.LENGTH_SHORT).show();
-        });
-        Log.d(_TAG,"DOWNLOAD ERR = "+er.toString());
+        activity.runOnUiThread(() ->
+          Toast.makeText(activity,"Update Failed: "+er,
+              Toast.LENGTH_SHORT).show()
+        );
+        Log.d(_TAG,"DOWNLOAD ERR = "+er);
       }
     });
   }
@@ -277,12 +280,12 @@ public class AnimeApi extends WebViewClient {
         .setNegativeButton("Later", (dialogInterface, i) -> {
           SharedPreferences.Editor ed=pref.edit();
           ed.putBoolean("update-disable",false);
-          ed.commit();
+          ed.apply();
         })
         .setNeutralButton("Don't Remind Me", (dialogInterface, i) -> {
           SharedPreferences.Editor ed=pref.edit();
           ed.putBoolean("update-disable",true);
-          ed.commit();
+          ed.apply();
         })
         .setPositiveButton("Update Now", (dialog, which) -> {
           Toast.makeText(activity,"Downloading Update...",
