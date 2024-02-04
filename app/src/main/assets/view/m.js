@@ -1906,6 +1906,11 @@ const pb={
       });
       pb.reset(1,0);
     }
+    else if (action.startsWith("#")){
+      /* Mal Action */
+      var id=action.substring(1);
+      _MAL.action_handler(id);
+    }
     else if (action.startsWith("*")){
       var key=action.substring(1);
       console.log("ACTION SETTINGS = "+key);
@@ -3618,7 +3623,7 @@ const home={
       _API.showIme(false);
       _API.setUri("/home");
     },
-    dosearch_parse:function(v){
+    parse:function(v){
       var h=$n('div','','',null,v);
       var rd=[];
       var ls=h.querySelector('#list-items');
@@ -3633,11 +3638,15 @@ const home={
           d.title=tt.textContent.trim();
           d.poster=im.querySelector('img').src;
           d.tip=im.querySelector('div.poster.tip').getAttribute('data-tip');
-          var epel=im.querySelector('span.ep-status.total');
+          var epel=im.querySelector('span.ep-status.sub');
           if (!epel)
-            epel=im.querySelector('span.ep-status.sub');
+            epel=im.querySelector('span.ep-status.total');
           if (epel){
             d.ep=(epel.textContent+'').trim();
+          }
+          epel=im.querySelector('span.ep-status.total');
+          if (epel){
+            d.eptotal=(epel.textContent+'').trim();
           }
           try{
             d.type=im.querySelector('div.right').textContent.trim();
@@ -3646,7 +3655,10 @@ const home={
         }
       }
       h.innerHTML='';
-
+      return rd;
+    },
+    dosearch_parse:function(v){
+      var rd=home.search.parse(v);
       var g=home.search.res;
       g._havenext=false;
       if (rd&&rd.length){
@@ -3983,6 +3995,7 @@ const _MAL={
   token:"",
   auth:null,
   limit:12,
+  data:{},
   islogin:function(){
     return (_MAL.token?true:false);
   },
@@ -4100,13 +4113,14 @@ const _MAL={
     else{
       g._page=100;
     }
-
     if ('data' in v){
       try{
         if (v.data.length>0){
           for (var i=0;i<v.data.length;i++){
             var d=v.data[i];
-            var hl=$n('div','',{action:"#"+d.node.id,arg:JSON.stringify(d)},g.P,'');
+            var malid="mal_"+d.node.id;
+            _MAL.data[malid]=JSON.parse(JSON.stringify(d));
+            var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
             hl._img=$n('img','',{loading:'lazy',src:d.node.main_picture.medium},hl,'');
             var title=d.node.title;
             if ('alternative_titles' in d.node){
@@ -4142,6 +4156,43 @@ const _MAL={
             pb.menu_select(g,g._sel);
         }
       }catch(e){}
+    }
+  },
+  srcanime:function(d,cb){
+    if ('srcanime' in d){
+      cb(d.srcanime);
+      return;
+    }
+    var id=d.node.id;
+    var kw=d.node.title;
+    var ses=d.node.start_season.season;
+    var y=d.node.start_season.year;
+    var uri='/filter?keyword='+enc(kw)+'&season='+enc(ses)+'&year='+enc(y+'')+'&sort=most_relevance';
+    $a(uri,function(r){
+      if (r.ok){
+        var rd=home.search.parse(r.responseText);
+        console.log('ANIMESRC ['+id+'] = '+JSON.stringify(rd));
+        d.srcanime=rd;
+        cb(d.srcanime);
+        return;
+      }
+      d.srcanime=[];
+      cb(d.srcanime);
+    });
+  },
+  action_handler:function(id){
+    try{
+      if (id in _MAL.data){
+        var d=_MAL.data[id];
+        _MAL.srcanime(d,function(r){
+          if (r.length>0){
+            console.log("MAL ACTION START...");
+            // pb.open(r[0].url, r[0].tip);
+          }
+        });
+      }
+    }catch(e){
+      console.log("Error MAL Action : "+e);
     }
   }
 };
