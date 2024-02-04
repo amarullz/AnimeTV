@@ -3163,7 +3163,8 @@ const home={
       home.home_mal.className='home_list pb_menu';
       home.home_mal.style.display=''; 
       home.recent_init(home.home_mal, _MAL.home_loader);
-      home.menus.push(home.home_mal); 
+      home.menus.push(home.home_mal);
+      home.home_mal.setAttribute("list-title","🎫 MyAnimeList Currently Watching 🧑 "+special(_MAL.auth.user));
     }
 
     home.menus.push(home.home_dub);
@@ -3401,7 +3402,7 @@ const home={
           action:'*malaccount'
         },
         home.settings.more.P,
-        _MAL.islogin()?'<c>lock_open</c> MAL LOGOUT':'<c>list_alt</c> MAL LOGIN'
+        _MAL.islogin()?'<c>lock_open</c> MAL LOGOUT ('+special(_MAL.auth.user)+')':'<c>list_alt</c> MAL LOGIN'
       );
 
       home.settings.tools._s_nonjapan=$n(
@@ -4026,7 +4027,7 @@ const _MAL={
     xhttp.send();
   },
   list:function(offset,cb){
-    var uri='/v2/users/@me/animelist?nsfw=true&'+
+    var uri='/v2/users/@me/animelist?nsfw=true&sort=list_updated_at&'+
       'fields=list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
       'status=watching&'+
       'limit='+_MAL.limit;
@@ -4107,7 +4108,15 @@ const _MAL={
             var d=v.data[i];
             var hl=$n('div','',{action:"#"+d.node.id,arg:JSON.stringify(d)},g.P,'');
             hl._img=$n('img','',{loading:'lazy',src:d.node.main_picture.medium},hl,'');
-            hl._title=$n('b','',null,hl,special(d.node.title));
+            var title=d.node.title;
+            if ('alternative_titles' in d.node){
+              if ('en' in d.node.alternative_titles){
+                if (d.node.alternative_titles.en.trim()){
+                  title=d.node.alternative_titles.en;
+                }
+              }
+            }
+            hl._title=$n('b','',null,hl,special(title)); /* d.node.title */
             var infotxt='';
             var numep=d.list_status.num_episodes_watched;
             var mtp=d.node.media_type;
