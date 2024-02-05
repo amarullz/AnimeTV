@@ -556,9 +556,9 @@ const _API={
   try{
     var verel=$('home_version');
     if (_JSAPI){
-      verel.innerHTML="ANIMETV ANDROID "+_JSAPI.getVersion(0)+" "+
-        "&copy; 2023 <b>AMARULLZ.COM</b> (BUILD:"+_JSAPI.getVersion(1)
-        +" / SERVER:"+_JSAPI.dnsver()+")";
+      verel.innerHTML="<b>AnimeTV "+_JSAPI.getVersion(0)+" "+
+        "&copy; 2023-2024 amarullz.com</b><br />Build "+_JSAPI.getVersion(1)
+        +" - Server "+_JSAPI.dnsver()+"";
     }
   }catch(e){}
 
@@ -2946,7 +2946,6 @@ const home={
   home_dub:$('home_dub'),
   home_trending:$('home_trending'),
   home_random:$('home_random'),
-  home_top:$('home_top'),
   home_chinese:$('home_chinese'),
 
   home_history:$('home_history'),
@@ -3097,29 +3096,17 @@ const home={
     }
   },
 
+  ttip_desc:function(el,ttip){
+    _API.getTooltip(ttip,function(d){
+      if (d){
+        el.innerHTML=special(d.synopsis);
+      }
+    });
+  },
+
   home_parser:function(v){
     var h=$n('div','','',null,v);
-    hd=[];
-    td=[];
-    window.h=h;
-    try{
-      /* hottest */
-      var hots=h.querySelector('div#hotest').querySelectorAll('div.swiper-slide.item');
-      for (var i=0;i<hots.length;i++){
-        var t=hots[i];
-        var d={};
-        var tt=t.querySelector('h2.d-title');
-        d.title=tt.textContent.trim();
-        d.title_jp=tt.getAttribute('data-jp');
-        d.rating=t.querySelector('i.rating').textContent;
-        d.quality=t.querySelector('i.quality').textContent;
-        d.synopsis=t.querySelector('div.synopsis').textContent;
-        d.url=t.querySelector('a').href;
-        d.poster=t.querySelector('div.image div').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
-        hd.push(d);
-      }
-    }catch(e){}
-
+    var td=[];
     try{
       var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
       for (var i=0;i<tops.length;i++){
@@ -3132,49 +3119,56 @@ const home={
         d.tip=t.querySelector('div.poster').getAttribute('data-tip');
         d.poster=t.querySelector('img').src;
         d.adult=t.querySelector('div.adult')?true:false;
+        try{
+          d.ep=(t.querySelector('span.ep-status.sub').textContent+'').trim()
+        }catch(e){
+        }
+        try{
+          d.type=(t.querySelector('div.info .meta span.dot:not(.ep-wrap)').textContent+'').trim();
+        }catch(e){
+        }
+        
+        // ep-status sub
         td.push(d);
       }
     }catch(e){}
 
-    if (hd.length>0){
-      for (var i=0;i<hd.length;i++){
-        var d=hd[i];
-        var hl=$n('div','',{action:d.url,arg:';0'},home.home_slide.P,'');
-        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-        hl._title=$n('b','',null,hl,special(d.title));
-      }
-      pb.menu_select(home.home_slide,home.home_slide.P.firstElementChild);
-    }
-
     if (td.length>0){
       for (var i=0;i<td.length;i++){
         var d=td[i];
+        var ps=d.poster.split('-w100');
+        d.poster=ps[0];
         var argv={
           url:d.url,
           img:d.poster,
           ttip:d.tip,
           sp:0,
           tp:0,
-          ep:0,
+          ep:toInt(d.ep?d.ep:0),
           title:d.title
         };
-        var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_top.P,'');
-
-        // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},home.home_top.P,'');
-        var ps=d.poster.split('-w100');
-        d.poster=ps[0];
+        var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-        hl._title=$n('b','',null,hl,special(d.title));
+        hl._viewbox=$n('span','infobox',null,hl,'');
+        hl._view=$n('span','infovalue',null,hl._viewbox,'');
+        hl._title=$n('h4','',null,hl._view,special(d.title));
+        hl._desc=$n('span','desc',null,hl._view,'');
+        home.ttip_desc(hl._desc, d.tip);
         var infotxt='';
         if (d.adult){
           infotxt+='<span class="info_adult">18+</span>';
         }
+        if (d.type){
+          infotxt+='<span class="info_type">'+special(d.type)+'</span>';
+        }
+        if (d.ep){
+          infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+        }
         if (infotxt){
           hl._ep=$n('span','info',null,hl,infotxt);
         }
-
       }
-      pb.menu_select(home.home_top,home.home_top.P.firstElementChild);
+      pb.menu_select(home.home_slide,home.home_slide.P.firstElementChild);
     }
   },
 
@@ -3288,7 +3282,6 @@ const home={
     }
 
     home.menus.push(home.home_dub);
-    home.menus.push(home.home_top);
     home.menus.push(home.home_trending);
     home.menus.push(home.home_random);
 
@@ -3311,27 +3304,12 @@ const home={
     home.list_init();
 
     pb.menu_clear(home.home_slide);
-    pb.menu_clear(home.home_top);
 
     home.home_slide._itemwidth=function(){
       return (window.innerWidth * 0.3);
     };
-    // home.home_slide._keycb=pb.menu_keycb;
-    // home.home_top._keycb=pb.menu_keycb;
     pb.menu_init(home.home_slide);
-    pb.menu_init(home.home_top);
     home.menus[home.menu_sel].classList.add('active');
-
-    // home.bgimg=new Image();
-    // home.bgimg.className='mainbgimage nonactive';
-    // home.bgimg.onload=function(){
-    //   body.appendChild(home.bgimg);
-    //   setTimeout(function(){
-    //     home.bgimg.className='mainbgimage';
-    //   },10);
-    // };
-    // home.bgimg.src='bg.webp';
-    // home.bgimg.style.zIndex='1';
 
     home.home_header._keycb=home.header_keycb;
     home.home_search.classList.add('active');
@@ -4579,12 +4557,12 @@ const _MAL={
       var hist=list.history;
       _MAL.pop.watchlist.className='';
       if (animeid in fav.detail){
-        _MAL.pop.watchlist.firstElementChild.innerHTML='delete';
+        _MAL.pop.watchlist.firstElementChild.innerHTML='close';
         _MAL.pop.var.infav=true;
       }
       else{
         _MAL.pop.watchlist.className='add';
-        _MAL.pop.watchlist.firstElementChild.innerHTML='add';
+        _MAL.pop.watchlist.firstElementChild.innerHTML='bookmark_add';
         _MAL.pop.var.infav=false;
       }
       _MAL.pop.menu.push(_MAL.pop.watchlist);
