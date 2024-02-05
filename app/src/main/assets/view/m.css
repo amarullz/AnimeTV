@@ -1867,15 +1867,27 @@ c.loader {
   background-color: var(--primary-1);
   box-shadow: 0 .03vw .06vw rgba(0, 0, 0, 0.16), 0 .03vw .06vw rgba(0, 0, 0, 0.23) !important;
 }
-#malview_data div.disable{
-  color:#666;
-  opacity: .6;
-  background: #252525;
-}
+
 #malview_data div#malplay_watchlist,
 #malview_data div#malplay_history{
   display: inline-block;
   width: 49%;
+  line-height: 2.2vw;
+}
+#malview_data div#malplay_watchlist.active,
+#malview_data div#malplay_history.active{
+  background: #800;
+}
+#malview_data div#malplay_watchlist.add.active{
+  background: #060;
+}
+
+#malview_data div#malplay_watchlist.disable,
+#malview_data div#malplay_history.disable,
+#malview_data div.disable{
+  color:#666;
+  opacity: .6;
+  background: #252525;
 }
 #malview_data div#malplay_history{
   float: right;
