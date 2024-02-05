@@ -11,6 +11,7 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -338,7 +339,9 @@ public class AnimeApi extends WebViewClient {
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
-    webSettings.setSafeBrowsingEnabled(false);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      webSettings.setSafeBrowsingEnabled(false);
+    }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setBlockNetworkImage(true);
     webView.addJavascriptInterface(new JSApi(), "_JSAPI");

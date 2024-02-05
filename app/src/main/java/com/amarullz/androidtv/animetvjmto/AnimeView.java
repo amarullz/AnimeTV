@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -94,7 +95,9 @@ public class AnimeView extends WebViewClient {
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
-    webSettings.setSafeBrowsingEnabled(false);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      webSettings.setSafeBrowsingEnabled(false);
+    }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);
