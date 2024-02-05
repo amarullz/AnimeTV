@@ -4613,6 +4613,8 @@ const _MAL={
     }
   },
   popup:function(url, ttip, title, img, numep, currep, malid, rating){
+    currep=toInt(currep);
+    numep=toInt(numep);
     _MAL.pop.title.innerHTML=special(title);
     _MAL.pop.img.src=img;
     _MAL.pop.menu=[
@@ -4681,6 +4683,7 @@ const _MAL={
   },
   preview_do:function(url, img, ttid, currep, tcurr, tdur,d,arg){
     var numep=toInt(d.ep);
+    currep=toInt(currep);
     _MAL.pop.title.innerHTML=special(d.title);
     _MAL.pop.img.src=img;
     _MAL.pop.menu=[
