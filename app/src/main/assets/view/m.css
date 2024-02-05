@@ -184,6 +184,7 @@ c {
   direction: ltr;
   -webkit-font-smoothing: antialiased;
   vertical-align: middle;
+  -webkit-font-feature-settings: 'liga';
 }
 
 @keyframes loader_keyframe {
