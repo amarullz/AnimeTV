@@ -1641,6 +1641,11 @@ c.loader {
   font-weight: bold;
 }
 
+.home_list p div span.info span.info_adult{
+  background-color: #800;
+  font-weight: bold;
+}
+
 .home_list p div i {
   padding: 0;
   margin: 0;
@@ -1777,6 +1782,7 @@ c.loader {
   border-radius: .5vw;
   height: 19vw;
 }
+#malview.loading #malview_rating,
 #malview.loading #malview_img,
 #malview.loading #malview_title,
 #malview.loading #malview_data {
@@ -1811,6 +1817,23 @@ c.loader {
   left:0;
   right:0;
   background: rgba(0,0,0,.6);
+}
+#malview #malview_rating{
+  position: absolute;
+  font-size:1vw;
+  padding: .2vw .4vw .2vw .4vw;
+  background-color: var(--primary-2);
+  color: #fff;
+  left: .5vw;
+  top: .5vw;
+  z-index: 3;
+  border-radius: .2vw;
+}
+#malview #malview_rating.adult{
+  background-color: #a00 !important;
+}
+#malview #malview_rating:empty{
+  display: none;
 }
 #malview_img{
   z-index:1;

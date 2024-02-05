@@ -426,7 +426,8 @@ const _API={
           genres:[],
           rating:null,
           quality:null,
-          ep:0
+          ep:0,
+          rating:''
         };
         var tt=d.querySelector('div.title.d-title');
         if (tt){
@@ -440,7 +441,6 @@ const _API={
         try{
           o.ep=d.querySelector('span.ep-status.sub').textContent.trim();
         }catch(e){}
-        
 
         try{
           var gn=d.querySelector('div.meta-bl').lastElementChild.querySelectorAll('a');
@@ -2972,6 +2972,7 @@ const home={
         d.type=t.querySelector('div.right').textContent;
         d.ep=t.querySelector('span.ep-status').textContent.trim();
         d.tip=t.firstElementChild.getAttribute('data-tip');
+        d.adult=t.querySelector('div.adult')?true:false;
         rd.push(d);
       }catch(e){
         // console.log(e);
@@ -2994,6 +2995,9 @@ const home={
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
         var infotxt='';
+        if (d.adult){
+          infotxt+='<span class="info_adult">18+</span>';
+        }
         if (d.type){
           infotxt+='<span class="info_type">'+special(d.type)+'</span>';
         }
@@ -3126,6 +3130,7 @@ const home={
         d.url=t.href;
         d.tip=t.querySelector('div.poster').getAttribute('data-tip');
         d.poster=t.querySelector('img').src;
+        d.adult=t.querySelector('div.adult')?true:false;
         td.push(d);
       }
     }catch(e){}
@@ -3158,6 +3163,14 @@ const home={
         d.poster=ps[0];
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
+        var infotxt='';
+        if (d.adult){
+          infotxt+='<span class="info_adult">18+</span>';
+        }
+        if (infotxt){
+          hl._ep=$n('span','info',null,hl,infotxt);
+        }
+
       }
       pb.menu_select(home.home_top,home.home_top.P.firstElementChild);
     }
@@ -3757,6 +3770,12 @@ const home={
           else{
             d.eptotal=0;
           }
+
+          d.adult=false;
+          try{
+            d.adult=im.querySelector('div.adult')?true:false;
+          }catch(e){}
+
           try{
             d.type=im.querySelector('div.right').textContent.trim();
           }catch(e){}
@@ -3787,6 +3806,9 @@ const home={
           hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
           hl._title=$n('b','',null,hl,special(d.title));
           var infotxt='';
+          if (d.adult){
+            infotxt+='<span class="info_adult">18+</span>';
+          }
           if (d.type){
             infotxt+='<span class="info_type">'+special(d.type)+'</span>';
           }
@@ -4324,7 +4346,8 @@ const _MAL={
               r[0].poster,
               r[0].epavail,
               d.list_status.num_episodes_watched,
-              d.node.id
+              d.node.id,
+              r[0].adult?'R+':''
             );
             return;
           }
@@ -4353,6 +4376,7 @@ const _MAL={
     history:$('malplay_history'),
     progh:$('malplay_resume_progh'),
     prog:$('malplay_resume_prog'),
+    rating:$('malview_rating'),
     menu:[],
     menusel:0,
     var:{
@@ -4573,7 +4597,17 @@ const _MAL={
     _MAL.pop.history.className='disable';
     _MAL.pop.watchlist.firstElementChild.innerHTML='add';
   },
-  popup:function(url, ttip, title, img, numep, currep, malid){
+  popuprating:function(v){
+    if (v=='R+'){
+      _MAL.pop.rating.innerHTML='18+';
+      _MAL.pop.rating.className='adult';
+    }
+    else{
+      _MAL.pop.rating.className='';
+      _MAL.pop.rating.innerHTML=v;
+    }
+  },
+  popup:function(url, ttip, title, img, numep, currep, malid, rating){
     _MAL.pop.title.innerHTML=special(title);
     _MAL.pop.img.src=img;
     _MAL.pop.menu=[
@@ -4591,6 +4625,8 @@ const _MAL={
     _MAL.pop.var.play.e=0;
 
     _MAL.pop.progh.className='';
+
+    _MAL.popuprating(rating);
 
     _MAL.pop.menusel=0;
     if (currep>0){
@@ -4652,6 +4688,8 @@ const _MAL={
     _MAL.pop.var.play.c=tcurr;
     _MAL.pop.var.play.d=tdur;
     _MAL.pop.var.play.e=currep;
+
+    _MAL.popuprating(d.rating);
 
     _MAL.pop.progh.className='';
     if (tcurr>0 && tdur>0){
