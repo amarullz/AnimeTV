@@ -42,7 +42,7 @@ function $n(t,c,a,p,h){
 
 /* htmlspecial */
 function special(str){
-  return str.replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return (str+"").replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 /* trim */
@@ -425,7 +425,8 @@ const _API={
           synopsis:'',
           genres:[],
           rating:null,
-          quality:null
+          quality:null,
+          ep:0
         };
         var tt=d.querySelector('div.title.d-title');
         if (tt){
@@ -435,6 +436,12 @@ const _API={
         try{
           o.synopsis=d.querySelector('div.synopsis').textContent.trim();
         }catch(e){}
+
+        try{
+          o.ep=d.querySelector('span.ep-status.sub').textContent.trim();
+        }catch(e){}
+        
+
         try{
           var gn=d.querySelector('div.meta-bl').lastElementChild.querySelectorAll('a');
           for (var i=0;i<gn.length;i++){
@@ -612,8 +619,8 @@ const list={
     list.add(list.history,id,val,refirst);
     list.history_save();
   },
-  history_del:function(id,val){
-    list.del(list.history,id,val);
+  history_del:function(id){
+    list.del(list.history,id);
     list.history_save();
   },
   fav_save:function(){
@@ -623,8 +630,8 @@ const list={
     list.add(list.fav,id,val);
     list.fav_save();
   },
-  fav_del:function(id,val){
-    list.del(list.fav,id,val);
+  fav_del:function(id){
+    list.del(list.fav,id);
     list.fav_save();
   },
   fav_exists(id){
@@ -1911,6 +1918,11 @@ const pb={
       var id=action.substring(1);
       _MAL.action_handler(id);
     }
+    else if (action.startsWith("$")){
+      /* Preview Popup Action Handler */
+      var data=action.substring(1);
+      _MAL.prev_action_handler(data,arg);
+    }
     else if (action.startsWith("*")){
       var key=action.substring(1);
       console.log("ACTION SETTINGS = "+key);
@@ -2969,7 +2981,16 @@ const home={
     if (rd&&rd.length){
       for (var i=0;i<rd.length;i++){
         var d=rd[i];
-        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
+        var argv={
+          url:d.url,
+          img:d.poster,
+          ttip:d.tip,
+          sp:0,
+          tp:0,
+          ep:d.ep
+        };
+        var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},g.P,'');
+        // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._title=$n('b','',null,hl,special(d.title));
         var infotxt='';
@@ -3122,7 +3143,17 @@ const home={
     if (td.length>0){
       for (var i=0;i<td.length;i++){
         var d=td[i];
-        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},home.home_top.P,'');
+        var argv={
+          url:d.url,
+          img:d.poster,
+          ttip:d.tip,
+          sp:0,
+          tp:0,
+          ep:0
+        };
+        var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_top.P,'');
+
+        // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},home.home_top.P,'');
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
@@ -3157,22 +3188,35 @@ const home={
         if (d){
           var addarg='';
           var vplay=null;
+          var arg={
+            url:d.url,
+            img:d.poster,
+            ttip:d.tip,
+            sp:0,
+            tp:0,
+            ep:0
+          };
           if (d.play&&(d.play.length==2)){
             vplay=d.play;
             addarg=';'+d.play[0];
+            arg.sp=toInt(d.play[0]);
+            arg.tp=toInt(d.play[1]);
           }
-          var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'+addarg},h.P,'');
-          var ps=d.poster.split('-w100');
-          d.poster=ps[0];
-          hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-          hl._title=$n('b','',null,hl,special(d.title));
           var infotxt='';
           if (d.type){
             infotxt+='<span class="info_type">'+special(d.type)+'</span>';
           }
           if (d.ep){
             infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+            arg.ep=toInt(d.ep);
           }
+          // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'+addarg},h.P,'');
+          var hl=$n('div','',{action:"$"+JSON.stringify(arg),arg:""},h.P,'');
+          var ps=d.poster.split('-w100');
+          d.poster=ps[0];
+          hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+          hl._title=$n('b','',null,hl,special(d.title));
+          
           if (infotxt){
             hl._ep=$n('span','info',null,hl,infotxt);
           }
@@ -3730,7 +3774,16 @@ const home={
         g._havenext=(rd.length>=28);
         for (var i=0;i<rd.length;i++){
           var d=rd[i];
-          var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
+          var argv={
+            url:d.url,
+            img:d.poster,
+            ttip:d.tip,
+            sp:0,
+            tp:0,
+            ep:0
+          };
+          var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},g.P,'');
+          // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
           hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
           hl._title=$n('b','',null,hl,special(d.title));
           var infotxt='';
@@ -3953,6 +4006,10 @@ const home={
   },
   onsearch:false,
   search_keycb:function(c){
+    if (_MAL.onpopup){
+      return _MAL.pop_keycb(c);
+    }
+
     var pc=home.search.sel;
     if (c==KBACK){
       home.search.close();
@@ -4290,7 +4347,12 @@ const _MAL={
     ep:$('malplay_ep'),
     epval:$('malplay_ep_val'),
     resume_ep:$('malplay_resume_ep'),
+    resume_text:$('malplay_resume_text'),
     next_ep:$('malplay_next_ep'),
+    watchlist:$('malplay_watchlist'),
+    history:$('malplay_history'),
+    progh:$('malplay_resume_progh'),
+    prog:$('malplay_resume_prog'),
     menu:[],
     menusel:0,
     var:{
@@ -4301,7 +4363,16 @@ const _MAL={
       url:'',
       ttip:'',
       malid:0,
-      ready:false
+      play:{
+        c:0,
+        d:0,
+        e:0
+      },
+      infav:false,
+      animeid:'',
+      ready:false,
+      title:'',
+      img:''
     },
     setEp:function(){
       if (_MAL.pop.var.num>0){
@@ -4326,18 +4397,71 @@ const _MAL={
     else if (c==KENTER){
       var openurl=_MAL.pop.var.url;
       var el=_MAL.pop.menu[pc];
+      var epsel=0;
+
+      /* Watchlist & History */
+      if (el==_MAL.pop.watchlist){
+        if (_MAL.pop.var.animeid){
+          if (_MAL.pop.var.infav){
+            /* Delete from Fav */
+            list.fav_del(_MAL.pop.var.animeid);
+          }
+          else{
+            /* Add to fav */
+            var obep=_MAL.pop.var.resume?_MAL.pop.var.resume:1;
+            var ob={
+              'url':openurl,
+              'title':_MAL.pop.var.title,
+              'poster':_MAL.pop.var.img,
+              'ep':obep,
+              'episode':"EPISODE-"+obep,
+              'tip':_MAL.pop.var.ttip
+            };
+            list.fav_add(_MAL.pop.var.animeid,ob,true);
+          }
+        }
+        _MAL.pop_initlist(openurl);
+        if (_MAL.pop.menusel>=_MAL.pop.menu.length){
+          _MAL.pop.menusel=_MAL.pop.menu.length-1;
+        }
+        _MAL.popup_update();
+        home.list_init_name(list.fav,home.home_fav);
+        return;
+      }
+      else if (el==_MAL.pop.history){
+        if (_MAL.pop.var.animeid){
+          /* Delete from History */
+          list.history_del(_MAL.pop.var.animeid);
+        }
+        _MAL.pop_initlist(openurl);
+        if (_MAL.pop.menusel>=_MAL.pop.menu.length){
+          _MAL.pop.menusel=_MAL.pop.menu.length-1;
+        }
+        _MAL.popup_update();
+        home.list_init_name(list.history,home.home_history);
+        return;
+      }
+
       if (el==_MAL.pop.next){
         openurl+='/ep-'+_MAL.pop.var.next;
+        epsel=_MAL.pop.var.next;
       }
       else if (el==_MAL.pop.resume){
         openurl+='/ep-'+_MAL.pop.var.resume;
+        epsel=_MAL.pop.var.resume;
       }
       else if (el==_MAL.pop.ep){
         openurl+='/ep-'+_MAL.pop.var.ep;
+        epsel=_MAL.pop.var.ep;
       }
       console.log("MAL Open Anime = "+openurl);
       _MAL.popup_close();
-      pb.open(openurl, _MAL.pop.var.ttip, undefined, undefined, _MAL.pop.var.malid);
+      
+      var currtime=null;
+      if (toInt(epsel)==_MAL.pop.var.play.e){
+        currtime=_MAL.pop.var.play.c;
+      }
+      pb.open(openurl, _MAL.pop.var.ttip, undefined, currtime, _MAL.pop.var.malid);
     }
     else if (c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
       if (_MAL.pop.ep==_MAL.pop.menu[pc]){
@@ -4364,6 +4488,18 @@ const _MAL={
           }
         }
         _MAL.pop.setEp();
+      }
+      else if (_MAL.pop.watchlist==_MAL.pop.menu[pc]){
+        if (c==KRIGHT){
+          _MAL.pop_keycb(KDOWN);
+        }
+        return;
+      }
+      else if (_MAL.pop.history==_MAL.pop.menu[pc]){
+        if (c==KLEFT){
+          _MAL.pop_keycb(KUP);
+        }
+        return;
       }
     }
     else if (c==KUP){
@@ -4395,6 +4531,48 @@ const _MAL={
         _MAL.pop.menu[i].classList.remove('active');
     }
   },
+  pop_initlist:function(url){
+    /* Remove watchlist&history from menu */
+    while (_MAL.pop.menu.length>0){
+      var elast=_MAL.pop.menu[_MAL.pop.menu.length-1];
+      if (elast==_MAL.pop.watchlist||elast==_MAL.pop.history){
+        _MAL.pop.menu.pop();
+      }
+      else{
+        break;
+      }
+    }
+
+    _MAL.pop.var.animeid='';
+    var url_parse=url.split('/');
+    if (url_parse.length>=5){
+      var animeid=_MAL.pop.var.animeid=url_parse[4];
+      var fav=list.fav;
+      var hist=list.history;
+      _MAL.pop.watchlist.className='';
+      if (animeid in fav.detail){
+        _MAL.pop.watchlist.firstElementChild.innerHTML='delete';
+        _MAL.pop.var.infav=true;
+      }
+      else{
+        _MAL.pop.watchlist.firstElementChild.innerHTML='add';
+        _MAL.pop.var.infav=false;
+      }
+      _MAL.pop.menu.push(_MAL.pop.watchlist);
+
+      if (animeid in hist.detail){
+        _MAL.pop.history.className='';
+        _MAL.pop.menu.push(_MAL.pop.history);
+      }
+      else{
+        _MAL.pop.history.className='disable';
+      }
+      return;
+    }
+    _MAL.pop.watchlist.className=
+    _MAL.pop.history.className='disable';
+    _MAL.pop.watchlist.firstElementChild.innerHTML='add';
+  },
   popup:function(url, ttip, title, img, numep, currep, malid){
     _MAL.pop.title.innerHTML=special(title);
     _MAL.pop.img.src=img;
@@ -4404,6 +4582,16 @@ const _MAL={
     _MAL.pop.var.url=url;
     _MAL.pop.var.ttip=ttip;
     _MAL.pop.var.malid=malid;
+
+    _MAL.pop.var.title=title;
+    _MAL.pop.var.img=img;
+
+    _MAL.pop.var.play.c=
+    _MAL.pop.var.play.d=
+    _MAL.pop.var.play.e=0;
+
+    _MAL.pop.progh.className='';
+
     _MAL.pop.menusel=0;
     if (currep>0){
       _MAL.pop.menu.push(_MAL.pop.resume);
@@ -4428,6 +4616,9 @@ const _MAL={
       _MAL.pop.next.className=
       _MAL.pop.resume.className='disable';
     }
+
+    _MAL.pop.resume_text.innerHTML='Resume';
+
     _MAL.pop.var.num=numep;
     _MAL.pop.var.ep=(currep>0)?currep:1;
     _MAL.pop.setEp();
@@ -4437,9 +4628,117 @@ const _MAL={
     _MAL.popup_update();
     _MAL.pop.mv.className='active';
     $('popupcontainer').className='active';
+
+    _MAL.pop_initlist(url);
+
     _MAL.pop.var.ready=true;
     _MAL.onpopup=true;
-  }
+  },
+  preview_do:function(url, img, ttid, currep, tcurr, tdur,d,arg){
+    var numep=toInt(d.ep);
+    _MAL.pop.title.innerHTML=special(d.title);
+    _MAL.pop.img.src=img;
+    _MAL.pop.menu=[
+      _MAL.pop.begin
+    ];
+    _MAL.pop.var.url=url;
+    _MAL.pop.var.ttip=ttid;
+    _MAL.pop.var.malid=null;
+    _MAL.pop.menusel=0;
+
+    _MAL.pop.var.title=d.title;
+    _MAL.pop.var.img=img;
+
+    _MAL.pop.var.play.c=tcurr;
+    _MAL.pop.var.play.d=tdur;
+    _MAL.pop.var.play.e=currep;
+
+    _MAL.pop.progh.className='';
+    if (tcurr>0 && tdur>0){
+      _MAL.pop.progh.className='active';
+      var pct=(parseFloat(tcurr)/parseFloat(tdur))*100.0;
+      _MAL.pop.prog.style.width=pct+"%";
+    }
+
+    if (currep>0){
+      _MAL.pop.menu.push(_MAL.pop.resume);
+      if (numep>currep){
+        _MAL.pop.menu.push(_MAL.pop.next);
+        _MAL.pop.next_ep.innerHTML='EP-'+(currep+1);
+        _MAL.pop.next.className='';
+        _MAL.pop.var.next=currep+1;
+      }
+      else{
+        _MAL.pop.next_ep.innerHTML='';
+        _MAL.pop.next.className='disable';
+      }
+      _MAL.pop.resume_ep.innerHTML='EP-'+(currep);
+      _MAL.pop.resume.className='';
+      _MAL.pop.var.resume=currep;
+      _MAL.pop.menusel=1;
+    }
+    else{
+      _MAL.pop.next_ep.innerHTML=
+      _MAL.pop.resume_ep.innerHTML='';
+      _MAL.pop.next.className=
+      _MAL.pop.resume.className='disable';
+    }
+
+    if (arg=="ep"){
+      _MAL.pop.resume_text.innerHTML='Play Episode';
+    }
+    else{
+      _MAL.pop.resume_text.innerHTML='Resume';
+    }
+
+    _MAL.pop.var.num=numep;
+    _MAL.pop.var.ep=(currep>0)?currep:1;
+    _MAL.pop.setEp();
+    if (_MAL.pop.var.num>0){
+      _MAL.pop.menu.push(_MAL.pop.ep);
+    }
+    _MAL.popup_update();
+    _MAL.pop.mv.className='active';
+    $('popupcontainer').className='active';
+
+    _MAL.pop_initlist(url);
+
+    _MAL.pop.var.ready=true;
+    _MAL.onpopup=true;
+  },
+  preview:function(url, img, ttid, ep, tcurr, tdur,arg){
+    var url_parse=url.split('/');
+    if (url_parse.length>=5){
+      if (ttid){
+        if(url_parse.length==6){
+          url_parse.pop();
+          url=url_parse.join('/');
+        }
+        _MAL.pop.mv.className='active loading';
+        $('popupcontainer').className='active';
+        _MAL.pop.var.ready=false;
+        _MAL.onpopup=true;
+        _API.getTooltip(ttid,function(d){
+          if (d){
+            _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,d,arg);
+            return;
+          }
+          pb.open(url, ttid, 0, tcurr);
+          _MAL.popup_close();
+        });
+        return;
+      }
+    }
+    pb.open(url, ttid, 0, tcurr);
+  },
+  prev_action_handler:function(data,arg){
+    try{
+      var j=JSON.parse(data);
+      _MAL.preview(j.url, j.img, j.ttip, j.ep, j.sp, j.tp,arg);
+    }catch(e){
+      console.log("Error prev_action_handler: "+e)
+    }
+  },
 };
 
 window.__ARGUPDATE();

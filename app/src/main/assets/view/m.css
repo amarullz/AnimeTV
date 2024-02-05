@@ -1759,8 +1759,8 @@ c.loader {
 /* Settings */
 #malview {
   position: fixed;
-  right:36vw;
-  left:36vw;
+  right:35vw;
+  left:35vw;
   bottom:calc(50vh - 8.5vw);
   padding:0;
   box-sizing: border-box;
@@ -1775,7 +1775,7 @@ c.loader {
   overflow: hidden;
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22) !important;
   border-radius: .5vw;
-  height: 17vw;
+  height: 19vw;
 }
 #malview.loading #malview_img,
 #malview.loading #malview_title,
@@ -1804,7 +1804,7 @@ c.loader {
   margin:0;
   font-size:1vw;
   font-weight: normal;
-  width:12vw;
+  width:13vw;
   z-index:2;
   position: absolute;
   bottom:0;
@@ -1817,8 +1817,8 @@ c.loader {
   position: absolute;
   left:0;
   top:0;
-  width: 12vw;
-  height: 17vw;
+  width: 13vw;
+  height: 19vw;
   border-right: .1vw solid #000;
   outline: .1vw solid #333;
 }
@@ -1826,11 +1826,11 @@ c.loader {
 #malview_data{
   display: block;
   position: absolute;
-  left: 12.5vw;
+  left: 13.5vw;
   right: .5vw;
   bottom: .5vw;
   font-size:1.1vw;
-  line-height: 2.6vw;
+  line-height: 2.2vw;
 }
 
 #malview_data div{
@@ -1838,6 +1838,7 @@ c.loader {
   border-radius: .5vw;
   margin-top: .5vw;
   background-color: #2a2a2a;
+  box-sizing: border-box;
 }
 #malview_data div.active{
   background-color: var(--primary-1);
@@ -1848,14 +1849,53 @@ c.loader {
   opacity: .6;
   background: #252525;
 }
+#malview_data div#malplay_watchlist,
+#malview_data div#malplay_history{
+  display: inline-block;
+  width: 49%;
+}
+#malview_data div#malplay_history{
+  float: right;
+}
+#malview_data div u{
+  text-decoration: none !important;
+}
 #malview_data div b:empty,
 #malview_data div.disable b{
   visibility: hidden;
 }
+#malview_data div#malplay_resume{
+  position: relative;
+}
+#malview_data div#malplay_resume span#malplay_resume_progh{
+  position:absolute;
+  background-color: #000;
+  height: .5vw;
+  bottom: .3vw;
+  left: .5vw;
+  right: .5vw;
+  height: .4vw;
+  display: none;
+  overflow: hidden;
+  border-radius: .2vw;
+}
+#malview_data div#malplay_resume span#malplay_resume_progh.active{
+  display: block !important;
+}
+#malview_data div#malplay_resume span u{
+  display: block;
+  height: .4vw;
+  background-color: var(--accent-1);
+  position: relative;
+  overflow: hidden;
+}
+#malview_data div.gone b{
+  display: none;
+}
 #malview_data div c{
   margin-right: 1vw;
   float: left;
-  line-height: 2.6vw;
+  line-height: 2.2vw;
 }
 #malview_data div span{
   display: block;
@@ -1867,7 +1907,7 @@ c.loader {
   font-weight: normal;
   font-size: 1.1vw;
   color: var(--accent-1);
-  line-height: 2.6vw;
+  line-height: 2.2vw;
 }
 #malview_data div c.right{
   float: right;
