@@ -4,10 +4,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",
 
-  "appnum": 180,
-  "appver": "1.8.0",
-  "appsize": "12.9 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/1.8.0/animetv-1.8.0.apk",
+  "appnum": 182,
+  "appver": "1.8.2",
+  "appsize": "13 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/1.8.0/animetv-1.8.2.apk",
   "appnote": 
-    "- MyAnimeList Integration\n- Add/remove watchlist & history\n- Info & announchement ticker\n- New settings & homescreen\n- cf-ray validation"
+    "- 1.8.2: Fix anime may not load next episode\n- MyAnimeList Integration\n- Add/remove watchlist & history\n- Info & announchement ticker\n- New settings & homescreen\n- cf-ray validation"
 }
