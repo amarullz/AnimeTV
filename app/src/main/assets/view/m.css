@@ -327,7 +327,6 @@ c.loader {
   background-position: center center;
   background-repeat: no-repeat;
   transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
-  transform: scale(.2) translateY(80vh);
   opacity: 0;
   visibility: hidden;
   z-index: 9999;
@@ -346,7 +345,6 @@ c.loader {
 }
 
 #pb.active {
-  transform: scale(1) translateY(0);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -1627,7 +1625,6 @@ c.loader {
   background-position: center center;
   background-repeat: no-repeat;
   transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
-  transform: scaleY(.5) translateY(-50vh);
   opacity: 0;
   visibility: hidden;
   z-index: 100;
@@ -1635,7 +1632,6 @@ c.loader {
 }
 
 #search.active {
-  transform: scaleY(1) translateY(0);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;

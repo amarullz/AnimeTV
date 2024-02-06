@@ -402,7 +402,11 @@ public class AnimeView extends WebViewClient {
   public class JSViewApi{
     private String lastResultText="";
     private String lastResultUrl="";
-
+    @JavascriptInterface
+    public boolean getViewAvailable(){
+      if (aApi.resData.status==1) return false;
+      return true;
+    }
     @JavascriptInterface
     public boolean getview(String url, int zid) {
       if (aApi.resData.status==1) return false;
