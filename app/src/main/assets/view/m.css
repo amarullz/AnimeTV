@@ -1789,7 +1789,7 @@ c.loader {
   left:0;
   bottom:0;
   top:0;
-  background-color: rgba(0,0,0,.5);
+  background-color: rgba(0,0,0,.7);
   z-index: 29999;
   font-size:2.2vw;
   display: flex;
@@ -1830,9 +1830,6 @@ c.loader {
 /* Settings */
 #malview {
   position: fixed;
-  right:35vw;
-  left:35vw;
-  bottom:calc(50vh - 8.5vw);
   padding:0;
   box-sizing: border-box;
   background: #222;
@@ -1846,12 +1843,16 @@ c.loader {
   overflow: hidden;
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22) !important;
   border-radius: .5vw;
+  
+  right:25vw;
+  left:25vw;
+  bottom:calc(50vh - 8.5vw);
   height: 19vw;
 }
 #malview.loading #malview_rating,
 #malview.loading #malview_img,
-#malview.loading #malview_title,
-#malview.loading #malview_data {
+#malview.loading #malview_data,
+#malview.loading #malview_info {
   display: none !important;
 }
 #malview.loading:after{
@@ -1869,20 +1870,6 @@ c.loader {
   transform: scale(1);
   opacity: 1;
   visibility: visible;
-}
-#malview h3{
-  padding: .5vw;
-  box-sizing: border-box;
-  margin:0;
-  font-size:1vw;
-  font-weight: normal;
-  width:13vw;
-  z-index:2;
-  position: absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  background: rgba(0,0,0,.6);
 }
 #malview #malview_rating{
   position: absolute;
@@ -1912,10 +1899,83 @@ c.loader {
   outline: .1vw solid #333;
 }
 
+#malview_info{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  
+  left: 13vw;
+  right: 17vw;
+  bottom: 0;
+  top:0;
+  border-right: .1vw solid #000;
+  outline: .1vw solid #333;
+
+  font-size:1.1vw;
+  line-height: 2.2vw;
+  background-color: #121212;
+}
+#malview_info div{
+  padding: .5vw;
+  padding-left: 1vw;
+  line-height: 1;
+  width: 100%;
+}
+#malview_info div h4{
+  padding:0;
+  margin:0;
+  font-size:1.4vw;
+  font-weight: normal;
+
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  color: var(--accent-1);
+  line-height: 1.2;
+}
+#malview_info div p{
+  line-height: 1.2;
+  font-size: 1.1vw;
+  padding:0;
+  margin:0;
+  padding-top:.8vw;
+  margin-bottom:.8vw;
+  font-weight: normal;
+  color:#aaa;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+}
+#malview_info div span.right{
+  float: right;
+}
+#malview_info div span{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
+  font-size: 1.1vw;
+  color:#fff;
+  font-weight: normal;
+  line-height:1.4;
+}
+#malview_info div span b{
+  color: var(--accent-1);
+  font-weight: normal;
+}
 #malview_data{
   display: block;
   position: absolute;
-  left: 13.5vw;
+  left: 33.5vw;
   right: .5vw;
   bottom: .5vw;
   font-size:1.1vw;

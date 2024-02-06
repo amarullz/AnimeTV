@@ -474,6 +474,24 @@ const _API={
         try{
           o.quality=d.querySelector('i.quality').textContent.trim();
         }catch(e){}
+
+        var sp=d.querySelectorAll('div.meta-bl div>span');
+        for (var i=0;i<sp.length;i+=2){
+          try{
+            var vt=sp[i].textContent.trim();
+            if (vt=='Genre:'){
+              o.genre=sp[i+1].textContent.replace(/\n/g,'').replace(/   /g,' ').replace(/  /g,' ').replace(/  /g,' ').replace(/ \,/g,',').trim();
+            }
+            else if (vt=='Status:'){
+              o.status=sp[i+1].textContent.trim();
+            }
+            else if (vt=='Duration:'){
+              o.duration=sp[i+1].textContent.trim();
+            }
+          }catch(e){}
+        }
+        // sp[11].textContent.replace(/\n/g,'').replace(/   /g,' ').replace(/  /g,' ').replace(/  /g,' ').replace(/ \,/g,',').trim();
+
         d=null;
         cb(o);
       }
@@ -4335,16 +4353,21 @@ const _MAL={
           if (r.length>0){
             console.log("MAL ACTION START...");
             // pb.open(r[0].url, r[0].tip);
-            _MAL.popup(
-              r[0].url,
-              r[0].tip,
-              r[0].title,
-              r[0].poster,
-              r[0].epavail,
-              d.list_status.num_episodes_watched,
-              d.node.id,
-              r[0].adult?'R+':''
+            _MAL.preview(
+              r[0].url, r[0].poster, r[0].title, r[0].tip, 
+              d.list_status.num_episodes_watched, 0, 0, 
+              ''
             );
+            // _MAL.popup(
+            //   r[0].url,
+            //   r[0].tip,
+            //   r[0].title,
+            //   r[0].poster,
+            //   r[0].epavail,
+            //   d.list_status.num_episodes_watched,
+            //   d.node.id,
+            //   r[0].adult?'R+':''
+            // );
             return;
           }
           _MAL.popup_close();
@@ -4632,6 +4655,11 @@ const _MAL={
     _MAL.pop.var.resume=0;
     _MAL.pop.var.next=0;
 
+    $('malview_synopsys').innerHTML="&nbsp;"
+    $('malview_info_duration').innerHTML="-";
+    $('malview_info_status').innerHTML="-";
+    $('malview_info_genre').innerHTML="-";
+
     if (currep>0){
       _MAL.pop.menu.push(_MAL.pop.resume);
       if (numep>currep){
@@ -4673,6 +4701,12 @@ const _MAL={
     _MAL.pop.var.ready=true;
     _MAL.onpopup=true;
   },
+  preview_detail:function(d){
+    $('malview_synopsys').innerHTML=d.synopsis?special(d.synopsis):"&nbsp;"
+    $('malview_info_duration').innerHTML=d.duration?special(d.duration):"-";
+    $('malview_info_status').innerHTML=d.status?special(d.status):"-";
+    $('malview_info_genre').innerHTML=d.genre?special(d.genre):"-";
+  },
   preview_do:function(url, img, ttid, currep, tcurr, tdur,d,arg){
     var numep=toInt(d.ep);
     currep=toInt(currep);
@@ -4692,6 +4726,8 @@ const _MAL={
     _MAL.pop.var.play.c=tcurr;
     _MAL.pop.var.play.d=tdur;
     _MAL.pop.var.play.e=currep;
+
+    _MAL.preview_detail(d);
 
     _MAL.popuprating(d.rating);
 

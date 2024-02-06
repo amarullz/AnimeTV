@@ -2,12 +2,21 @@ package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import java.io.File;
+import java.io.IOException;
 
 /*
  * Main Activity class that loads {@link MainFragment}.
@@ -39,9 +48,36 @@ public class MainActivity extends FragmentActivity {
     }
   }
 
+  public void initLogcat(){
+    if (ContextCompat.checkSelfPermission(this,
+        android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+    }
+    if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+      Toast.makeText(this,"Please restart app after accepting permission...",
+          Toast.LENGTH_LONG).show();
+    }
+    else {
+      try {
+        String fn = Environment.getExternalStorageDirectory() +
+            "/animetv-logcat.txt";
+        Log.d("DEBUG-LOGCAT", fn);
+        File filename = new File(fn);
+        filename.createNewFile();
+        String cmd = "logcat -f " + filename.getAbsolutePath();
+        Runtime.getRuntime().exec(cmd);
+      } catch (IOException e) {
+        Log.d("DEBUG-LOGCAT", "Error Exec - " + e);
+      }
+    }
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+//     initLogcat();
 
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     setContentView(R.layout.activity_main);

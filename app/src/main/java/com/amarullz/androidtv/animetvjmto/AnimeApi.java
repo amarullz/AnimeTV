@@ -134,11 +134,13 @@ public class AnimeApi extends WebViewClient {
     else{
       is=conn.getInputStream();
     }
-    int nRead;
-    byte[] data = new byte[1024];
-    while ((nRead = is.read(data, 0, data.length)) != -1) {
-      buffer.write(data, 0, nRead);
-    }
+    try {
+      int nRead;
+      byte[] data = new byte[1024];
+      while ((nRead = is.read(data, 0, data.length)) != -1) {
+        buffer.write(data, 0, nRead);
+      }
+    }catch (Exception ignored){}
     return buffer;
   }
   public static ByteArrayOutputStream getBody(HttpURLConnection conn,

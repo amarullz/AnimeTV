@@ -28,7 +28,7 @@
         android:layout_height="400dp"
         android:layout_gravity="center"
         android:id="@+id/webview2"
-        android:alpha="0"
+        android:alpha="0.005"
         />
     <WebView
         android:visibility="invisible"

@@ -322,7 +322,9 @@ public class AnimeView extends WebViewClient {
           if (conn.getResponseCode()==200) {
             ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
             if (accept.startsWith("text/html")) {
-              aApi.injectString(buffer, playerInjectString);
+              try {
+                aApi.injectString(buffer, playerInjectString);
+              }catch(Exception ignored){}
               sendVidpageLoaded(0);
             } else {
               Log.d(_TAG, "sendM3U8Req = " + buffer.toString("UTF-8"));
@@ -726,15 +728,11 @@ public class AnimeView extends WebViewClient {
             "function t1(){" +
                 "var a=document.querySelector('div#turnstile-wrapper');" +
                 "if (a){" +
-//                "var b=a.getBoundingClientRect();" +
-//                "var h2=Math.floor(b.height/2.5);" +
-//                "var x=(b.x+h2);" +
-//                "var y=(b.y+h2);" +
                 "var h2=Math.floor(a.offsetHeight/2.5);"+
                 "var x=a.offsetLeft+h2;"+
                 "var y=a.offsetTop+h2;"+
                 "setTimeout(function(){_JSAPI.tapEmulateFix(x,y);" +
-                "setTimeout(t1,2500);},1000);" +
+                "setTimeout(t1,1000);},1000);" +
                 "}" +
                 "else " +
                 "setTimeout(t1,500);}" +
