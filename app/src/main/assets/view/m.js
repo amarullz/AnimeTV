@@ -11,6 +11,16 @@ function $(i){
 function $a(uri, cb){
   var xhttp = new XMLHttpRequest();
   xhttp.onload = function() {
+      if (xhttp.status==403){
+        if (((uri.indexOf("https://")==-1)||(uri.indexOf("https://"+__DNS)==0)) 
+          && (uri.indexOf("/__proxy/")!=0)){
+          _JSAPI.cfCheck();
+          setTimeout(function(){
+            $a(uri, cb);
+          },2500);
+          return;
+        }
+      }
       xhttp.ok=true;
       cb(xhttp);
   };

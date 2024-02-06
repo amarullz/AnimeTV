@@ -24,8 +24,44 @@
     </RelativeLayout>
     <WebView
         android:visibility="invisible"
+        android:layout_width="500dp"
+        android:layout_height="400dp"
+        android:layout_gravity="center"
+        android:id="@+id/webview2"
+        android:alpha="0"
+        />
+    <WebView
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/webview"
         />
+    <LinearLayout
+        android:visibility="invisible"
+        android:id="@+id/cfprogress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:background="#333"
+        android:gravity="center_vertical"
+        android:clickable="false"
+        android:focusable="false"
+        android:contextClickable="false"
+        android:longClickable="false"
+        android:focusableInTouchMode="false"
+        android:padding="16dp">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+        <TextView
+            android:paddingLeft="8dp"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please Wait...\nWorking on cloudflare ray validation"
+            />
+    </LinearLayout>
 </FrameLayout>

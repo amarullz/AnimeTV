@@ -1,4 +1,8 @@
 (function(){
+if (window.__hooked9){
+    return;
+}
+window.__hooked9=true;
 function $(i){
   return document.getElementById(i);
 }
@@ -236,7 +240,8 @@ function ___PLAYER(player){
                     server[_SERVER_ID].click();
                     return;
                 }
-            }catch(ee){}
+            }catch(ee){
+            }
         }
         server[0].click();
     }

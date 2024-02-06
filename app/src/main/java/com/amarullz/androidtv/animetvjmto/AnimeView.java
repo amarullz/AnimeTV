@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -30,6 +31,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -52,7 +54,9 @@ public class AnimeView extends WebViewClient {
   private static final String _TAG="ATVLOG-VIEW";
   private final Activity activity;
   public final WebView webView;
+  public final WebView webView2;
   public VideoView videoView=null;
+  public LinearLayout cfProgress;
   public final ImageView splash;
   public final RelativeLayout videoLayout;
   public final AnimeApi aApi;
@@ -77,20 +81,8 @@ public class AnimeView extends WebViewClient {
         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
   }
 
-  @SuppressLint("SetJavaScriptEnabled")
-  public AnimeView(Activity mainActivity) {
-    activity = mainActivity;
-    WebView.setWebContentsDebuggingEnabled(true);
-
-    setFullscreen();
-    VERSION_INIT();
-
-    splash=activity.findViewById(R.id.splash);
-    videoLayout= activity.findViewById(R.id.video_layout);
-    webView = activity.findViewById(R.id.webview);
-    webView.requestFocus();
-    webView.setBackgroundColor(Color.TRANSPARENT);
-    WebSettings webSettings = webView.getSettings();
+  public void webviewInitConfig(WebView wv){
+    WebSettings webSettings = wv.getSettings();
 
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
@@ -104,20 +96,35 @@ public class AnimeView extends WebViewClient {
     webSettings.setDomStorageEnabled(true);
 
     /* UAG */
-    webSettings.setUserAgentString(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"+
-            " (KHTML, like Gecko) Chrome/116.0.0.0 "+"" +
-            "Safari/537.36 Edg/116.0.1938.69"
-    );
+    webSettings.setUserAgentString(Conf.USER_AGENT);
 
     /* performance tweaks */
     //noinspection deprecation
     webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
     webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
-    webView.addJavascriptInterface(new JSViewApi(), "_JSAPI");
-    webView.setWebViewClient(this);
-    webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+    wv.addJavascriptInterface(new JSViewApi(), "_JSAPI");
+    wv.setWebViewClient(this);
+    wv.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+  }
+
+  @SuppressLint("SetJavaScriptEnabled")
+  public AnimeView(Activity mainActivity) {
+    activity = mainActivity;
+    WebView.setWebContentsDebuggingEnabled(true);
+
+    setFullscreen();
+    VERSION_INIT();
+
+    cfProgress=activity.findViewById(R.id.cfprogress);
+    splash=activity.findViewById(R.id.splash);
+    videoLayout= activity.findViewById(R.id.video_layout);
+    webView2 = activity.findViewById(R.id.webview2);
+    webView = activity.findViewById(R.id.webview);
+    webView.requestFocus();
+    webView.setBackgroundColor(Color.TRANSPARENT);
+    webviewInitConfig(webView);
+    webviewInitConfig(webView2);
 
     webView.setWebChromeClient(new WebChromeClient() {
       @Override public Bitmap getDefaultVideoPoster() {
@@ -159,6 +166,8 @@ public class AnimeView extends WebViewClient {
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
     webView.loadUrl("https://"+Conf.DOMAIN+"/__view/main.html");
+    //
+    // https://aniwave.to/ajax/home/widget/updated-sub?page=1
 
     // Init Channel Provider
     AnimeProvider.executeJob(activity);
@@ -277,20 +286,24 @@ public class AnimeView extends WebViewClient {
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
-      try {
-        HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
-        for (Map.Entry<String, String> entry :
-            request.getRequestHeaders().entrySet()) {
-          conn.setRequestProperty(entry.getKey(), entry.getValue());
-        }
-        String[] cType = aApi.parseContentType(conn.getContentType());
-        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
-        InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-        return new WebResourceResponse(cType[0], cType[1], stream);
-      } catch (Exception erd) {
-        Log.e(_TAG, "VIEW-GET-DOMAIN-ERR: " + url,erd);
-      }
-      return aApi.badRequest;
+//      if (view.equals(webView)) {
+//        try {
+//          HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
+//          for (Map.Entry<String, String> entry :
+//              request.getRequestHeaders().entrySet()) {
+//            conn.setRequestProperty(entry.getKey(), entry.getValue());
+//          }
+//          String[] cType = aApi.parseContentType(conn.getContentType());
+//          ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+//          InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
+//          return new WebResourceResponse(cType[0], cType[1], stream);
+//        } catch (Exception erd) {
+//          Log.e(_TAG, "VIEW-GET-DOMAIN-ERR: " + url, erd);
+//          cfRayCheck();
+//        }
+//      }
+//      return aApi.badRequest;
+      return null;
     }
     else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       if (accept.startsWith("text/html")||
@@ -417,7 +430,12 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public void tapEmulate(float x, float y) {
-      AsyncTask.execute(() -> simulateClick(x,y));
+      AsyncTask.execute(() -> simulateClick(x,y,false));
+    }
+
+    @JavascriptInterface
+    public void tapEmulateFix(float x, float y) {
+      AsyncTask.execute(() -> simulateClick(x,y,true));
     }
 
     @JavascriptInterface
@@ -480,7 +498,10 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public void reloadHome() {
-      AsyncTask.execute(AnimeView.this::reloadView);
+      runOnUiThreadWait(()->
+          webView.loadUrl("https://"+Conf.DOMAIN+"/__view/main.html")
+      );
+//      AsyncTask.execute(AnimeView.this::reloadView);
     }
 
     @JavascriptInterface
@@ -657,23 +678,93 @@ public class AnimeView extends WebViewClient {
       return BUILD_VERSION;
     }
 
+    @JavascriptInterface
+    public void rayOk() {
+      if (cfOnCheck) {
+        runOnUiThreadWait(() -> {
+//          webView.loadUrl("https://" + Conf.DOMAIN + "/__view/main.html");
+          webView2.setVisibility(View.INVISIBLE);
+          Toast.makeText(activity,"Validation successful...",
+              Toast.LENGTH_SHORT).show();
+          cfProgress.setVisibility(View.INVISIBLE);
+          webView.requestFocus();
+        });
+      }
+    }
+
+    @JavascriptInterface
+    public void cfCheck() {
+      cfRayCheck();
+    }
+  }
+
+  public boolean cfOnCheck=false;
+
+  public void cfRayCheck(){
+    if (cfOnCheck) return;
+    runOnUiThreadWait(()-> {
+      cfProgress.setVisibility(View.VISIBLE);
+      cfOnCheck=true;
+      webView2.loadUrl("https://"+Conf.DOMAIN+"/");
+    });
   }
 
   @Override
   public void onPageFinished(WebView view, String url) {
+    Log.d(_TAG,"ATVLOG-API --> "+url);
+    if (!url.contains("/__view/")){
+      if (cfOnCheck) {
+        webView2.setVisibility(View.VISIBLE);
+        view.evaluateJavascript(
+            "if (document.getElementById('i-wrapper')){ " +
+                "_JSAPI.rayOk(); }", null);
+        String ijs=
+            "function t1(){" +
+                "var a=document.querySelector('div#turnstile-wrapper');" +
+                "if (a){" +
+//                "var b=a.getBoundingClientRect();" +
+//                "var h2=Math.floor(b.height/2.5);" +
+//                "var x=(b.x+h2);" +
+//                "var y=(b.y+h2);" +
+                "var h2=Math.floor(a.offsetHeight/2.5);"+
+                "var x=a.offsetLeft+h2;"+
+                "var y=a.offsetTop+h2;"+
+                "setTimeout(function(){_JSAPI.tapEmulateFix(x,y);" +
+                "setTimeout(t1,2500);},1000);" +
+                "}" +
+                "else " +
+                "setTimeout(t1,500);}" +
+                "t1();";
+        view.evaluateJavascript(ijs,null);
+      }
+    }
+
+    if (view.equals(webView2)){
+      return;
+    }
+
     splash.setVisibility(View.GONE);
     videoLayout.setVisibility(View.VISIBLE);
     webView.setVisibility(View.VISIBLE);
     activity.runOnUiThread(webView::requestFocus);
     webViewReady=true;
+    // i-wrapper
   }
 
-  private void simulateClick(float xx, float yy) {
+  public float convertDpToPixel(float dp){
+    return dp * ((float) activity.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+  }
+
+  private void simulateClick(float xx, float yy, boolean fixed) {
     int x=(int) ((webView.getMeasuredWidth()*xx)/100.0);
     int y=(int) ((webView.getMeasuredHeight()*yy)/100.0);
+    if (fixed){
+      x=(int) convertDpToPixel(xx);
+      y=(int) convertDpToPixel(yy);
+    }
     Log.d(_TAG,"TAP: ("+x+", "+y+") -> "+xx+"%, "+yy+"%");
     long downTime = SystemClock.uptimeMillis();
-    long eventTime = SystemClock.uptimeMillis() + 150;
+    long eventTime = SystemClock.uptimeMillis() + 245;
     int metaState = 0;
     MotionEvent me = MotionEvent.obtain(
         downTime,
@@ -683,16 +774,16 @@ public class AnimeView extends WebViewClient {
         y,
         metaState
     );
-    webView.dispatchTouchEvent(me);
+    webView2.dispatchTouchEvent(me);
     me = MotionEvent.obtain(
         downTime,
         eventTime,
         MotionEvent.ACTION_UP,
-        x,
-        y,
+        x+1,
+        y-2,
         metaState
     );
-    webView.dispatchTouchEvent(me);
+    webView2.dispatchTouchEvent(me);
   }
 
   public void updateArgs(){
@@ -810,8 +901,7 @@ public class AnimeView extends WebViewClient {
   public void malStartLogin(String username, String password){
     Log.d(_TAG,
         "Login Mal -> "+username+":"+password);
-    @SuppressWarnings("deprecation") final ProgressDialog loginProgress = new ProgressDialog(activity);
-    //noinspection deprecation
+    final ProgressDialog loginProgress = new ProgressDialog(activity);
     loginProgress.setMessage("Login to MyAnimeList..");
     loginProgress.show();
 

@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
@@ -347,10 +348,12 @@ public class AnimeApi extends WebViewClient {
     webView.addJavascriptInterface(new JSApi(), "_JSAPI");
     webView.setWebViewClient(this);
 
+    webSettings.setUserAgentString(Conf.USER_AGENT);
     webView.loadData(
           "<html><body>Finish</body></html>","text/html",
           null
       );
+//    webView.loadUrl("https://"+Conf.DOMAIN+"/");
   }
 
   public void getData(String url, Callback cb, long timeout){
@@ -461,6 +464,14 @@ public class AnimeApi extends WebViewClient {
   }
 
   @Override
+  public void onPageFinished(WebView view, String url) {
+    String ijs="(function(){var a=document.createElement('script');a" +
+        ".setAttribute('src','/__inject.js');document.body.appendChild(a);})" +
+        "();";
+    webView.evaluateJavascript(ijs,null);
+  }
+
+  @Override
   public WebResourceResponse shouldInterceptRequest(final WebView view,
                                                     WebResourceRequest request) {
     Uri uri = request.getUrl();
@@ -475,28 +486,31 @@ public class AnimeApi extends WebViewClient {
     else if (accept.startsWith("image/")) return badRequest;
     else if (host.contains(Conf.DOMAIN)) {
       if (uri.getPath().equals("/__inject.js")){
+        Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/9anime_inject.js");
       }
-      try {
-        HttpURLConnection conn = initQuic(url, request.getMethod());
-
-        for (Map.Entry<String, String> entry :
-            request.getRequestHeaders().entrySet()) {
-          conn.setRequestProperty(entry.getKey(), entry.getValue());
-        }
-        String[] cType = parseContentType(conn.getContentType());
-        ByteArrayOutputStream buffer = getBody(conn, null);
-        if (cType[0].startsWith("text/html")) {
-          Log.d(_TAG,
-              "QUIC==>" + url + " - " + accept);
-          injectJs(buffer, "/__inject.js");
-        }
-
-        InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-        return new WebResourceResponse(cType[0], cType[1], stream);
-      } catch (Exception e) {
-        Log.d(_TAG, "QUIC-ERR=" + url + " - " + e);
-      }
+//      try {
+//        HttpURLConnection conn = initQuic(url, request.getMethod());
+//
+//        for (Map.Entry<String, String> entry :
+//            request.getRequestHeaders().entrySet()) {
+//          conn.setRequestProperty(entry.getKey(), entry.getValue());
+//        }
+//        String[] cType = parseContentType(conn.getContentType());
+//        ByteArrayOutputStream buffer = getBody(conn, null);
+//        if (cType[0].startsWith("text/html")) {
+//          Log.d(_TAG,
+//              "QUIC==>" + url + " - " + accept);
+//          injectJs(buffer, "/__inject.js");
+//        }
+//
+//        InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
+//        return new WebResourceResponse(cType[0], cType[1], stream);
+//      } catch (Exception e) {
+//        Log.d(_TAG, "QUIC-ERR=" + url + " - " + e);
+//      }
+      Log.d(_TAG, "WEB-REQ=" + url);
+      return null;
     }
     else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       return assetsRequest("inject/9anime_player.html");
