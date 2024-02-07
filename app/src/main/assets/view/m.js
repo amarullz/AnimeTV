@@ -652,7 +652,7 @@ const _API={
     if (_JSAPI){
       verel.innerHTML="<b>AnimeTV "+_JSAPI.getVersion(0)+" "+
         "&copy; 2023-2024 amarullz.com</b><br />Build "+_JSAPI.getVersion(1)
-        +" - Server "+_JSAPI.dnsver()+"";
+        +" - Server "+_JSAPI.dnsver()+" - Source "+__SD+"/"+(__SD==1?"WAVE":"ANIX");
     }
   }catch(e){}
 
@@ -2119,7 +2119,7 @@ const pb={
         // Update Home
         var chval=(__SD==2)?1:2;
         if (confirm("You are about to change the source server.\n"+
-          "SOURCE SERVER TARGET : "+chval+". "+(chval==2?"NIX":"WAVE")+"\n\n"+
+          "SOURCE SERVER TARGET : "+chval+". "+(chval==2?"ANIX":"WAVE")+"\n\n"+
           "NOTE: Watchlist & history contents will be changed...\n\n"+
           "Are you sure??")){
           _JSAPI.setSd((__SD==2)?1:2);
