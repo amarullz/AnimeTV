@@ -3694,20 +3694,20 @@ const home={
         _MAL.islogin()?'<c>lock_open</c> MAL LOGOUT ('+special(_MAL.auth.user)+')':'<c>list_alt</c> MAL LOGIN'
       );
 
-      home.settings.tools._s_sourcesvr=$n(
-        'div','',{
-          action:'*sourcesvr'
-        },
-        home.settings.more.P,
-        "<c>database</c> <span>SOURCE "+__SD+"</span>"
-      );
-
       home.settings.tools._s_nonjapan=$n(
         'div','',{
           action:'*nonjapan'
         },
         home.settings.more.P,
         '<c>clear</c> CHINESE ANIME'
+      );
+
+      home.settings.tools._s_sourcesvr=$n(
+        'div','',{
+          action:'*sourcesvr'
+        },
+        home.settings.more.P,
+        "<c>database</c> <span>SOURCE "+__SD+"</span>"
       );
 
       
