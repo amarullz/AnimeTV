@@ -94,7 +94,7 @@ public class AnimeApi extends WebViewClient {
                 .enableQuic(true)
                 .enableBrotli(true)
                 .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
-                .addQuicHint(Conf.DOMAIN, 443, 443);
+                .addQuicHint(Conf.getDomain(), 443, 443);
         return myBuilder.build();
       }catch(Exception ignored){}
     }
@@ -305,13 +305,13 @@ public class AnimeApi extends WebViewClient {
     if (!prefServer.equals("")){
       try {
         JSONObject j=new JSONObject(prefServer);
-        Conf.DOMAIN=j.getString("domain");
+        Conf.SOURCE_DOMAIN1=j.getString("domain");
         Conf.STREAM_DOMAIN=j.getString("stream_domain");
         Conf.SERVER_VER=j.getString("update");
         Conf.STREAM_DOMAIN2=j.getString("stream_domain2");
       }catch(Exception ignored){}
     }
-    Log.d(_TAG,"DOMAIN = "+Conf.DOMAIN+" / STREAM = "+Conf.STREAM_DOMAIN+" / " +
+    Log.d(_TAG,"DOMAIN = "+Conf.getDomain()+" / STREAM = "+Conf.STREAM_DOMAIN+" / " +
         "UPDATE = "+Conf.SERVER_VER);
   }
 
@@ -355,7 +355,8 @@ public class AnimeApi extends WebViewClient {
           "<html><body>Finish</body></html>","text/html",
           null
       );
-//    webView.loadUrl("https://"+Conf.DOMAIN+"/");
+
+    getData("https://anix.to/anime/demon-slayer-kimetsu-no-yaiba-6q67/ep-1", null, 20000);
   }
 
   public void getData(String url, Callback cb, long timeout){
@@ -486,7 +487,7 @@ public class AnimeApi extends WebViewClient {
       return super.shouldInterceptRequest(view, request);
     }
     else if (accept.startsWith("image/")) return badRequest;
-    else if (host.contains(Conf.DOMAIN)) {
+    else if (host.contains(Conf.SOURCE_DOMAIN1)) {
       if (uri.getPath().equals("/__inject.js")){
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/9anime_inject.js");
@@ -512,6 +513,14 @@ public class AnimeApi extends WebViewClient {
 //        Log.d(_TAG, "QUIC-ERR=" + url + " - " + e);
 //      }
       Log.d(_TAG, "WEB-REQ=" + url);
+      return null;
+    }
+    else if (host.contains(Conf.SOURCE_DOMAIN2)) {
+      if (uri.getPath().equals("/__inject.js")) {
+        Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
+        return assetsRequest("inject/anix_inject.js");
+      }
+      Log.d(_TAG, "WEB-REQ2=" + url);
       return null;
     }
     else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
@@ -545,7 +554,8 @@ public class AnimeApi extends WebViewClient {
   @Override
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
-    return !url.startsWith("https://"+Conf.DOMAIN+"/");
+    return (!url.startsWith("https://"+Conf.SOURCE_DOMAIN1+"/")&&!url.startsWith(
+        "https://"+Conf.SOURCE_DOMAIN2+"/"));
   }
 
   public void pauseView(boolean pause){
@@ -604,7 +614,7 @@ public class AnimeApi extends WebViewClient {
     }
     @JavascriptInterface
     public String dns(){
-      return Conf.DOMAIN;
+      return Conf.getDomain();
     }
 
     @JavascriptInterface

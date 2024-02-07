@@ -165,7 +165,7 @@ public class AnimeView extends WebViewClient {
 
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
-    webView.loadUrl("https://"+Conf.DOMAIN+"/__view/main.html");
+    webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
     //
     // https://aniwave.to/ajax/home/widget/updated-sub?page=1
 
@@ -176,7 +176,7 @@ public class AnimeView extends WebViewClient {
   public void reloadView(){
     aApi.cleanWebView();
     webView.clearCache(true);
-    webView.loadUrl("https://"+Conf.DOMAIN+"/__view/main.html");
+    webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
   }
 
   public void videoViewSetScale(int type){
@@ -212,7 +212,7 @@ public class AnimeView extends WebViewClient {
   @Override
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
-    return !url.startsWith("https://"+Conf.DOMAIN+"/");
+    return (!url.startsWith("https://"+Conf.SOURCE_DOMAIN1+"/")&&!url.startsWith("https://"+Conf.SOURCE_DOMAIN2+"/"));
   }
 
   @Override
@@ -223,7 +223,9 @@ public class AnimeView extends WebViewClient {
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
     if (host==null||accept==null) return aApi.badRequest;
-    if (host.contains(Conf.DOMAIN)) {
+    if (host.contains(Conf.SOURCE_DOMAIN1)||host.contains(Conf.SOURCE_DOMAIN2)) {
+      String uDomain=host.contains(Conf.SOURCE_DOMAIN1)?
+          Conf.SOURCE_DOMAIN1:Conf.SOURCE_DOMAIN2;
       String path=uri.getPath();
       if (path.startsWith("/__view/")){
         if (USE_WEB_VIEW_ASSETS){
@@ -231,7 +233,7 @@ public class AnimeView extends WebViewClient {
             /* dev web */
             try {
               Log.d(_TAG, "VIEW GET " + url + " = " + accept);
-              String newurl = url.replace("https://"+Conf.DOMAIN, "http://192" +
+              String newurl = url.replace("https://"+uDomain,"http://192" +
                   ".168.100.245");
               HttpURLConnection conn = aApi.initQuic(newurl, request.getMethod());
               for (Map.Entry<String, String> entry :
@@ -250,7 +252,7 @@ public class AnimeView extends WebViewClient {
       }
       else if (path.startsWith("/__proxy/")){
         try {
-          String proxy_url=url.replace("https://"+Conf.DOMAIN+"/__proxy/","");
+          String proxy_url=url.replace("https://"+uDomain+"/__proxy/","");
           String method=request.getMethod();
           boolean isPost=method.equals("POST")||method.equals("PUT");
           String queryData=request.getUrl().getQuery();
@@ -505,7 +507,7 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public void reloadHome() {
       runOnUiThreadWait(()->
-          webView.loadUrl("https://"+Conf.DOMAIN+"/__view/main.html")
+          webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html")
       );
 //      AsyncTask.execute(AnimeView.this::reloadView);
     }
@@ -649,7 +651,16 @@ public class AnimeView extends WebViewClient {
 
     @JavascriptInterface
     public String dns(){
-      return Conf.DOMAIN;
+      return Conf.getDomain();
+    }
+
+    @JavascriptInterface
+    public int getSrc(){
+      return Conf.STREAM_SERVER;
+    }
+    @JavascriptInterface
+    public void setSrc(int s){
+      Conf.STREAM_SERVER=s;
     }
 
     @JavascriptInterface
@@ -688,7 +699,8 @@ public class AnimeView extends WebViewClient {
     public void rayOk() {
       if (cfOnCheck) {
         runOnUiThreadWait(() -> {
-//          webView.loadUrl("https://" + Conf.DOMAIN + "/__view/main.html");
+//          webView.loadUrl("https://" + Conf.getDomain() + "/__view/main
+//          .html");
           webView2.setVisibility(View.INVISIBLE);
           Toast.makeText(activity,"Validation successful...",
               Toast.LENGTH_SHORT).show();
@@ -711,7 +723,7 @@ public class AnimeView extends WebViewClient {
     runOnUiThreadWait(()-> {
       cfProgress.setVisibility(View.VISIBLE);
       cfOnCheck=true;
-      webView2.loadUrl("https://"+Conf.DOMAIN+"/");
+      webView2.loadUrl("https://"+Conf.getDomain()+"/");
     });
   }
 
