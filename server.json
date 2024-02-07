@@ -2,15 +2,15 @@
   "domain": "aniwave.to",
   "domain2": "anix.to",
   "domain_default": 2,
-  
+
   "stream_domain": "vidplay.online",
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",
 
-  "appnum": 182,
-  "appver": "1.8.2",
+  "appnum": 200,
+  "appver": "2.0.0",
   "appsize": "13 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/1.8.0/animetv-1.8.2.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.0.0/animetv-2.0.0.apk",
   "appnote": 
-    "- 1.8.2: Fix anime may not load next episode\n- MyAnimeList Integration\n- Add/remove watchlist & history\n- Info & announchement ticker\n- New settings & homescreen\n- cf-ray validation"
+    "NOTE: Settings, watchlist & history will be cleared (still available on source 1)\n- Add new source server without cloudflare check\n- Add change source settings\n- Add new popup anime detail info before opening player\n- Set SOURCE 2 as default source"
 }
