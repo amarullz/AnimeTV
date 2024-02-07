@@ -1711,6 +1711,10 @@ c.loader {
   background-color: #800;
   font-weight: bold;
 }
+.home_list p div span.info span.info_duration{
+  background-color: var(--dimm-1);
+  font-weight: bold;
+}
 
 .home_list p div i {
   padding: 0;
@@ -1955,6 +1959,10 @@ c.loader {
 }
 #malview_info div span.right{
   float: right;
+  padding-right: 1vw;
+}
+#malview_info div span.right i{
+  font-style: normal;
 }
 #malview_info div span{
   overflow: hidden;
