@@ -367,7 +367,7 @@ public class AnimeApi extends WebViewClient {
           null
       );
 
-    getData("https://anix.to/anime/demon-slayer-kimetsu-no-yaiba-6q67/ep-1", null, 20000);
+//    getData("https://anix.to/anime/demon-slayer-kimetsu-no-yaiba-6q67/ep-1", null, 20000);
   }
 
   public void getData(String url, Callback cb, long timeout){
