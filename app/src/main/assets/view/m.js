@@ -4565,13 +4565,15 @@ const _MAL={
         var d=_MAL.data[id];
         _MAL.srcanime(d,function(r){
           if (r.length>0){
-            console.log("MAL ACTION START...");
-            // pb.open(r[0].url, r[0].tip);
-            _MAL.preview(
-              r[0].url, r[0].poster, r[0].title, r[0].tip, 
-              d.list_status.num_episodes_watched, 0, 0, 
-              ''
-            );
+            if (_MAL.onpopup){
+              console.log("MAL ACTION START...");
+              // pb.open(r[0].url, r[0].tip);
+              _MAL.preview(
+                r[0].url, r[0].poster, r[0].title, r[0].tip, 
+                d.list_status.num_episodes_watched, 0, 0, 
+                ''
+              );
+            }
             // _MAL.popup(
             //   r[0].url,
             //   r[0].tip,
@@ -4645,6 +4647,9 @@ const _MAL={
   onpopup:false,
   pop_keycb:function(c){
     if (!_MAL.pop.var.ready){
+      if (c==KBACK){
+        _MAL.popup_close();
+      }
       return;
     }
     var pc=_MAL.pop.menusel;
@@ -4841,80 +4846,6 @@ const _MAL={
       _MAL.pop.rating.innerHTML=v;
     }
   },
-  popup:function(url, ttip, title, img, numep, currep, malid, rating){
-    currep=toInt(currep);
-    numep=toInt(numep);
-    _MAL.pop.title.innerHTML=special(title);
-    _MAL.pop.img.src=img;
-    _MAL.pop.menu=[
-      _MAL.pop.begin
-    ];
-    _MAL.pop.var.url=url;
-    _MAL.pop.var.ttip=ttip;
-    _MAL.pop.var.malid=malid;
-
-    _MAL.pop.var.title=title;
-    _MAL.pop.var.img=img;
-
-    _MAL.pop.var.play.c=
-    _MAL.pop.var.play.d=
-    _MAL.pop.var.play.e=0;
-
-    _MAL.pop.progh.className='';
-
-    _MAL.popuprating(rating);
-
-    _MAL.pop.menusel=0;
-
-    _MAL.pop.var.resume=0;
-    _MAL.pop.var.next=0;
-
-    $('malview_synopsys').innerHTML="&nbsp;"
-    $('malview_info_duration').innerHTML="-";
-    $('malview_info_status').innerHTML="-";
-    $('malview_info_genre').innerHTML="-";
-
-    if (currep>0){
-      _MAL.pop.menu.push(_MAL.pop.resume);
-      if (numep>currep){
-        _MAL.pop.menu.push(_MAL.pop.next);
-        _MAL.pop.next_ep.innerHTML='EP-'+(currep+1);
-        _MAL.pop.next.className='';
-        _MAL.pop.var.next=currep+1;
-      }
-      else{
-        _MAL.pop.next_ep.innerHTML='';
-        _MAL.pop.next.className='disable';
-      }
-      _MAL.pop.resume_ep.innerHTML='EP-'+(currep);
-      _MAL.pop.resume.className='';
-      _MAL.pop.var.resume=currep;
-      _MAL.pop.menusel=1;
-    }
-    else{
-      _MAL.pop.next_ep.innerHTML=
-      _MAL.pop.resume_ep.innerHTML='';
-      _MAL.pop.next.className=
-      _MAL.pop.resume.className='disable';
-    }
-
-    _MAL.pop.resume_text.innerHTML='Resume';
-
-    _MAL.pop.var.num=numep;
-    _MAL.pop.var.ep=(currep>0)?currep:1;
-    _MAL.pop.setEp();
-    if (_MAL.pop.var.num>0){
-      _MAL.pop.menu.push(_MAL.pop.ep);
-    }
-    _MAL.popup_update();
-    _MAL.pop.mv.className='active';
-    $('popupcontainer').className='active';
-
-    _MAL.pop_initlist(url);
-
-    _MAL.pop.var.ready=true;
-    _MAL.onpopup=true;
-  },
   preview_detail:function(d){
     $('malview_synopsys').innerHTML=d.synopsis?special(d.synopsis):"&nbsp;"
     
@@ -4934,6 +4865,9 @@ const _MAL={
     $('malview_info_genre').innerHTML=d.genre?special(d.genre):"-";
   },
   preview_do:function(url, img, ttid, currep, tcurr, tdur,d,arg){
+    if (!_MAL.onpopup){
+      return;
+    }
     var numep=toInt(d.ep);
     currep=toInt(currep);
     _MAL.pop.title.innerHTML=special(d.title);
@@ -5011,7 +4945,6 @@ const _MAL={
     _MAL.pop_initlist(url);
 
     _MAL.pop.var.ready=true;
-    _MAL.onpopup=true;
   },
   preview:function(url, img, titl, ttid, ep, tcurr, tdur,arg){
     var url_parse=url.split('/');

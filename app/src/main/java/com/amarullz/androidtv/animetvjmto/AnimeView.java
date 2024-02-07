@@ -699,8 +699,10 @@ public class AnimeView extends WebViewClient {
     public void rayOk() {
       if (cfOnCheck) {
         runOnUiThreadWait(() -> {
-//          webView.loadUrl("https://" + Conf.getDomain() + "/__view/main
-//          .html");
+          webView2.loadData(
+              "<html><body>Finish</body></html>","text/html",
+              null
+          );
           webView2.setVisibility(View.INVISIBLE);
           Toast.makeText(activity,"Validation successful...",
               Toast.LENGTH_SHORT).show();
