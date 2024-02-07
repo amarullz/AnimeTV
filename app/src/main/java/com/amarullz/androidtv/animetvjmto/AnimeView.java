@@ -655,12 +655,12 @@ public class AnimeView extends WebViewClient {
     }
 
     @JavascriptInterface
-    public int getSrc(){
-      return Conf.STREAM_SERVER;
+    public int getSd(){
+      return Conf.SOURCE_DOMAIN;
     }
     @JavascriptInterface
-    public void setSrc(int s){
-      Conf.STREAM_SERVER=s;
+    public void setSd(int s){
+      aApi.setSourceDomain(s);
     }
 
     @JavascriptInterface

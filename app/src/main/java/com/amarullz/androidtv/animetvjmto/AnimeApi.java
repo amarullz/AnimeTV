@@ -309,10 +309,21 @@ public class AnimeApi extends WebViewClient {
         Conf.STREAM_DOMAIN=j.getString("stream_domain");
         Conf.SERVER_VER=j.getString("update");
         Conf.STREAM_DOMAIN2=j.getString("stream_domain2");
+        Conf.SOURCE_DOMAIN2=j.getString("domain2");
       }catch(Exception ignored){}
     }
+    Conf.SOURCE_DOMAIN=pref.getInt("source-domain",Conf.SOURCE_DOMAIN);
+    Conf.updateSource(Conf.SOURCE_DOMAIN);
     Log.d(_TAG,"DOMAIN = "+Conf.getDomain()+" / STREAM = "+Conf.STREAM_DOMAIN+" / " +
-        "UPDATE = "+Conf.SERVER_VER);
+        "UPDATE = "+Conf.SERVER_VER+" / Source-ID: "+Conf.SOURCE_DOMAIN);
+  }
+
+  public void setSourceDomain(int i){
+    if (i>=1 && i<=2) {
+      SharedPreferences.Editor ed = pref.edit();
+      ed.putInt("source-domain", i);
+      Conf.updateSource(i);
+    }
   }
 
   @SuppressLint("SetJavaScriptEnabled")

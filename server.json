@@ -1,5 +1,8 @@
 {
   "domain": "aniwave.to",
+  "domain2": "anix.to",
+  "domain_default": 2,
+  
   "stream_domain": "vidplay.online",
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",

@@ -311,7 +311,9 @@ const _API={
   reload:function(){
     try{
       // _JSAPI.reloadHome();
-      location="/__view/main.html";
+      var rloc="https://"+_JSAPI.dns()+"/__view/main.html";
+      console.log("RELOAD HOME = "+rloc);
+      location=rloc;
     }catch(e){}
   },
   
@@ -1330,6 +1332,9 @@ const pb={
       else if (key=='quality'){
         el.lastElementChild.innerHTML=pb.sel_quality;
       }
+      else if (key=='sourcesvr'){
+        el.lastElementChild.innerHTML="SOURCE "+__SD;
+      }
       else if (key=='fav'){
         if (pb.data.animeid){
           if (list.fav_exists(pb.data.animeid)){
@@ -1380,6 +1385,8 @@ const pb={
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('nonjapan');
+      pb.cfg_update_el('sourcesvr');
+      
       pb.cfg_update_el('performance');
       pb.cfg_update_el('mirrorserver');
       
@@ -2107,6 +2114,22 @@ const pb={
         pb.cfg_update_el(key);
         pb.cfg_save();
         home.settings.needreload=true;
+      }
+      else if (key=='sourcesvr'){
+        // Update Home
+        var chval=(__SD==2)?1:2;
+        if (confirm("You are about to change the source server.\n"+
+          "SOURCE SERVER TARGET : "+chval+". "+(chval==2?"NIX":"WAVE")+"\n\n"+
+          "NOTE: Watchlist & history contents will be changed...\n\n"+
+          "Are you sure??")){
+          _JSAPI.setSd((__SD==2)?1:2);
+          if (pb.status){
+            pb.reset(1,0);
+          }
+          setTimeout(function(){
+            _API.reload();
+          },200);
+        }
       }
       else if (key=='performance'){
         pb.cfg_data.performance=!pb.cfg_data.performance;
@@ -3669,6 +3692,14 @@ const home={
         },
         home.settings.more.P,
         _MAL.islogin()?'<c>lock_open</c> MAL LOGOUT ('+special(_MAL.auth.user)+')':'<c>list_alt</c> MAL LOGIN'
+      );
+
+      home.settings.tools._s_sourcesvr=$n(
+        'div','',{
+          action:'*sourcesvr'
+        },
+        home.settings.more.P,
+        "<c>database</c> <span>SOURCE "+__SD+"</span>"
       );
 
       home.settings.tools._s_nonjapan=$n(

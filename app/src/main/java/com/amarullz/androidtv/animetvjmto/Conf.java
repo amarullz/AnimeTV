@@ -8,7 +8,7 @@ public class Conf {
 
   public static String SOURCE_DOMAIN1 = "aniwave.to";
   public static String SOURCE_DOMAIN2 = "anix.to";
-  public static int SOURCE_DOMAIN = 1;
+  public static int SOURCE_DOMAIN = 2;
 
   public static void updateSource(int num){
     SOURCE_DOMAIN=num;
