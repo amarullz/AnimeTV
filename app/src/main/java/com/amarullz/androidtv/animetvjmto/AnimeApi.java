@@ -15,7 +15,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
@@ -43,6 +42,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class AnimeApi extends WebViewClient {
   private static final String _TAG="ATVLOG-API";
@@ -94,7 +94,8 @@ public class AnimeApi extends WebViewClient {
                 .enableQuic(true)
                 .enableBrotli(true)
                 .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
-                .addQuicHint(Conf.getDomain(), 443, 443);
+                    .addQuicHint(Conf.SOURCE_DOMAIN1, 443, 443)
+                .addQuicHint(Conf.STREAM_DOMAIN2, 443, 443);
         return myBuilder.build();
       }catch(Exception ignored){}
     }
@@ -322,6 +323,7 @@ public class AnimeApi extends WebViewClient {
     if (i>=1 && i<=2) {
       SharedPreferences.Editor ed = pref.edit();
       ed.putInt("source-domain", i);
+      ed.apply();
       Conf.updateSource(i);
     }
   }
@@ -354,7 +356,7 @@ public class AnimeApi extends WebViewClient {
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      webSettings.setSafeBrowsingEnabled(false);
+      webSettings.setSafeBrowsingEnabled(true);
     }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setBlockNetworkImage(true);
@@ -366,8 +368,6 @@ public class AnimeApi extends WebViewClient {
           "<html><body>Finish</body></html>","text/html",
           null
       );
-
-//    getData("https://anix.to/anime/demon-slayer-kimetsu-no-yaiba-6q67/ep-1", null, 20000);
   }
 
   public void getData(String url, Callback cb, long timeout){
@@ -479,6 +479,7 @@ public class AnimeApi extends WebViewClient {
 
   @Override
   public void onPageFinished(WebView view, String url) {
+    // Make sure inject.js is attached
     String ijs="(function(){var a=document.createElement('script');a" +
         ".setAttribute('src','/__inject.js');document.body.appendChild(a);})" +
         "();";
@@ -499,40 +500,18 @@ public class AnimeApi extends WebViewClient {
     }
     else if (accept.startsWith("image/")) return badRequest;
     else if (host.contains(Conf.SOURCE_DOMAIN1)) {
-      if (uri.getPath().equals("/__inject.js")){
+      if (Objects.equals(uri.getPath(), "/__inject.js")){
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/9anime_inject.js");
       }
-//      try {
-//        HttpURLConnection conn = initQuic(url, request.getMethod());
-//
-//        for (Map.Entry<String, String> entry :
-//            request.getRequestHeaders().entrySet()) {
-//          conn.setRequestProperty(entry.getKey(), entry.getValue());
-//        }
-//        String[] cType = parseContentType(conn.getContentType());
-//        ByteArrayOutputStream buffer = getBody(conn, null);
-//        if (cType[0].startsWith("text/html")) {
-//          Log.d(_TAG,
-//              "QUIC==>" + url + " - " + accept);
-//          injectJs(buffer, "/__inject.js");
-//        }
-//
-//        InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-//        return new WebResourceResponse(cType[0], cType[1], stream);
-//      } catch (Exception e) {
-//        Log.d(_TAG, "QUIC-ERR=" + url + " - " + e);
-//      }
-      Log.d(_TAG, "WEB-REQ=" + url);
-      return null;
+      return defaultRequest(view, request, "/__inject.js", "text/html");
     }
     else if (host.contains(Conf.SOURCE_DOMAIN2)) {
-      if (uri.getPath().equals("/__inject.js")) {
+      if (Objects.equals(uri.getPath(), "/__inject.js")) {
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/anix_inject.js");
       }
-      Log.d(_TAG, "WEB-REQ2=" + url);
-      return null;
+      return defaultRequest(view, request, "/__inject.js", "text/html");
     }
     else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       return assetsRequest("inject/9anime_player.html");
@@ -541,10 +520,47 @@ public class AnimeApi extends WebViewClient {
         host.contains("bunnycdn.ru")) {
       if (!url.endsWith(".woff2")&&!accept.startsWith("text/css")) {
         Log.d(_TAG, "CDN=>" + url + " - " + accept);
-        return super.shouldInterceptRequest(view, request);
+        return defaultRequest(view, request);
       }
     }
     return badRequest;
+  }
+
+  /* Default Fallback HTTP Request */
+  public WebResourceResponse defaultRequest(final WebView view,
+                                                    WebResourceRequest request,
+                                            String inject, String injectContentType) {
+    Uri uri = request.getUrl();
+    String url = uri.toString();
+    try {
+      HttpURLConnection conn = initQuic(url, request.getMethod());
+      for (Map.Entry<String, String> entry :
+              request.getRequestHeaders().entrySet()) {
+        conn.setRequestProperty(entry.getKey(), entry.getValue());
+      }
+      String[] cType = parseContentType(conn.getContentType());
+      ByteArrayOutputStream buffer = getBody(conn, null);
+
+      // Inject
+      if (inject!=null) {
+        if (injectContentType==null){
+          injectContentType="text/html";
+        }
+        if (cType[0].startsWith(injectContentType)) {
+          injectJs(buffer, inject);
+        }
+      }
+
+      InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
+      return new WebResourceResponse(cType[0], cType[1], stream);
+    } catch (Exception e) {
+      Log.e(_TAG, "HTTP-DEF-REQ-ERR=" + url, e);
+    }
+    return null;
+  }
+  public WebResourceResponse defaultRequest(final WebView view,
+                                            WebResourceRequest request){
+    return defaultRequest(view,request,null,null);
   }
 
   public String getMp4Video(String url){

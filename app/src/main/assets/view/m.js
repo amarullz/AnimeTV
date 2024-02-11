@@ -56,6 +56,10 @@ function special(str){
   return (str+"").replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function tspecial(str){
+    return '<ttl>'+special(str)+'</ttl>';
+}
+
 /* trim */
 function trim(s){
   return (s+"").trim();
@@ -232,7 +236,7 @@ const _API={
   ],
   theme_sel:0,
   theme_update:function(){
-    var itm=localStorage.getItem(_API.user_prefix+"theme");
+    var itm=_JSAPI.storeGet(_API.user_prefix+"theme","");
     if (itm){
       document.documentElement.className=itm+' '+_API.html_class;
       _API.theme_sel=_API.theme_list.indexOf(itm);
@@ -245,7 +249,7 @@ const _API={
   theme_next:function(){
     if (++_API.theme_sel>=_API.theme_list.length)
       _API.theme_sel=0;
-    localStorage.setItem(_API.user_prefix+"theme", _API.theme_list[_API.theme_sel]);
+    _JSAPI.storeSet(_API.user_prefix+"theme", _API.theme_list[_API.theme_sel]);
     _API.theme_update();
   },
 
@@ -1146,6 +1150,7 @@ const pb={
     var ob={
       'url':pb.data.url,
       'title':pb.data.title,
+      'title_jp':pb.data.title_jp,
       'poster':pb.data.poster,
       'ep':pb.ep_val,
       'episode':pb.ep_title,
@@ -1188,14 +1193,21 @@ const pb={
       _API.html_class+=' ui_performance'
     }
     _API.theme_update();
+    if (pb.cfg_data.jptitle){
+      document.body.classList.add('japan-title');
+    }
+    else{
+      document.body.classList.remove('japan-title');
+    }
   },
 
   cfg_data:{
     animation:0,
-    performance:false,
+    performance:true,
     autoskip:false,
     autonext:true,
     skipfiller:false,
+    jptitle:false,
     nonjapan:false,
     server:0,
     scale:0,
@@ -1206,15 +1218,23 @@ const pb={
     mirrorserver:false
   },
   cfg_load:function(){
-    var itm=localStorage.getItem(_API.user_prefix+'pb_cfg');
+    var itm=_JSAPI.storeGet(_API.user_prefix+'pb_cfg',"");
+    if (itm==""){
+        itm=localStorage.getItem(_API.user_prefix+'pb_cfg');
+        if (itm){
+            _JSAPI.storeSet(_API.user_prefix+'pb_cfg',itm);
+            localStorage.removeItem(_API.user_prefix+'pb_cfg');
+        }
+    }
     if (itm){
       var j=JSON.parse(itm);
       if (j){
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
+        pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
-        pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):false;
+        pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):true;
         pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver?true:false):false;
 
         _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
@@ -1263,8 +1283,9 @@ const pb={
     pb.cfg_data.autoskip=false;
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
+    pb.cfg_data.jptitle=false;
     pb.cfg_data.nonjapan=false;
-    pb.cfg_data.performance=false;
+    pb.cfg_data.performance=true;
     pb.cfg_data.mirrorserver=false;
     
     pb.cfg_data.server=0;
@@ -1308,7 +1329,8 @@ const pb={
   ],
   cfg_save:function(){
     var savingjs=JSON.stringify(pb.cfg_data);
-    localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
+    _JSAPI.storeSet(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
+//    localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
     // console.log('ATVLOG STORAGE SAVE = '+savingjs);
   },
   cfg_update_el_root:function(key, root){
@@ -2115,6 +2137,13 @@ const pb={
         pb.cfg_save();
         home.settings.needreload=true;
       }
+      else if (key=='jptitle'){
+        // Update Home
+        pb.cfg_data.jptitle=!pb.cfg_data.jptitle;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
+      }
       else if (key=='sourcesvr'){
         // Update Home
         var chval=(__SD==2)?1:2;
@@ -2723,7 +2752,9 @@ const pb={
     /* META */
     pb.ep_num='';
     pb.ep_title='';
-    pb.pb_title.innerHTML=special(pb.data.title);
+    pb.pb_title.innerHTML=tspecial(pb.data.title);
+    pb.pb_title.setAttribute('jp',pb.data.title_jp?pb.data.title_jp:dpb.data.title);
+
     var addb='';
     try{
       var bb='';
@@ -2887,7 +2918,7 @@ const pb={
         var d=pb.data.seasons[i];
         var hl=$n('div',d.active?'playing':'',{action:d.url},pb.pb_seasons.P,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-        hl._title=$n('b','',null,hl,special(d.title));
+        hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
         if (d.active) act=hl;
       }
       if (act){
@@ -2909,7 +2940,7 @@ const pb={
         d.poster=ps[0];
         var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_related.P,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-        hl._title=$n('b','',null,hl,special(d.title));
+        hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
       }
       pb.menu_select(pb.pb_related,pb.pb_related.P.firstElementChild);
       pb.pb_related.style.display='';
@@ -2928,7 +2959,7 @@ const pb={
         d.poster=ps[0];
         var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs.P,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-        hl._title=$n('b','',null,hl,special(d.title));
+        hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
       }
       pb.menu_select(pb.pb_recs,pb.pb_recs.P.firstElementChild);
       pb.pb_recs.style.display='';
@@ -3009,7 +3040,8 @@ const pb={
         _API.getTooltip(ttid,function(d){
           if (d){
             if (open_stat==0){
-              pb.pb_title.innerHTML=special(d.title);
+              pb.pb_title.innerHTML=tspecial(d.title);
+              pb.pb_title.setAttribute('jp',d.title_jp?d.title_jp:d.title)
               var addb='';
               try{
                 var bb='';
@@ -3085,6 +3117,9 @@ const home={
           d.url=at.href;
           d.poster=t.querySelector('img').src;
           d.title=at.textContent.trim();
+          try{
+            d.title_jp=at.getAttribute('data-jp');
+          }catch(ee){}
           d.type=t.querySelector('div.right').textContent;
           d.ep=t.querySelector('span.ep-status').textContent.trim();
           d.tip=t.firstElementChild.getAttribute('data-tip');
@@ -3108,6 +3143,9 @@ const home={
           d.poster=t.querySelector('a.poster img').src;
           at=t.querySelector('div.ani-name a');
           d.title=at.textContent.trim();
+          try{
+            d.title_jp=at.getAttribute('data-jp');
+          }catch(ee){}
 
           d.type=t.querySelector('div.abs-info span.type').textContent.trim();
           try{
@@ -3152,7 +3190,7 @@ const home={
         var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},g.P,'');
         // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-        hl._title=$n('b','',null,hl,special(d.title));
+        hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
         var infotxt='';
         if (d.adult){
           infotxt+='<span class="info_adult">18+</span>';
@@ -3341,7 +3379,7 @@ const home={
         hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
         hl._viewbox=$n('span','infobox',null,hl,'');
         hl._view=$n('span','infovalue',null,hl._viewbox,'');
-        hl._title=$n('h4','',null,hl._view,special(d.title));
+        hl._title=$n('h4','',{jp:d.title_jp?d.title_jp:d.title},hl._view,tspecial(d.title));
         hl._desc=$n('span','desc',null,hl._view,'');
         home.ttip_desc(hl._desc, d.tip);
         var infotxt='';
@@ -3416,7 +3454,7 @@ const home={
           var ps=d.poster.split('-w100');
           d.poster=ps[0];
           hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-          hl._title=$n('b','',null,hl,special(d.title));
+          hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
           
           if (infotxt){
             hl._ep=$n('span','info',null,hl,infotxt);
@@ -3594,147 +3632,158 @@ const home={
         home.settings.refreshlang();
       }
     },
+    initmore_done:false,
     initmore:function(){
-      pb.menu_clear(home.settings.video);
-      pb.menu_init(home.settings.video);
+      if (!home.settings.initmore_done){
+        pb.menu_clear(home.settings.video);
+        pb.menu_init(home.settings.video);
 
-      pb.menu_clear(home.settings.styling);
-      pb.menu_init(home.settings.styling);
+        pb.menu_clear(home.settings.styling);
+        pb.menu_init(home.settings.styling);
 
-      pb.menu_clear(home.settings.performance);
-      pb.menu_init(home.settings.performance);
+        pb.menu_clear(home.settings.performance);
+        pb.menu_init(home.settings.performance);
 
-      pb.menu_clear(home.settings.more);
-      pb.menu_init(home.settings.more);
+        pb.menu_clear(home.settings.more);
+        pb.menu_init(home.settings.more);
 
-      pb.menu_clear(home.settings.about);
-      pb.menu_init(home.settings.about);
+        pb.menu_clear(home.settings.about);
+        pb.menu_init(home.settings.about);
 
-      home.settings.tools={};
+        home.settings.tools={};
 
-      /* Video */
-      home.settings.tools._s_autonext=$n(
-        'div','',{
-          action:'*autonext'
-        },
-        home.settings.video.P,
-        '<c>check</c> AUTO NEXT'
-      );
-      home.settings.tools._s_autoskip=$n(
-        'div','',{
-          action:'*autoskip'
-        },
-        home.settings.video.P,
-        '<c>clear</c> AUTO SKIP INTRO'
-      );
-      home.settings.tools._s_skipfiller=$n(
-        'div','',{
-          action:'*skipfiller'
-        },
-        home.settings.video.P,
-        '<c>clear</c> SKIP FILLER'
-      );
-      home.settings.tools._s_scale=$n(
-        'div','',{
-          action:'*scale'
-        },
-        home.settings.video.P,
-        '<c>aspect_ratio</c> <span>SCALE</span>'
-      );
-
-
-      /* Style */
-      home.settings.tools._s_ccstyle=$n(
-        'div','',{
-          action:'*ccstyle'
-        },
-        home.settings.styling.P,
-        "<c>closed_caption</c> <span>CC STYLE 1</span>"
-      );
-      home.settings.tools._s_theme=$n(
-        'div','',{
-          action:'*theme'
-        },
-        home.settings.styling.P,
-        "<c>palette</c> CHANGE COLOR"
-      );
-      
-      home.settings.tools._s_bgimg=$n(
-        'div','',{
-          action:'*bgimg'
-        },
-        home.settings.styling.P,
-        "<c>wallpaper</c> <span>WALLPAPER 1</span>"
-      );
-
-      
-      /* Performance */
-      home.settings.tools._s_animation=$n(
-        'div','',{
-          action:'*animation'
-        },
-        home.settings.performance.P,
-        "<c>animation</c> <span>FAST ANIMATION</span>"
-      );
-      home.settings.tools._s_performance=$n(
-        'div','',{
-          action:'*performance'
-        },
-        home.settings.performance.P,
-        '<c>clear</c> PERFORMANCE-UI'
-      );
+        /* Video */
+        home.settings.tools._s_autonext=$n(
+          'div','',{
+            action:'*autonext'
+          },
+          home.settings.video.P,
+          '<c>check</c> AUTO NEXT'
+        );
+        home.settings.tools._s_autoskip=$n(
+          'div','',{
+            action:'*autoskip'
+          },
+          home.settings.video.P,
+          '<c>clear</c> AUTO SKIP INTRO'
+        );
+        home.settings.tools._s_skipfiller=$n(
+          'div','',{
+            action:'*skipfiller'
+          },
+          home.settings.video.P,
+          '<c>clear</c> SKIP FILLER'
+        );
+        home.settings.tools._s_scale=$n(
+          'div','',{
+            action:'*scale'
+          },
+          home.settings.video.P,
+          '<c>aspect_ratio</c> <span>SCALE</span>'
+        );
 
 
-      /* Others */
-      home.settings.tools._s_malaccount=$n(
-        'div','',{
-          action:'*malaccount'
-        },
-        home.settings.more.P,
-        _MAL.islogin()?'<c>lock_open</c> MAL LOGOUT ('+special(_MAL.auth.user)+')':'<c>list_alt</c> MAL LOGIN'
-      );
+        /* Style */
+        home.settings.tools._s_ccstyle=$n(
+          'div','',{
+            action:'*ccstyle'
+          },
+          home.settings.styling.P,
+          "<c>closed_caption</c> <span>CC STYLE 1</span>"
+        );
 
-      home.settings.tools._s_nonjapan=$n(
-        'div','',{
-          action:'*nonjapan'
-        },
-        home.settings.more.P,
-        '<c>clear</c> CHINESE ANIME'
-      );
+        home.settings.tools._s_theme=$n(
+          'div','',{
+            action:'*theme'
+          },
+          home.settings.styling.P,
+          "<c>palette</c> CHANGE COLOR"
+        );
+        
+        home.settings.tools._s_bgimg=$n(
+          'div','',{
+            action:'*bgimg'
+          },
+          home.settings.styling.P,
+          "<c>wallpaper</c> <span>WALLPAPER 1</span>"
+        );
 
-      home.settings.tools._s_sourcesvr=$n(
-        'div','',{
-          action:'*sourcesvr'
-        },
-        home.settings.more.P,
-        "<c>database</c> <span>SOURCE "+__SD+"</span>"
-      );
+        
+        /* Performance */
+        home.settings.tools._s_animation=$n(
+          'div','',{
+            action:'*animation'
+          },
+          home.settings.performance.P,
+          "<c>animation</c> <span>FAST ANIMATION</span>"
+        );
+        home.settings.tools._s_performance=$n(
+          'div','',{
+            action:'*performance'
+          },
+          home.settings.performance.P,
+          '<c>clear</c> 🚀 PERFORMANCE-UI'
+        );
+        home.settings.tools._s_jptitle=$n(
+          'div','',{
+            action:'*jptitle'
+          },
+          home.settings.performance.P,
+          "<c>clear</c> 🇯🇵 JAPAN TITLE"
+        );
 
-      
 
-      /* About */
-      home.settings.tools._s_donation=$n(
-        'div','',{
-          action:'*donate'
-        },
-        home.settings.about.P,
-        "<c>volunteer_activism</c> DONATE"
-      );
-      home.settings.tools._s_discord=$n(
-        'div','',{
-          action:'*discord'
-        },
-        home.settings.about.P,
-        "<c>sports_esports</c> DISCORD"
-      );
-      home.settings.tools._s_checkupdate=$n(
-        'div','',{
-          action:'*checkupdate'
-        },
-        home.settings.about.P,
-        "<c>update</c> CHECK FOR UPDATE"
-      );
+        /* Others */
+        home.settings.tools._s_malaccount=$n(
+          'div','',{
+            action:'*malaccount'
+          },
+          home.settings.more.P,
+          _MAL.islogin()?'<c>lock_open</c> MAL LOGOUT ('+special(_MAL.auth.user)+')':'<c>list_alt</c> MAL LOGIN'
+        );
 
+        home.settings.tools._s_nonjapan=$n(
+          'div','',{
+            action:'*nonjapan'
+          },
+          home.settings.more.P,
+          '<c>clear</c> 🇨🇳 CHINESE ANIME'
+        );
+
+        home.settings.tools._s_sourcesvr=$n(
+          'div','',{
+            action:'*sourcesvr'
+          },
+          home.settings.more.P,
+          "<c>database</c> <span>SOURCE "+__SD+"</span>"
+        );
+
+        
+
+        /* About */
+        home.settings.tools._s_donation=$n(
+          'div','',{
+            action:'*donate'
+          },
+          home.settings.about.P,
+          "<c>volunteer_activism</c> DONATE"
+        );
+        home.settings.tools._s_discord=$n(
+          'div','',{
+            action:'*discord'
+          },
+          home.settings.about.P,
+          "<c>sports_esports</c> DISCORD"
+        );
+        home.settings.tools._s_checkupdate=$n(
+          'div','',{
+            action:'*checkupdate'
+          },
+          home.settings.about.P,
+          "<c>update</c> CHECK FOR UPDATE"
+        );
+      }
+      home.settings.initmore_done=true;
       pb.menu_select(home.settings.video,home.settings.tools._s_autonext);
       pb.menu_select(home.settings.styling,home.settings.tools._s_ccstyle);
       pb.menu_select(home.settings.performance,home.settings.tools._s_animation);
@@ -3931,6 +3980,9 @@ const home={
             var tt=im.querySelector('a.d-title');
             d.url=tt.href;
             d.title=tt.textContent.trim();
+            try{
+              d.title_jp=tt.getAttribute('data-jp');
+            }catch(ex){}
             d.poster=im.querySelector('img').src;
             d.tip=im.querySelector('div.poster.tip').getAttribute('data-tip');
             var epel=im.querySelector('span.ep-status.sub');
@@ -3977,6 +4029,9 @@ const home={
             d.poster=t.querySelector('a.poster img').src;
             at=t.querySelector('div.ani-name a');
             d.title=at.textContent.trim();
+            try{
+              d.title_jp=at.getAttribute('data-jp');
+            }catch(ex){}
   
             d.type=t.querySelector('div.abs-info span.type').textContent.trim();
             try{
@@ -4032,7 +4087,7 @@ const home={
           var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},g.P,'');
           // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
           hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
-          hl._title=$n('b','',null,hl,special(d.title));
+          hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
           var infotxt='';
           if (d.adult){
             infotxt+='<span class="info_adult">18+</span>';
@@ -4375,7 +4430,14 @@ const _MAL={
     return (_MAL.token?true:false);
   },
   init:function(){
-    var maldata=localStorage.getItem(_API.user_prefix+"mal_auth");
+    var maldata=_JSAPI.storeGet(_API.user_prefix+"mal_auth","");
+    if (maldata==""){
+        maldata=localStorage.getItem(_API.user_prefix+"mal_auth");
+        if (maldata){
+            _JSAPI.storeSet(_API.user_prefix+"mal_auth",maldata);
+            localStorage.removeItem(_API.user_prefix+"mal_auth");
+        }
+    }
     console.log("MAL-INIT: "+maldata);
     if (maldata){
       try{
@@ -4431,7 +4493,8 @@ const _MAL={
   login:function(){
     if (_MAL.token){
       if (confirm('Are you sure you want to logout MyAnimeList integration?')){
-        localStorage.removeItem(_API.user_prefix+"mal_auth");
+//        localStorage.removeItem(_API.user_prefix+"mal_auth");
+        _JSAPI.storeDel(_API.user_prefix+"mal_auth");
         _API.showToast("MyAnimeList logout sucessfull...");
         _API.reload();
       }
@@ -4450,7 +4513,8 @@ const _MAL={
           refresh_token:d.refresh_token,
           user:d.user
         };
-        localStorage.setItem(_API.user_prefix+"mal_auth",JSON.stringify(dt));
+//        localStorage.setItem(_API.user_prefix+"mal_auth",JSON.stringify(dt));
+        _JSAPI.storeSet(_API.user_prefix+"mal_auth",JSON.stringify(dt));
         console.log("MAL-ONLOGIN: "+JSON.stringify(dt));
         _API.showToast("MyAnimeList login sucessfull...");
         _API.reload();
@@ -4506,7 +4570,7 @@ const _MAL={
                 }
               }
             }
-            hl._title=$n('b','',null,hl,special(title)); /* d.node.title */
+            hl._title=$n('b','',{jp:d.node.title},hl,tspecial(title)); /* d.node.title */
             var infotxt='';
             var numep=d.list_status.num_episodes_watched;
             var mtp=d.node.media_type;
@@ -4631,6 +4695,7 @@ const _MAL={
       animeid:'',
       ready:false,
       title:'',
+      title_jp:'',
       img:''
     },
     setEp:function(){
@@ -4674,6 +4739,7 @@ const _MAL={
             var ob={
               'url':openurl,
               'title':_MAL.pop.var.title,
+              'title':_MAL.pop.var.title_jp,
               'poster':_MAL.pop.var.img,
               'ep':obep,
               'episode':"EPISODE-"+obep,
@@ -4870,7 +4936,9 @@ const _MAL={
     }
     var numep=toInt(d.ep);
     currep=toInt(currep);
-    _MAL.pop.title.innerHTML=special(d.title);
+    _MAL.pop.title.innerHTML=tspecial(d.title);
+    _MAL.pop.title.setAttribute('jp',d.title_jp?d.title_jp:d.title);
+
     _MAL.pop.img.src=img;
     _MAL.pop.menu=[
       _MAL.pop.begin
@@ -4881,6 +4949,7 @@ const _MAL={
     _MAL.pop.menusel=0;
 
     _MAL.pop.var.title=d.title;
+    _MAL.pop.var.title_jp=d.title_jp;
     _MAL.pop.var.img=img;
 
     _MAL.pop.var.play.c=tcurr;

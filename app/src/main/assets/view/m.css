@@ -28,6 +28,16 @@
   opacity: 0 !important;
 }
 
+ttl{
+    display:inline;
+}
+.japan-title *[jp] ttl{
+    display:none;
+}
+.japan-title *[jp]:after {
+  content : attr(jp);
+}
+
 :root {
   --primary-bg: #203;
   --primary-1: #406;

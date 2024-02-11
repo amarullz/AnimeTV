@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -88,7 +89,7 @@ public class AnimeView extends WebViewClient {
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      webSettings.setSafeBrowsingEnabled(false);
+      webSettings.setSafeBrowsingEnabled(true);
     }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setAllowFileAccess(true);
@@ -101,7 +102,7 @@ public class AnimeView extends WebViewClient {
     /* performance tweaks */
     //noinspection deprecation
     webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
-    webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+    webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
 
     wv.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     wv.setWebViewClient(this);
@@ -227,6 +228,8 @@ public class AnimeView extends WebViewClient {
       String uDomain=host.contains(Conf.SOURCE_DOMAIN1)?
           Conf.SOURCE_DOMAIN1:Conf.SOURCE_DOMAIN2;
       String path=uri.getPath();
+      if (path==null)
+        path="/";
       if (path.startsWith("/__view/")){
         if (USE_WEB_VIEW_ASSETS){
           if (!path.endsWith(".woff2") && !path.endsWith(".ttf")) {
@@ -251,6 +254,7 @@ public class AnimeView extends WebViewClient {
         return aApi.assetsRequest(uri.getPath().substring(3));
       }
       else if (path.startsWith("/__proxy/")){
+        /* Proxy */
         try {
           String proxy_url=url.replace("https://"+uDomain+"/__proxy/","");
           String method=request.getMethod();
@@ -288,24 +292,11 @@ public class AnimeView extends WebViewClient {
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
-//      if (view.equals(webView)) {
-//        try {
-//          HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
-//          for (Map.Entry<String, String> entry :
-//              request.getRequestHeaders().entrySet()) {
-//            conn.setRequestProperty(entry.getKey(), entry.getValue());
-//          }
-//          String[] cType = aApi.parseContentType(conn.getContentType());
-//          ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
-//          InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-//          return new WebResourceResponse(cType[0], cType[1], stream);
-//        } catch (Exception erd) {
-//          Log.e(_TAG, "VIEW-GET-DOMAIN-ERR: " + url, erd);
-//          cfRayCheck();
-//        }
-//      }
-//      return aApi.badRequest;
-      return null;
+      if (view.equals(webView)) {
+        return aApi.defaultRequest(view,request);
+      }
+      Log.d(_TAG, "Load-Source: " + url);
+      return super.shouldInterceptRequest(view, request);
     }
     else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       if (accept.startsWith("text/html")||
@@ -342,8 +333,10 @@ public class AnimeView extends WebViewClient {
         } catch (Exception ignored) {}
         if (!accept.startsWith("text/html"))
           sendVidpageLoaded(2);
-        else
+        else {
           sendVidpageLoaded(3);
+          return null;
+        }
         return aApi.badRequest;
       }else if (accept.startsWith("text/css")||accept.startsWith("image/")){
         Log.d(_TAG,"BLOCK CSS/IMG = "+url);
@@ -360,7 +353,7 @@ public class AnimeView extends WebViewClient {
       /* BLOCK DNS */
       return aApi.badRequest;
     }
-    return super.shouldInterceptRequest(view, request);
+    return aApi.defaultRequest(view,request);
   }
 
   public void getViewCallback(int u){
@@ -669,6 +662,25 @@ public class AnimeView extends WebViewClient {
     }
 
     @JavascriptInterface
+    public String storeGet(String key, String def){
+      return aApi.pref.getString("viewstorage_"+key,def);
+    }
+
+    @JavascriptInterface
+    public void storeSet(String key, String value){
+      SharedPreferences.Editor ed = aApi.pref.edit();
+      ed.putString("viewstorage_"+key, value);
+      ed.apply();
+    }
+
+    @JavascriptInterface
+    public void storeDel(String key){
+      SharedPreferences.Editor ed = aApi.pref.edit();
+      ed.remove("viewstorage_"+key);
+      ed.apply();
+    }
+
+    @JavascriptInterface
     public void playNextPos(int pos, int duration){
       pnUpdated=true;
       pnPos=pos;
@@ -736,7 +748,7 @@ public class AnimeView extends WebViewClient {
       if (cfOnCheck) {
         webView2.setVisibility(View.VISIBLE);
         view.evaluateJavascript(
-            "if (document.getElementById('i-wrapper')){ " +
+            "if (document.getElementById('i-wrapper')||document.querySelector('a.btn[href=home]')){ " +
                 "_JSAPI.rayOk(); }", null);
         String ijs=
             "function t1(){" +
