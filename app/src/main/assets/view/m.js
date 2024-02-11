@@ -1411,6 +1411,7 @@ const pb={
       
       pb.cfg_update_el('performance');
       pb.cfg_update_el('mirrorserver');
+      pb.cfg_update_el('jptitle');
       
       pb.cfg_update_el('server');
       pb.cfg_update_el('scale');
