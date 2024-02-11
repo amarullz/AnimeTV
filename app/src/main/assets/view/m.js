@@ -1199,6 +1199,13 @@ const pb={
     else{
       document.body.classList.remove('japan-title');
     }
+    if (pb.cfg_data.compactlist){
+      document.body.classList.remove('view-informative');
+    }
+    else{
+      document.body.classList.add('view-informative');
+    }
+    
   },
 
   cfg_data:{
@@ -1208,6 +1215,7 @@ const pb={
     autonext:true,
     skipfiller:false,
     jptitle:false,
+    compactlist:false,
     nonjapan:false,
     server:0,
     scale:0,
@@ -1233,6 +1241,7 @@ const pb={
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
+        pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
         pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):true;
         pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver?true:false):false;
@@ -1284,6 +1293,8 @@ const pb={
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.jptitle=false;
+    pb.cfg_data.compactlist=false;
+    
     pb.cfg_data.nonjapan=false;
     pb.cfg_data.performance=true;
     pb.cfg_data.mirrorserver=false;
@@ -1412,6 +1423,7 @@ const pb={
       pb.cfg_update_el('performance');
       pb.cfg_update_el('mirrorserver');
       pb.cfg_update_el('jptitle');
+      pb.cfg_update_el('compactlist');
       
       pb.cfg_update_el('server');
       pb.cfg_update_el('scale');
@@ -2141,6 +2153,13 @@ const pb={
       else if (key=='jptitle'){
         // Update Home
         pb.cfg_data.jptitle=!pb.cfg_data.jptitle;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
+      }
+      else if (key=='compactlist'){
+        // Update Home
+        pb.cfg_data.compactlist=!pb.cfg_data.compactlist;
         pb.cfg_update_el(key);
         pb.cfg_save();
         pb.updateanimation();
@@ -3197,7 +3216,7 @@ const home={
           infotxt+='<span class="info_adult">18+</span>';
         }
         if (d.duration){
-          infotxt+='<span class="info_duration">'+special(d.duration)+'</span>';
+          infotxt+='<span class="info_duration">'+special((d.duration+"").toUpperCase())+'</span>';
         }
         if (d.type){
           infotxt+='<span class="info_type">'+special(d.type)+'</span>';
@@ -3709,6 +3728,14 @@ const home={
           "<c>wallpaper</c> <span>WALLPAPER 1</span>"
         );
 
+        home.settings.tools._s_compactlist=$n(
+          'div','',{
+            action:'*compactlist'
+          },
+          home.settings.styling.P,
+          "<c>clear</c> COMPACT LIST"
+        );
+
         
         /* Performance */
         home.settings.tools._s_animation=$n(
@@ -3730,7 +3757,7 @@ const home={
             action:'*jptitle'
           },
           home.settings.performance.P,
-          "<c>clear</c> 🇯🇵 JAPAN TITLE"
+          "<c>clear</c> 🇯🇵 JAPANESE TITLES"
         );
 
 

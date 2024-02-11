@@ -1345,6 +1345,7 @@ c.loader {
   white-space: normal;
   font-weight: normal;
 }
+
 #home_slide.home_list div span.infobox span.infovalue{
   display: block;
   padding: 1vw;
@@ -1722,7 +1723,7 @@ c.loader {
   font-weight: bold;
 }
 .home_list p div span.info span.info_duration{
-  background-color: var(--dimm-1);
+  background-color: #000;
   font-weight: bold;
 }
 
@@ -2091,4 +2092,46 @@ c.loader {
 }
 #malview_data div c.right{
   float: right;
+}
+
+/* informative view */
+/* .view-informative .home_list:not(#home_slide) {
+  min-height: 20vw;
+} */
+.view-informative .home_list:not(#home_slide) div {
+  height: 20.4vw;
+  background-color: transparent !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+.view-informative .home_list:not(#home_slide) div img {
+  width: 12vw;
+  height: 17vw;
+  border-radius: .3vw;
+}
+.view-informative .home_list:not(#home_slide) div b {
+  text-align: left;
+  padding: 0 .3vw 0 .3vw;
+  height: 3vw;
+  word-wrap: break-word;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5vw;
+  white-space: normal !important;
+  background-color: transparent !important;
+  color: rgba(255,255,255,.7) !important;
+}
+.view-informative .home_list:not(#home_slide).active div.active img {
+  outline: .2vw solid #fff !important;
+}
+.view-informative .home_list:not(#home_slide).active div.active b {
+  color: #fff !important;
+}
+.view-informative .home_list:not(#home_slide) p div i{
+  bottom:3.8vw;
 }
