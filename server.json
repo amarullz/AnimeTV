@@ -7,10 +7,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",
 
-  "appnum": 200,
-  "appver": "2.0.0",
+  "appnum": 210,
+  "appver": "2.1.0",
   "appsize": "13 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.0.0/animetv-2.0.0.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.1.0/animetv-2.1.0.apk",
   "appnote": 
-    "NOTE: Settings, watchlist & history will be cleared (still available on source 1)\n- Add new source server without cloudflare check\n- Add change source settings\n- Add new popup anime detail info before opening player\n- Set SOURCE 2 as default source"
+    "- Add japan title settings\n- Settings now preserved in all sources\n- Fix cache too strict + no new update"
 }
