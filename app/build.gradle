@@ -8,10 +8,10 @@ android {
 
     defaultConfig {
         applicationId "com.amarullz.androidtv.animetvjmto"
-        minSdk 24
+        minSdk 22
         targetSdk 33
-        versionCode 210
-        versionName "2.1.0"
+        versionCode 211
+        versionName "2.1.1"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"

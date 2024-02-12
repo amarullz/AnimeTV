@@ -1192,6 +1192,15 @@ const pb={
     if (pb.cfg_data.performance){
       _API.html_class+=' ui_performance'
     }
+    switch(pb.cfg_data.uifontsize){
+      case 1:
+        _API.html_class+=' view-bigfont';
+        break;
+      case 2:
+        _API.html_class+=' view-bigfont view-biggerfont';
+        break;
+    }
+    
     _API.theme_update();
     if (pb.cfg_data.jptitle){
       document.body.classList.add('japan-title');
@@ -1205,6 +1214,8 @@ const pb={
     else{
       document.body.classList.add('view-informative');
     }
+
+
     
   },
 
@@ -1223,6 +1234,7 @@ const pb={
     ccstyle:0,
     bgimg:0,
     quality:0,
+    uifontsize:0,
     mirrorserver:false
   },
   cfg_load:function(){
@@ -1285,6 +1297,14 @@ const pb={
           if (sv&&sv>0&&sv<=2)
             pb.cfg_data.animation=sv;
         }
+
+        if ('uifontsize' in j){
+          var sv=parseInt(j.uifontsize);
+          if (sv&&sv>0&&sv<=2)
+            pb.cfg_data.uifontsize=sv;
+        }
+
+        
         pb.updateanimation();
         return;
       }
@@ -1301,6 +1321,7 @@ const pb={
     
     pb.cfg_data.server=0;
     pb.cfg_data.animation=0;
+    pb.cfg_data.uifontsize=0;
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
     pb.cfg_data.ccstyle=0;
@@ -1316,6 +1337,11 @@ const pb={
     'NORMAL ANIMATION',
     'FAST ANIMATION',
     'FASTER ANIMATION'
+  ],
+  cfguifontsize_name:[
+    'SMALL FONT',
+    'BIG FONT',
+    'BIGGER FONT'
   ],
   cfgstreamtype_name:[
     'HARDSUB',
@@ -1396,6 +1422,9 @@ const pb={
         else if (key=='animation'){
           el.lastElementChild.innerHTML=pb.cfganimation_name[pb.cfg_data[key]];
         }
+        else if (key=='uifontsize'){
+          el.lastElementChild.innerHTML=pb.cfguifontsize_name[pb.cfg_data[key]];
+        }
         else if (key=='scale'){
           el.lastElementChild.innerHTML=pb.cfgscale_name[pb.cfg_data[key]];
         }
@@ -1424,6 +1453,7 @@ const pb={
       pb.cfg_update_el('mirrorserver');
       pb.cfg_update_el('jptitle');
       pb.cfg_update_el('compactlist');
+      pb.cfg_update_el('uifontsize');
       
       pb.cfg_update_el('server');
       pb.cfg_update_el('scale');
@@ -2127,6 +2157,13 @@ const pb={
       else if (key=="animation"){
         pb.state=0;
         if (++pb.cfg_data.animation>2) pb.cfg_data.animation=0;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
+      }
+      else if (key=="uifontsize"){
+        pb.state=0;
+        if (++pb.cfg_data.uifontsize>2) pb.cfg_data.uifontsize=0;
         pb.cfg_update_el(key);
         pb.cfg_save();
         pb.updateanimation();
@@ -3734,6 +3771,14 @@ const home={
           },
           home.settings.styling.P,
           "<c>clear</c> COMPACT LIST"
+        );
+
+        home.settings.tools._s_uifontsize=$n(
+          'div','',{
+            action:'*uifontsize'
+          },
+          home.settings.styling.P,
+          "<c>format_size</c> <span>NORMAL FONT</span>"
         );
 
         

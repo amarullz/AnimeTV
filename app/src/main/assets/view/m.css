@@ -54,6 +54,64 @@ ttl{
   --tim-5s: .5s;
   --tim-7s: .7s;
   --tim-8s: .8s;
+
+  /* font size */
+  --fs-7vw: .7vw;
+  --fs-8vw: .8vw;
+  --fs-10vw: 1vw;
+  --fs-11vw: 1.1vw;
+  --fs-12vw: 1.2vw;
+  --fs-13vw: 1.3vw;
+  --fs-14vw: 1.4vw;
+  --fs-15vw: 1.5vw;
+  --fs-17vw: 1.7vw;
+  --fs-20vw: 2vw;
+  --fs-22vw: 2.2vw;
+  --fs-25vw: 2.5vw;
+  --fs-30vw: 3vw;
+  --fs-40vw: 4vw;
+  --fs-60vw: 6vw;
+  --fs-100vw: 10vw;
+}
+
+:root.view-bigfont {
+  /* big font size */
+  --fs-7vw: .9vw;
+  --fs-8vw: 1vw;
+  --fs-10vw: 1.2vw;
+  --fs-11vw: 1.3vw;
+  --fs-12vw: 1.4vw;
+  --fs-13vw: 1.5vw;
+  --fs-14vw: 1.6vw;
+  --fs-15vw: 1.7vw;
+  --fs-17vw: 1.8vw;
+  --fs-20vw: 2.2vw;
+  --fs-22vw: 2.4vw;
+  --fs-25vw: 2.7vw;
+  --fs-30vw: 3vw;
+  --fs-40vw: 4vw;
+  --fs-60vw: 6vw;
+  --fs-100vw: 10vw;
+}
+
+:root.view-bigfont.view-biggerfont {
+  /* big font size */
+  --fs-7vw: 1vw;
+  --fs-8vw: 1.1vw;
+  --fs-10vw: 1.3vw;
+  --fs-11vw: 1.4vw;
+  --fs-12vw: 1.5vw;
+  --fs-13vw: 1.6vw;
+  --fs-14vw: 1.7vw;
+  --fs-15vw: 1.8vw;
+  --fs-17vw: 1.9vw;
+  --fs-20vw: 2.3vw;
+  --fs-22vw: 2.5vw;
+  --fs-25vw: 2.8vw;
+  --fs-30vw: 3.2vw;
+  --fs-40vw: 4.2vw;
+  --fs-60vw: 6vw;
+  --fs-100vw: 10vw;
 }
 
 :root.theme_green {
@@ -366,7 +424,7 @@ c.loader {
   left: 0;
   right: 0;
   top: 40vh;
-  font-size: 1vw;
+  font-size: var(--fs-10vw);
   text-shadow: 0 0 .1vw #000, 0 0 .2vw #000;
   transition: all var(--tim-5s) cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
@@ -375,7 +433,7 @@ c.loader {
 }
 
 #pb_loading c {
-  font-size: 10vh;
+  font-size: var(--fs-100vw);
   margin-bottom: 1vh;
 }
 
@@ -400,7 +458,7 @@ c.loader {
   position: absolute;
   background: linear-gradient(90deg, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .3) 45%, rgba(0, 0, 0, 0) 100%);
   padding: 5vw;
-  font-size: 1.3vw;
+  font-size: var(--fs-13vw);
   text-shadow: 0 0 .5vw #000, .05vw .05vw .05vw #000;
   transition: all var(--tim-5s) cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
@@ -411,7 +469,7 @@ c.loader {
 #pb_title {
   font-size: 3vw;
   width: 40vw;
-  padding-bottom: 1.5vw;
+  padding-bottom: var(--fs-15vw);
   font-weight: bold;
   transition: all var(--tim-4s) cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
@@ -425,16 +483,17 @@ c.loader {
   transition: all var(--tim-7s) cubic-bezier(.25, .8, .25, 1);
   opacity: 0;
   transform: translateX(15vw);
-  -webkit-line-clamp: 14;
-  -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
   display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
 }
 
 #pb_desc b {
   display: block;
   padding-bottom: .5vw;
-  font-size: .8vw;
+  font-size: var(--fs-8vw);
   color: #ccc;
   font-weight: normal;
 }
@@ -452,7 +511,7 @@ c.loader {
 
 #pb_genres {
   width: 40vw;
-  font-size: 1vw;
+  font-size: var(--fs-10vw);
   opacity: 0;
   transform: translateX(20vw);
   padding-bottom: 1vw;
@@ -461,7 +520,7 @@ c.loader {
 #pb_settings.pb_menu {
   width: 60vw;
   margin-top: .5vw;
-  font-size: 1vw;
+  font-size: var(--fs-10vw);
   opacity: 0;
   transform: translateX(25vw);
   position: absolute;
@@ -564,7 +623,7 @@ c.loader {
   right:3vw;
   text-align: center;
   color: #fff;
-  font-size: 3vw;
+  font-size: var(--fs-30vw);
   font-family: Times, serif;
 }
 /* #pb.onsettings #vtt_subtitle{
@@ -635,7 +694,7 @@ c.loader {
 #vtt_subtitle.vtt_style_11,
 #vtt_subtitle.vtt_style_14,
 #vtt_subtitle.vtt_style_15{
-  font-size: 2.5vw;
+  font-size: var(--fs-25vw);
 }
 
 #pb_action_streamtype{
@@ -647,7 +706,7 @@ c.loader {
   border:.02vw solid var(--primary-1);
   color:#fff;
   text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000;
-  font-size: 1.3vw;
+  font-size: var(--fs-13vw);
   border-radius: .3vw;
   transition: all var(--tim-5s) cubic-bezier(.25, .8, .25, 1);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
@@ -717,7 +776,7 @@ c.loader {
 #pb_seasons:before,
 #pb_episodes[data-eps]:after {
   display: block;
-  font-size: 1.2vw;
+  font-size: var(--fs-12vw);
   font-weight: bold;
   padding-bottom: .5vw;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
@@ -747,7 +806,7 @@ c.loader {
   right: 5vw;
   top: .5vw;
   text-align: right;
-  font-size: .8vw;
+  font-size: var(--fs-8vw);
   height: 1vw;
   visibility: hidden;
   opacity: 0;
@@ -781,7 +840,7 @@ c.loader {
 }
 
 #pb_episodes div {
-  font-size: 3vw;
+  font-size: var(--fs-30vw);
   min-width: 6vw;
   line-height: 5.4vw;
   text-align: center;
@@ -794,7 +853,7 @@ c.loader {
   bottom: .5vw;
   left: .3vw;
   right: .3vw;
-  font-size: .8vw;
+  font-size: var(--fs-8vw);
   line-height: 1;
   overflow: hidden;
   white-space: nowrap;
@@ -815,7 +874,7 @@ c.loader {
   padding: .1vw .5vw .1vw .5vw;
   right: .2vw;
   border-radius: 1vw;
-  font-size: .7vw;
+  font-size: var(--fs-7vw);
   line-height: 1;
   overflow: hidden;
   white-space: nowrap;
@@ -849,7 +908,7 @@ c.loader {
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 1vw;
+  font-size: var(--fs-10vw);
   white-space: nowrap;
   font-weight: bold;
   animation: pb_playing_keyframe var(--tim-10s) linear infinite;
@@ -906,7 +965,7 @@ c.loader {
   position: absolute;
   text-align: center;
   z-index: 10;
-  font-size: 2vw;
+  font-size: var(--fs-20vw);
   position: absolute;
   bottom: 0;
   left: 0;
@@ -924,7 +983,7 @@ c.loader {
   bottom: 0;
   left: 0;
   right: 0;
-  font-size: 1.4vw;
+  font-size: var(--fs-14vw);
   display: block;
   font-weight: normal;
   margin: 0;
@@ -964,13 +1023,13 @@ c.loader {
 #pb_track_left {
   position: absolute;
   top: 0;
-  font-size: 1.3vw;
+  font-size: var(--fs-13vw);
   font-weight: bold;
   line-height: 2vw;
 }
 
 #pb_track_title {
-  font-size: 1vw;
+  font-size: var(--fs-10vw);
   left: 20vw;
   right: 20vw;
   overflow: hidden;
@@ -981,12 +1040,12 @@ c.loader {
 }
 
 #pb_track_pos {
-  font-size: 1.3vw;
+  font-size: var(--fs-13vw);
   font-weight: bold;
 }
 
 #pb_track_ctl {
-  font-size: 2vw;
+  font-size: var(--fs-20vw);
   line-height: 2vw;
   width: 2vw;
   height: 2vw;
@@ -1105,7 +1164,7 @@ c.loader {
 
 #pb_event_skip {
   display: block;
-  font-size: 1.4vw;
+  font-size: var(--fs-14vw);
   padding: .5vw 1.5vw .5vw 1.5vw;
   background-color: rgba(255, 255, 255, .4);
   outline: .05vw solid #fff;
@@ -1196,7 +1255,7 @@ c.loader {
 }
 
 .home_opt_list p div {
-  font-size: 1.6vw;
+  font-size: var(--fs-15vw);
 }
 
 .home_list p:empty::after {
@@ -1208,17 +1267,17 @@ c.loader {
   line-height: 16vw;
   text-align: center;
   color: rgba(255, 255, 255, .5);
-  font-size: 3vw;
+  font-size: var(--fs-30vw);
 }
 
 #home_fav.home_list p:empty::after {
   content: 'WATCHLIST IS EMPTY' !important;
-  font-size: 2vw;
+  font-size: var(--fs-20vw);
 }
 
 #home_history.home_list p:empty::after {
   content: 'WATCH HISTORY IS EMPTY' !important;
-  font-size: 2vw;
+  font-size: var(--fs-20vw);
 }
 
 .home_opt_list.active,
@@ -1230,7 +1289,7 @@ c.loader {
 .home_list:before {
   content: attr(list-title);
   display: block;
-  font-size: 1.2vw;
+  font-size: var(--fs-12vw);
   font-weight: bold;
   padding-bottom: .5vw;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
@@ -1276,7 +1335,7 @@ c.loader {
   bottom: 0;
   left: 0;
   right: 0;
-  font-size: 1.2vw;
+  font-size: var(--fs-12vw);
   display: block;
   font-weight: normal;
   margin: 0;
@@ -1324,7 +1383,7 @@ c.loader {
   object-fit: cover;
 }
 #home_slide.home_list div span.info{
-  font-size:1.2vw;
+  font-size:var(--fs-12vw);
   top:.5vw;
   right:.5vw;
 }
@@ -1356,7 +1415,7 @@ c.loader {
   margin:0;
   padding:0;
   font-weight: normal;
-  font-size: 1.7vw;
+  font-size: var(--fs-17vw);
   display: block;
   line-height: 1.2;
   word-wrap: break-word;
@@ -1367,14 +1426,14 @@ c.loader {
   overflow: hidden;
 }
 #home_slide.home_list div span.infobox span.infovalue span.desc{
-  font-size:1.2vw;
+  font-size:var(--fs-12vw);
   color:rgba(255,255,255,.8);
   line-height: 1.2;
   padding:0;
   margin:0;
   padding-top:.8vw;
   overflow: hidden;
-  max-height: 5.76vw;
+  /* max-height: 5.76vw; */
 
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -1410,7 +1469,7 @@ c.loader {
   right: 5vw;
   top: 2vw;
   line-height: 7vw;
-  font-size: 6vw;
+  font-size: var(--fs-60vw);
   text-shadow: .2vw .2vw .2vw #000;
   margin: 0;
   padding: 0;
@@ -1427,7 +1486,7 @@ c.loader {
 }
 
 #home_header h1 c{
-  font-size:4vw;
+  font-size:var(--fs-40vw);
   position:relative;
   top:-2vw;
   margin-left:.8vw;
@@ -1439,8 +1498,7 @@ c.loader {
   animation: none;
 }
 #home_header.scrolled h1 c{
-  font-size: 3vw;
-  font-size:2vw;
+  font-size:var(--fs-20vw);
   top:-1vw;
 }
 
@@ -1451,7 +1509,7 @@ c.loader {
   width: 7vw;
   height: 7vw;
   line-height: 7vw;
-  font-size: 4vw;
+  font-size: var(--fs-40vw);
   text-align: center;
   border-radius: 10vw;
   background: var(--primary-1);
@@ -1465,7 +1523,7 @@ c.loader {
   width:48vw;
   height:7vw;
   left:19vw;
-  font-size:1.2vw;
+  font-size:var(--fs-12vw);
   
   display: flex;
   align-items: center;
@@ -1523,7 +1581,7 @@ c.loader {
 }
 #home_discord_info #home_discord_info_value span{
   color: var(--accent-1);
-  font-size:.9vw;
+  font-size:var(--fs-10vw);
   float: right;
   display: block;
   padding-left:1vw;
@@ -1543,7 +1601,7 @@ c.loader {
   width: 3vw;
   height: 3vw;
   line-height: 3vw;
-  font-size: 2vw;
+  font-size: var(--fs-20vw);
   padding-left: .5vw;
   padding-right: .5vw;
   text-align: center;
@@ -1560,13 +1618,13 @@ c.loader {
   padding:.5vw;
   color:rgba(255,255,255,.6);
   text-shadow: .2vw .2vw .2vw #000;
-  font-size:1vw;
+  font-size:var(--fs-10vw);
   display: block;
 }
 #home_about span b{
   font-weight: normal;
   color:rgba(255,255,255,.9);
-  font-size:1.2vw;
+  font-size:var(--fs-12vw);
 }
 
 #home_header.active #home_settings.active,
@@ -1577,7 +1635,7 @@ c.loader {
 }
 
 #home_header.scrolled h1 {
-  font-size: 3vw;
+  font-size: var(--fs-30vw);
 }
 #home_header.scrolled #home_settings {
   opacity:0;
@@ -1659,7 +1717,7 @@ c.loader {
   border: .1vw solid #000;
   background-color: var(--primary-bg);
   color: #fff;
-  font-size: 3vw;
+  font-size: var(--fs-30vw);
   line-height: 7vw;
   outline: none;
   border-radius: 1.5vw;
@@ -1686,7 +1744,7 @@ c.loader {
   z-index: 300;
   top: .2vw;
   right: .2vw;
-  font-size: .8vw;
+  font-size: var(--fs-8vw);
   line-height: 1.2vw;
   opacity: .5;
   transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
@@ -1791,7 +1849,7 @@ c.loader {
   background-color: var(--primary-bg);
   color: #fff;
   font-weight: normal;
-  font-size: 1.2vw;
+  font-size: var(--fs-12vw);
   top:-.3vw;
   position: relative;
 }
@@ -1806,7 +1864,7 @@ c.loader {
   top:0;
   background-color: rgba(0,0,0,.7);
   z-index: 29999;
-  font-size:2.2vw;
+  font-size:var(--fs-22vw);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1821,7 +1879,7 @@ c.loader {
 #aboutpopup{
   color:var(--primary-1);
   text-align: center;
-  width:25vw;
+  min-width:25vw;
   padding:5vw;
   background: #fff;
   border-radius: 1vw;
@@ -1864,6 +1922,7 @@ c.loader {
   bottom:calc(50vh - 8.5vw);
   height: 19vw;
 }
+
 #malview.loading #malview_rating,
 #malview.loading #malview_img,
 #malview.loading #malview_data,
@@ -1879,7 +1938,7 @@ c.loader {
   line-height: 4vw;
   bottom: 6.5vw;
   text-align: center;
-  font-size: 1.3vw;
+  font-size: var(--fs-13vw);
 }
 #malview.active{
   transform: scale(1);
@@ -1888,7 +1947,7 @@ c.loader {
 }
 #malview #malview_rating{
   position: absolute;
-  font-size:1vw;
+  font-size:var(--fs-10vw);
   padding: .2vw .4vw .2vw .4vw;
   background-color: var(--primary-2);
   color: #fff;
@@ -1927,10 +1986,11 @@ c.loader {
   border-right: .1vw solid #000;
   outline: .1vw solid #333;
 
-  font-size:1.1vw;
+  font-size:var(--fs-11vw);
   line-height: 2.2vw;
   background-color: #121212;
 }
+
 #malview_info div{
   padding: .5vw;
   padding-left: 1vw;
@@ -1940,7 +2000,7 @@ c.loader {
 #malview_info div h4{
   padding:0;
   margin:0;
-  font-size:1.4vw;
+  font-size:var(--fs-14vw);
   font-weight: normal;
 
   text-overflow: ellipsis;
@@ -1954,7 +2014,7 @@ c.loader {
 }
 #malview_info div p{
   line-height: 1.2;
-  font-size: 1.1vw;
+  font-size: var(--fs-11vw);
   padding:0;
   margin:0;
   padding-top:.8vw;
@@ -1982,7 +2042,7 @@ c.loader {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 
-  font-size: 1.1vw;
+  font-size: var(--fs-11vw);
   color:#fff;
   font-weight: normal;
   line-height:1.4;
@@ -1997,7 +2057,7 @@ c.loader {
   left: 33.5vw;
   right: .5vw;
   bottom: .5vw;
-  font-size:1.1vw;
+  font-size:var(--fs-11vw);
   line-height: 2.2vw;
 }
 
@@ -2086,7 +2146,7 @@ c.loader {
   float: right;
   display: block;
   font-weight: normal;
-  font-size: 1.1vw;
+  font-size: var(--fs-11vw);
   color: var(--accent-1);
   line-height: 2.2vw;
 }
@@ -2099,7 +2159,7 @@ c.loader {
   min-height: 20vw;
 } */
 .view-informative .home_list:not(#home_slide) div {
-  height: 20.4vw;
+  height: calc(var(--fs-15vw) + 19vw);
   background-color: transparent !important;
   outline: none !important;
   border-radius: 0 !important;
@@ -2114,14 +2174,14 @@ c.loader {
 .view-informative .home_list:not(#home_slide) div b {
   text-align: left;
   padding: 0 .3vw 0 .3vw;
-  height: 3vw;
+  height: calc(var(--fs-15vw) * 2);
   word-wrap: break-word;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.5vw;
+  line-height: var(--fs-15vw);
   white-space: normal !important;
   background-color: transparent !important;
   color: rgba(255,255,255,.7) !important;
@@ -2134,4 +2194,22 @@ c.loader {
 }
 .view-informative .home_list:not(#home_slide) p div i{
   bottom:3.8vw;
+}
+
+
+.view-bigfont #malview{
+  right:18vw;
+  left:18vw;
+}
+.view-bigfont #malview_data{
+  left: 44.5vw;
+}
+.view-bigfont #malview_info{
+  right: 20vw;
+}
+.view-bigfont #malview_info div span{
+  -webkit-line-clamp: 2;
+}
+.view-bigfont #malview_info div p{
+  -webkit-line-clamp: 4;
 }

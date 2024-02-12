@@ -82,6 +82,7 @@ public class AnimeView extends WebViewClient {
         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
   }
 
+  @SuppressLint("SetJavaScriptEnabled")
   public void webviewInitConfig(WebView wv){
     WebSettings webSettings = wv.getSettings();
 
@@ -102,7 +103,7 @@ public class AnimeView extends WebViewClient {
     /* performance tweaks */
     //noinspection deprecation
     webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
-    webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+    webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
     wv.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     wv.setWebViewClient(this);
@@ -260,6 +261,9 @@ public class AnimeView extends WebViewClient {
           String method=request.getMethod();
           boolean isPost=method.equals("POST")||method.equals("PUT");
           String queryData=request.getUrl().getQuery();
+          if (queryData==null){
+            queryData="";
+          }
           if (isPost){
             int queryLength=queryData.length();
             if (queryLength>0) {
@@ -353,7 +357,7 @@ public class AnimeView extends WebViewClient {
       /* BLOCK DNS */
       return aApi.badRequest;
     }
-    return aApi.defaultRequest(view,request);
+    return super.shouldInterceptRequest(view,request); // aApi.defaultRequest(view,request);
   }
 
   public void getViewCallback(int u){
@@ -401,8 +405,7 @@ public class AnimeView extends WebViewClient {
     private String lastResultUrl="";
     @JavascriptInterface
     public boolean getViewAvailable(){
-      if (aApi.resData.status==1) return false;
-      return true;
+      return aApi.resData.status != 1;
     }
     @JavascriptInterface
     public boolean getview(String url, int zid) {
@@ -899,6 +902,7 @@ public class AnimeView extends WebViewClient {
 
       initVideoView();
       videoViewSetScale(videoStatScaleType);
+      if (saveUrl==null) saveUrl="";
       if (!saveUrl.equals("")) {
         if (savedPos > 0) {
           try {
