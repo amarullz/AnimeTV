@@ -215,6 +215,9 @@ const KBACK=27;
 const KENTER=13;
 const KPGUP=33;
 const KPGDOWN=34;
+const KPLAY=402;
+const KNEXT=403;
+const KPREV=401;
 
 /***************************** API HANDLERS *****************************/
 const _API={
@@ -2462,7 +2465,7 @@ const pb={
       else
         n=g.P.firstElementChild;
     }
-    else if (c==KPGUP){
+    else if (c==KPGUP || c==KPREV){
       if (g.__prev){
         g.__prev();
         return true;
@@ -2472,7 +2475,7 @@ const pb={
           n=g.P.firstElementChild;
       }
     }
-    else if (c==KPGDOWN){
+    else if (c==KPGDOWN || c==KNEXT){
       if (g.__next){
         g.__next();
         return true;
@@ -2593,11 +2596,25 @@ const pb={
     }
 
     pb.lastkey=$tick();
+
+    if (c==KPLAY){
+      if (pb.state){
+        if (!pb.vid_stat.play)
+          pb.vid_cmd('play',0);
+        else{
+          pb.vid_cmd('pause',0);
+          if (!pb.pb_actions.classList.contains('active')){
+            pb.menu_show(2);
+          }
+        }
+      }
+    }
+
     if (pb.pb_actions.classList.contains('active')){
       if (c==KBACK){
         pb.menu_hide();
       }
-      else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
+      else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN||c==KNEXT||c==KPREV){
         if (pb.menus[pb.menusel]._keycb)
           pb.menus[pb.menusel]._keycb(pb.menus[pb.menusel],c);
       }

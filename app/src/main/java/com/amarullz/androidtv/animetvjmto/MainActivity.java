@@ -126,7 +126,11 @@ public class MainActivity extends FragmentActivity {
           aView.reloadView();
         }
         break;
+      case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: c=402; break;
+      case KeyEvent.KEYCODE_MEDIA_NEXT: c=403; break;
+      case KeyEvent.KEYCODE_MEDIA_PREVIOUS: c=401; break;
     }
+//    Log.d("KEYEV","Code = "+code);
     if (c>0&&aView.webViewReady) {
       if (send) {
         aView.webView.evaluateJavascript("_KEYEV(" + c + ")", null);
