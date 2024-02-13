@@ -1235,7 +1235,7 @@ const pb={
     scale:0,
     lang:'',
     ccstyle:0,
-    bgimg:0,
+    bgimg:BGIMG_NUM-1,
     quality:0,
     uifontsize:0,
     mirrorserver:false
@@ -1273,7 +1273,7 @@ const pb={
         pb.cfg_data.ccstyle=('ccstyle' in j)?j.ccstyle:'';
         vtt.set_style(pb.cfg_data.ccstyle);
 
-        pb.cfg_data.bgimg=('bgimg' in j)?j.bgimg:'';
+        pb.cfg_data.bgimg=('bgimg' in j)?j.bgimg:BGIMG_NUM-1;
         _API.bgimg_update();
 
         /*
@@ -1328,7 +1328,7 @@ const pb={
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
     pb.cfg_data.ccstyle=0;
-    pb.cfg_data.bgimg=0;
+    pb.cfg_data.bgimg=BGIMG_NUM-1;
     pb.cfg_data.quality=0;
   },
   cfgserver_name:[
@@ -2606,6 +2606,22 @@ const pb={
           if (!pb.pb_actions.classList.contains('active')){
             pb.menu_show(2);
           }
+        }
+      }
+      // pb.menu_show(c==KUP?1:2);
+    }
+    else if (c==KNEXT||c==KPREV){
+      if (pb.state){
+        if (!pb.pb_actions.classList.contains('active')){
+          pb.menu_show(3);
+          var vl=pb.menus[3];
+          if (c==KNEXT){
+            vl._keycb(vl,KRIGHT);
+          }
+          else{
+            vl._keycb(vl,KLEFT);
+          }
+          return;
         }
       }
     }
