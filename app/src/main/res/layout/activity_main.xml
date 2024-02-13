@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     tools:deviceIds="tv"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     tools:ignore="MergeRootFrame">
     <ImageView
         android:layout_width="match_parent"
