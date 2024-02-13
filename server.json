@@ -7,10 +7,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",
 
-  "appnum": 211,
-  "appver": "2.1.1",
-  "appsize": "13 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.1.1/animetv-2.1.1.apk",
+  "appnum": 220,
+  "appver": "2.2.0",
+  "appsize": "13.1 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.2.0/animetv-2.2.0.apk",
   "appnote": 
-    "- Clear & Compact List View\n- Add japanese titles settings\n- Settings now preserved in all sources\n- Fix cache too strict + no new update"
+    "- Add font size settings\n- Add media key (play/pause) handler\n- Tweak image cache\n- Min SDK22"
 }
