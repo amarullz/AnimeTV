@@ -1919,6 +1919,7 @@ const pb={
 
     _API.setVizCb(function(d){
       try{
+        pb.pb_track_pos.innerHTML='PREPARE VIDEO';
         _API.setVizPageCb(null);
 
         var urivid="";
@@ -1933,17 +1934,6 @@ const pb={
               urivid=(d.result.sources.length>1)?d.result.sources[1].file:d.result.sources[0].file;
             }
           }catch(e){}
-        }
-        if (urivid){
-          pb.data.vizm3u8=urivid;
-          console.log("ATVLOG Got VizCB = "+urivid);
-          if (pb.cfg('server')==0){
-            pb.pb_vid.innerHTML='';
-            pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
-            _API.setMessage(null);
-            pb.startpos_val=_tmp_start_pos;
-            pb.init_video_mp4upload(urivid);
-          }
         }
 
         pb.subtitles=[];
@@ -1965,7 +1955,21 @@ const pb={
             vtt.init(pb.subtitles);
           }
         }catch(e){}
-      }catch(e){}
+
+        if (urivid){
+          pb.data.vizm3u8=urivid;
+          console.log("ATVLOG Got VizCB = "+urivid);
+          if (pb.cfg('server')==0){
+            pb.pb_vid.innerHTML='';
+            pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
+            _API.setMessage(null);
+            pb.startpos_val=_tmp_start_pos;
+            pb.init_video_mp4upload(urivid);
+          }
+        }
+      }catch(e){
+        pb.pb_track_pos.innerHTML='VIDEO ERROR: '+e;
+      }
     });
 
     pb.pb_vid.innerHTML='';
