@@ -38,6 +38,8 @@ public class Conf {
   public static int STREAM_TYPE = 0;
   public static int STREAM_SERVER = 0;
 
+  public static boolean PROGRESSIVE_CACHE = false;
+
   // public static String MAL_CLIENT_ID="7b5a9155e3870fd91382445ef04b133c";
   public static String MAL_CLIENT_ID="0e9466e5ec09684cc69da53f20b07af6";
 
@@ -50,6 +52,6 @@ public class Conf {
 //          ".1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1";
 
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"+
-      " (KHTML, like Gecko) Chrome/119.0.0.0 "+"" +
+      " (KHTML, like Gecko) Chrome/119.0.0.0 " +
       "Safari/537.36 Edg/116.0.1938.69";
 }

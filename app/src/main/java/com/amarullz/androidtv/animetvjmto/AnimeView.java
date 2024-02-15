@@ -358,7 +358,10 @@ public class AnimeView extends WebViewClient {
       /* BLOCK DNS */
       return aApi.badRequest;
     }
-    return super.shouldInterceptRequest(view,request); // aApi.defaultRequest(view,request);
+    if (Conf.PROGRESSIVE_CACHE) {
+      return super.shouldInterceptRequest(view, request);
+    }
+    return aApi.defaultRequest(view,request);
   }
 
   public void getViewCallback(int u){

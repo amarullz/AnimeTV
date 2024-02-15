@@ -520,8 +520,10 @@ public class AnimeApi extends WebViewClient {
         host.contains("bunnycdn.ru")) {
       if (!url.endsWith(".woff2")&&!accept.startsWith("text/css")) {
         Log.d(_TAG, "CDN=>" + url + " - " + accept);
-//        return defaultRequest(view, request);
-        return super.shouldInterceptRequest(view,request);
+        if (Conf.PROGRESSIVE_CACHE){
+          return super.shouldInterceptRequest(view,request);
+        }
+        return defaultRequest(view, request);
       }
     }
     return badRequest;

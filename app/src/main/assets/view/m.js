@@ -1337,14 +1337,14 @@ const pb={
     'MP4UPLOAD'
   ],
   cfganimation_name:[
-    'NORMAL ANIMATION',
-    'FAST ANIMATION',
-    'FASTER ANIMATION'
+    'Normal',
+    'Fast',
+    'Faster'
   ],
   cfguifontsize_name:[
-    'SMALL FONT',
-    'BIG FONT',
-    'BIGGER FONT'
+    'Small',
+    'Medium',
+    'Big'
   ],
   cfgstreamtype_name:[
     'HARDSUB',
@@ -1357,9 +1357,9 @@ const pb={
     'keyboard_voice'
   ],
   cfgscale_name:[
-    'NORMAL SCALE',
-    'COVER',
-    'STRETCH'
+    'Normal',
+    'Cover',
+    'Stretch'
   ],
   cfgquality_name:[
     "AUTO",
@@ -1386,16 +1386,16 @@ const pb={
         el.lastElementChild.innerHTML="SPEED "+_API.vidSpeed.toFixed(2)+"x";
       }
       else if (key=='ccstyle'){
-        el.lastElementChild.innerHTML="CC STYLE "+(pb.cfg_data.ccstyle+1);
+        el.lastElementChild.innerHTML="Style "+(pb.cfg_data.ccstyle+1);
       }
       else if (key=='bgimg'){
-        el.lastElementChild.innerHTML="WALLPAPER "+(pb.cfg_data.bgimg+1);
+        el.lastElementChild.innerHTML="Wallpaper-"+(pb.cfg_data.bgimg+1);
       }
       else if (key=='quality'){
         el.lastElementChild.innerHTML=pb.sel_quality;
       }
       else if (key=='sourcesvr'){
-        el.lastElementChild.innerHTML="SOURCE "+__SD;
+        el.lastElementChild.innerHTML="Source "+__SD;
       }
       else if (key=='fav'){
         if (pb.data.animeid){
@@ -3681,6 +3681,7 @@ const home={
 
   settings:{
     sel:0,
+    subsel:0,
     needreload:false,
     settings:$('settings'),
     tlang:$('settings_lang'),
@@ -3730,19 +3731,19 @@ const home={
     initmore:function(){
       if (!home.settings.initmore_done){
         pb.menu_clear(home.settings.video);
-        pb.menu_init(home.settings.video);
+        // pb.menu_init(home.settings.video);
 
         pb.menu_clear(home.settings.styling);
-        pb.menu_init(home.settings.styling);
+        // pb.menu_init(home.settings.styling);
 
         pb.menu_clear(home.settings.performance);
-        pb.menu_init(home.settings.performance);
+        // pb.menu_init(home.settings.performance);
 
         pb.menu_clear(home.settings.more);
-        pb.menu_init(home.settings.more);
+        // pb.menu_init(home.settings.more);
 
         pb.menu_clear(home.settings.about);
-        pb.menu_init(home.settings.about);
+        // pb.menu_init(home.settings.about);
 
         home.settings.tools={};
 
@@ -3752,28 +3753,28 @@ const home={
             action:'*autonext'
           },
           home.settings.video.P,
-          '<c>check</c> AUTO NEXT'
+          '<c class="check">check</c><c>skip_next</c> Auto Next'
         );
         home.settings.tools._s_autoskip=$n(
           'div','',{
             action:'*autoskip'
           },
           home.settings.video.P,
-          '<c>clear</c> AUTO SKIP INTRO'
+          '<c class="check">clear</c><c>curtains</c> Auto Skip Intro'
         );
         home.settings.tools._s_skipfiller=$n(
           'div','',{
             action:'*skipfiller'
           },
           home.settings.video.P,
-          '<c>clear</c> SKIP FILLER'
+          '<c class="check">clear</c><c>category</c> Skip Filler'
         );
         home.settings.tools._s_scale=$n(
           'div','',{
             action:'*scale'
           },
           home.settings.video.P,
-          '<c>aspect_ratio</c> <span>SCALE</span>'
+          '<c>aspect_ratio</c> Video Scaling<span class="value">-</span>'
         );
 
 
@@ -3783,15 +3784,16 @@ const home={
             action:'*ccstyle'
           },
           home.settings.styling.P,
-          "<c>closed_caption</c> <span>CC STYLE 1</span>"
+          '<c>closed_caption</c> Subtitle Style <span class="value">Style 1</span>'
         );
 
         home.settings.tools._s_theme=$n(
           'div','',{
-            action:'*theme'
+            action:'*theme',
+            s_desc:"Change current interface colorscheme"
           },
           home.settings.styling.P,
-          "<c>palette</c> CHANGE COLOR"
+          "<c>palette</c> Interface Color"
         );
         
         home.settings.tools._s_bgimg=$n(
@@ -3799,15 +3801,16 @@ const home={
             action:'*bgimg'
           },
           home.settings.styling.P,
-          "<c>wallpaper</c> <span>WALLPAPER 1</span>"
+          '<c>wallpaper</c> Wallpaper<span class="value">Wallpaper-1</span>'
         );
 
         home.settings.tools._s_compactlist=$n(
           'div','',{
-            action:'*compactlist'
+            action:'*compactlist',
+            s_desc:"Use old compact anime list"
           },
           home.settings.styling.P,
-          "<c>clear</c> COMPACT LIST"
+          '<c class="check">clear</c><c>unfold_less</c> Compact List'
         );
 
         home.settings.tools._s_uifontsize=$n(
@@ -3815,7 +3818,7 @@ const home={
             action:'*uifontsize'
           },
           home.settings.styling.P,
-          "<c>format_size</c> <span>NORMAL FONT</span>"
+          '<c>format_size</c> Font Size<span class="value">Normal</span>'
         );
 
         
@@ -3825,39 +3828,47 @@ const home={
             action:'*animation'
           },
           home.settings.performance.P,
-          "<c>animation</c> <span>FAST ANIMATION</span>"
+          '<c>animation</c> Transition Animation<span class="value">Normal</span>'
         );
         home.settings.tools._s_performance=$n(
           'div','',{
-            action:'*performance'
+            action:'*performance',
+            s_desc:"Disable some styling for better performance gain"
           },
           home.settings.performance.P,
-          '<c>clear</c> 🚀 PERFORMANCE-UI'
+          '<c class="check">clear</c><c>readiness_score</c> Performance UI'
         );
         home.settings.tools._s_jptitle=$n(
           'div','',{
-            action:'*jptitle'
+            action:'*jptitle',
+            s_desc:"Show anime titles in japanese name"
           },
           home.settings.performance.P,
-          "<c>clear</c> 🇯🇵 JAPANESE TITLES"
+          '<c class="check">clear</c><c>language_japanese_kana</c> Japanese Titles'
         );
 
 
         /* Others */
         home.settings.tools._s_malaccount=$n(
           'div','',{
-            action:'*malaccount'
+            action:'*malaccount',
+            s_desc:
+            _MAL.islogin()?"Disconnect MyAnimeList account":
+            "Connect to MyAnimeList account"
           },
           home.settings.more.P,
-          _MAL.islogin()?'<c>lock_open</c> MAL LOGOUT ('+special(_MAL.auth.user)+')':'<c>list_alt</c> MAL LOGIN'
+          _MAL.islogin()?
+          '<c>lock_open</c> MAL Logout<span class="value">'+special(_MAL.auth.user)+'</span>':
+          '<c>list_alt</c> MAL Login'
         );
 
         home.settings.tools._s_nonjapan=$n(
           'div','',{
-            action:'*nonjapan'
+            action:'*nonjapan',
+            s_desc:"Also show and search chinese anime"
           },
           home.settings.more.P,
-          '<c>clear</c> 🇨🇳 CHINESE ANIME'
+          '<c class="check">clear</c><c>emoji_nature</c> Chinese Anime'
         );
 
         home.settings.tools._s_sourcesvr=$n(
@@ -3865,7 +3876,7 @@ const home={
             action:'*sourcesvr'
           },
           home.settings.more.P,
-          "<c>database</c> <span>SOURCE "+__SD+"</span>"
+          '<c>database</c> Source Server<span class="value">Source '+__SD+"</span>"
         );
 
         
@@ -3876,29 +3887,29 @@ const home={
             action:'*donate'
           },
           home.settings.about.P,
-          "<c>volunteer_activism</c> DONATE"
+          "<c>volunteer_activism</c> Donation"
         );
         home.settings.tools._s_discord=$n(
           'div','',{
             action:'*discord'
           },
           home.settings.about.P,
-          "<c>sports_esports</c> DISCORD"
+          "<c>sports_esports</c> Discord Server"
         );
         home.settings.tools._s_checkupdate=$n(
           'div','',{
             action:'*checkupdate'
           },
           home.settings.about.P,
-          "<c>update</c> CHECK FOR UPDATE"
+          "<c>update</c> Check for Update"
         );
       }
       home.settings.initmore_done=true;
-      pb.menu_select(home.settings.video,home.settings.tools._s_autonext);
-      pb.menu_select(home.settings.styling,home.settings.tools._s_ccstyle);
-      pb.menu_select(home.settings.performance,home.settings.tools._s_animation);
-      pb.menu_select(home.settings.more,home.settings.tools._s_malaccount);
-      pb.menu_select(home.settings.about,home.settings.tools._s_donation);
+      // pb.menu_select(home.settings.video,home.settings.tools._s_autonext);
+      // pb.menu_select(home.settings.styling,home.settings.tools._s_ccstyle);
+      // pb.menu_select(home.settings.performance,home.settings.tools._s_animation);
+      // pb.menu_select(home.settings.more,home.settings.tools._s_malaccount);
+      // pb.menu_select(home.settings.about,home.settings.tools._s_donation);
       pb.cfg_update_el();
     },
     refreshlang:function(){
@@ -3954,6 +3965,7 @@ const home={
       home.settings.isplayback=arg;
       home.settings.needreload=false;
       home.settings.sel=0;
+      home.settings.subsel=0;
       home.settings.menus=[
         home.settings.tlang,
         home.settings.video,
@@ -3972,12 +3984,12 @@ const home={
       home.settings.styling._midx=
       home.settings.performance._midx=
       home.settings.more._midx=
-      home.settings.about._midx=2.3;
+      home.settings.about._midx=6;
 
       home.onsettings=true;
-      home.settings.update(0);
       home.settings.refreshlang();
       home.settings.initmore();
+      home.settings.update(0,0);
       pb.pb.classList.add('onsettings');
       requestAnimationFrame(function(){
         home.settings.settings.classList.add('active');
@@ -3994,10 +4006,51 @@ const home={
       pb.pb.classList.remove('onsettings');
       home.settings.settings.classList.remove('active');
     },
-    update:function(pc){
+    update:function(pc,spc){
       home.settings.menus[home.settings.sel].classList.remove('active');
       home.settings.sel=pc;
       home.settings.menus[home.settings.sel].classList.add('active');
+
+      var fel=null;
+      if (pc!=0){
+        var gel=home.settings.menus[pc].P;
+        if (spc==-1){
+          spc=gel.childElementCount-1;
+        }
+        home.settings.subsel=spc;
+        fel=gel;
+        for (var i=0;i<gel.childElementCount;i++){
+          var xch=gel.children[i];
+          if (i==spc){
+            xch.classList.add('active');
+            fel=xch;
+          }
+          else{
+            xch.classList.remove('active');
+          }
+        }
+      }
+      else{
+        home.settings.subsel=0;
+        fel=home.settings.menus[pc];
+      }
+      var th=home.settings.settings.firstElementChild.offsetHeight;
+      var ot=0;
+      var oh=fel.offsetHeight* 1.25;
+      while(fel && fel!=home.settings.settings){
+        ot+=fel.offsetTop;
+        fel=fel.offsetParent;
+      }
+      var ob=ot+oh;
+      var st=home.settings.settings.scrollTop;
+      var sh=home.settings.settings.offsetHeight;
+      var sb=st+sh;
+      if (ot<st+th){
+        home.settings.settings.scrollTo(0,ot-th);
+      }
+      else if (ob>sb){
+        home.settings.settings.scrollTo(0,ob-sh);
+      }
     },
     open_donation:function(ispaypal){
       if (home.onsettings){
@@ -4022,29 +4075,52 @@ const home={
     }
 
     var pc=home.settings.sel;
+    var spc=home.settings.subsel;
     if (c==KBACK){
       home.settings.close();
     }
     else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
-      home.settings.menus[pc]._keycb(home.settings.menus[pc],c);
+      if (pc==0){
+        home.settings.menus[pc]._keycb(home.settings.menus[pc],c);
+      }
+      else if (c==KENTER){
+        var gel=home.settings.menus[pc].P;
+        var el=gel.children[spc];
+        try{
+          var action=el.getAttribute('action');
+          var arg=el.getAttribute('arg');
+          pb.action_handler(action,arg);
+        }catch(e){}
+        home.settings.update(pc,spc);
+        return;
+      }
     }
     else if (c==KUP){
-      if (--pc<0){
-        // home.settings.close();
-        // return;
-        pc=home.settings.menus.length-1;
+      var doNext=true;
+      if (pc!=0){
+        doNext=(--spc<0)?true:false;
+      }
+      if (doNext){
+        if (--pc<0){
+          pc=home.settings.menus.length-1;
+        }
+        spc=-1;
       }
     }
     else if (c==KDOWN){
-      if (++pc>=home.settings.menus.length){
-        // pc=home.settings.menus.length-1;
-        // home.settings.close();
-        // return;
-        pc=0;
+      var doNext=true;
+      if (pc!=0){
+        doNext=(++spc>=home.settings.menus[pc].P.childElementCount)?true:false;
+      }
+      if (doNext){
+        if (++pc>=home.settings.menus.length){
+          pc=0;
+        }
+        spc=0;
       }
     }
-    if (home.settings.sel!=pc){
-      home.settings.update(pc);
+    if (home.settings.sel!=pc || home.settings.subsel!=spc){
+      home.settings.update(pc,spc);
     }
   },
   onsettings:false,
@@ -5040,7 +5116,7 @@ const _MAL={
     $('malview_info_status').innerHTML=d.status?special(d.status):"-";
     $('malview_info_genre').innerHTML=d.genre?special(d.genre):"-";
   },
-  preview_do:function(url, img, ttid, currep, tcurr, tdur,d,arg){
+  preview_do:function(url, img, ttid, currep, tcurr, tdur,d,arg,malid){
     if (!_MAL.onpopup){
       return;
     }
@@ -5055,7 +5131,7 @@ const _MAL={
     ];
     _MAL.pop.var.url=url;
     _MAL.pop.var.ttip=ttid;
-    _MAL.pop.var.malid=null;
+    _MAL.pop.var.malid=malid?malid:null;
     _MAL.pop.menusel=0;
 
     _MAL.pop.var.title=d.title;
@@ -5132,7 +5208,6 @@ const _MAL={
       ep:0,
       rating:''
     };
-    _MAL.pop.var.malid=malid?malid:null;
     if (url_parse.length>=5){
       if (ttid){
         if(url_parse.length==6){
@@ -5145,17 +5220,17 @@ const _MAL={
         _MAL.onpopup=true;
         _API.getTooltip(ttid,function(d){
           if (d){
-            _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,d,arg);
+            _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,d,arg,malid);
             return;
           }
-          _MAL.preview_do(url, img, ttid, ep, tcurr, tdur, defdat,arg);
+          _MAL.preview_do(url, img, ttid, ep, tcurr, tdur, defdat,arg,malid);
           return;
         });
         return;
       }
     }
     // pb.open(url, ttid, 0, tcurr);
-    _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,defdat,arg);
+    _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,defdat,arg,malid);
   },
   prev_action_handler:function(data,arg){
     try{
