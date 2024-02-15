@@ -4745,7 +4745,7 @@ const _MAL={
               _MAL.preview(
                 r[0].url, r[0].poster, r[0].title, r[0].tip, 
                 d.list_status.num_episodes_watched, 0, 0, 
-                ''
+                '', d.node.id
               );
             }
             // _MAL.popup(
@@ -5125,13 +5125,14 @@ const _MAL={
 
     _MAL.pop.var.ready=true;
   },
-  preview:function(url, img, titl, ttid, ep, tcurr, tdur,arg){
+  preview:function(url, img, titl, ttid, ep, tcurr, tdur,arg,malid){
     var url_parse=url.split('/');
     var defdat={
       title:titl,
       ep:0,
       rating:''
     };
+    _MAL.pop.var.malid=malid?malid:null;
     if (url_parse.length>=5){
       if (ttid){
         if(url_parse.length==6){
