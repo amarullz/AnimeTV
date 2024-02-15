@@ -1830,17 +1830,34 @@ c.loader {
   visibility: hidden;
   z-index: 19999;
   pointer-events: none;
-  overflow-y: auto;
+  overflow: hidden;
   box-shadow: -.28vw 0 .56vw rgba(0, 0, 0, 0.25), -.2vw 0 .2vw rgba(0, 0, 0, 0.22) !important;
   border-radius: 0;
-  /* scroll-behavior: smooth; */
 }
-#settings h1{
-  font-size:var(--fs-30vw);
-  padding:1vw 2vw 1vw 2vw;
+#settings_scroll{
+  overflow-y: auto;
+  position: absolute;
+  top:6vw;
+  left:0;
+  right: 0;
+  bottom: 0;
+  z-index:1;
+}
+#settings h5{
+  z-index:2;
+  font-size:var(--fs-17vw);
+  line-height: 6vw;
+  padding-left: 2vw;
   margin:0;
   color:#fff;
   font-weight: bold;
+  background: #2a2a2a;
+  position: fixed !important;
+  top:0;
+  left:0;
+  right:0;
+  height:6vw;
+  border-bottom: .1vw solid #111;
 }
 #settings.active {
   transform: translateY(0);
@@ -1850,11 +1867,14 @@ c.loader {
 #settings .pb_menu{
   padding-top:.5vw;
   padding-bottom:.5vw;
-  border-bottom: .1vw solid #333;
+  /* border-bottom: .1vw solid #333; */
   margin-bottom: 1vw;
+  transition: none !important;
+  opacity: 1 !important;
 }
 #settings .pb_menu.home_opt_list{
   padding-left:2vw;
+  -webkit-mask-image: none !important;
 }
 #settings .pb_menu.active{
   background-color: #333;
@@ -1870,6 +1890,19 @@ c.loader {
   font-size: var(--fs-12vw);
   top:-.3vw;
   position: relative;
+}
+#settings .pb_menu.home_opt_list p div{
+  transform: none !important;
+  background: transparent;
+  box-shadow: none !important;
+  color: #aaa;
+  opacity: 1 !important;
+}
+#settings .pb_menu.home_opt_list p div.active{
+  background: var(--dimm-1);
+}
+#settings .pb_menu.home_opt_list.active p div.active{
+  background: var(--primary-1);
 }
 #settings .settings_group{
   padding: 0;
@@ -1897,24 +1930,74 @@ c.loader {
 #settings .settings_group p div{
   display: block;
   position: relative;
-  border-bottom: .1vw solid #333;
+  /* border-bottom: .1vw solid #333; */
   font-size: var(--fs-15vw);
   line-height: 1.2;
-  padding:.8vw 1vw .8vw 5vw;
-  transition: background-color var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
-  
+  padding:1.2vw 5vw 1.2vw 6vw;
 }
 #settings .settings_group.active p div.active{
   background-color: #444;
 }
 #settings .settings_group p div c.check{
   float:right;
-  padding-right: 1vw;
+  margin-right: -4vw;
+  border-radius: 3vw;
+  background-color: #333;
+  overflow: visible;
+  font-size: .01vw;
+  text-indent: -100vw;
+  height: 2vw;
+  width: 4vw;
+  position: relative;
+  padding: 0;
+}
+#settings .settings_group p div.active c.check{
+  background-color: #2b2b2b;
+}
+#settings .settings_group p div c.check:after{
+  display: block;
+  position: absolute;
+  width:1.6vw;
+  height:1.6vw;
+  border-radius: 1.8vw;
+  content: 'clear';
+  background: #555;
+  left:.2vw;
+  top:.2vw;
+  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+
+  text-indent: 0;
+  font-family: 'icons';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -webkit-font-feature-settings: 'liga';
+  font-size: 1.3vw;
+  line-height: 1.8vw;
+  text-align: center;
+  padding: 0;
+}
+#settings .settings_group p div.active c.check:after{
+  background: #666;
+}
+#settings .settings_group p div c.check.checked:after{
+  left:2.1vw;
+  background: var(--primary-3);
+  content: 'check';
+}
+#settings .settings_group p div.active c.check.checked:after{
+  background: var(--accent-1);
 }
 #settings .settings_group p div c:not(.check){
   float:left;
-  margin-left: -3vw;
-  margin-top: .2vw;
+  margin-left: -4vw;
+  font-size: var(--fs-20vw);
 }
 #settings .settings_group p div span.value{
   display: block;
@@ -1926,7 +2009,6 @@ c.loader {
   font-size: var(--fs-10vw);
   color: #aaa;
   content: attr(s_desc);
-  max-width: 25vw;
 }
 
 #popupcontainer{

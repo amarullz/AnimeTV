@@ -3,6 +3,7 @@ const body=document.body;
 /* const _DNS="9anime.to"; */
 const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
 const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
+const __SD_NAME = __SD+"/"+(__SD==1?"WAVE":"ANIX");
 /* getId */
 function $(i){
   return document.getElementById(i);
@@ -659,7 +660,7 @@ const _API={
     if (_JSAPI){
       verel.innerHTML="<b>AnimeTV "+_JSAPI.getVersion(0)+" "+
         "&copy; 2023-2024 amarullz.com</b><br />Build "+_JSAPI.getVersion(1)
-        +" - Server "+_JSAPI.dnsver()+" - Source "+__SD+"/"+(__SD==1?"WAVE":"ANIX");
+        +" - Server "+_JSAPI.dnsver()+" - Source "+__SD_NAME;
     }
   }catch(e){}
 
@@ -1400,7 +1401,7 @@ const pb={
         el.lastElementChild.innerHTML=pb.sel_quality;
       }
       else if (key=='sourcesvr'){
-        el.lastElementChild.innerHTML="Source "+__SD;
+        el.lastElementChild.innerHTML="Source "+__SD_NAME;
       }
       else if (key=='fav'){
         if (pb.data.animeid){
@@ -1439,6 +1440,10 @@ const pb={
         else{
           if (el){
             el.firstElementChild.innerHTML=pb.cfg_data[key]?'check':'clear';
+            if (pb.cfg_data[key])
+              el.firstElementChild.classList.add('checked');
+            else
+              el.firstElementChild.classList.remove('checked');
           }
         }
       }
@@ -3698,6 +3703,7 @@ const home={
     subsel:0,
     needreload:false,
     settings:$('settings'),
+    sscroll:$('settings_scroll'),
     tlang:$('settings_lang'),
     more:$('settings_more'),
     video:$('settings_video'),
@@ -3897,7 +3903,8 @@ const home={
 
         home.settings.tools._s_sourcesvr=$n(
           'div','',{
-            action:'*sourcesvr'
+            action:'*sourcesvr',
+            s_desc:"Select source website server, Try change it if source is down."
           },
           home.settings.more.P,
           '<c>database</c> Source Server<span class="value">Source '+__SD+"</span>"
@@ -4058,22 +4065,21 @@ const home={
         home.settings.subsel=0;
         fel=home.settings.menus[pc];
       }
-      var th=home.settings.settings.firstElementChild.offsetHeight;
       var ot=0;
       var oh=fel.offsetHeight* 1.25;
-      while(fel && fel!=home.settings.settings){
+      while(fel && fel!=home.settings.sscroll){
         ot+=fel.offsetTop;
         fel=fel.offsetParent;
       }
       var ob=ot+oh;
-      var st=home.settings.settings.scrollTop;
-      var sh=home.settings.settings.offsetHeight;
+      var st=home.settings.sscroll.scrollTop;
+      var sh=home.settings.sscroll.offsetHeight;
       var sb=st+sh;
-      if (ot<st+th){
-        home.settings.settings.scrollTo(0,ot-th);
+      if (ot<st){
+        home.settings.sscroll.scrollTo(0,ot);
       }
       else if (ob>sb){
-        home.settings.settings.scrollTo(0,ob-sh);
+        home.settings.sscroll.scrollTo(0,ob-sh);
       }
     },
     open_donation:function(ispaypal){
