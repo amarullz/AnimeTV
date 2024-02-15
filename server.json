@@ -7,10 +7,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",
 
-  "appnum": 220,
-  "appver": "2.2.0",
-  "appsize": "13.1 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.2.0/animetv-2.2.0.apk",
+  "appnum": 230,
+  "appver": "2.3.0",
+  "appsize": "14.2 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.3.0/anivetv-2.3.0.apk",
   "appnote": 
-    "- Add font size settings\n- Add media key (play/pause) handler\n- Tweak image cache\n- Min SDK22"
+    "- New Settings UI\n- Add progressive cache config\n- Fix MAL current episode not updated"
 }
