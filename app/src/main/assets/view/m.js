@@ -1218,7 +1218,7 @@ const pb={
       document.body.classList.add('view-informative');
     }
 
-
+    _JSAPI.setProgCache(pb.cfg_data.progcache);
     
   },
 
@@ -1230,6 +1230,7 @@ const pb={
     skipfiller:false,
     jptitle:false,
     compactlist:false,
+    progcache:true,
     nonjapan:false,
     server:0,
     scale:0,
@@ -1256,6 +1257,8 @@ const pb={
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
+        pb.cfg_data.progcache=('progcache' in j)?(j.progcache?true:false):true;
+        
         pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
         pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):true;
@@ -1316,6 +1319,8 @@ const pb={
     pb.cfg_data.autonext=true;
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.jptitle=false;
+    pb.cfg_data.progcache=true;
+    
     pb.cfg_data.compactlist=false;
     
     pb.cfg_data.nonjapan=false;
@@ -1455,6 +1460,8 @@ const pb={
       pb.cfg_update_el('performance');
       pb.cfg_update_el('mirrorserver');
       pb.cfg_update_el('jptitle');
+      pb.cfg_update_el('progcache');
+      
       pb.cfg_update_el('compactlist');
       pb.cfg_update_el('uifontsize');
       
@@ -2197,6 +2204,13 @@ const pb={
       else if (key=='jptitle'){
         // Update Home
         pb.cfg_data.jptitle=!pb.cfg_data.jptitle;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
+      }
+      else if (key=='progcache'){
+        // Update Home
+        pb.cfg_data.progcache=!pb.cfg_data.progcache;
         pb.cfg_update_el(key);
         pb.cfg_save();
         pb.updateanimation();
@@ -3838,6 +3852,16 @@ const home={
           home.settings.performance.P,
           '<c class="check">clear</c><c>readiness_score</c> Performance UI'
         );
+
+        home.settings.tools._s_progcache=$n(
+          'div','',{
+            action:'*progcache',
+            s_desc:"Cache content progressively for better performance. Turn off if image or playback not working"
+          },
+          home.settings.performance.P,
+          '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
+        );
+
         home.settings.tools._s_jptitle=$n(
           'div','',{
             action:'*jptitle',

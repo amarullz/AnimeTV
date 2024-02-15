@@ -1833,7 +1833,7 @@ c.loader {
   overflow-y: auto;
   box-shadow: -.28vw 0 .56vw rgba(0, 0, 0, 0.25), -.2vw 0 .2vw rgba(0, 0, 0, 0.22) !important;
   border-radius: 0;
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; */
 }
 #settings h1{
   font-size:var(--fs-30vw);

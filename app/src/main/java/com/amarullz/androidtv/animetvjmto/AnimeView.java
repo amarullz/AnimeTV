@@ -619,6 +619,11 @@ public class AnimeView extends WebViewClient {
     }
 
     @JavascriptInterface
+    public void setProgCache(boolean val){
+      Conf.PROGRESSIVE_CACHE=val;
+    }
+
+    @JavascriptInterface
     public boolean videoIsPlaying(){
       runOnUiThreadWait(()->{
         try {
