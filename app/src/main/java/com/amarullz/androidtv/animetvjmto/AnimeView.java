@@ -548,7 +548,7 @@ public class AnimeView extends WebViewClient {
     public void videoSetSpeed(float speed){
       activity.runOnUiThread(()-> {
         try {
-          videoView.setPlaybackSpeed(speed);
+          //videoView.setPlaybackSpeed(speed);
         }catch(Exception ignored){}
       });
     }

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.SSLCertificateSocketFactory;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
@@ -38,11 +39,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 public class AnimeApi extends WebViewClient {
   private static final String _TAG="ATVLOG-API";
@@ -535,12 +546,37 @@ public class AnimeApi extends WebViewClient {
                                             String inject, String injectContentType) {
     Uri uri = request.getUrl();
     String url = uri.toString();
+    final String host = uri.getHost();
+    boolean dnss=false;
     try {
-      HttpURLConnection conn = initQuic(url, request.getMethod());
+      HttpsURLConnection conn;
+      if (host.equals("aniwave.to")||host.equals("anix.to")){
+        String ipx=host.equals("aniwave.to")?"172.67.132.150":"172.67.164.135";
+        conn =(HttpsURLConnection) initQuic(url.replaceFirst(host, ipx), request.getMethod());
+        conn.setHostnameVerifier(new HostnameVerifier() {
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            return HttpsURLConnection.getDefaultHostnameVerifier().verify(host, session);
+            //return true;
+        }
+        });
+        TlsSniSocketFactory sslSocketFactory = new TlsSniSocketFactory(conn);
+        conn.setSSLSocketFactory(sslSocketFactory);
+       
+        dnss=true;
+      }
+      else{
+        conn =(HttpsURLConnection) initQuic(url, request.getMethod());
+      }
       for (Map.Entry<String, String> entry :
-              request.getRequestHeaders().entrySet()) {
+        request.getRequestHeaders().entrySet()) {
         conn.setRequestProperty(entry.getKey(), entry.getValue());
       }
+      conn.setRequestProperty("Host", host);
+      conn.setInstanceFollowRedirects(false);
+      
+      conn.connect();
+
       String[] cType = parseContentType(conn.getContentType());
       ByteArrayOutputStream buffer = getBody(conn, null);
 
@@ -555,6 +591,7 @@ public class AnimeApi extends WebViewClient {
       }
 
       InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
+      if (dnss) Log.d(_TAG,"DNSS = "+url);
       return new WebResourceResponse(cType[0], cType[1], stream);
     } catch (Exception e) {
       Log.e(_TAG, "HTTP-DEF-REQ-ERR=" + url, e);
@@ -652,4 +689,96 @@ public class AnimeApi extends WebViewClient {
       return Conf.SERVER_VER;
     }
   }
+  
+  
+  class TlsSniSocketFactory extends SSLSocketFactory {
+    private final String TAG = TlsSniSocketFactory.class.getSimpleName();
+    HostnameVerifier hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+    private HttpsURLConnection conn;
+
+    public TlsSniSocketFactory(HttpsURLConnection conn) {
+        this.conn = conn;
+    }
+
+    @Override
+    public Socket createSocket() throws IOException {
+        return null;
+    }
+
+    @Override
+    public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+        return null;
+    }
+
+    @Override
+    public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
+        return null;
+    }
+
+    @Override
+    public Socket createSocket(InetAddress host, int port) throws IOException {
+        return null;
+    }
+
+    @Override
+    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+        return null;
+    }
+
+    // TLS layer
+
+    @Override
+    public String[] getDefaultCipherSuites() {
+        return new String[0];
+    }
+
+    @Override
+    public String[] getSupportedCipherSuites() {
+        return new String[0];
+    }
+
+    @Override
+    public Socket createSocket(Socket plainSocket, String host, int port, boolean autoClose) throws IOException {
+        String peerHost = this.conn.getRequestProperty("Host");
+        if (peerHost == null)
+            peerHost = host;
+        Log.i(TAG, "customized createSocket. host: " + peerHost);
+        InetAddress address = plainSocket.getInetAddress();
+        if (autoClose) {
+            // we don't need the plainSocket
+            plainSocket.close();
+        }
+        // create and connect SSL socket, but don't do hostname/certificate verification yet
+        SSLCertificateSocketFactory sslSocketFactory = (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(0);
+        SSLSocket ssl = (SSLSocket) sslSocketFactory.createSocket(address, port);
+
+        // enable TLSv1.1/1.2 if available
+        ssl.setEnabledProtocols(ssl.getSupportedProtocols());
+
+        // set up SNI before the handshake
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Log.i(TAG, "Setting SNI hostname");
+            sslSocketFactory.setHostname(ssl, peerHost);
+        } else {
+            Log.d(TAG, "No documented SNI support on Android <4.2, trying with reflection");
+            try {
+                java.lang.reflect.Method setHostnameMethod = ssl.getClass().getMethod("setHostname", String.class);
+                setHostnameMethod.invoke(ssl, peerHost);
+            } catch (Exception e) {
+                Log.w(TAG, "SNI not useable", e);
+            }
+        }
+
+        // verify hostname and certificate
+        SSLSession session = ssl.getSession();
+
+        if (!hostnameVerifier.verify(peerHost, session))
+            throw new SSLPeerUnverifiedException("Cannot verify hostname: " + peerHost);
+
+        Log.i(TAG, "Established " + session.getProtocol() + " connection with " + session.getPeerHost() +
+                " using " + session.getCipherSuite());
+
+        return ssl;
+    }
+}
 }
