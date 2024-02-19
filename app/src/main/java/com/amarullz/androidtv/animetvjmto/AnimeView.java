@@ -38,16 +38,11 @@ import android.widget.Toast;
 
 import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
-import com.google.common.base.Charsets;
 
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Map;
 
@@ -947,7 +942,9 @@ public class AnimeView extends WebViewClient {
   public void malStartLogin(String username, String password){
     Log.d(_TAG,
         "Login Mal -> "+username+":"+password);
+    //noinspection deprecation
     final ProgressDialog loginProgress = new ProgressDialog(activity);
+    //noinspection deprecation
     loginProgress.setMessage("Login to MyAnimeList..");
     loginProgress.show();
 

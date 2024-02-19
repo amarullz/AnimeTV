@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.net.SSLCertificateSocketFactory;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
@@ -37,23 +36,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 
 import okhttp3.Cache;
 import okhttp3.HttpUrl;
@@ -98,36 +84,6 @@ public class AnimeApi extends WebViewClient {
       }
     }
   };
-
-
-  /* http get body */
-  public static ByteArrayOutputStream getBody(HttpURLConnection conn,
-                                              ByteArrayOutputStream buffer,
-                                              boolean withErrorBody) throws IOException {
-    if (buffer == null) buffer = new ByteArrayOutputStream();
-    InputStream is;
-    if (withErrorBody) {
-      if (conn.getResponseCode() == 200)
-        is = conn.getInputStream();
-      else
-        is = conn.getErrorStream();
-    }
-    else{
-      is=conn.getInputStream();
-    }
-    try {
-      int nRead;
-      byte[] data = new byte[1024];
-      while ((nRead = is.read(data, 0, data.length)) != -1) {
-        buffer.write(data, 0, nRead);
-      }
-    }catch (Exception ignored){}
-    return buffer;
-  }
-  public static ByteArrayOutputStream getBody(HttpURLConnection conn,
-                                              ByteArrayOutputStream buffer) throws IOException {
-    return getBody(conn,buffer,false);
-  }
 
   public void updateServerVar(boolean showMessage){
     AsyncTask.execute(() -> {
@@ -525,13 +481,15 @@ public class AnimeApi extends WebViewClient {
     public void execute() throws Exception{
       res = httpClient.newCall(req.build()).execute();
       body=new ByteArrayOutputStream();
-      body.write(res.body().bytes());
+      if (res.body() != null){
+        body.write(res.body().bytes());
+      }
       ctype = parseContentType(res.header("Content-Type"));
     }
   }
 
   /* Default Fallback HTTP Request */
-  public WebResourceResponse defaultRequest(final WebView view,
+  public WebResourceResponse defaultRequest(final WebView ignoredView,
                                                     WebResourceRequest request,
                                             String inject, String injectContentType) {
     Uri uri = request.getUrl();

@@ -64,7 +64,7 @@ public class MainActivity extends FragmentActivity {
             "/animetv-logcat.txt";
         Log.d("DEBUG-LOGCAT", fn);
         File filename = new File(fn);
-        filename.createNewFile();
+        boolean ignoredNewFile = filename.createNewFile();
         String cmd = "logcat -f " + filename.getAbsolutePath();
         Runtime.getRuntime().exec(cmd);
       } catch (IOException e) {
@@ -174,7 +174,7 @@ public class MainActivity extends FragmentActivity {
     super.onSaveInstanceState(outState);
   }
   @Override
-  protected void onRestoreInstanceState(Bundle savedInstanceState)
+  protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState)
   {
     aView.onSaveRestore(false,savedInstanceState);
     super.onRestoreInstanceState(savedInstanceState);
