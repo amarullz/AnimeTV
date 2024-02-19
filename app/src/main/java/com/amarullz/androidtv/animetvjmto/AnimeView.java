@@ -51,6 +51,10 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Map;
 
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+
 public class AnimeView extends WebViewClient {
   private static final String _TAG="ATVLOG-VIEW";
   private final Activity activity;
@@ -114,6 +118,7 @@ public class AnimeView extends WebViewClient {
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
+
     WebView.setWebContentsDebuggingEnabled(true);
 
     setFullscreen();
@@ -169,6 +174,10 @@ public class AnimeView extends WebViewClient {
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
     webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
+//    webView.loadUrl("https://www.reddit.com/");
+//    splash.setVisibility(View.GONE);
+//    videoLayout.setVisibility(View.VISIBLE);
+//    webView.setVisibility(View.VISIBLE);
     //
     // https://aniwave.to/ajax/home/widget/updated-sub?page=1
 
@@ -240,15 +249,14 @@ public class AnimeView extends WebViewClient {
               Log.d(_TAG, "VIEW GET " + url + " = " + accept);
               String newurl = url.replace("https://"+uDomain,"http://192" +
                   ".168.100.245");
-              HttpURLConnection conn = aApi.initQuic(newurl, request.getMethod());
+              AnimeApi.Http http=new AnimeApi.Http(newurl);
               for (Map.Entry<String, String> entry :
                       request.getRequestHeaders().entrySet()) {
-                conn.setRequestProperty(entry.getKey(), entry.getValue());
+                http.addHeader(entry.getKey(), entry.getValue());
               }
-              String[] cType = aApi.parseContentType(conn.getContentType());
-              ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
-              InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-              return new WebResourceResponse(cType[0], cType[1], stream);
+              http.execute();
+              InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
+              return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
             } catch (Exception ignored) {}
             return aApi.badRequest;
           }
@@ -278,22 +286,17 @@ public class AnimeView extends WebViewClient {
           else{
             Log.d(_TAG, "PROXY-GET = " + proxy_url);
           }
-          HttpURLConnection conn = aApi.initQuic(proxy_url, method);
+          AnimeApi.Http http=new AnimeApi.Http(proxy_url);
+          if (isPost){
+            http.req.method(method, RequestBody.create(queryData, MediaType.get("application/x-www-form-urlencoded")));
+          }
           for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {
-            conn.setRequestProperty(entry.getKey(), entry.getValue());
+            http.addHeader(entry.getKey(), entry.getValue());
           }
-          if (isPost){
-            conn.setDoOutput(true);
-            OutputStream os = conn.getOutputStream();
-            os.write(queryData.getBytes());
-            os.flush();
-            os.close();
-          }
-          String[] cType = aApi.parseContentType(conn.getContentType());
-          ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null, true);
-          InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-          return new WebResourceResponse(cType[0], cType[1], stream);
+          http.execute();
+          InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
+          return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
@@ -311,29 +314,29 @@ public class AnimeView extends WebViewClient {
         if (!accept.startsWith("text/html"))
           sendVidpageLoaded(1);
         try {
-          HttpURLConnection conn = aApi.initQuic(url, request.getMethod());
+          AnimeApi.Http http=new AnimeApi.Http(url);
           for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {
-            conn.setRequestProperty(entry.getKey(), entry.getValue());
+            http.addHeader(entry.getKey(), entry.getValue());
           }
-          String[] cType = aApi.parseContentType(conn.getContentType());
-          if (conn.getResponseCode()==200) {
-            ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+          http.execute();
+
+          if (http.res.code()==200) {
             if (accept.startsWith("text/html")) {
               try {
-                aApi.injectString(buffer, playerInjectString);
+                aApi.injectString(http.body, playerInjectString);
               }catch(Exception ignored){}
               sendVidpageLoaded(0);
             } else {
-              Log.d(_TAG, "sendM3U8Req = " + buffer.toString("UTF-8"));
-              sendM3U8Req(buffer.toString("UTF-8"));
+              Log.d(_TAG, "sendM3U8Req = " + http.body.toString("UTF-8"));
+              sendM3U8Req(http.body.toString("UTF-8"));
               try {
                 Thread.sleep(500);
               }catch(Exception ignored){}
-              Log.d(_TAG, "sendM3U8Req Wait = " + buffer.toString("UTF-8"));
+              Log.d(_TAG, "sendM3U8Req Wait = " + http.body.toString("UTF-8"));
             }
-            InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-            return new WebResourceResponse(cType[0], cType[1], stream);
+            InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
+            return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
           }
         } catch (Exception ignored) {}
         if (!accept.startsWith("text/html"))
@@ -548,7 +551,9 @@ public class AnimeView extends WebViewClient {
     public void videoSetSpeed(float speed){
       activity.runOnUiThread(()-> {
         try {
-          //videoView.setPlaybackSpeed(speed);
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            videoView.setPlaybackSpeed(speed);
+          }
         }catch(Exception ignored){}
       });
     }
@@ -949,24 +954,20 @@ public class AnimeView extends WebViewClient {
     AsyncTask.execute(() -> {
       try {
         /* Get Server Data from Github */
-        HttpURLConnection conn = aApi.initQuic(
-            "https://api.myanimelist.net/v2/auth/token", "POST"
-        );
-        conn.setRequestProperty("X-MAL-Client-ID",Conf.MAL_CLIENT_ID);
-        conn.setRequestProperty("Accept","application/json");
-        String userenc= URLEncoder.encode(username, Charsets.UTF_8.name());
-        String passenc= URLEncoder.encode(password, Charsets.UTF_8.name());
-        String data="client_id="+Conf.MAL_CLIENT_ID+"&grant_type" +
-            "=password&password="+passenc+"&username="+userenc;
-        conn.setDoOutput(true);
-        OutputStream os = conn.getOutputStream();
-        os.write(data.getBytes());
-        os.flush();
-        os.close();
+        AnimeApi.Http http=new AnimeApi.Http("https://api.myanimelist.net/v2/auth/token");
+        http.addHeader("X-MAL-Client-ID",Conf.MAL_CLIENT_ID);
+        http.addHeader("Accept","application/json");
+        RequestBody formBody = new FormBody.Builder()
+                .add("client_id", Conf.MAL_CLIENT_ID)
+                .add("grant_type", "password")
+                .add("username", username)
+                .add("password", password)
+                .build();
+        http.req.method("POST",formBody);
+        http.execute();
         Log.d(_TAG,
-            "Login Mal -> RESPONSE_CODE = "+conn.getResponseCode());
-        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null, true);
-        String serverjson = buffer.toString();
+            "Login Mal -> RESPONSE_CODE = "+http.res.code());
+        String serverjson = http.body.toString();
         JSONObject j = new JSONObject(serverjson);
         j.put("user",username);
         Log.d(_TAG,

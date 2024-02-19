@@ -27,7 +27,6 @@ import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
-import org.chromium.net.CronetEngine;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -47,6 +46,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -55,9 +55,15 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import okhttp3.Cache;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.dnsoverhttps.DnsOverHttps;
+
 public class AnimeApi extends WebViewClient {
   private static final String _TAG="ATVLOG-API";
-  private static final boolean _USECRONET=false;
 
   public static class Result{
     public String Text;
@@ -69,7 +75,7 @@ public class AnimeApi extends WebViewClient {
   }
   private final Activity activity;
   public final WebView webView;
-  private final CronetEngine cronet;
+
   public WebResourceResponse badRequest;
 
   public boolean paused=false;
@@ -93,43 +99,6 @@ public class AnimeApi extends WebViewClient {
     }
   };
 
-  /* Cronet 9anime builder */
-  public static CronetEngine buildCronet(Context c){
-    /* Setup Cronet HTTP+QUIC Client */
-    if (_USECRONET) {
-      try {
-        CronetEngine.Builder myBuilder =
-            new CronetEngine.Builder(c)
-                .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
-                .enableHttp2(true)
-                .enableQuic(true)
-                .enableBrotli(true)
-                .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
-                    .addQuicHint(Conf.SOURCE_DOMAIN1, 443, 443)
-                .addQuicHint(Conf.STREAM_DOMAIN2, 443, 443);
-        return myBuilder.build();
-      }catch(Exception ignored){}
-    }
-    return null;
-  }
-
-  /* Cronet init quic */
-  public static HttpURLConnection initCronetQuic(CronetEngine c, String url, String method) throws IOException {
-    HttpURLConnection conn;
-    if (c!=null){
-      conn = (HttpURLConnection) c.openConnection(new URL(url));
-    }
-    else{
-      URL netConn = new URL(url);
-      conn = (HttpURLConnection) netConn.openConnection();
-    }
-    conn.setRequestMethod(method);
-    conn.setConnectTimeout(5000);
-    conn.setReadTimeout(5000);
-    conn.setDoOutput(false);
-    conn.setDoInput(true);
-    return conn;
-  }
 
   /* http get body */
   public static ByteArrayOutputStream getBody(HttpURLConnection conn,
@@ -175,13 +144,12 @@ public class AnimeApi extends WebViewClient {
 
       try {
         /* Get Server Data from Github */
-        HttpURLConnection conn = initCronetQuic(
-            null,
-            "https://raw.githubusercontent.com/amarullz/AnimeTV/master/server" +
-                ".json?"+System.currentTimeMillis(),"GET"
+        Http http=new Http(
+                "https://raw.githubusercontent.com/amarullz/AnimeTV/master/server" +
+                ".json?"+System.currentTimeMillis()
         );
-        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
-        String serverjson=buffer.toString();
+        http.execute();
+        String serverjson=http.body.toString();
         JSONObject j=new JSONObject(serverjson);
         String update=j.getString("update");
         if (!Conf.SERVER_VER.equals(update)){
@@ -260,21 +228,19 @@ public class AnimeApi extends WebViewClient {
     AsyncTask.execute(() -> {
       try {
         Log.d(_TAG,"DOWNLOADING APK = "+url);
-        HttpURLConnection conn = initCronetQuic(
-            null,
-            url,"GET"
-        );
 
-        ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
-        Log.d(_TAG,"DOWNLOADED APK = "+buffer.size());
+        Http http=new Http(url);
+        http.execute();
+
+        Log.d(_TAG,"DOWNLOADED APK = "+http.body.size());
         activity.runOnUiThread(() ->
           Toast.makeText(activity,
-              "Update has been downloaded ("+((buffer.size()/1024)/1024)+"MB)",
+              "Update has been downloaded ("+((http.body.size()/1024)/1024)+"MB)",
               Toast.LENGTH_SHORT).show()
         );
         String apkpath=apkTempFile();
         FileOutputStream fos = new FileOutputStream(apkpath);
-        buffer.writeTo(fos);
+        http.body.writeTo(fos);
         File fp=new File(apkpath);
         installApk(fp);
       }catch(Exception er){
@@ -344,6 +310,7 @@ public class AnimeApi extends WebViewClient {
     activity = mainActivity;
 
     /* Update Server */
+    initHttpEngine();
     updateServerVar(false);
 
     webView = new WebView(activity);
@@ -351,7 +318,6 @@ public class AnimeApi extends WebViewClient {
 
     pref = activity.getSharedPreferences("SERVER", Context.MODE_PRIVATE );
     initPref();
-    cronet = buildCronet(activity);
 
     /* Init Bad Request */
     badRequest = new WebResourceResponse("text/plain",
@@ -400,14 +366,6 @@ public class AnimeApi extends WebViewClient {
   public void getData(String url, Callback cb){
     getData(url,cb,20000);
   }
-
-
-
-  public HttpURLConnection initQuic(String url, String method) throws IOException {
-    return initCronetQuic(cronet,url,method);
-  }
-
-
 
   public void injectString(ByteArrayOutputStream buffer, String inject){
     byte[] injectByte = inject.getBytes();
@@ -467,7 +425,7 @@ public class AnimeApi extends WebViewClient {
     return "";
   }
 
-  public String[] parseContentType(String contentType) {
+  public static String[] parseContentType(String contentType) {
     String[] ret = new String[2];
     ret[0] = "application/octet-stream";
     ret[1] = null;
@@ -540,61 +498,67 @@ public class AnimeApi extends WebViewClient {
     return badRequest;
   }
 
+
+
+  public static OkHttpClient httpClient;
+  public static DnsOverHttps dohClient;
+  public static void initHttpEngine(){
+    Cache appCache = new Cache(new File("cacheDir", "okhttpcache"), 100 * 1024 * 1024);
+    OkHttpClient bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
+    dohClient=new DnsOverHttps.Builder().client(bootstrapClient)
+            .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
+            .build();
+    httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
+  }
+  public static class Http{
+    public Request.Builder req;
+    public Response res=null;
+    public ByteArrayOutputStream body=null;
+    public String[] ctype=null;
+    public Http(String url){
+      req = new Request.Builder();
+      req.url(url);
+    }
+    public void addHeader(String name, String val){
+      req.addHeader(name,val);
+    }
+    public void execute() throws Exception{
+      res = httpClient.newCall(req.build()).execute();
+      body=new ByteArrayOutputStream();
+      body.write(res.body().bytes());
+      ctype = parseContentType(res.header("Content-Type"));
+    }
+  }
+
   /* Default Fallback HTTP Request */
   public WebResourceResponse defaultRequest(final WebView view,
                                                     WebResourceRequest request,
                                             String inject, String injectContentType) {
     Uri uri = request.getUrl();
     String url = uri.toString();
-    final String host = uri.getHost();
-    boolean dnss=false;
     try {
-      HttpsURLConnection conn;
-      if (host.equals("aniwave.to")||host.equals("anix.to")){
-        String ipx=host.equals("aniwave.to")?"172.67.132.150":"172.67.164.135";
-        conn =(HttpsURLConnection) initQuic(url.replaceFirst(host, ipx), request.getMethod());
-        conn.setHostnameVerifier(new HostnameVerifier() {
-        @Override
-        public boolean verify(String hostname, SSLSession session) {
-            return HttpsURLConnection.getDefaultHostnameVerifier().verify(host, session);
-            //return true;
-        }
-        });
-        TlsSniSocketFactory sslSocketFactory = new TlsSniSocketFactory(conn);
-        conn.setSSLSocketFactory(sslSocketFactory);
-       
-        dnss=true;
-      }
-      else{
-        conn =(HttpsURLConnection) initQuic(url, request.getMethod());
-      }
+      Http http=new Http(url);
       for (Map.Entry<String, String> entry :
-        request.getRequestHeaders().entrySet()) {
-        conn.setRequestProperty(entry.getKey(), entry.getValue());
+              request.getRequestHeaders().entrySet()) {
+        http.addHeader(entry.getKey(), entry.getValue());
       }
-      conn.setRequestProperty("Host", host);
-      conn.setInstanceFollowRedirects(false);
-      
-      conn.connect();
-
-      String[] cType = parseContentType(conn.getContentType());
-      ByteArrayOutputStream buffer = getBody(conn, null);
+      http.execute();
 
       // Inject
       if (inject!=null) {
         if (injectContentType==null){
           injectContentType="text/html";
         }
-        if (cType[0].startsWith(injectContentType)) {
-          injectJs(buffer, inject);
+        if (http.ctype[0].startsWith(injectContentType)) {
+          injectJs(http.body, inject);
         }
       }
 
-      InputStream stream = new ByteArrayInputStream(buffer.toByteArray());
-      if (dnss) Log.d(_TAG,"DNSS = "+url);
-      return new WebResourceResponse(cType[0], cType[1], stream);
+      InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
+      Log.d(_TAG,"OKHTTP = "+url+" -> "+http.body.size()+" Bytes");
+      return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
     } catch (Exception e) {
-      Log.e(_TAG, "HTTP-DEF-REQ-ERR=" + url, e);
+      Log.e(_TAG, "OKHTTP ERR =" + url, e);
     }
     return null;
   }
@@ -606,9 +570,9 @@ public class AnimeApi extends WebViewClient {
   public String getMp4Video(String url){
     String srcjson = "null";
     try {
-      HttpURLConnection conn = initQuic(url, "GET");
-      ByteArrayOutputStream buffer = getBody(conn, null);
-      String mp4src = buffer.toString();
+      Http http = new Http(url);
+      http.execute();
+      String mp4src = http.body.toString();
       int psrcpos = mp4src.indexOf("player.src(");
       if (psrcpos > 0) {
         srcjson = mp4src.substring(psrcpos + 11);
@@ -689,96 +653,4 @@ public class AnimeApi extends WebViewClient {
       return Conf.SERVER_VER;
     }
   }
-  
-  
-  class TlsSniSocketFactory extends SSLSocketFactory {
-    private final String TAG = TlsSniSocketFactory.class.getSimpleName();
-    HostnameVerifier hostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
-    private HttpsURLConnection conn;
-
-    public TlsSniSocketFactory(HttpsURLConnection conn) {
-        this.conn = conn;
-    }
-
-    @Override
-    public Socket createSocket() throws IOException {
-        return null;
-    }
-
-    @Override
-    public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-        return null;
-    }
-
-    @Override
-    public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
-        return null;
-    }
-
-    @Override
-    public Socket createSocket(InetAddress host, int port) throws IOException {
-        return null;
-    }
-
-    @Override
-    public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-        return null;
-    }
-
-    // TLS layer
-
-    @Override
-    public String[] getDefaultCipherSuites() {
-        return new String[0];
-    }
-
-    @Override
-    public String[] getSupportedCipherSuites() {
-        return new String[0];
-    }
-
-    @Override
-    public Socket createSocket(Socket plainSocket, String host, int port, boolean autoClose) throws IOException {
-        String peerHost = this.conn.getRequestProperty("Host");
-        if (peerHost == null)
-            peerHost = host;
-        Log.i(TAG, "customized createSocket. host: " + peerHost);
-        InetAddress address = plainSocket.getInetAddress();
-        if (autoClose) {
-            // we don't need the plainSocket
-            plainSocket.close();
-        }
-        // create and connect SSL socket, but don't do hostname/certificate verification yet
-        SSLCertificateSocketFactory sslSocketFactory = (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(0);
-        SSLSocket ssl = (SSLSocket) sslSocketFactory.createSocket(address, port);
-
-        // enable TLSv1.1/1.2 if available
-        ssl.setEnabledProtocols(ssl.getSupportedProtocols());
-
-        // set up SNI before the handshake
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Log.i(TAG, "Setting SNI hostname");
-            sslSocketFactory.setHostname(ssl, peerHost);
-        } else {
-            Log.d(TAG, "No documented SNI support on Android <4.2, trying with reflection");
-            try {
-                java.lang.reflect.Method setHostnameMethod = ssl.getClass().getMethod("setHostname", String.class);
-                setHostnameMethod.invoke(ssl, peerHost);
-            } catch (Exception e) {
-                Log.w(TAG, "SNI not useable", e);
-            }
-        }
-
-        // verify hostname and certificate
-        SSLSession session = ssl.getSession();
-
-        if (!hostnameVerifier.verify(peerHost, session))
-            throw new SSLPeerUnverifiedException("Cannot verify hostname: " + peerHost);
-
-        Log.i(TAG, "Established " + session.getProtocol() + " connection with " + session.getPeerHost() +
-                " using " + session.getCipherSuite());
-
-        return ssl;
-    }
-}
 }

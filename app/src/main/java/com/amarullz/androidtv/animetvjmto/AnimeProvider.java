@@ -18,6 +18,7 @@ import android.icu.util.TimeZone;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,7 +28,6 @@ import androidx.tvprovider.media.tv.PreviewProgram;
 import androidx.tvprovider.media.tv.TvContractCompat;
 import androidx.tvprovider.media.tv.WatchNextProgram;
 
-import org.chromium.net.CronetEngine;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,10 +35,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
 
 public class AnimeProvider {
     private static final String _TAG="ATVLOG-CHANNEL";
@@ -63,16 +59,13 @@ public class AnimeProvider {
         void onFinish(String result);
     }
     private final Context ctx;
-    private final CronetEngine cronet;
     private long CHANNEL_ID;
 
-    public HttpURLConnection initQuic(String url, String method) throws IOException {
-        return AnimeApi.initCronetQuic(cronet,url,method);
-    }
-
     public static void executeJob(Context c){
-        new AnimeProvider(c).startLoadRecent();
-        scheduleJob(c);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            new AnimeProvider(c).startLoadRecent();
+            scheduleJob(c);
+        }
     }
 
     public static void scheduleJob(Context context) {
@@ -120,7 +113,7 @@ public class AnimeProvider {
 
     public AnimeProvider(Context c){
         ctx=c;
-        cronet = AnimeApi.buildCronet(c);
+        AnimeApi.initHttpEngine();
         try {
             CHANNEL_ID = initChannel();
         }catch (Exception ex){
@@ -170,20 +163,17 @@ public class AnimeProvider {
     /* Get latest updated sub */
     private void loadRecentExec(RecentCallback cb){
         try {
-            HttpURLConnection conn = initQuic(
-                    "https://"+Conf.getDomain()+"/ajax/home/widget/updated-sub",
-                    "GET"
-            );
-            ByteArrayOutputStream buffer = AnimeApi.getBody(conn, null);
+            AnimeApi.Http http=new AnimeApi.Http(
+                    "https://"+Conf.getDomain()+"/ajax/home/widget/updated-sub");
+            http.execute();
             JSONArray r=new JSONArray("[]");
-            parseRecent(r,buffer.toString());
-            conn = initQuic(
+            parseRecent(r,http.body.toString());
+
+            http=new AnimeApi.Http(
                     "https://"+Conf.getDomain()+"/ajax/home/widget/updated-sub" +
-                        "?page=2",
-                    "GET"
-            );
-            buffer = AnimeApi.getBody(conn, null);
-            parseRecent(r,buffer.toString());
+                    "?page=2");
+            http.execute();
+            parseRecent(r,http.body.toString());
             if (r.length()>0) {
                 Log.d(_TAG,"GOT RECENTS => "+r.length());
                 cb.onFinish(r.toString());
@@ -294,27 +284,30 @@ public class AnimeProvider {
 
     @SuppressLint("RestrictedApi")
     public static void clearPlayNext(Context c) {
-        /* Clear Watch Next */
-        try {
-            Cursor cursor =
-                    c.getContentResolver()
-                            .query(
-                                    TvContractCompat.WatchNextPrograms.CONTENT_URI,
-                                    PLAYNEXT_PROJECTION,
-                                    null,
-                                    null,
-                                    null);
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    WatchNextProgram wn = WatchNextProgram.fromCursor(cursor);
-                    c.getContentResolver()
-                            .delete(
-                                    TvContractCompat.buildWatchNextProgramUri(wn.getId()),
-                                    null,
-                                    null);
-                } while (cursor.moveToNext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            /* Clear Watch Next */
+            try {
+                Cursor cursor =
+                        c.getContentResolver()
+                                .query(
+                                        TvContractCompat.WatchNextPrograms.CONTENT_URI,
+                                        PLAYNEXT_PROJECTION,
+                                        null,
+                                        null,
+                                        null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    do {
+                        WatchNextProgram wn = WatchNextProgram.fromCursor(cursor);
+                        c.getContentResolver()
+                                .delete(
+                                        TvContractCompat.buildWatchNextProgramUri(wn.getId()),
+                                        null,
+                                        null);
+                    } while (cursor.moveToNext());
+                }
+            } catch (Exception ignored) {
             }
-        }catch (Exception ignored){}
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -322,29 +315,32 @@ public class AnimeProvider {
             Context c,String title, String desc,
             String poster, String uri, String tip,
             int pos, int duration){
-        try {
-            clearPlayNext(c);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                clearPlayNext(c);
 
-            Intent myIntent = new Intent(c, MainActivity.class);
-            myIntent.setPackage(c.getPackageName());
-            myIntent.putExtra("viewurl", uri);
-            myIntent.putExtra("viewtip", tip);
-            myIntent.putExtra("viewpos", pos + "");
-            Uri intentUri = Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
+                Intent myIntent = new Intent(c, MainActivity.class);
+                myIntent.setPackage(c.getPackageName());
+                myIntent.putExtra("viewurl", uri);
+                myIntent.putExtra("viewtip", tip);
+                myIntent.putExtra("viewpos", pos + "");
+                Uri intentUri = Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
 
-            WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
-            builder.setType(TvContractCompat.WatchNextPrograms.TYPE_MOVIE)
-                    .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
-                    .setDurationMillis(duration * 1000)
-                    .setLastPlaybackPositionMillis(pos * 1000)
-                    .setLastEngagementTimeUtcMillis(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis())
-                    .setTitle(title)
-                    .setDescription(desc)
-                    .setPosterArtUri(Uri.parse(poster))
-                    .setIntentUri(intentUri);
-            Uri watchNextProgramUri = c.getContentResolver()
-                    .insert(TvContractCompat.WatchNextPrograms.CONTENT_URI, builder.build().toContentValues());
-            Log.d(_TAG, "New Watch Next Update = " + watchNextProgramUri);
-        }catch (Exception ignored){}
+                WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
+                builder.setType(TvContractCompat.WatchNextPrograms.TYPE_MOVIE)
+                        .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
+                        .setDurationMillis(duration * 1000)
+                        .setLastPlaybackPositionMillis(pos * 1000)
+                        .setLastEngagementTimeUtcMillis(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis())
+                        .setTitle(title)
+                        .setDescription(desc)
+                        .setPosterArtUri(Uri.parse(poster))
+                        .setIntentUri(intentUri);
+                Uri watchNextProgramUri = c.getContentResolver()
+                        .insert(TvContractCompat.WatchNextPrograms.CONTENT_URI, builder.build().toContentValues());
+                Log.d(_TAG, "New Watch Next Update = " + watchNextProgramUri);
+            } catch (Exception ignored) {
+            }
+        }
     }
 }
