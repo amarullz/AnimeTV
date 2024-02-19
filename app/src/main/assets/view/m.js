@@ -373,12 +373,8 @@ const _API={
   getView:function(url, f){
     _API.viewcb=f;
     var uid=++_API.viewid;
-    if (_JSAPI.getViewAvailable()){
-      $a(url,function(r){
-        _JSAPI.getview(url,uid);
-      });
+    if (_JSAPI.getview(url,uid))
       return uid;
-    }
     return false;
   },
 

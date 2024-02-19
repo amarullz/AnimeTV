@@ -1951,9 +1951,6 @@ c.loader {
   position: relative;
   padding: 0;
 }
-#settings .settings_group p div.active c.check{
-  background-color: #2b2b2b;
-}
 #settings .settings_group p div c.check:after{
   display: block;
   position: absolute;
@@ -1961,7 +1958,7 @@ c.loader {
   height:1.6vw;
   border-radius: 1.8vw;
   content: 'clear';
-  background: #555;
+  background: #eee;
   left:.2vw;
   top:.2vw;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
@@ -1982,17 +1979,15 @@ c.loader {
   line-height: 1.8vw;
   text-align: center;
   padding: 0;
+  color: var(--primary-1);
 }
-#settings .settings_group p div.active c.check:after{
-  background: #666;
+#settings .settings_group p div c.check.checked{
+  background: var(--primary-3);
 }
 #settings .settings_group p div c.check.checked:after{
   left:2.1vw;
-  background: var(--primary-3);
+  background: #fff;
   content: 'check';
-}
-#settings .settings_group p div.active c.check.checked:after{
-  background: var(--accent-1);
 }
 #settings .settings_group p div c:not(.check){
   float:left;
