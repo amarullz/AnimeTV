@@ -2727,7 +2727,7 @@ const pb={
       for (var i=start;((i<pb.data.ep.length)&&(i<start+paging_sz));i++){
         var d=pb.data.ep[i];
         var adh='';
-        var hl=$n('div',d.active?'playing':'',{action:d.url,arg:';1'},pb.pb_episodes.P,special(d.ep)+adh);
+        var hl=$n('div',d.active?'playing':'',{action:d.url,arg:pb.tip_value+';1'},pb.pb_episodes.P,special(d.ep)+adh);
         if (d.title)
           hl.setAttribute('data-title',d.title);
         if (d.active){
@@ -5128,6 +5128,7 @@ const _MAL={
     $('malview_synopsys').innerHTML=d.synopsis?special(d.synopsis):"&nbsp;"
     
     var vd='';
+    var vt='';
     if (d.duration){
       vd=special(d.duration);
       vt="Duration:";
@@ -5146,6 +5147,7 @@ const _MAL={
     if (!_MAL.onpopup){
       return;
     }
+    try{
     var numep=toInt(d.ep);
     currep=toInt(currep);
     _MAL.pop.title.innerHTML=tspecial(d.title);
@@ -5226,14 +5228,19 @@ const _MAL={
     _MAL.pop_initlist(url);
 
     _MAL.pop.var.ready=true;
+    }catch(e){
+      console.log("PDO = "+e);
+    }
   },
   preview:function(url, img, titl, ttid, ep, tcurr, tdur,arg,malid){
     var url_parse=url.split('/');
     var defdat={
       title:titl,
+      title_jp:titl,
       ep:0,
       rating:''
     };
+    console.log("Popup = "+JSON.stringify(url_parse));
     if (url_parse.length>=5){
       if (ttid){
         if(url_parse.length==6){
@@ -5256,7 +5263,16 @@ const _MAL={
       }
     }
     // pb.open(url, ttid, 0, tcurr);
-    _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,defdat,arg,malid);
+    try{
+      _MAL.pop.mv.className='active';
+        $('popupcontainer').className='active';
+      _MAL.onpopup=true;
+      _MAL.pop.var.ready=false;
+      console.log("PREV DMP = "+JSON.stringify([url, img, ttid, ep, tcurr, tdur,defdat,arg,malid]));
+      _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,defdat,arg,malid);
+    }catch(e){
+      console.log("PREV ERR = "+err);
+    }
   },
   prev_action_handler:function(data,arg){
     try{
