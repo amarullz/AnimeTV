@@ -7,16 +7,18 @@
  *
  * Learn more at https://developers.cloudflare.com/workers/
  */
-const ANILIST_CLIENT_ID = "--ANILIST-CLIENT-ID--";
+const ANILIST_CLIENT_ID = "-";
 const ANILIST_LOGIN_URL =
   "https://anilist.co/api/v2/oauth/authorize?client_id="+ANILIST_CLIENT_ID+"&response_type=token";
 const ANILIST_END_URL = 
   "https://amarullz.com/";
 
-const MAL_CLIENT_ID="--MAL-CLIENT-ID--";
-const MAL_CLIENT_SECRET="--MAL-CLIENT-SECRET--";
+const MAL_CLIENT_ID="-";
+const MAL_CLIENT_SECRET="-";
 const MAL_END_URL = 
   "https://amarullz.com/";
+
+const DISCORD_BOT_AUTH="-";
 
 const HOMEPAGE_URL = 
   "https://amarullz.com/";
@@ -34,7 +36,7 @@ export default {
 
   /* Save & load temp data with cache */
   cache_url:"https://animetv.amarullz.com/anilist/cached-",
-  cachePut:function(ctx,name,value){
+  cachePut(ctx,name,value){
     const response = new Response(
       value,
       {
@@ -60,7 +62,7 @@ export default {
     }
     return null;
   },
-  cookieGet:function(request, key) {
+  cookieGet(request, key) {
     let cookieString = request.headers.get("Cookie");
     if (cookieString) {
       const allCookies = cookieString.split("; ");
@@ -247,6 +249,23 @@ if (h.length>0){
     return this.badrequest();
   },
 
+  /* AnimeTV Discord Info*/
+  async discord_info() {
+    try{
+      return await fetch('https://discord.com/api/v9/channels/1202850534600609805/messages?limit=3',{
+        cf: {
+            cacheTtl: 1800,
+            cacheEverything: true
+        },
+        method:"GET",
+        headers:{
+          'Authorization': 'Bot '+DISCORD_BOT_AUTH
+        }
+      });
+    }catch(e){}
+    return new Response("ERROR");
+  },
+
   async fetch(request, env, ctx) {
     const { pathname, search, searchParams } = new URL(request.url);
 
@@ -258,6 +277,11 @@ if (h.length>0){
     // MAL Handler
     else if (pathname.startsWith("/mal")){
       return this.mal(request,ctx,pathname,search,searchParams);
+    }
+
+    // Discord Info
+    else if (pathname.startsWith("/discord-info")){
+      return this.discord_info();
     }
 
     return this.badrequest();
