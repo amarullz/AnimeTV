@@ -2297,6 +2297,9 @@ const pb={
       else if (key=='malaccount'){
         _MAL.login();
       }
+      else if (key=='anilistaccount'){
+        _MAL.login(1);
+      }
       else if (key in pb.cfg_data){
         if (key=="server"){
           if (pb.state){
@@ -3935,6 +3938,25 @@ const home={
           '<c>list_alt</c> MAL Login'
         );
 
+        home.settings.tools._s_anilistaccount=$n(
+          'div','',{
+            action:'*anilistaccount',
+            s_desc:
+            _MAL.islogin(1)?"Disconnect AniList account":
+            "Connect to AniList account"
+          },
+          home.settings.more.P,
+          _MAL.islogin(1)?
+          '<c>lock_open</c> AniList Logout<span class="value">'+special(_MAL.alauth.user)+'</span>':
+          '<c>hub</c> AniList Login'
+        );
+
+
+        
+
+
+        // anilistaccount
+
         home.settings.tools._s_nonjapan=$n(
           'div','',{
             action:'*nonjapan',
@@ -4711,10 +4733,15 @@ window.__ARGUPDATE=function(){
 /* MAL API */
 const _MAL={
   token:"",
+  altoken:"",
   auth:null,
+  alauth:null,
   limit:12,
   data:{},
-  islogin:function(){
+  islogin:function(isanilist){
+    if (isanilist){
+      return (_MAL.altoken?true:false);
+    }
     return (_MAL.token?true:false);
   },
   init:function(){
@@ -4732,7 +4759,7 @@ const _MAL={
         _MAL.auth = JSON.parse(maldata);
         if ('access_token' in _MAL.auth){
           _MAL.token=_MAL.auth.access_token;
-          if (_MAL.exp<$time()){
+          if (_MAL.auth.exp<$time()){
             // Expire
             _MAL.token="";
             _MAL.auth=null;
@@ -4744,6 +4771,26 @@ const _MAL={
       }
     }
     console.log("MAL-TOKEN: "+_MAL.token);
+
+    var aldata=_JSAPI.storeGet(_API.user_prefix+"anilist_auth","");
+    console.log("ANILIST-INIT: "+aldata);
+    if (aldata){
+      try{
+        _MAL.alauth = JSON.parse(aldata);
+        if ('access_token' in _MAL.alauth){
+          _MAL.altoken=_MAL.alauth.access_token;
+          if (_MAL.alauth.exp<$time()){
+            // Expire
+            _MAL.token="";
+            _MAL.auth=null;
+          }
+        }
+      }catch(ee){
+        _MAL.altoken="";
+        _MAL.alauth=null;
+      }
+    }
+    console.log("ANILIST-TOKEN: "+_MAL.altoken);
   },
   req:function(uri, method, cb){
     if (!_MAL.token){
@@ -4778,16 +4825,37 @@ const _MAL={
     var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
     _MAL.req(uri,"PUT",cb);
   },
-  login:function(){
-    if (_MAL.token){
+  login:function(isanilist){
+    if (_MAL.token && !isanilist){
       if (confirm('Are you sure you want to logout MyAnimeList integration?')){
-//        localStorage.removeItem(_API.user_prefix+"mal_auth");
         _JSAPI.storeDel(_API.user_prefix+"mal_auth");
         _API.showToast("MyAnimeList logout sucessfull...");
         _API.reload();
       }
     }
+    else if (_MAL.altoken && isanilist){
+      if (confirm('Are you sure you want to logout AniList integration?')){
+        _JSAPI.storeDel(_API.user_prefix+"anilist_auth");
+        _API.showToast("AniList logout sucessfull...");
+        _API.reload();
+      }
+    }
     else{
+      if (!isanilist){
+        var chval=_API.listPrompt(
+          "MyAnimeList Login Type",
+          ["QRCode Web Authorization","Username + Password"]
+        );
+
+        if (chval===null){
+          return;
+        }
+        if (chval==1){
+          _JSAPI.malLogin();
+          return;
+        }
+      }
+
       home.settings.open_qrcode(
         '<span class="z-loader z-small"></span><br>Please Wait..',
         null,
@@ -4795,12 +4863,13 @@ const _MAL={
       );
       var lid='';
       var lstate=0;
+      var root_url=isanilist?'https://animetv.amarullz.com/anilist':'https://animetv.amarullz.com/mal';
       function delLid(){
-        var uriv='https://animetv.amarullz.com/mal/check?lid='+lid+"&del="+$tick();
+        var uriv=root_url+'/check?lid='+lid+"&del="+$tick();
         $ap(uriv, function(r){});
       }
       function waitLogin(){
-        var uriv='https://animetv.amarullz.com/mal/check?lid='+lid+"&"+$tick();
+        var uriv=root_url+'/check?lid='+lid+"&"+$tick();
         $ap(uriv, function(r){
           if (home.ondonate){
             if (r.ok){
@@ -4811,14 +4880,14 @@ const _MAL={
                   lstate=1;
                   home.settings.open_qrcode(
                     '<span class="z-loader z-small"></span><br>'+
-                    'Please finish the authorization',
+                    (isanilist?'Please finish AniList authorization':'Please finish MAL authorization'),
                     null,
                     true
                   );
                 }
                 else if (k.st==2){
                   home.settings.close_qrcode();
-                  _MAL.onlogin(JSON.parse(r.responseText));
+                  _MAL.onlogin(JSON.parse(r.responseText),isanilist?2:1);
                   return;
                 }
               }catch(e){}
@@ -4834,15 +4903,20 @@ const _MAL={
       function showQr(){
         lstate=0;
         home.settings.open_qrcode(
-          'Scan QR and login to MAL in your phone',
-          "https://animetv.amarullz.com/mal/login?lid="+lid,
+          isanilist?'Scan QR and login to AniList in your phone':'Scan QR and login to MAL in your phone',
+          root_url+"/login?lid="+lid,
           true
         );
         waitLogin();
       }
       function genLid(){
-        lid='MAL'+$tick()+'L';
-        var uri='https://animetv.amarullz.com/mal/check?lid='+lid+"&"+$tick();
+        if (isanilist){
+          lid='AL'+$tick()+'Y';
+        }
+        else{
+          lid='MAL'+$tick()+'L';
+        }
+        var uri=root_url+'/check?lid='+lid+"&"+$tick();
         $ap(uri, function(r){
           if (home.ondonate){
             if (r.ok){
@@ -4863,23 +4937,37 @@ const _MAL={
         });
       }
       genLid();
-
-      // _JSAPI.malLogin();
     }
   },
-  onlogin:function(d){
+  onlogin:function(d,tp){
     if (d){
+      if (!tp){
+        d.tk=d.access_token;
+        d.ex=d.expires_in;
+      }
       if (('tk' in d) && ('ex' in d)){
         var dt={
           access_token:d.tk,
           exp:d.ex+$time(),
           expires_in:d.ex,
-          user:d.user
+          user:(tp==2)?'AniList':d.user
         };
-        _JSAPI.storeSet(_API.user_prefix+"mal_auth",JSON.stringify(dt));
-        console.log("MAL-ONLOGIN: "+JSON.stringify(dt));
-        _API.showToast("MyAnimeList login sucessfull...");
-        _API.reload();
+
+        if (tp==2){
+          _JSAPI.storeSet(_API.user_prefix+"anilist_auth",JSON.stringify(dt));
+          console.log("ANILIST-ONLOGIN: "+JSON.stringify(dt));
+          _API.showToast("AniList login sucessfull...");
+          _API.reload();
+        }
+        else{
+          _JSAPI.storeSet(_API.user_prefix+"mal_auth",JSON.stringify(dt));
+          console.log("MAL-ONLOGIN: "+JSON.stringify(dt));
+          _API.showToast("MyAnimeList login sucessfull...");
+          _API.reload();
+        }
+      }
+      else if (tp==2){
+        _API.showToast("AniList Login Failed");
       }
       else{
         _API.showToast("MyAnimeList Login Failed"+(('message' in d)?": "+d.message:""));

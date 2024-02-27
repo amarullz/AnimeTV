@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Cache;
+import okhttp3.Dispatcher;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -458,9 +459,11 @@ public class AnimeApi extends WebViewClient {
 
   public static OkHttpClient httpClient;
   public static DnsOverHttps dohClient;
+
+  public static OkHttpClient bootstrapClient;
   public static void initHttpEngine(){
     Cache appCache = new Cache(new File("cacheDir", "okhttpcache"), 100 * 1024 * 1024);
-    OkHttpClient bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
+    bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
     dohClient=new DnsOverHttps.Builder().client(bootstrapClient)
             .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
             .build();
