@@ -1,31 +1,7 @@
 /**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run "npm run dev" in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run "npm run deploy" to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
+ * AnimeTV Worker
  */
-const ANILIST_CLIENT_ID = "-";
-const ANILIST_LOGIN_URL =
-  "https://anilist.co/api/v2/oauth/authorize?client_id="+ANILIST_CLIENT_ID+"&response_type=token";
-const ANILIST_END_URL = 
-  "https://amarullz.com/";
-
-const MAL_CLIENT_ID="-";
-const MAL_CLIENT_SECRET="-";
-const MAL_END_URL = 
-  "https://amarullz.com/";
-
-const DISCORD_BOT_AUTH="-";
-
-const HOMEPAGE_URL = 
-  "https://amarullz.com/";
-
-const KV_ACCOUNT_ID="-";
-const KV_NAMESPACE="-";
-const KV_AUTH="-";
+let ENV=null;
 
 export default {
   /* Bad Request - Redirect to homepage */
@@ -33,62 +9,20 @@ export default {
     return new Response(null, {
       status: 301,
       headers: {
-        'Location': HOMEPAGE_URL
+        'Location': ENV.HOMEPAGE_URL
       }
     });
   },
 
   /* Save & load temp data with cache */
   async cachePut(name,value){
-    const data = new FormData();
-    data.set('metadata','{}');
-    data.set('value',value);
-    let dat=await fetch(
-      "https://api.cloudflare.com/client/v4/accounts/"+KV_ACCOUNT_ID+
-      "/storage/kv/namespaces/"+KV_NAMESPACE+"/values/"+name,
-      {
-      method:"PUT",
-      body:value,
-      headers: {
-        'Authorization': 'Bearer '+KV_AUTH,
-        'Content-Type': "application/json"
-      }
-    });
-    return await dat.text();
+    await ENV.KV_ANIMETV.put(name,value,{"expirationTtl":3600});
   },
   async cacheGet(name){
-    let dat=await fetch(
-      "https://api.cloudflare.com/client/v4/accounts/"+KV_ACCOUNT_ID+
-      "/storage/kv/namespaces/"+KV_NAMESPACE+"/values/"+name+"?"+ ((new Date()).getTime()),
-      {
-      method:"get",
-      headers: {
-        'Authorization': 'Bearer '+KV_AUTH
-      }, 
-      cf: {
-        cacheTtl: -1
-      } 
-    }
-    );
-    if (dat.status!=200){
-      return null;
-    }
-    return await dat.text();
+    return await ENV.KV_ANIMETV.get(name);
   },
   async cacheDel(name){
-    let dat=await fetch(
-      "https://api.cloudflare.com/client/v4/accounts/"+KV_ACCOUNT_ID+
-      "/storage/kv/namespaces/"+KV_NAMESPACE+"/values/"+name,
-      {
-      method:"delete",
-      headers: {
-        'Authorization': 'Bearer '+KV_AUTH
-      }
-    });
-    if (dat.status!=200){
-      return null;
-    }
-    return await dat.text();
+    await ENV.KV_ANIMETV.delete(name);
   },
   cookieGet(request, key) {
     let cookieString = request.headers.get("Cookie");
@@ -130,7 +64,7 @@ export default {
         return new Response(null, {
           status: 301,
           headers: {
-            'Location': ANILIST_LOGIN_URL,
+            'Location': "https://anilist.co/api/v2/oauth/authorize?client_id="+ENV.ANILIST_CLIENT_ID+"&response_type=token",
             'Set-Cookie': "__alid="+lid+";"
           }
         });
@@ -178,7 +112,7 @@ export default {
         return new Response(null, {
           status: 301,
           headers: {
-            'Location': ANILIST_END_URL+"?lid="+lid
+            'Location': ENV.ANILIST_END_URL+"?lid="+lid
           }
         });
       }
@@ -217,7 +151,7 @@ if (h.length>0){
         let mal_challange=this.randomString(100);
         let mal_url=
           'https://myanimelist.net/v1/oauth2/authorize?response_type=code&'+
-          'client_id='+MAL_CLIENT_ID+'&'+
+          'client_id='+ENV.MAL_CLIENT_ID+'&'+
           'code_challenge='+mal_challange;
         await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
@@ -274,8 +208,8 @@ if (h.length>0){
       if (code && lid && cv){
         /* Get Auth Token */
         const data = new URLSearchParams();
-        data.set('client_id',MAL_CLIENT_ID);
-        data.set('client_secret',MAL_CLIENT_SECRET);
+        data.set('client_id',ENV.MAL_CLIENT_ID);
+        data.set('client_secret',ENV.MAL_CLIENT_SECRET);
         data.set('code',code);
         data.set('code_verifier',cv);
         data.set('grant_type','authorization_code');
@@ -310,7 +244,7 @@ if (h.length>0){
         return new Response(null, {
           status: 301,
           headers: {
-            'Location': MAL_END_URL+"?lid="+lid
+            'Location': ENV.MAL_END_URL+"?lid="+lid
           }
         });   
       }
@@ -328,7 +262,7 @@ if (h.length>0){
         },
         method:"GET",
         headers:{
-          'Authorization': 'Bot '+DISCORD_BOT_AUTH
+          'Authorization': 'Bot '+ENV.DISCORD_BOT_AUTH
         }
       });
     }catch(e){}
@@ -337,6 +271,7 @@ if (h.length>0){
 
   async fetch(request, env, ctx) {
     const { pathname, search, searchParams } = new URL(request.url);
+    ENV=env;
 
     // AniList Handler
     if (pathname.startsWith("/anilist")){
@@ -351,11 +286,6 @@ if (h.length>0){
     // Discord Info
     else if (pathname.startsWith("/discord-info")){
       return this.discord_info();
-    }
-
-    else if (pathname.startsWith("/test")){
-      let txt=await this.cachePut("hallo",JSON.stringify({d:21,c:1}));
-      return new Response(txt);
     }
 
     return this.badrequest();
