@@ -4950,7 +4950,7 @@ const _MAL={
           access_token:d.tk,
           exp:d.ex+$time(),
           expires_in:d.ex,
-          user:(tp==2)?'AniList':d.user
+          user:d.user
         };
 
         if (tp==2){

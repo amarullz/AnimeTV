@@ -47,6 +47,32 @@ export default {
       return text;
   },
 
+  async anilist_getuser(altoken){
+    var query = `
+    query {
+        Viewer {
+            id
+            name
+        }
+    }
+    `;
+    var variables = {};
+    var url = 'https://graphql.anilist.co';
+    let res=await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer '+altoken
+        },
+        body: JSON.stringify({
+            query: query,
+            variables: variables
+        })
+    });
+    return await res.text();
+  },
+
   /* AniList oAuth Request Handler */
   async anilist(request,ctx,pathname, search, searchParams){
     /* Redirect to auth site */
@@ -90,7 +116,8 @@ export default {
         }
         return new Response(v,{
           headers:{
-            'content-type':'application/json'
+            'content-type':'application/json',
+            "Cache-Control": 'no-cache'
           }
         });
       }
@@ -108,6 +135,14 @@ export default {
           ex:ei,
           id:lid
         };
+
+        try{
+          let udt=await this.anilist_getuser(at);
+          let usr=JSON.parse(udt);
+          d.user=usr.data.Viewer.name;
+          d.uid=usr.data.Viewer.id;
+        }catch(e){}
+
         await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
           status: 301,
@@ -183,7 +218,8 @@ if (h.length>0){
         }
         return new Response(v,{
           headers:{
-            'content-type':'application/json'
+            'content-type':'application/json',
+            "Cache-Control": 'no-cache'
           }
         });
       }
