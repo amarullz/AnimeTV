@@ -23,6 +23,10 @@ const DISCORD_BOT_AUTH="-";
 const HOMEPAGE_URL = 
   "https://amarullz.com/";
 
+const KV_ACCOUNT_ID="-";
+const KV_NAMESPACE="-";
+const KV_AUTH="-";
+
 export default {
   /* Bad Request - Redirect to homepage */
   badrequest(){
@@ -35,32 +39,52 @@ export default {
   },
 
   /* Save & load temp data with cache */
-  cache_url:"https://animetv.amarullz.com/anilist/cached-",
-  cachePut(ctx,name,value){
-    const response = new Response(
-      value,
+  async cachePut(name,value){
+    const data = new FormData();
+    data.set('metadata','{}');
+    data.set('value',value);
+    let dat=await fetch(
+      "https://api.cloudflare.com/client/v4/accounts/"+KV_ACCOUNT_ID+
+      "/storage/kv/namespaces/"+KV_NAMESPACE+"/values/"+name,
       {
-        headers: {
-          "Content-Type": "text/plain"
-        }
+      method:"PUT",
+      body:value,
+      headers: {
+        'Authorization': 'Bearer '+KV_AUTH,
+        'Content-Type': "application/json"
       }
-    );
-    response.headers.append("Cache-Control", "s-maxage=3600");
-    ctx.waitUntil(
-      caches.default.put(
-        new Request(this.cache_url+name),
-        response.clone()
-      )
-    );
+    });
+    return await dat.text();
   },
   async cacheGet(name){
-    let v= await caches.default.match(
-      new Request(this.cache_url+name)
-    );
-    if (v){
-      return v.text();
+    let dat=await fetch(
+      "https://api.cloudflare.com/client/v4/accounts/"+KV_ACCOUNT_ID+
+      "/storage/kv/namespaces/"+KV_NAMESPACE+"/values/"+name,
+      {
+      method:"get",
+      headers: {
+        'Authorization': 'Bearer '+KV_AUTH
+      }
+    });
+    if (dat.status!=200){
+      return null;
     }
-    return null;
+    return await dat.text();
+  },
+  async cacheDel(name){
+    let dat=await fetch(
+      "https://api.cloudflare.com/client/v4/accounts/"+KV_ACCOUNT_ID+
+      "/storage/kv/namespaces/"+KV_NAMESPACE+"/values/"+name,
+      {
+      method:"delete",
+      headers: {
+        'Authorization': 'Bearer '+KV_AUTH
+      }
+    });
+    if (dat.status!=200){
+      return null;
+    }
+    return await dat.text();
   },
   cookieGet(request, key) {
     let cookieString = request.headers.get("Cookie");
@@ -91,10 +115,14 @@ export default {
     if (pathname=="/anilist/login"){
       let lid=searchParams.get("lid");
       if (lid){
+        let v=await this.cacheGet(lid);
+        if (!v){
+          return this.badrequest();
+        }
         let d={
           st:1
         };
-        this.cachePut(ctx,lid,JSON.stringify(d));
+        await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
           status: 301,
           headers: {
@@ -111,7 +139,16 @@ export default {
       if (lid){
         let v=await this.cacheGet(lid);
         if (!v){
+          /* Set as reserved */
           v=JSON.stringify({st:0});
+          await this.cachePut(lid,JSON.stringify({st:5}));
+        }
+        if (v){
+          let vd=JSON.parse(v);
+          let isdel=searchParams.get("del");
+          if (vd.st==2 || isdel){
+            await this.cacheDel(lid);
+          }
         }
         return new Response(v,{
           headers:{
@@ -133,7 +170,7 @@ export default {
           ex:ei,
           id:lid
         };
-        this.cachePut(ctx,lid,JSON.stringify(d));
+        await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
           status: 301,
           headers: {
@@ -166,6 +203,10 @@ if (h.length>0){
     if (pathname=="/mal/login"){
       let lid=searchParams.get("lid");
       if (lid){
+        let v=await this.cacheGet(lid);
+        if (!v){
+          return this.badrequest();
+        }
         let d={
           st:1
         };
@@ -174,7 +215,7 @@ if (h.length>0){
           'https://myanimelist.net/v1/oauth2/authorize?response_type=code&'+
           'client_id='+MAL_CLIENT_ID+'&'+
           'code_challenge='+mal_challange;
-        this.cachePut(ctx,lid,JSON.stringify(d));
+        await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
           status: 301,
           headers: {
@@ -191,7 +232,16 @@ if (h.length>0){
       if (lid){
         let v=await this.cacheGet(lid);
         if (!v){
+          /* Set as reserved */
           v=JSON.stringify({st:0});
+          await this.cachePut(lid,JSON.stringify({st:5}));
+        }
+        if (v){
+          let vd=JSON.parse(v);
+          let isdel=searchParams.get("del");
+          if (vd.st==2 || isdel){
+            await this.cacheDel(lid);
+          }
         }
         return new Response(v,{
           headers:{
@@ -211,6 +261,11 @@ if (h.length>0){
       let kld=klid.split('--_--');
       let lid=kld[0];
       let cv=kld[1];
+
+      let v=await this.cacheGet(lid);
+      if (!v){
+        return this.badrequest();
+      }
 
       if (code && lid && cv){
         /* Get Auth Token */
@@ -234,10 +289,20 @@ if (h.length>0){
           st:2,
           tk:out.access_token,
           ex:out.expires_in,
-          id:lid,
-          dt:out
+          id:lid
         };
-        this.cachePut(ctx,lid,JSON.stringify(d));
+
+        let mydata=await fetch('https://api.myanimelist.net/v2/users/@me',{
+          method:"get",
+          headers: {
+            'Accept': 'application/json',
+            'Authorization':'Bearer '+d.tk
+          }
+        });
+        let me=JSON.parse(await mydata.text());
+        d.user=me.name;
+
+        await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
           status: 301,
           headers: {
@@ -282,6 +347,11 @@ if (h.length>0){
     // Discord Info
     else if (pathname.startsWith("/discord-info")){
       return this.discord_info();
+    }
+
+    else if (pathname.startsWith("/test")){
+      let txt=await this.cachePut("hallo",JSON.stringify({d:21,c:1}));
+      return new Response(txt);
     }
 
     return this.badrequest();
