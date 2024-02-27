@@ -261,6 +261,18 @@ const _API={
     $('animebg').className='bg'+pb.cfg_data.bgimg;
   },
 
+  listPrompt:function(title,list,sel){
+    var d={
+      'type':'list',
+      'title':title,
+      'list':list
+    };
+    if (sel!=undefined){
+      d.sel=sel;
+    }
+    return prompt(JSON.stringify(d));
+  },
+
   /*** GENRES ***/
   genres:{
     "_tv":"tv","_movie":"movie",
@@ -2162,26 +2174,47 @@ const pb={
       }
       else if (key=="quality"){
         if (pb.state==2){
-          if (++pb.cfg_data.quality>3) pb.cfg_data.quality=0;
-          pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-          pb.reinit_video_delay(1000);
+          var chval=_API.listPrompt(
+            "Stream Quality",
+            pb.cfgquality_name,
+            pb.cfg_data.quality
+          );
+          if (chval!=null){
+            pb.cfg_data.quality=toInt(chval);
+            pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
+            pb.cfg_update_el(key);
+            pb.cfg_save();
+            pb.reinit_video_delay(1000);
+          }
         }
       }
       else if (key=="animation"){
         pb.state=0;
-        if (++pb.cfg_data.animation>2) pb.cfg_data.animation=0;
-        pb.cfg_update_el(key);
-        pb.cfg_save();
-        pb.updateanimation();
+        var chval=_API.listPrompt(
+          "Transition Animation",
+          pb.cfganimation_name,
+          pb.cfg_data.animation
+        );
+        if (chval!=null){
+          pb.cfg_data.animation=toInt(chval);
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+          pb.updateanimation();
+        }
       }
       else if (key=="uifontsize"){
         pb.state=0;
-        if (++pb.cfg_data.uifontsize>2) pb.cfg_data.uifontsize=0;
-        pb.cfg_update_el(key);
-        pb.cfg_save();
-        pb.updateanimation();
+        var chval=_API.listPrompt(
+          "Font Size",
+          pb.cfguifontsize_name,
+          pb.cfg_data.uifontsize
+        );
+        if (chval!=null){
+          pb.cfg_data.uifontsize=toInt(chval);
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+          pb.updateanimation();
+        }
       }
       else if (key=="ccstyle"){
         if (++pb.cfg_data.ccstyle>15) pb.cfg_data.ccstyle=0;
@@ -2225,18 +2258,25 @@ const pb={
       }
       else if (key=='sourcesvr'){
         // Update Home
-        var chval=(__SD==2)?1:2;
-        if (confirm("You are about to change the source server.\n"+
-          "SOURCE SERVER TARGET : "+chval+". "+(chval==2?"ANIX":"WAVE")+"\n\n"+
-          "NOTE: Watchlist & history contents will be changed...\n\n"+
-          "Are you sure??")){
-          _JSAPI.setSd((__SD==2)?1:2);
-          if (pb.status){
-            pb.reset(1,0);
+        var chval=_API.listPrompt(
+          "Source Server",
+          ["1. WAVE", "2. ANIX"],
+          (__SD==2)?1:0
+        );
+        if (chval!=null){
+          chval=toInt(chval)+1;
+          if (confirm("You are about to change the source server.\n"+
+            "SOURCE SERVER TARGET : "+chval+". "+(chval==2?"ANIX":"WAVE")+"\n\n"+
+            "NOTE: Watchlist & history contents will be changed...\n\n"+
+            "Are you sure??")){
+            _JSAPI.setSd((__SD==2)?1:2);
+            if (pb.status){
+              pb.reset(1,0);
+            }
+            setTimeout(function(){
+              _API.reload();
+            },200);
           }
-          setTimeout(function(){
-            _API.reload();
-          },200);
         }
       }
       else if (key=='performance'){
@@ -2269,10 +2309,17 @@ const pb={
           }
         }
         else if (key=="scale"){
-          if (++pb.cfg_data.scale>2) pb.cfg_data.scale=0;
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-          _API.videoScale(pb.cfg_data.scale);
+          var chval=_API.listPrompt(
+            "Video Scaling",
+            pb.cfgscale_name,
+            pb.cfg_data.scale
+          );
+          if (chval!=null){
+            pb.cfg_data.scale=toInt(chval);
+            pb.cfg_update_el(key);
+            pb.cfg_save();
+            _API.videoScale(pb.cfg_data.scale);
+          }
         }
         else{
           pb.cfg_data[key]=!pb.cfg_data[key];

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -14,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -39,6 +42,7 @@ import android.widget.Toast;
 import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
@@ -146,6 +150,7 @@ public class AnimeView extends WebViewClient {
                 (dialog, which) -> result.confirm())
             .setNegativeButton("No",
                 (dialog, which) -> result.cancel())
+                .setOnDismissListener(dialogInterface -> result.cancel())
             .create()
             .show();
         return true;
@@ -158,6 +163,48 @@ public class AnimeView extends WebViewClient {
             .setNeutralButton(android.R.string.ok, (dialog, arg1) -> dialog.dismiss()).show();
         result.cancel();
         return true;
+      }
+
+      @Override
+      public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+        try{
+          JSONObject jo=new JSONObject(message);
+          String type=jo.getString("type");
+          String title=jo.getString("title");
+          if (type.equals("list")){
+            JSONArray ja=jo.getJSONArray("list");
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle(title);
+            String[] list = new String[ja.length()];
+            for (int i=0;i<ja.length();i++){
+              list[i]=ja.getString(i);
+            }
+            if (jo.has("sel")) {
+              final int selVal=jo.getInt("sel");
+              builder.setSingleChoiceItems(list, selVal,
+                      (dialog, which) -> {
+                        if (which!=selVal) {
+                          result.confirm(String.valueOf(which));
+                          dialog.cancel();
+                        }
+                        else{
+                          result.cancel();
+                          dialog.cancel();
+                        }
+                      }
+              );
+            }
+            else {
+              builder.setItems(list, (dialog, which) -> result.confirm(String.valueOf(which)));
+            }
+            builder.setOnDismissListener(dialogInterface -> result.cancel());
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+          }
+          return true;
+        }catch(Exception ignored){}
+        return super.onJsPrompt(view,url,message,defaultValue,result);
       }
     });
     webView.setVerticalScrollBarEnabled(false);
