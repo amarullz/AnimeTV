@@ -654,7 +654,7 @@ const _API={
   },
 
   /* Fetch animetv-info last message */
-  discord_info_url:"https://amarullz.com/animetv-discord-info.txt",
+  discord_info_url:"https://animetv.amarullz.com/discord-info",
   discordFetch:function(cb){
     $ap(_API.discord_info_url+"?"+$tick(), cb);
   }
@@ -4126,23 +4126,52 @@ const home={
       }
     },
     open_donation:function(ispaypal){
-      if (home.onsettings){
-        home.ondonate=true;
-        $('popupcontainer').className='active';
-        $('aboutpopup').className='active';
-        var v1=ispaypal?'':'none';
-        var v2=ispaypal?'none':'';
-        $('popup_paypal').style.display=v1;
-        $('popup_discord').style.display=v2;
+      if (ispaypal){
+        home.settings.open_qrcode(
+          "Donate Project<br>https://paypal.me/amarullz",
+          "https://paypal.me/amarullz"
+        );
       }
+      else{
+        home.settings.open_qrcode(
+          "Join Discord Server<br>https://discord.gg/VGtGtRedGR",
+          "https://discord.gg/VGtGtRedGR"
+        );
+      }
+    },
+    open_qrcode:function(title, uri, shouldback){
+      if (home.onsettings){
+        home.ondonate=shouldback?2:true;
+        $('popupcontainer').className='active';
+        $('aboutpopup').className='active'; 
+        if (uri){
+          var h='<div id="qr_holder_value"></div>'+title;
+          $('popup_qrcode').innerHTML=h;
+          new QRCode("qr_holder_value", {
+            text: uri,
+            width: 256,
+            height: 256,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+          });
+        }
+        else{
+          $('popup_qrcode').innerHTML=title;
+        }
+        $('popup_qrcode').style.display='';
+      }
+    },
+    close_qrcode:function(){
+      $('aboutpopup').className='';
+      $('popupcontainer').className='';
+      home.ondonate=false;
     }
   },
   settings_keycb:function(c){
     if (home.ondonate){
-      if (c==KBACK || c==KENTER){
-        $('aboutpopup').className='';
-        $('popupcontainer').className='';
-        home.ondonate=false;
+      if (c==KBACK || (c==KENTER && home.ondonate!=2)){
+        home.settings.close_qrcode();
       }
       return;
     }
@@ -4759,20 +4788,94 @@ const _MAL={
       }
     }
     else{
-      _JSAPI.malLogin();
+      home.settings.open_qrcode(
+        '<span class="z-loader z-small"></span><br>Please Wait..',
+        null,
+        true
+      );
+      var lid='';
+      var lstate=0;
+      function delLid(){
+        var uriv='https://animetv.amarullz.com/mal/check?lid='+lid+"&del="+$tick();
+        $ap(uriv, function(r){});
+      }
+      function waitLogin(){
+        var uriv='https://animetv.amarullz.com/mal/check?lid='+lid+"&"+$tick();
+        $ap(uriv, function(r){
+          if (home.ondonate){
+            if (r.ok){
+              try{
+                var k=JSON.parse(r.responseText);
+                console.log("MAL RECHECK = "+r.responseText+" / "+uriv);
+                if ((k.st==1)&&(lstate==0)){
+                  lstate=1;
+                  home.settings.open_qrcode(
+                    '<span class="z-loader z-small"></span><br>'+
+                    'Please finish the authorization',
+                    null,
+                    true
+                  );
+                }
+                else if (k.st==2){
+                  home.settings.close_qrcode();
+                  _MAL.onlogin(JSON.parse(r.responseText));
+                  return;
+                }
+              }catch(e){}
+            }
+            /* retry */
+            setTimeout(waitLogin,2000);
+          }
+          else{
+            delLid();
+          }
+        });
+      }
+      function showQr(){
+        lstate=0;
+        home.settings.open_qrcode(
+          'Scan QR and login to MAL in your phone',
+          "https://animetv.amarullz.com/mal/login?lid="+lid,
+          true
+        );
+        waitLogin();
+      }
+      function genLid(){
+        lid='MAL'+$tick()+'L';
+        var uri='https://animetv.amarullz.com/mal/check?lid='+lid+"&"+$tick();
+        $ap(uri, function(r){
+          if (home.ondonate){
+            if (r.ok){
+              try{
+                var k=JSON.parse(r.responseText);
+                console.log("MAL CHECK = "+r.responseText);
+                if (k.st==0){
+                  showQr();
+                  return;
+                }
+              }catch(e){}
+            }
+            /* retry */
+            setTimeout(genLid,2000);
+          }else{
+            delLid();
+          }
+        });
+      }
+      genLid();
+
+      // _JSAPI.malLogin();
     }
   },
   onlogin:function(d){
     if (d){
-      if (('access_token' in d) && ('expires_in' in d)){
+      if (('tk' in d) && ('ex' in d)){
         var dt={
-          access_token:d.access_token,
-          exp:d.expires_in+$time(),
-          expires_in:d.expires_in,
-          refresh_token:d.refresh_token,
+          access_token:d.tk,
+          exp:d.ex+$time(),
+          expires_in:d.ex,
           user:d.user
         };
-//        localStorage.setItem(_API.user_prefix+"mal_auth",JSON.stringify(dt));
         _JSAPI.storeSet(_API.user_prefix+"mal_auth",JSON.stringify(dt));
         console.log("MAL-ONLOGIN: "+JSON.stringify(dt));
         _API.showToast("MyAnimeList login sucessfull...");

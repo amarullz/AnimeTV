@@ -59,13 +59,17 @@ export default {
   async cacheGet(name){
     let dat=await fetch(
       "https://api.cloudflare.com/client/v4/accounts/"+KV_ACCOUNT_ID+
-      "/storage/kv/namespaces/"+KV_NAMESPACE+"/values/"+name,
+      "/storage/kv/namespaces/"+KV_NAMESPACE+"/values/"+name+"?"+ ((new Date()).getTime()),
       {
       method:"get",
       headers: {
         'Authorization': 'Bearer '+KV_AUTH
-      }
-    });
+      }, 
+      cf: {
+        cacheTtl: -1
+      } 
+    }
+    );
     if (dat.status!=200){
       return null;
     }
