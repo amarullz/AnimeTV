@@ -3028,13 +3028,38 @@ const pb={
     /* MAL Update Watched Episode */
     if (pb.malidsave && (pb.malidanime==pb.data.animeid)){
       console.log("MAL-PLAY #"+pb.malidsave+" / animeid="+pb.data.animeid);
+      var isanilist=false;
       var malid="mal_"+pb.malidsave;
-      if (malid in _MAL.data){
+      if (pb.malidsave.startsWith("L")){
+        malid='anilist_'+pb.malidsave.substring(1);
+        isanilist=true;
+      }
+      if (!isanilist && (malid in _MAL.data)){
         var d=_MAL.data[malid];
         var cep=toInt(pb.ep_val);
         if (cep>d.list_status.num_episodes_watched){
           console.log("MAL-PLAY #Update-Watched -> "+d.list_status.num_episodes_watched+" / Play="+pb.ep_val);
           d.list_status.num_episodes_watched=cep;
+          _MAL.set_ep(pb.malidsave, cep, function(r){
+            console.log("MAL-PLAY #Update-Resp: "+r.responseText);
+          });
+          if (d._elm && d._elm._ep){
+            var sp=d._elm._ep.querySelector("span.info_ep");
+            if (!sp){
+              d._elm._ep.innerHTML+='<span class="info_ep">'+special(cep+"")+'</span>';
+            }
+            else{
+              sp.innerHTML=special(cep+"");
+            }
+          }
+        }
+      }
+      else if (isanilist && (malid in _MAL.aldata)){
+        var d=_MAL.aldata[malid];
+        var cep=toInt(pb.ep_val);
+        if (cep>d.progress){
+          console.log("MAL-PLAY #Update-Watched -> "+d.progress+" / Play="+pb.ep_val);
+          d.progress=cep;
           _MAL.set_ep(pb.malidsave, cep, function(r){
             console.log("MAL-PLAY #Update-Resp: "+r.responseText);
           });
@@ -3248,6 +3273,7 @@ const home={
   home_slide:$('home_slide'),
   home_recent:$('home_recent'),
   home_mal:$('home_mal'),
+  home_anilist:$('home_anilist'),
   home_dub:$('home_dub'),
   home_trending:$('home_trending'),
   home_random:$('home_random'),
@@ -3668,6 +3694,16 @@ const home={
       home.menus.push(home.home_mal);
       home.home_mal.setAttribute("list-title","🎫 MyAnimeList Currently Watching 🧑 "+special(_MAL.auth.user));
     }
+
+    if (_MAL.islogin(true)){
+      home.home_anilist.className='home_list pb_menu';
+      home.home_anilist.style.display=''; 
+      home.recent_init(home.home_anilist, _MAL.alhome_loader);
+      home.menus.push(home.home_anilist);
+      home.home_anilist.setAttribute("list-title","🎫 AniList Currently Watching 🧑 "+special(_MAL.alauth.user));
+    }
+
+    
 
     home.menus.push(home.home_dub);
     home.menus.push(home.home_trending);
@@ -4738,6 +4774,7 @@ const _MAL={
   alauth:null,
   limit:12,
   data:{},
+  aldata:{},
   islogin:function(isanilist){
     if (isanilist){
       return (_MAL.altoken?true:false);
@@ -4792,16 +4829,16 @@ const _MAL={
     }
     console.log("ANILIST-TOKEN: "+_MAL.altoken);
     if (_MAL.altoken){
-      _MAL.alreq(`
-      query {
-          Viewer {
-              id
-              name
-          }
-      }
-      `,{},function(r){
-        console.log("ANILIST-REQ = "+r.responseText);
-      });
+      // _MAL.alreq(`
+      // query {
+      //     Viewer {
+      //         id
+      //         name
+      //     }
+      // }
+      // `,{},function(r){
+      //   console.log("ANILIST-REQ = "+r.responseText);
+      // });
     }
     /*
 query ($page: Int, $perPage: Int) {
@@ -4809,8 +4846,10 @@ query ($page: Int, $perPage: Int) {
     pageInfo {
       total
       perPage
+      hasNextPage
     }
     mediaList(userName:"amarullz",type:ANIME,status:CURRENT,sort:ADDED_TIME_DESC){
+      id
       mediaId
       progress
       media{
@@ -4879,6 +4918,54 @@ query ($page: Int, $perPage: Int) {
     }));
     xhttp.send();
   },
+  alset_ep:function(animeid, ep, cb){
+    _MAL.alreq(`mutation($id: Int, $progress:Int){
+      SaveMediaListEntry(id:$id, progress:$progress){
+        progress
+      }
+    }`,{
+      id:animeid,
+      progress:ep
+    },cb);
+  },
+  allist:function(page,cb){
+    _MAL.alreq(`query ($user: String, $page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        pageInfo {
+          perPage
+          hasNextPage
+          currentPage
+        }
+        mediaList(userName:$user,type:ANIME,status:CURRENT,sort:ADDED_TIME_DESC){
+          id
+          mediaId
+          progress
+          media{
+            title{
+              romaji
+              english
+            }
+            coverImage{
+              large
+              color
+            }
+            status
+            format
+            seasonYear
+            season
+            isAdult
+            averageScore
+            episodes
+            source
+          }
+        }
+      }
+    }`,{
+      user:_MAL.alauth.user,
+      page:page,
+      perPage:5
+    },cb);
+  },
   list:function(offset,cb){
     var uri='/v2/users/@me/animelist?nsfw=true&'+
       'fields=list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
@@ -4890,8 +4977,14 @@ query ($page: Int, $perPage: Int) {
     _MAL.req(uri,"GET",cb);
   },
   set_ep:function(animeid, ep, cb){
-    var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
-    _MAL.req(uri,"PUT",cb);
+    console.log("Update EP : "+animeid);
+    if (animeid.startsWith("L")){
+      _MAL.alset_ep(animeid.substring(1),ep,cb);
+    }
+    else{
+      var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
+      _MAL.req(uri,"PUT",cb);
+    }
   },
   login:function(isanilist){
     if (_MAL.token && !isanilist){
@@ -5061,6 +5154,62 @@ query ($page: Int, $perPage: Int) {
       }
     });
   },
+  alhome_loader:function(g){
+    g._onload=1;
+    _MAL.allist(g._page,function(r){
+      if (r.ok){
+        console.log("ANILIST-LIST: "+r.responseText);
+        try{
+          var v=JSON.parse(r.responseText);
+          _MAL.allist_parse(g,v);
+        }catch(e){}
+        g._onload=0;
+      }
+      else{
+        setTimeout(function(){_MAL.alhome_loader(g)},10000);
+        console.log("ANILIST-LIST: ERROR -> "+r.responseText);
+      }
+    });
+  },
+  allist_parse:function(g,v){
+    try{
+      if (!v.data.Page.hasNextPage){
+        g._page=100;
+      }
+      if (v.data.Page.mediaList.length>0){
+        for (var i=0;i<v.data.Page.mediaList.length;i++){
+          var d=v.data.Page.mediaList[i];
+          var malid="anilist_"+d.id;
+          _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
+          var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
+          hl._img=$n('img','',{loading:'lazy',src:d.media.coverImage.large},hl,'');
+          _MAL.aldata[malid]._elm=hl;
+          hl._title=$n('b','',{jp:d.media.title.romaji},hl,tspecial(d.media.title.english));
+          var infotxt='';
+          var numep=d.progress;
+          var mtp=d.media.format;
+          if (mtp&&(mtp!='unknown')){
+            infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
+          }
+          if (numep){
+            infotxt+='<span class="info_ep">'+special(numep+"")+'</span>';
+          }
+          hl._ep=$n('span','info',null,hl,infotxt);
+        }
+        while (g.P.childElementCount>30){
+          g._spre.push(g.P.firstElementChild.nextElementSibling);
+          g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+        }
+        g.__update_pre();
+        if (!g._sel)
+          pb.menu_select(g,g.P.firstElementChild);
+        else
+          pb.menu_select(g,g._sel);
+      }
+    }catch(e){
+      console.log("ANILIST - ERR : "+e);
+    }
+  },
   list_parse:function(g,v){
     if ('paging' in v){
       if (!('next' in v.paging)){
@@ -5114,16 +5263,29 @@ query ($page: Int, $perPage: Int) {
       }catch(e){}
     }
   },
-  srcanime:function(d,cb){
+  srcanime:function(d,cb,isanilist){
     if ('srcanime' in d){
       cb(d.srcanime);
       return;
     }
-    var id=d.node.id;
-    var kw=d.node.title;
-    var ses=d.node.start_season.season;
-    var y=d.node.start_season.year;
-    var uri='/filter?keyword='+enc(kw)+'&season='+enc(ses)+'&year='+enc(y+'')+'&sort=most_relevance';
+    var uri='';
+    var id='';
+    if (isanilist){
+      id=d.id;
+      var kw=d.media.title.romaji;
+      var ses=d.media.season;
+      var y=d.media.seasonYear;
+      uri='/filter?keyword='+enc(kw)+'&season='+enc(ses)+'&year='+enc(y+'')+'&sort=most_relevance';
+      console.log("FILTER URL = "+uri);
+      console.log(JSON.stringify(d));
+    }
+    else{
+      id=d.node.id;
+      var kw=d.node.title;
+      var ses=d.node.start_season.season;
+      var y=d.node.start_season.year;
+      uri='/filter?keyword='+enc(kw)+'&season='+enc(ses)+'&year='+enc(y+'')+'&sort=most_relevance';
+    }
     $a(uri,function(r){
       if (r.ok){
         var rd=home.search.parse(r.responseText);
@@ -5156,21 +5318,29 @@ query ($page: Int, $perPage: Int) {
                 '', d.node.id
               );
             }
-            // _MAL.popup(
-            //   r[0].url,
-            //   r[0].tip,
-            //   r[0].title,
-            //   r[0].poster,
-            //   r[0].epavail,
-            //   d.list_status.num_episodes_watched,
-            //   d.node.id,
-            //   r[0].adult?'R+':''
-            // );
             return;
           }
           _MAL.popup_close();
           _API.showToast("Matching anime not found...");
         });
+      }
+      else if (id in _MAL.aldata){
+        var d=_MAL.aldata[id];
+        _MAL.srcanime(d,function(r){
+          if (r.length>0){
+            if (_MAL.onpopup){
+              console.log("ANILIST ACTION START...");
+              _MAL.preview(
+                r[0].url, r[0].poster, r[0].title, r[0].tip, 
+                d.progress, 0, 0, 
+                '', "L"+d.id
+              );
+            }
+            return;
+          }
+          _MAL.popup_close();
+          _API.showToast("Matching anime not found...");
+        },true);
       }
     }catch(e){
       console.log("Error MAL Action : "+e);
