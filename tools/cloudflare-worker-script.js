@@ -15,13 +15,62 @@ export default {
   },
 
   /* Save & load temp data with cache */
+  async mongoExec(uri,d){
+    d.dataSource=ENV.MONGO_DATASOURCE;
+    d.database=ENV.MONGO_DB;
+    d.collection=ENV.MONGO_COLLECTION;
+    let dat=await fetch(
+      ENV.MONGO_URL+uri,
+      {
+        method:"POST",
+        body:JSON.stringify(d),
+        headers: {
+          'apiKey': ENV.MONGO_AUTH,
+          'Content-Type': "application/json",
+          'Accept': "application/json"
+        }
+    });
+    return await dat.text();
+  },
   async cachePut(name,value){
-    await ENV.KV_ANIMETV.put(name,value,{"expirationTtl":3600});
+    await this.mongoExec('/action/insertOne',{
+      "document":{
+        "_id":name,
+        "val":value
+      }
+    });
+    await this.mongoExec('/action/replaceOne',{
+      "filter": {
+        "_id": name
+      },
+      "replacement": {
+          "_id": name,
+          "val": value
+      }
+    });
+    // await ENV.KV_ANIMETV.put(name,value,{"expirationTtl":3600});
   },
   async cacheGet(name){
-    return await ENV.KV_ANIMETV.get(name);
+    let d=await this.mongoExec('/action/findOne',{
+      "filter": {
+        "_id": name
+      }
+    });
+    console.log(d);
+    let t=JSON.parse(d);
+    try{
+      return t.document.val;
+    }catch(e){
+      return null;
+    }
+    // return await ENV.KV_ANIMETV.get(name);
   },
   async cacheDel(name){
+    await this.mongoExec('/action/deleteOne',{
+      "filter": {
+        "_id": name
+      }
+    });
     await ENV.KV_ANIMETV.delete(name);
   },
   cookieGet(request, key) {
