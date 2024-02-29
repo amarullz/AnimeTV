@@ -4963,7 +4963,7 @@ query ($page: Int, $perPage: Int) {
     }`,{
       user:_MAL.alauth.user,
       page:page,
-      perPage:5
+      perPage:_MAL.limit
     },cb);
   },
   list:function(offset,cb){
@@ -5173,7 +5173,7 @@ query ($page: Int, $perPage: Int) {
   },
   allist_parse:function(g,v){
     try{
-      if (!v.data.Page.hasNextPage){
+      if (!v.data.Page.pageInfo.hasNextPage){
         g._page=100;
       }
       if (v.data.Page.mediaList.length>0){
