@@ -49,6 +49,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -311,30 +312,49 @@ public class AnimeView extends WebViewClient {
           String proxy_url=url.replace("https://"+uDomain+"/__proxy/","");
           String method=request.getMethod();
           boolean isPost=method.equals("POST")||method.equals("PUT");
+          boolean isPostBody=false;
           String queryData=request.getUrl().getQuery();
           if (queryData==null){
             queryData="";
           }
+          String bodyData = request.getRequestHeaders().get("Post-Body");
+
           if (isPost){
-            int queryLength=queryData.length();
-            if (queryLength>0) {
-              proxy_url = proxy_url.substring(0,
-                  proxy_url.length() - (queryLength + 1)
-              );
+            if (bodyData!=null) {
+              Log.d(_TAG, "PROXY-" + method + " POSTBODY = " +
+                      proxy_url + " >> " + bodyData);
+              isPostBody=true;
             }
-            Log.d(_TAG, "PROXY-"+method+" = " +
-                proxy_url+" >> "+queryData);
+            else {
+              int queryLength = queryData.length();
+              if (queryLength > 0) {
+                proxy_url = proxy_url.substring(0,
+                        proxy_url.length() - (queryLength + 1)
+                );
+              }
+              Log.d(_TAG, "PROXY-" + method + " = " +
+                      proxy_url + " >> " + queryData);
+            }
           }
           else{
             Log.d(_TAG, "PROXY-GET = " + proxy_url);
           }
           AnimeApi.Http http=new AnimeApi.Http(proxy_url);
           if (isPost){
-            http.req.method(method, RequestBody.create(queryData, MediaType.get("application/x-www-form-urlencoded")));
+            if (isPostBody){
+              http.req.method(method, RequestBody.create(bodyData, MediaType.get(
+                      Objects.requireNonNull(request.getRequestHeaders().remove("Content-Type"))
+              )));
+            }
+            else {
+              http.req.method(method, RequestBody.create(queryData, MediaType.get("application/x-www-form-urlencoded")));
+            }
           }
           for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {
-            http.addHeader(entry.getKey(), entry.getValue());
+            if (!entry.getKey().equals("Post-Body")) {
+              http.addHeader(entry.getKey(), entry.getValue());
+            }
           }
           http.execute();
           InputStream stream = new ByteArrayInputStream(http.body.toByteArray());

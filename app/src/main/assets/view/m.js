@@ -4791,6 +4791,50 @@ const _MAL={
       }
     }
     console.log("ANILIST-TOKEN: "+_MAL.altoken);
+    if (_MAL.altoken){
+      _MAL.alreq(`
+      query {
+          Viewer {
+              id
+              name
+          }
+      }
+      `,{},function(r){
+        console.log("ANILIST-REQ = "+r.responseText);
+      });
+    }
+    /*
+query ($page: Int, $perPage: Int) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      total
+      perPage
+    }
+    mediaList(userName:"amarullz",type:ANIME,status:CURRENT,sort:ADDED_TIME_DESC){
+      mediaId
+      progress
+      media{
+        title{
+          romaji
+          english
+        }
+        coverImage{
+          medium
+          color
+        }
+        status
+        format
+        seasonYear
+        season
+        isAdult
+        averageScore
+        episodes
+        source
+      }
+    }
+  }
+}
+*/
   },
   req:function(uri, method, cb){
     if (!_MAL.token){
@@ -4809,6 +4853,30 @@ const _MAL={
     xhttp.open(method, "/__proxy/https://api.myanimelist.net"+uri, true);
     xhttp.setRequestHeader('Accept', 'application/json' );
     xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.token);
+    xhttp.send();
+  },
+  alreq:function(q, v, cb){
+    if (!_MAL.altoken){
+      cb({ok:false,responseText:''});
+      return;
+    }
+    var xhttp = new XMLHttpRequest();
+    xhttp.onload = function() {
+        xhttp.ok=true;
+        cb(xhttp);
+    };
+    xhttp.onerror = function() {
+        xhttp.ok=false;
+        cb(xhttp);
+    };
+    xhttp.open("POST", "/__proxy/https://graphql.anilist.co", true);
+    xhttp.setRequestHeader('Accept', 'application/json' );
+    xhttp.setRequestHeader('Content-Type', 'application/json' );
+    xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.altoken);
+    xhttp.setRequestHeader("Post-Body", JSON.stringify({
+      query: q,
+      variables: v
+    }));
     xhttp.send();
   },
   list:function(offset,cb){
