@@ -4928,7 +4928,6 @@ query ($page: Int, $perPage: Int) {
         }
         mediaList(userName:$user,type:ANIME,status:CURRENT,sort:ADDED_TIME_DESC){
           id
-          mediaId
           progress
           media{
             title{
@@ -4949,7 +4948,6 @@ query ($page: Int, $perPage: Int) {
             }
             averageScore
             episodes
-            source
           }
         }
       }
@@ -5228,6 +5226,12 @@ query ($page: Int, $perPage: Int) {
           var infotxt='';
           var numep=d.progress;
           var mtp=d.media.format;
+          if (mtp=='TV_SHORT'){
+            mtp='TV';
+          }
+          if (d.media.isAdult){
+            infotxt+='<span class="info_adult">18+</span>';
+          }
           if (mtp&&(mtp!='unknown')){
             infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
           }
@@ -5240,7 +5244,7 @@ query ($page: Int, $perPage: Int) {
           }
           var sumep=d.media.episodes;
           if (vep){
-            infotxt+='<span class="info_airep">'+special(vep+"")+'</span>';
+            infotxt+='<span class="info_sumep">'+special(vep+"")+'</span>';
           }
           else if (sumep){
             infotxt+='<span class="info_sumep">'+special(sumep+"")+'</span>';

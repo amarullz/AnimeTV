@@ -209,7 +209,7 @@ html {
   margin: 0;
   padding: 0;
   font-family: robotoc, Arial, Helvetica, sans-serif;
-  font-size: 10px;
+  font-size: var(--fs-10vw);
   font-weight: normal;
   /* background-color: var(--primary-bg); */
   background: transparent !important;
@@ -1759,20 +1759,21 @@ c.loader {
   display: block;
   position: absolute;
   z-index: 300;
-  top: .2vw;
-  right: .2vw;
+  top: .3vw;
+  right: .3vw;
   font-size: var(--fs-8vw);
   line-height: 1.4;
-  opacity: .5;
+  /* opacity: .5; */
+  outline:.12vw solid #000;
   transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
-  border-radius: .2vw;
+  border-radius: .25vw;
   overflow: hidden;
   background-color: var(--primary-bg);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
 }
 
 .home_list.active p div.active span.info {
-  opacity: 1;
+  /* opacity: 1; */
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
 }
 
@@ -1792,17 +1793,21 @@ c.loader {
   background-color: var(--primary-1);
   font-weight: bold;
 }
-.home_list p div span.info span.info_ep.info_ep_havenext:after{
+.home_list p div span.info span.info_ep.info_ep_havenext:before{
   content: '✨';
   font-size:var(--fs-7vw) !important;
   font-weight: normal !important;
+  float: right;
+  display: block;
+  margin:0;
+  margin-left: .1vw;
+  margin-right: -.2vw;
+  margin-top:.1vw;
+  padding:0;
 }
 .home_list p div span.info span.info_sumep {
-  background-color: var(--primary-3);
-  font-weight: bold;
-}
-.home_list p div span.info span.info_airep {
   background-color: var(--primary-2);
+  margin-right: .12vw;
   font-weight: bold;
 }
 
