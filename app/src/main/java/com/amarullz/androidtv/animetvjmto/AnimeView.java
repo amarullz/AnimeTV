@@ -691,6 +691,12 @@ public class AnimeView extends WebViewClient {
     }
 
     @JavascriptInterface
+    public void setDOH(boolean val){
+      Conf.USE_DOH=val;
+      AnimeApi.initHttpEngine();
+    }
+
+    @JavascriptInterface
     public boolean videoIsPlaying(){
       runOnUiThreadWait(()->{
         try {

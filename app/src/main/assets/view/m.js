@@ -1228,6 +1228,7 @@ const pb={
     }
 
     _JSAPI.setProgCache(pb.cfg_data.progcache);
+    _JSAPI.setDOH(pb.cfg_data.usedoh);
     
   },
 
@@ -1240,6 +1241,7 @@ const pb={
     jptitle:false,
     compactlist:false,
     progcache:true,
+    usedoh:true,
     nonjapan:false,
     server:0,
     scale:0,
@@ -1267,6 +1269,8 @@ const pb={
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
         pb.cfg_data.progcache=('progcache' in j)?(j.progcache?true:false):true;
+        pb.cfg_data.usedoh=('usedoh' in j)?(j.usedoh?true:false):true;
+        
         
         pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
@@ -1329,6 +1333,7 @@ const pb={
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.jptitle=false;
     pb.cfg_data.progcache=true;
+    pb.cfg_data.usedoh=true;
     
     pb.cfg_data.compactlist=false;
     
@@ -1474,6 +1479,7 @@ const pb={
       pb.cfg_update_el('mirrorserver');
       pb.cfg_update_el('jptitle');
       pb.cfg_update_el('progcache');
+      pb.cfg_update_el('usedoh');
       
       pb.cfg_update_el('compactlist');
       pb.cfg_update_el('uifontsize');
@@ -2245,6 +2251,13 @@ const pb={
       else if (key=='progcache'){
         // Update Home
         pb.cfg_data.progcache=!pb.cfg_data.progcache;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
+      }
+      else if (key=='usedoh'){
+        // Update Home
+        pb.cfg_data.usedoh=!pb.cfg_data.usedoh;
         pb.cfg_update_el(key);
         pb.cfg_save();
         pb.updateanimation();
@@ -3030,49 +3043,17 @@ const pb={
       console.log("MAL-PLAY #"+pb.malidsave+" / animeid="+pb.data.animeid);
       var isanilist=false;
       var malid="mal_"+pb.malidsave;
+      var cep=toInt(pb.ep_val);
+
       if (pb.malidsave.startsWith("L")){
         malid='anilist_'+pb.malidsave.substring(1);
         isanilist=true;
       }
       if (!isanilist && (malid in _MAL.data)){
-        var d=_MAL.data[malid];
-        var cep=toInt(pb.ep_val);
-        if (cep>d.list_status.num_episodes_watched){
-          console.log("MAL-PLAY #Update-Watched -> "+d.list_status.num_episodes_watched+" / Play="+pb.ep_val);
-          d.list_status.num_episodes_watched=cep;
-          _MAL.set_ep(pb.malidsave, cep, function(r){
-            console.log("MAL-PLAY #Update-Resp: "+r.responseText);
-          });
-          if (d._elm && d._elm._ep){
-            var sp=d._elm._ep.querySelector("span.info_ep");
-            if (!sp){
-              d._elm._ep.innerHTML+='<span class="info_ep">'+special(cep+"")+'</span>';
-            }
-            else{
-              sp.innerHTML=special(cep+"");
-            }
-          }
-        }
+        _MAL.update_epel(_MAL.data[malid],cep);
       }
       else if (isanilist && (malid in _MAL.aldata)){
-        var d=_MAL.aldata[malid];
-        var cep=toInt(pb.ep_val);
-        if (cep>d.progress){
-          console.log("MAL-PLAY #Update-Watched -> "+d.progress+" / Play="+pb.ep_val);
-          d.progress=cep;
-          _MAL.set_ep(pb.malidsave, cep, function(r){
-            console.log("MAL-PLAY #Update-Resp: "+r.responseText);
-          });
-          if (d._elm && d._elm._ep){
-            var sp=d._elm._ep.querySelector("span.info_ep");
-            if (!sp){
-              d._elm._ep.innerHTML+='<span class="info_ep">'+special(cep+"")+'</span>';
-            }
-            else{
-              sp.innerHTML=special(cep+"");
-            }
-          }
-        }
+        _MAL.update_epel(_MAL.aldata[malid],cep);
       }
       else{
         pb.malidanime=null;
@@ -3692,7 +3673,7 @@ const home={
       home.home_mal.style.display=''; 
       home.recent_init(home.home_mal, _MAL.home_loader);
       home.menus.push(home.home_mal);
-      home.home_mal.setAttribute("list-title","🎫 MyAnimeList Currently Watching 🧑 "+special(_MAL.auth.user));
+      home.home_mal.setAttribute("list-title","🟦 MAL "+special(_MAL.auth.user));
     }
 
     if (_MAL.islogin(true)){
@@ -3700,7 +3681,7 @@ const home={
       home.home_anilist.style.display=''; 
       home.recent_init(home.home_anilist, _MAL.alhome_loader);
       home.menus.push(home.home_anilist);
-      home.home_anilist.setAttribute("list-title","🎫 AniList Currently Watching 🧑 "+special(_MAL.alauth.user));
+      home.home_anilist.setAttribute("list-title","🅰️ AniList "+special(_MAL.alauth.user));
     }
 
     
@@ -3788,6 +3769,8 @@ const home={
     sscroll:$('settings_scroll'),
     tlang:$('settings_lang'),
     more:$('settings_more'),
+    integration:$('settings_integration'),
+    networks:$('settings_networks'),
     video:$('settings_video'),
     styling:$('settings_style'),
     performance:$('settings_performance'),
@@ -3843,6 +3826,9 @@ const home={
 
         pb.menu_clear(home.settings.more);
         // pb.menu_init(home.settings.more);
+
+        pb.menu_clear(home.settings.networks);
+        pb.menu_clear(home.settings.integration);
 
         pb.menu_clear(home.settings.about);
         // pb.menu_init(home.settings.about);
@@ -3941,26 +3927,53 @@ const home={
           '<c class="check">clear</c><c>readiness_score</c> Performance UI'
         );
 
-        home.settings.tools._s_progcache=$n(
-          'div','',{
-            action:'*progcache',
-            s_desc:"Cache content progressively for better performance. Turn off if image or playback not working"
-          },
-          home.settings.performance.P,
-          '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
-        );
 
+        /* Others */
+        home.settings.tools._s_nonjapan=$n(
+          'div','',{
+            action:'*nonjapan',
+            s_desc:"Also show and search chinese anime"
+          },
+          home.settings.more.P,
+          '<c class="check">clear</c><c>emoji_nature</c> Chinese Anime'
+        );
         home.settings.tools._s_jptitle=$n(
           'div','',{
             action:'*jptitle',
             s_desc:"Show anime titles in japanese name"
           },
-          home.settings.performance.P,
+          home.settings.more.P,
           '<c class="check">clear</c><c>language_japanese_kana</c> Japanese Titles'
         );
 
 
-        /* Others */
+        /* Networks */
+        home.settings.tools._s_sourcesvr=$n(
+          'div','',{
+            action:'*sourcesvr',
+            s_desc:"Select source website server, Try change it if source is down."
+          },
+          home.settings.networks.P,
+          '<c>database</c> Source Server<span class="value">Source '+__SD+"</span>"
+        );
+        home.settings.tools._s_progcache=$n(
+          'div','',{
+            action:'*progcache',
+            s_desc:"Cache content progressively for better performance. Turn off if image or playback not working"
+          },
+          home.settings.networks.P,
+          '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
+        );
+        home.settings.tools._s_usedoh=$n(
+          'div','',{
+            action:'*usedoh',
+            s_desc:"Use dns over https for securely resolving domain name. Enable if your ISP blocked source domain"
+          },
+          home.settings.networks.P,
+          '<c class="check">clear</c><c>encrypted</c> Use DoH'
+        );
+
+        /* Integrations */
         home.settings.tools._s_malaccount=$n(
           'div','',{
             action:'*malaccount',
@@ -3968,7 +3981,7 @@ const home={
             _MAL.islogin()?"Disconnect MyAnimeList account":
             "Connect to MyAnimeList account"
           },
-          home.settings.more.P,
+          home.settings.integration.P,
           _MAL.islogin()?
           '<c>lock_open</c> MAL Logout<span class="value">'+special(_MAL.auth.user)+'</span>':
           '<c>list_alt</c> MAL Login'
@@ -3981,36 +3994,11 @@ const home={
             _MAL.islogin(1)?"Disconnect AniList account":
             "Connect to AniList account"
           },
-          home.settings.more.P,
+          home.settings.integration.P,
           _MAL.islogin(1)?
           '<c>lock_open</c> AniList Logout<span class="value">'+special(_MAL.alauth.user)+'</span>':
           '<c>hub</c> AniList Login'
         );
-
-
-        
-
-
-        // anilistaccount
-
-        home.settings.tools._s_nonjapan=$n(
-          'div','',{
-            action:'*nonjapan',
-            s_desc:"Also show and search chinese anime"
-          },
-          home.settings.more.P,
-          '<c class="check">clear</c><c>emoji_nature</c> Chinese Anime'
-        );
-
-        home.settings.tools._s_sourcesvr=$n(
-          'div','',{
-            action:'*sourcesvr',
-            s_desc:"Select source website server, Try change it if source is down."
-          },
-          home.settings.more.P,
-          '<c>database</c> Source Server<span class="value">Source '+__SD+"</span>"
-        );
-
         
 
         /* About */
@@ -4104,6 +4092,8 @@ const home={
         home.settings.styling,
         home.settings.performance,
         home.settings.more,
+        home.settings.networks,
+        home.settings.integration,
         home.settings.about
       ];
 
@@ -4954,6 +4944,9 @@ query ($page: Int, $perPage: Int) {
             seasonYear
             season
             isAdult
+            nextAiringEpisode {
+              episode
+            }
             averageScore
             episodes
             source
@@ -4977,14 +4970,8 @@ query ($page: Int, $perPage: Int) {
     _MAL.req(uri,"GET",cb);
   },
   set_ep:function(animeid, ep, cb){
-    console.log("Update EP : "+animeid);
-    if (animeid.startsWith("L")){
-      _MAL.alset_ep(animeid.substring(1),ep,cb);
-    }
-    else{
-      var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
-      _MAL.req(uri,"PUT",cb);
-    }
+    var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
+    _MAL.req(uri,"PUT",cb);
   },
   login:function(isanilist){
     if (_MAL.token && !isanilist){
@@ -5171,6 +5158,59 @@ query ($page: Int, $perPage: Int) {
       }
     });
   },
+  update_epel:function(d,cep){
+    var isanilist=false;
+    if ('list_status' in d){
+      if (d.list_status.num_episodes_watched>=cep){
+        return;
+      }
+      d.list_status.num_episodes_watched=cep;
+      _MAL.set_ep(d.node.id,cep,function(r){
+        console.log("MAL #Update-Resp: "+r.responseText);
+      });
+    }
+    else{
+      console.log("AniList #Update-Episode: "+d.id);
+      if (d.progress>=cep){
+        return;
+      }
+      d.progress=cep;
+      _MAL.alset_ep(d.id,cep,function(r){
+        console.log("AniList #Update-Resp: "+r.responseText);
+      });
+      isanilist=true;
+    }
+    try{
+      if (d._elm && d._elm._ep){
+        var sp=d._elm._ep.querySelector("span.info_ep");
+        if (!sp){
+          d._elm._ep.innerHTML+='<span class="info_ep">'+special(cep+"")+'</span>';
+        }
+        else{
+          sp.innerHTML=special(cep+"");
+        }
+
+        if (isanilist){
+          sp=d._elm._ep.querySelector("span.info_ep");
+          var vep=0;
+          if (d.media.nextAiringEpisode){
+            vep=d.media.nextAiringEpisode.episode-1;
+            if (vep<1){
+              vep=0;
+            }
+          }
+          if (vep>cep){
+            sp.classList.add('info_ep_havenext');
+          }
+          else{
+            sp.classList.remove('info_ep_havenext');
+          }
+        }
+      }
+    }catch(ee){
+      console.log("ERR: "+ee);
+    }
+  },
   allist_parse:function(g,v){
     try{
       if (!v.data.Page.pageInfo.hasNextPage){
@@ -5191,9 +5231,22 @@ query ($page: Int, $perPage: Int) {
           if (mtp&&(mtp!='unknown')){
             infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
           }
-          if (numep){
-            infotxt+='<span class="info_ep">'+special(numep+"")+'</span>';
+          var vep=0;
+          if (d.media.nextAiringEpisode){
+            vep=d.media.nextAiringEpisode.episode-1;
+            if (vep<1){
+              vep=0;
+            }
           }
+          var sumep=d.media.episodes;
+          if (vep){
+            infotxt+='<span class="info_airep">'+special(vep+"")+'</span>';
+          }
+          else if (sumep){
+            infotxt+='<span class="info_sumep">'+special(sumep+"")+'</span>';
+          }
+          infotxt+='<span class="info_ep'+((numep<vep)?' info_ep_havenext':'')+'">'+
+            special((numep?numep:"-")+"")+'</span>';
           hl._ep=$n('span','info',null,hl,infotxt);
         }
         while (g.P.childElementCount>30){

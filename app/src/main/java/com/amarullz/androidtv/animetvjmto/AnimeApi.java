@@ -266,6 +266,9 @@ public class AnimeApi extends WebViewClient {
   public AnimeApi(Activity mainActivity) {
     activity = mainActivity;
 
+    okCacheDir = activity.getCacheDir().getAbsolutePath();
+    Log.d(_TAG,"Cache Dir = "+okCacheDir);
+
     /* Update Server */
     initHttpEngine();
     updateServerVar(false);
@@ -461,13 +464,21 @@ public class AnimeApi extends WebViewClient {
   public static DnsOverHttps dohClient;
 
   public static OkHttpClient bootstrapClient;
+
+
+  public static String okCacheDir=null;
   public static void initHttpEngine(){
-    Cache appCache = new Cache(new File("cacheDir", "okhttpcache"), 100 * 1024 * 1024);
+    Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir", "okhttpcache"), 100 * 1024 * 1024);
     bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
-    dohClient=new DnsOverHttps.Builder().client(bootstrapClient)
-            .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
-            .build();
-    httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
+    if (Conf.USE_DOH) {
+      dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
+              .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
+              .build();
+      httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
+    }
+    else{
+      httpClient = bootstrapClient.newBuilder().build();
+    }
   }
   public static class Http{
     public Request.Builder req;

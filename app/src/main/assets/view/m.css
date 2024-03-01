@@ -1792,6 +1792,19 @@ c.loader {
   background-color: var(--primary-1);
   font-weight: bold;
 }
+.home_list p div span.info span.info_ep.info_ep_havenext:after{
+  content: '✨';
+  font-size:var(--fs-7vw) !important;
+  font-weight: normal !important;
+}
+.home_list p div span.info span.info_sumep {
+  background-color: var(--primary-3);
+  font-weight: bold;
+}
+.home_list p div span.info span.info_airep {
+  background-color: var(--primary-2);
+  font-weight: bold;
+}
 
 .home_list p div span.info span.info_adult{
   background-color: #800;
