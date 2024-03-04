@@ -41,12 +41,14 @@ import android.widget.Toast;
 
 import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
+import com.google.common.base.Charsets;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
@@ -278,7 +280,7 @@ public class AnimeView extends WebViewClient {
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
     if (host==null||accept==null) return aApi.badRequest;
-    if (host.contains(Conf.SOURCE_DOMAIN1)||host.contains(Conf.SOURCE_DOMAIN2)) {
+    if (host.equals(Conf.SOURCE_DOMAIN1)||host.equals(Conf.SOURCE_DOMAIN2)) {
       String uDomain=host.contains(Conf.SOURCE_DOMAIN1)?
           Conf.SOURCE_DOMAIN1:Conf.SOURCE_DOMAIN2;
       String path=uri.getPath();
@@ -342,12 +344,11 @@ public class AnimeView extends WebViewClient {
           AnimeApi.Http http=new AnimeApi.Http(proxy_url);
           if (isPost){
             if (isPostBody){
-              http.req.method(method, RequestBody.create(bodyData, MediaType.get(
-                      Objects.requireNonNull(request.getRequestHeaders().remove("Content-Type"))
-              )));
+              http.setMethod(method,bodyData,request.getRequestHeaders().get(
+                  "Content-Type"));
             }
             else {
-              http.req.method(method, RequestBody.create(queryData, MediaType.get("application/x-www-form-urlencoded")));
+              http.setMethod(method,queryData,"application/x-www-form-urlencoded");
             }
           }
           for (Map.Entry<String, String> entry :
@@ -383,7 +384,7 @@ public class AnimeView extends WebViewClient {
           }
           http.execute();
 
-          if (http.res.code()==200) {
+          if (http.code()==200) {
             if (accept.startsWith("text/html")) {
               try {
                 aApi.injectString(http.body, playerInjectString);
@@ -1027,16 +1028,14 @@ public class AnimeView extends WebViewClient {
         AnimeApi.Http http=new AnimeApi.Http("https://api.myanimelist.net/v2/auth/token");
         http.addHeader("X-MAL-Client-ID",Conf.MAL_CLIENT_ID);
         http.addHeader("Accept","application/json");
-        RequestBody formBody = new FormBody.Builder()
-                .add("client_id", Conf.MAL_CLIENT_ID)
-                .add("grant_type", "password")
-                .add("username", username)
-                .add("password", password)
-                .build();
-        http.req.method("POST",formBody);
+        String userenc= URLEncoder.encode(username, Charsets.UTF_8.name());
+        String passenc= URLEncoder.encode(password, Charsets.UTF_8.name());
+        String data="client_id="+Conf.MAL_CLIENT_ID+"&grant_type" +
+            "=password&password="+passenc+"&username="+userenc;
+        http.setMethod("POST",data,"application/x-www-form-urlencoded");
         http.execute();
         Log.d(_TAG,
-            "Login Mal -> RESPONSE_CODE = "+http.res.code());
+            "Login Mal -> RESPONSE_CODE = "+http.code());
         String serverjson = http.body.toString();
         JSONObject j = new JSONObject(serverjson);
         j.put("user",username);

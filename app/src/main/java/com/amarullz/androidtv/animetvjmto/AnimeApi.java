@@ -44,8 +44,10 @@ import java.util.Objects;
 import okhttp3.Cache;
 import okhttp3.Dispatcher;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.dnsoverhttps.DnsOverHttps;
 
@@ -428,21 +430,21 @@ public class AnimeApi extends WebViewClient {
       return super.shouldInterceptRequest(view, request);
     }
     else if (accept.startsWith("image/")) return badRequest;
-    else if (host.contains(Conf.SOURCE_DOMAIN1)) {
+    else if (host.equals(Conf.SOURCE_DOMAIN1)) {
       if (Objects.equals(uri.getPath(), "/__inject.js")){
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/9anime_inject.js");
       }
       return defaultRequest(view, request, "/__inject.js", "text/html");
     }
-    else if (host.contains(Conf.SOURCE_DOMAIN2)) {
+    else if (host.equals(Conf.SOURCE_DOMAIN2)) {
       if (Objects.equals(uri.getPath(), "/__inject.js")) {
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/anix_inject.js");
       }
       return defaultRequest(view, request, "/__inject.js", "text/html");
     }
-    else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
+    else if (host.equals(Conf.STREAM_DOMAIN)||host.equals(Conf.STREAM_DOMAIN2)){
       return assetsRequest("inject/9anime_player.html");
     }
     else if (host.contains("cloudflare.com")||
@@ -460,7 +462,7 @@ public class AnimeApi extends WebViewClient {
 
 
 
-  public static OkHttpClient httpClient;
+//  public static OkHttpClient httpClient;
   public static DnsOverHttps dohClient;
 
   public static OkHttpClient bootstrapClient;
@@ -470,19 +472,19 @@ public class AnimeApi extends WebViewClient {
   public static void initHttpEngine(){
     Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir", "okhttpcache"), 100 * 1024 * 1024);
     bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
-    if (Conf.USE_DOH) {
-      dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
-              .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
-              .build();
-      httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
-    }
-    else{
-      httpClient = bootstrapClient.newBuilder().build();
-    }
+    dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
+        .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
+        .build();
+//    if (Conf.USE_DOH) {
+//      httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
+//    }
+//    else{
+//      httpClient = bootstrapClient.newBuilder().build();
+//    }
   }
   public static class Http{
-    public Request.Builder req;
-    public Response res=null;
+    private Request.Builder req=null;
+    private Response res=null;
     public ByteArrayOutputStream body=null;
     public String[] ctype=null;
     public Http(String url){
@@ -490,15 +492,37 @@ public class AnimeApi extends WebViewClient {
       req.url(url);
     }
     public void addHeader(String name, String val){
-      req.addHeader(name,val);
+      if (req!=null) {
+        req.addHeader(name, val);
+      }
+    }
+    public void setMethod(String method, String body, String cType){
+      if (req!=null) {
+        req.method(method, RequestBody.create(body, MediaType.get(cType)));
+      }
+    }
+    public int code(){
+      if (res!=null) {
+        return res.code();
+      }
+      return 0;
     }
     public void execute() throws Exception{
-      res = httpClient.newCall(req.build()).execute();
-      body=new ByteArrayOutputStream();
-      if (res.body() != null){
-        body.write(res.body().bytes());
+      if (req!=null) {
+        OkHttpClient httpClient;
+        if (Conf.USE_DOH) {
+          httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
+        }
+        else{
+          httpClient = bootstrapClient.newBuilder().build();
+        }
+        res = httpClient.newCall(req.build()).execute();
+        body = new ByteArrayOutputStream();
+        if (res.body() != null) {
+          body.write(res.body().bytes());
+        }
+        ctype = parseContentType(res.header("Content-Type"));
       }
-      ctype = parseContentType(res.header("Content-Type"));
     }
   }
 

@@ -448,7 +448,32 @@ const _API={
   },
 
   /*** FETCH AJAX ***/
-  getTooltip:function(id, cb){
+  getTooltip:function(id, cb, url){
+    if (!id && url){
+      // No-ttid fix
+      $a(url,function(r){
+        if (r.ok){
+          var d=$n('div','',0,0,r.responseText);
+          try{
+            if (__SD==1){
+              var tipid=d.querySelector("#watch-main").getAttribute('data-id');
+              var ttid=''+tipid+'?/cache'+$tick();
+              _API.getTooltip(ttid,cb);
+              return;
+            }
+            else{
+              var tipid=d.querySelector("main div.container.watch-wrap").getAttribute('data-id');
+              var ttid=''+tipid+'?/cache'+$tick();
+              _API.getTooltip(ttid,cb);
+              return;
+            }
+          }catch(e){}
+        }
+        cb(null);
+      });
+      return;
+    }
+
     // https://anix.to/ajax/anime/tooltip/13452?/cache3d23f0
     $a("https://"+__DNS+"/ajax/anime/tooltip/"+id+"?"+$tick(),function(r){
       if (r.ok){
@@ -461,7 +486,8 @@ const _API={
           rating:null,
           quality:null,
           ep:0,
-          rating:''
+          rating:'',
+          ttid:id
         };
 
         if (__SD==1){
@@ -3180,7 +3206,7 @@ const pb={
   malidanime:null,
 
   open:function(uri, ttid, noclean, startpos, malid){
-    console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos);
+    console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos+" -> "+uri);
     pb.pb_action_streamtype.classList.remove('active');
     var open_stat=0;
     _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
@@ -3201,9 +3227,12 @@ const pb={
       pb.url_value=uri;
       pb.startpos_val=(startpos!==undefined)?(startpos?parseInt(startpos):0):0;
       console.log("ATVLOG OPENPB => POS="+pb.startpos_val);
-      if (ttid&&!noclean){
+      if (!noclean){
         _API.getTooltip(ttid,function(d){
           if (d){
+            if (!ttid){
+              pb.tip_value=ttid=d.ttid;
+            }
             if (open_stat==0){
               pb.pb_title.innerHTML=tspecial(d.title);
               pb.pb_title.setAttribute('jp',d.title_jp?d.title_jp:d.title)
@@ -3230,7 +3259,7 @@ const pb={
               }catch(e){}
             }
           }
-        });
+        }, uri);
       }
       pb.reset(0,noclean);
       _API.setKey(function(ke){
@@ -3462,12 +3491,12 @@ const home={
     }
   },
 
-  ttip_desc:function(el,ttip){
+  ttip_desc:function(el,ttip,url){
     _API.getTooltip(ttip,function(d){
       if (d){
         el.innerHTML=special(d.synopsis);
       }
-    });
+    }, url);
   },
 
   home_parser:function(v){
@@ -3547,7 +3576,7 @@ const home={
         hl._view=$n('span','infovalue',null,hl._viewbox,'');
         hl._title=$n('h4','',{jp:d.title_jp?d.title_jp:d.title},hl._view,tspecial(d.title));
         hl._desc=$n('span','desc',null,hl._view,'');
-        home.ttip_desc(hl._desc, d.tip);
+        home.ttip_desc(hl._desc, d.tip, d.url);
         var infotxt='';
         if (d.adult){
           infotxt+='<span class="info_adult">18+</span>';
@@ -5320,10 +5349,13 @@ query ($page: Int, $perPage: Int) {
       }catch(e){}
     }
   },
-  srcanime:function(d,cb,isanilist){
+  srcanime:function(d,cb,isanilist,cnt){
     if ('srcanime' in d){
       cb(d.srcanime);
       return;
+    }
+    if (!cnt){
+      cnt=0;
     }
     var uri='';
     var id='';
@@ -5332,7 +5364,6 @@ query ($page: Int, $perPage: Int) {
       var kw=d.media.title.romaji;
       var ses=d.media.season;
       var y=d.media.seasonYear;
-      uri='/filter?keyword='+enc(kw)+'&season='+enc(ses)+'&year='+enc(y+'')+'&sort=most_relevance';
       console.log("FILTER URL = "+uri);
       console.log(JSON.stringify(d));
     }
@@ -5341,15 +5372,28 @@ query ($page: Int, $perPage: Int) {
       var kw=d.node.title;
       var ses=d.node.start_season.season;
       var y=d.node.start_season.year;
-      uri='/filter?keyword='+enc(kw)+'&season='+enc(ses)+'&year='+enc(y+'')+'&sort=most_relevance';
+    }
+    uri='/filter?keyword='+enc(kw)+'&sort=most_relevance';
+    if (cnt<2){
+      uri+='&season='+enc(ses);
+    }
+    if (cnt<1){
+      uri+='&year='+enc(y+'');
     }
     $a(uri,function(r){
       if (r.ok){
         var rd=home.search.parse(r.responseText);
-        console.log('ANIMESRC ['+id+'] = '+JSON.stringify(rd));
-        d.srcanime=rd;
-        cb(d.srcanime);
-        return;
+        if (rd.length>0){
+          console.log('ANIMESRC ['+id+'] = '+JSON.stringify(rd));
+          d.srcanime=rd;
+          cb(d.srcanime);
+          return;
+        }
+        else if (cnt<2){
+          console.log('ANIMESRC RETRY ['+id+'] = '+cnt);
+          _MAL.srcanime(d,cb,isanilist,cnt+1);
+          return;
+        }
       }
       d.srcanime=[];
       cb(d.srcanime);
@@ -5773,27 +5817,29 @@ query ($page: Int, $perPage: Int) {
       ep:0,
       rating:''
     };
-    console.log("Popup = "+JSON.stringify(url_parse));
+    console.log("Popup = "+JSON.stringify([url, img, titl, ttid, ep, tcurr, tdur,arg,malid]));
     if (url_parse.length>=5){
-      if (ttid){
-        if(url_parse.length==6){
-          url_parse.pop();
-          url=url_parse.join('/');
-        }
-        _MAL.pop.mv.className='active loading';
-        $('popupcontainer').className='active';
-        _MAL.pop.var.ready=false;
-        _MAL.onpopup=true;
-        _API.getTooltip(ttid,function(d){
-          if (d){
-            _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,d,arg,malid);
-            return;
-          }
-          _MAL.preview_do(url, img, ttid, ep, tcurr, tdur, defdat,arg,malid);
-          return;
-        });
-        return;
+      if(url_parse.length==6){
+        url_parse.pop();
+        url=url_parse.join('/');
       }
+      _MAL.pop.mv.className='active loading';
+      $('popupcontainer').className='active';
+      _MAL.pop.var.ready=false;
+      _MAL.onpopup=true;
+      _API.getTooltip(ttid,function(d){
+        if (d){
+          if (!ttid){
+            console.log("New TTID = "+d.ttid);
+            ttid=d.ttid;
+          }
+          _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,d,arg,malid);
+          return;
+        }
+        _MAL.preview_do(url, img, ttid, ep, tcurr, tdur, defdat,arg,malid);
+        return;
+      },url);
+      return;
     }
     // pb.open(url, ttid, 0, tcurr);
     try{
