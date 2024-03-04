@@ -1186,6 +1186,7 @@ const pb={
   pb_desc:$('pb_desc'),
 
   pb_event_skip:$('pb_event_skip'),
+  pb_event_skip_title:$('pb_event_skip_title'),
 
   curr_stream_type:0,
 
@@ -1555,11 +1556,17 @@ const pb={
       clearTimeout(pb.skip_auto_timeout);
     }
   },
-  setskip:function(v){
+  setskip:function(v,skid){
     if (v&&!pb.onskip){
       pb.onskip=true;
       pb.pb_event_skip.classList.add('active');
       pb.skipauto_update(1);
+      if (skid){
+        pb.pb_event_skip_title.innerHTML='SKIP OUTRO';
+      }
+      else{
+        pb.pb_event_skip_title.innerHTML='SKIP INTRO';
+      }
     }
     else if (!v&&pb.onskip){
       pb.skip_val=0;
@@ -1722,16 +1729,18 @@ const pb={
 
       /* Check Skip Data */
       var sk=0;
+      var skid=0;
       var ct=pb.vid_stat.pos;
       for (var i=0;i<pb.data.skip.length;i++){
           if ((pb.data.skip[i][0]<ct)&&(pb.data.skip[i][1]>ct)){
               sk=pb.data.skip[i][1]+1;
+              skid=i;
           }
       }
       if (sk>0){
         if (!pb.onskip){
           pb.skip_val=sk;
-            pb.setskip(true);
+          pb.setskip(true,skid);
         }
       }else if (pb.onskip){
         pb.setskip(false);

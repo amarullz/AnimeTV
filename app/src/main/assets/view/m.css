@@ -1196,6 +1196,9 @@ c.loader {
   position: relative;
   z-index: 10;
 }
+#pb_event_skip span b{
+  font-weight: normal;
+}
 
 @keyframes skipanim_keyframe {
   0% {
