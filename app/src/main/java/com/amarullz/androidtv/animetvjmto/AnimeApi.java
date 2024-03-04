@@ -42,7 +42,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Cache;
-import okhttp3.Dispatcher;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -460,30 +459,21 @@ public class AnimeApi extends WebViewClient {
     return badRequest;
   }
 
-
-
-//  public static OkHttpClient httpClient;
   public static DnsOverHttps dohClient;
-
   public static OkHttpClient bootstrapClient;
-
-
   public static String okCacheDir=null;
+
   public static void initHttpEngine(){
-    Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir", "okhttpcache"), 100 * 1024 * 1024);
+    long disk_cache_size = 100 * 1024 * 1024;
+    Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir",
+        "okhttpcache"), disk_cache_size);
     bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
     dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
         .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
         .build();
-//    if (Conf.USE_DOH) {
-//      httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
-//    }
-//    else{
-//      httpClient = bootstrapClient.newBuilder().build();
-//    }
   }
   public static class Http{
-    private Request.Builder req=null;
+    private final Request.Builder req;
     private Response res=null;
     public ByteArrayOutputStream body=null;
     public String[] ctype=null;
@@ -519,7 +509,7 @@ public class AnimeApi extends WebViewClient {
         res = httpClient.newCall(req.build()).execute();
         body = new ByteArrayOutputStream();
         if (res.body() != null) {
-          body.write(res.body().bytes());
+          body.write(Objects.requireNonNull(res.body()).bytes());
         }
         ctype = parseContentType(res.header("Content-Type"));
       }
