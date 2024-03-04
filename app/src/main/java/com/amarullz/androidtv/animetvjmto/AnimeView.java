@@ -89,9 +89,9 @@ public class AnimeView extends WebViewClient {
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      webSettings.setSafeBrowsingEnabled(true);
-    }
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//      webSettings.setSafeBrowsingEnabled(true);
+//    }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);

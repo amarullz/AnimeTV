@@ -632,6 +632,7 @@ c.loader {
   color: #fff;
   font-size: var(--fs-30vw);
   font-family: Times, serif;
+  z-index:1;
 }
 /* #pb.onsettings #vtt_subtitle{
   top:5vw !important;

@@ -1072,71 +1072,6 @@ const vtt={
         }
       }
     },
-
-    /* Delete later */
-    monitor_old:function(){
-      if (!vtt.playback.sub||!vtt.playback.sub.p){
-        return;
-      }
-      var p=pb.vid_stat.pos;
-      var o=vtt.playback.sub.p;
-      var d=vtt.playback.posid;
-      var c=o[d];
-      if (!c){
-        for (var i=0;i<o.length;i++){ 
-          if (p>=o[i].ts&&p<=o[i].te){
-            if (vtt.playback.posid!=i||!vtt.playback.show){
-              vtt.playback.posid=i;
-              vtt.playback.show=true;
-              vtt.setobj(o[i]);
-            }
-            return;
-          }
-        }
-      }
-      else if (p>=c.ts){
-        if (p>=c.te){
-          for (var i=d+1;i<o.length;i++){ 
-            if (p<o[i].ts){
-              if (vtt.playback.show){
-                vtt.playback.show=false;
-                vtt.set('');
-              }
-              vtt.playback.posid=i;
-              return;
-            }
-            else if (p>=o[i].ts&&p<=o[i].te){
-              vtt.playback.posid=i;
-              vtt.playback.show=true;
-              vtt.setobj(o[i]);
-              return;
-            }
-          }
-        }
-        else if (!vtt.playback.show){
-          vtt.playback.show=true;
-          vtt.setobj(c);
-        }
-      }
-      else{
-        for (var i=d-1;i>=0;i--){
-          if (p>o[i].te){
-            if (vtt.playback.show){
-              vtt.playback.show=false;
-              vtt.set('');
-            }
-            vtt.playback.posid=i;
-            return;
-          }
-          else if (p>=o[i].ts&&p<=o[i].te){
-            vtt.playback.posid=i;
-            vtt.playback.show=true;
-            vtt.setobj(o[i]);
-            return;
-          }
-        }
-      }
-    },
     play:function(){
       vtt.playback.intv=setInterval(vtt.playback.monitor,50);
     },
@@ -1269,6 +1204,7 @@ const pb={
     performance:true,
     autoskip:false,
     autonext:true,
+    html5player:false,
     skipfiller:false,
     jptitle:false,
     compactlist:false,
@@ -1298,6 +1234,8 @@ const pb={
       if (j){
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
+        pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
+        
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
         pb.cfg_data.progcache=('progcache' in j)?(j.progcache?true:false):true;
@@ -1362,6 +1300,8 @@ const pb={
     }
     pb.cfg_data.autoskip=false;
     pb.cfg_data.autonext=true;
+    pb.cfg_data.html5player=false;
+    
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.jptitle=false;
     pb.cfg_data.progcache=true;
@@ -1503,6 +1443,8 @@ const pb={
       pb.cfg_update_el('animation');
       pb.cfg_update_el('autoskip');
       pb.cfg_update_el('autonext');
+      pb.cfg_update_el('html5player');
+      
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('nonjapan');
       pb.cfg_update_el('sourcesvr');
@@ -2025,7 +1967,7 @@ const pb={
           }
         }catch(e){}
 
-        if (urivid){
+        if (urivid && !pb.cfg_data.html5player){
           pb.data.vizm3u8=urivid;
           console.log("ATVLOG Got VizCB = "+urivid);
           if (pb.cfg('server')==0){
@@ -2886,23 +2828,13 @@ const pb={
 
     // $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
     // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
-    //fav_exists
-    
     pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> SETTINGS');
     pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
-    pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
 
-    pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
-
-    
-
-    /*
-    pb.pb_settings._s_autonext=$n('div','',{action:'*autonext'},pb.pb_settings.P,'<c>check</c> AUTO NEXT');
-    pb.pb_settings._s_autoskip=$n('div','',{action:'*autoskip'},pb.pb_settings.P,'<c>clear</c> AUTO SKIP INTRO');
-    pb.pb_settings._s_skipfiller=$n('div','',{action:'*skipfiller'},pb.pb_settings.P,'<c>clear</c> SKIP FILLER');
-    pb.pb_settings._s_scale=$n('div','',{action:'*scale'},pb.pb_settings.P,'<c>aspect_ratio</c> <span>SCALE</span>');
-    pb.pb_settings._s_server=$n('div','',{action:'*server'},pb.pb_settings.P,'<c>cloud_done</c> <span>SERVER</span>');
-    */
+    if (!pb.cfg_data.html5player){
+      pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
+      pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
+    }
 
     pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARDSUB');
     if (pb.data.stream_url.soft){
@@ -3907,6 +3839,7 @@ const home={
           home.settings.video.P,
           '<c>aspect_ratio</c> Video Scaling<span class="value">-</span>'
         );
+        
 
 
         /* Style */
@@ -3988,6 +3921,14 @@ const home={
           home.settings.more.P,
           '<c class="check">clear</c><c>language_japanese_kana</c> Japanese Titles'
         );
+        home.settings.tools._s_html5player=$n(
+          'div','',{
+            action:'*html5player',
+            s_desc:"Enable if you have a problem with stuttering playback, many features may disabled"
+          },
+          home.settings.more.P,
+          '<c class="check">check</c><c>live_tv</c> Use HTML5 Video Player'
+        );
 
 
         /* Networks */
@@ -4068,11 +4009,6 @@ const home={
         );
       }
       home.settings.initmore_done=true;
-      // pb.menu_select(home.settings.video,home.settings.tools._s_autonext);
-      // pb.menu_select(home.settings.styling,home.settings.tools._s_ccstyle);
-      // pb.menu_select(home.settings.performance,home.settings.tools._s_animation);
-      // pb.menu_select(home.settings.more,home.settings.tools._s_malaccount);
-      // pb.menu_select(home.settings.about,home.settings.tools._s_donation);
       pb.cfg_update_el();
     },
     refreshlang:function(){
