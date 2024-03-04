@@ -307,17 +307,17 @@ c.loader {
 }
 
 .z-loader:before {
-  border-top-color: transparent;
-  border-left-color: transparent;
-  border-bottom-color: transparent;
+  border-top-color: transparent !important;
+  border-left-color: transparent !important;
+  border-bottom-color: transparent !important;
   z-index: 2
 }
 
 .z-loader:after {
   z-index: 1;
-  border-top-color: transparent;
-  border-left-color: transparent;
-  border-bottom-color: transparent;
+  border-top-color: transparent !important;
+  border-left-color: transparent !important;
+  border-bottom-color: transparent !important;
   animation: z-loader-innerani 2s linear infinite
 }
 
@@ -1692,7 +1692,8 @@ c.loader {
 }
 
 .ui_performance #animebg.bg8 + #home #home_scroll{
-  background-image: linear-gradient(180deg, var(--primary-bg), #111 35%,  var(--primary-bg) 100%);
+  background-image: none;
+  background-color: var(--primary-bg) !important;
 }
 .ui_performance #animebg.bg8{
   background-image: none !important;
@@ -2122,16 +2123,26 @@ c.loader {
 #malview.loading #malview_info {
   display: none !important;
 }
-#malview.loading:after{
-  content:"Loading Data...";
-  display: block;
+#malview #malview_loading{
   position: absolute;
   left:0;
   right:0;
   line-height: 4vw;
   bottom: 6.5vw;
   text-align: center;
-  font-size: var(--fs-13vw);
+  font-size: var(--fs-14vw);
+  display: none;
+}
+#malview #malview_loading .z-loader:after,
+#malview #malview_loading .z-loader:before {
+  border: .25vw solid #fff;
+}
+#malview #malview_loading .z-loader{
+  width: 2vw;
+  height: 2vw;
+}
+#malview.loading #malview_loading{
+  display: block;
 }
 #malview.active{
   transform: scale(1);

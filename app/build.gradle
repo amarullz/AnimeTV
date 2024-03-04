@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 33
         versionCode 250
-        versionName "2.5.0"
+        versionName "2.5.3-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
@@ -41,12 +41,14 @@ dependencies {
 
     implementation 'androidx.tvprovider:tvprovider:1.0.0'
 
-//    implementation 'com.google.android.gms:play-services-cronet:18.0.0'
-    implementation 'org.jsoup:jsoup:1.16.1'
+    implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'com.devbrackets.android:exomedia:5.0.0'
+
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation('com.squareup.okhttp3:okhttp-dnsoverhttps:4.12.0')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0"
+//    implementation 'org.chromium.net:cronet-embedded:119.6045.31'
+//    implementation 'com.google.net.cronet:cronet-okhttp:0.1.0'
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20"
 }

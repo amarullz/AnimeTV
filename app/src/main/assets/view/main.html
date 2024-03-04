@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html class="">
 <head>
+    <link rel="preload" href="/__view/firac.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="/__view/icon.woff2" as="font" type="font/woff2" crossorigin>
     <link href="/__view/m.css?nocache1" rel="stylesheet" type="text/css" />
     <title>AnimeTV</title>
     <meta charset="UTF-8">
@@ -85,15 +87,18 @@
 </div>
 <div id="popupcontainer">
     <div id="malview">
+        <div id="malview_loading">
+            <span class="z-loader"></span> Loading Data...
+        </div>
         <img id="malview_img" loading="lazy" />
         <div id="malview_rating"></div>
         <div id="malview_info">
             <div>
-                <h4 id="malview_title">The Foolish Angel Dances with the Devil</h4>
-                <p id="malview_synopsys">Masatora Akutsu, a demon on a recruitment mission in a human high school, is drafting allies for Hell against the heavenly angels. But when seated beside the captivating Lily Amane, he’s in for a devilishly hilarious celestial surprise!</p>
-                <span class="right"><i id="malview_info_duration_t">Duration:</i> <b id="malview_info_duration">24 min</b></span>
-                <span>Status: <b id="malview_info_status">Releasing</b></span>
-                <span>Genre: <b id="malview_info_genre">Comedy, Fantasy, Shounen, Gourmet, Iyashikei, Demons</b></span>
+                <h4 id="malview_title"></h4>
+                <p id="malview_synopsys"></p>
+                <span class="right"><i id="malview_info_duration_t">Duration:</i> <b id="malview_info_duration"></b></span>
+                <span>Status: <b id="malview_info_status"></b></span>
+                <span>Genre: <b id="malview_info_genre"></b></span>
             </div>
         </div>
         <div id="malview_data">

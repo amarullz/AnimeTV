@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -15,7 +14,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,11 +49,6 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Map;
-import java.util.Objects;
-
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 
 public class AnimeView extends WebViewClient {
   private static final String _TAG="ATVLOG-VIEW";
@@ -264,6 +257,10 @@ public class AnimeView extends WebViewClient {
     videoLayout.addView(videoView);
     videoView.setVideoControls(null);
     videoView.setOnPreparedListener(videoView::start);
+
+
+
+//    videoView.data
   }
 
   @Override
@@ -694,7 +691,7 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public void setDOH(boolean val){
       Conf.USE_DOH=val;
-      AnimeApi.initHttpEngine();
+//      AnimeApi.initHttpEngine();
     }
 
     @JavascriptInterface
@@ -1016,9 +1013,7 @@ public class AnimeView extends WebViewClient {
   public void malStartLogin(String username, String password){
     Log.d(_TAG,
         "Login Mal -> "+username+":"+password);
-    //noinspection deprecation
     final ProgressDialog loginProgress = new ProgressDialog(activity);
-    //noinspection deprecation
     loginProgress.setMessage("Login to MyAnimeList..");
     loginProgress.show();
 

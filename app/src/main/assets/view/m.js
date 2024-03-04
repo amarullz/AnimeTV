@@ -39,6 +39,11 @@ function $ap(uri, cb){
   $a("/__proxy/"+uri,cb);
 }
 
+/* proxy image */
+function $img(src){
+  return src;
+}
+
 /* new element */
 function $n(t,c,a,p,h){
   var l=document.createElement(t);
@@ -3108,7 +3113,7 @@ const pb={
       for (var i=0;i<pb.data.seasons.length;i++){
         var d=pb.data.seasons[i];
         var hl=$n('div',d.active?'playing':'',{action:d.url},pb.pb_seasons.P,'');
-        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
         if (d.active) act=hl;
       }
@@ -3130,7 +3135,7 @@ const pb={
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
         var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_related.P,'');
-        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
       }
       pb.menu_select(pb.pb_related,pb.pb_related.P.firstElementChild);
@@ -3149,7 +3154,7 @@ const pb={
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
         var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs.P,'');
-        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
       }
       pb.menu_select(pb.pb_recs,pb.pb_recs.P.firstElementChild);
@@ -3384,7 +3389,7 @@ const home={
         };
         var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},g.P,'');
         // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
-        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
         var infotxt='';
         if (d.adult){
@@ -3571,7 +3576,7 @@ const home={
           title:d.title
         };
         var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
-        hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._viewbox=$n('span','infobox',null,hl,'');
         hl._view=$n('span','infovalue',null,hl._viewbox,'');
         hl._title=$n('h4','',{jp:d.title_jp?d.title_jp:d.title},hl._view,tspecial(d.title));
@@ -3648,7 +3653,7 @@ const home={
           var hl=$n('div','',{action:"$"+JSON.stringify(arg),arg:""},h.P,'');
           var ps=d.poster.split('-w100');
           d.poster=ps[0];
-          hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+          hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
           hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
           
           if (infotxt){
@@ -4451,7 +4456,7 @@ const home={
           };
           var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},g.P,'');
           // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},g.P,'');
-          hl._img=$n('img','',{loading:'lazy',src:d.poster},hl,'');
+          hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
           hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
           var infotxt='';
           if (d.adult){
@@ -5249,7 +5254,7 @@ query ($page: Int, $perPage: Int) {
           var malid="anilist_"+d.id;
           _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
           var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
-          hl._img=$n('img','',{loading:'lazy',src:d.media.coverImage.large},hl,'');
+          hl._img=$n('img','',{loading:'lazy',src:$img(d.media.coverImage.large)},hl,'');
           _MAL.aldata[malid]._elm=hl;
           hl._title=$n('b','',{jp:d.media.title.romaji},hl,tspecial(d.media.title.english));
           var infotxt='';
@@ -5313,7 +5318,7 @@ query ($page: Int, $perPage: Int) {
             var malid="mal_"+d.node.id;
             _MAL.data[malid]=JSON.parse(JSON.stringify(d));
             var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
-            hl._img=$n('img','',{loading:'lazy',src:d.node.main_picture.medium},hl,'');
+            hl._img=$n('img','',{loading:'lazy',src:$img(d.node.main_picture.medium)},hl,'');
             var title=d.node.title;
             _MAL.data[malid]._elm=hl;
             if ('alternative_titles' in d.node){
@@ -5730,7 +5735,7 @@ query ($page: Int, $perPage: Int) {
     _MAL.pop.title.innerHTML=tspecial(d.title);
     _MAL.pop.title.setAttribute('jp',d.title_jp?d.title_jp:d.title);
 
-    _MAL.pop.img.src=img;
+    _MAL.pop.img.src=$img(img);
     _MAL.pop.menu=[
       _MAL.pop.begin
     ];
