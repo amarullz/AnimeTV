@@ -827,6 +827,23 @@ const vtt={
     'english','portuguese (brazil)','spanish (latin_america)',
     'Spanish','Arabic','French','German','Italian','Russian'
   ],
+  stylename:function(id){
+    var fname=[
+      'Large, Serif',
+      'Large, Sans-Serif',
+      'Small, Serif',
+      'Small, Sans-Serif',
+    ];
+    var sname=[
+      'White',
+      'White+BG',
+      'Black',
+      'Primary',
+    ];
+    var fnt=fname[id%4];
+    var sty=sname[Math.floor(id / 4)];
+    return sty+', '+fnt;
+  },
   init:function(subs){
     if (subs.length>0){
       if (pb.cfg_data.lang!='' && pb.cfg_data.lang!='en'){
@@ -1423,7 +1440,7 @@ const pb={
         el.lastElementChild.innerHTML="SPEED "+_API.vidSpeed.toFixed(2)+"x";
       }
       else if (key=='ccstyle'){
-        el.lastElementChild.innerHTML="Style "+(pb.cfg_data.ccstyle+1);
+        el.lastElementChild.innerHTML=vtt.stylename(pb.cfg_data.ccstyle);
       }
       else if (key=='bgimg'){
         el.lastElementChild.innerHTML="Wallpaper-"+(pb.cfg_data.bgimg+1);
@@ -2305,10 +2322,24 @@ const pb={
         }
       }
       else if (key=="ccstyle"){
-        if (++pb.cfg_data.ccstyle>15) pb.cfg_data.ccstyle=0;
-        pb.cfg_update_el(key);
-        pb.cfg_save();
-        vtt.set_style(pb.cfg_data.ccstyle);
+        var stn=[];
+        for (var i=0;i<16;i++){
+          stn.push(vtt.stylename(i));
+        }
+        var chval=_API.listPrompt(
+          "Subtitle Style",
+          stn,
+          pb.cfg_data.ccstyle
+        );
+        if (chval!=null){
+          var vv=toInt(chval);
+          if (vv!=pb.cfg_data.ccstyle){
+            pb.cfg_data.ccstyle=vv;
+            pb.cfg_update_el(key);
+            pb.cfg_save();
+            vtt.set_style(pb.cfg_data.ccstyle);
+          }
+        }
       }
       else if (key=="bgimg"){
         if (++pb.cfg_data.bgimg>=BGIMG_NUM) pb.cfg_data.bgimg=0;
@@ -3890,21 +3921,21 @@ const home={
             action:'*autonext'
           },
           home.settings.video.P,
-          '<c class="check">check</c><c>skip_next</c> Auto Next'
+          '<c class="check">check</c><c>step_over</c> Auto Next'
         );
         home.settings.tools._s_autoskip=$n(
           'div','',{
             action:'*autoskip'
           },
           home.settings.video.P,
-          '<c class="check">clear</c><c>curtains</c> Auto Skip Intro'
+          '<c class="check">clear</c><c>footprint</c> Auto Skip Intro'
         );
         home.settings.tools._s_skipfiller=$n(
           'div','',{
             action:'*skipfiller'
           },
           home.settings.video.P,
-          '<c class="check">clear</c><c>category</c> Skip Filler'
+          '<c class="check">clear</c><c>move_selection_left</c> Skip Filler'
         );
         home.settings.tools._s_scale=$n(
           'div','',{
@@ -3922,7 +3953,7 @@ const home={
             action:'*ccstyle'
           },
           home.settings.styling.P,
-          '<c>closed_caption</c> Subtitle Style <span class="value">Style 1</span>'
+          '<c>brand_family</c> Subtitle Style <span class="value">Style 1</span>'
         );
 
         home.settings.tools._s_theme=$n(
