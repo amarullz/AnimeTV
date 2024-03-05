@@ -189,6 +189,16 @@ ttl{
   --tim-7s: .175s;
   --tim-8s: .2s;
 }
+:root.ani_no_transition {
+  --tim-10s: 0s;
+  --tim-1s: 0s;
+  --tim-2s: 0s;
+  --tim-3s: 0s;
+  --tim-4s: 0s;
+  --tim-5s: 0s;
+  --tim-7s: 0s;
+  --tim-8s: 0s;
+}
 
 .ui_performance *{
   box-shadow: none !important;
@@ -960,6 +970,7 @@ c.loader {
   opacity: .8;
   /* filter: grayscale(80%); */
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  will-change: opacity;
 }
 
 #pb_recs div.active img,
@@ -1019,6 +1030,7 @@ c.loader {
   padding: 2.5vw 5vw 1vw 5vw;
   position: relative;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  will-change: opacity;
   opacity: .8;
 }
 
@@ -1060,6 +1072,7 @@ c.loader {
   vertical-align: middle;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
   text-shadow: 0 0 .2vw #000 !important;
+  will-change: text-shadow;
 }
 
 #pb_tracks.active #pb_track_ctl {
@@ -1088,6 +1101,7 @@ c.loader {
   outline: .05vw solid rgba(255, 255, 255, .4);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  will-change: transform;
 }
 
 #pb_track_val {
@@ -1099,6 +1113,7 @@ c.loader {
   background: linear-gradient(180deg, var(--dimm-1), var(--dimm-1) 100%);
   transition: width 0.15s cubic-bezier(.25, .8, .25, 1);
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  will-change: transform, width;
   z-index:1;
 }
 #pb_track .pb_track_skip{
@@ -1144,6 +1159,7 @@ c.loader {
 #pb_vid iframe {
   opacity: 0;
   transition: opacity var(--tim-10s) cubic-bezier(.25, .8, .25, 1);
+  will-change: opacity;
 }
 
 #pb_vid iframe.ready {
@@ -1163,6 +1179,7 @@ c.loader {
   opacity: 1;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
   text-shadow: 0 0 .1vw #000, 0 0 .1vw #000, 0 0 .4vw #000;
+  will-change: opacity;
 }
 
 #pb.menushow #pb_events {
@@ -1255,6 +1272,7 @@ c.loader {
   position: relative;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
   opacity: .8;
+  will-change: transform, opacity;
 }
 
 .home_list {
@@ -1334,7 +1352,7 @@ c.loader {
 .home_list div img {
   opacity: .8;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
-  ;
+  will-change: opacity;
 }
 
 .home_list div.active img {
@@ -1466,6 +1484,7 @@ c.loader {
   display: block;
   z-index:0;
   transition: transform var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  will-change: transform;
 }
 #home_scroll_mask{
   position: relative;
@@ -1485,6 +1504,7 @@ c.loader {
   margin: 0;
   padding: 0;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  will-change: transform;
 }
 @keyframes logopaw_ani {
   0% {
@@ -1504,6 +1524,7 @@ c.loader {
   transform: rotate(6deg);
   animation: logopaw_ani .5s linear infinite alternate;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  will-change: transform;
 }
 .ui_performance #home_header h1 c{
   animation: none;
@@ -1526,6 +1547,7 @@ c.loader {
   background: var(--primary-1);
   transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
   transform: scale(.8);
+  will-change: transform, opacity;
 }
 
 #home_discord_info{
@@ -1545,6 +1567,7 @@ c.loader {
   visibility: visible;
   opacity: 1;
   transform: scale(1);
+  will-change: transform, opacity;
 }
 #home_header.scrolled #home_discord_info{
   transform: scale(.8);
@@ -1619,6 +1642,7 @@ c.loader {
   border-radius: 1vw;
   background: var(--primary-1);
   transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  will-change: transform;
   transform: scale(.8);
 }
 
@@ -1646,13 +1670,15 @@ c.loader {
 }
 
 #home_header.scrolled h1 {
-  font-size: var(--fs-30vw);
+  /* font-size: var(--fs-30vw); */
+  opacity:0;
 }
 #home_header.scrolled #home_settings {
   opacity:0;
 }
 #home_header.scrolled #home_search {
-  transform: scale(.6);
+  /* transform: scale(.6); */
+  opacity:0;
 }
 
 #animebg {
@@ -1720,6 +1746,7 @@ c.loader {
   visibility: hidden;
   z-index: 100;
   pointer-events: none;
+  will-change: opacity;
 }
 
 #search.active {
@@ -1775,6 +1802,7 @@ c.loader {
   overflow: hidden;
   background-color: var(--primary-bg);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
+  will-change: box-shadow;
 }
 
 .home_list.active p div.active span.info {
@@ -1865,6 +1893,7 @@ c.loader {
   overflow: hidden;
   box-shadow: -.28vw 0 .56vw rgba(0, 0, 0, 0.25), -.2vw 0 .2vw rgba(0, 0, 0, 0.22) !important;
   border-radius: 0;
+  will-change: transform, opacity;
 }
 #settings_scroll{
   overflow-y: auto;
@@ -1995,6 +2024,8 @@ c.loader {
   top:.2vw;
   transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
 
+  will-change: left, right;
+
   text-indent: 0;
   font-family: 'icons';
   font-weight: bold;
@@ -2064,6 +2095,7 @@ c.loader {
   opacity: 0;
   visibility: hidden;
   transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  will-change: opacity;
 }
 #popupcontainer.active {
   opacity: 1;
@@ -2081,6 +2113,7 @@ c.loader {
   transform: scale(.5);
   visibility: hidden;
   transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  will-change: transform, opacity;
   font-weight: bold;
 }
 #aboutpopup.active {
@@ -2130,6 +2163,8 @@ c.loader {
   left:25vw;
   bottom:calc(50vh - 8.5vw);
   height: 19vw;
+
+  will-change: transform, opacity;
 }
 
 #malview.loading #malview_rating,

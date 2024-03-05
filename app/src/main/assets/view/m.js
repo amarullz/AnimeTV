@@ -1214,6 +1214,9 @@ const pb={
       case 2:
         _API.html_class='ani_super_quick';
         break;
+      case 3:
+        _API.html_class='ani_no_transition';
+        break;
       default:
         _API.html_class='';
         break;
@@ -1382,7 +1385,8 @@ const pb={
   cfganimation_name:[
     'Normal',
     'Fast',
-    'Faster'
+    'Faster',
+    'No Transition'
   ],
   cfguifontsize_name:[
     'Small',
@@ -2525,10 +2529,13 @@ const pb={
           if (g._sel)
             g._sel.classList.remove('active');
           var n = g._target_n;
-          n.classList.add('active');
+          
+
           var iw=window.innerWidth/g._midx;
           var ow=(g._itemwidth)?g._itemwidth():n.offsetWidth;
           var xpos=n.offsetLeft+(ow/2);
+
+          n.classList.add('active');
           if (xpos>iw){
             g._margin=xpos-iw;
             g.classList.add('maskleft');
@@ -2647,11 +2654,14 @@ const pb={
     if (!('_margin' in g)){
       g._margin=0;
       g._reset=function(){
-        g._sel.classList.remove('active');
+        var aniSel=g._sel;
         g._sel=null;
-        g._margin=0;
-        g.classList.remove('maskleft');
-        g.P.style.transform='translateX(0)';
+        requestAnimationFrame(function(){
+          g._margin=0;
+          aniSel.classList.remove('active');
+          g.classList.remove('maskleft');
+          g.P.style.transform='translateX(0)';
+        });
       };
     }
     if (!g.firstElementChild) return false;
@@ -3990,6 +4000,14 @@ const home={
           '<c>brand_family</c> Subtitle Style <span class="value">Style 1</span>'
         );
 
+        home.settings.tools._s_uifontsize=$n(
+          'div','',{
+            action:'*uifontsize'
+          },
+          home.settings.styling.P,
+          '<c>format_size</c> Font Size<span class="value">Normal</span>'
+        );
+
         home.settings.tools._s_theme=$n(
           'div','',{
             action:'*theme'
@@ -4015,13 +4033,6 @@ const home={
           '<c class="check">clear</c><c>unfold_less</c> Compact List'
         );
 
-        home.settings.tools._s_uifontsize=$n(
-          'div','',{
-            action:'*uifontsize'
-          },
-          home.settings.styling.P,
-          '<c>format_size</c> Font Size<span class="value">Normal</span>'
-        );
 
         
         /* Performance */
@@ -4815,20 +4826,31 @@ const home={
     }
 
     if (home.menu_sel!=pc){
-      home.menus[home.menu_sel].classList.remove('active');
+      var ac=home.menu_sel;
+      var nc=pc;
       home.menu_sel=pc;
-      home.menus[home.menu_sel].classList.add('active');
+      requestAnimationFrame(function(){
+        home.menus[ac].classList.remove('active');
+        home.menus[nc].classList.add('active');
+      });
       if (home.menu_sel>1){
         var ty=(home.menus[2].offsetTop+(home.menus[2].offsetHeight*(home.menu_sel))) - (window.innerHeight + (window.innerWidth*0.06));
         if (ty<0) ty=0;
-        home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
+        requestAnimationFrame(function(){
+          home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
+        });
       }
-      else
-        home.home_scroll.style.transform="translateY(0)";
-      if (home.menu_sel>1)
-        home.home_header.classList.add('scrolled');
-      else
-        home.home_header.classList.remove('scrolled');
+      else{
+        requestAnimationFrame(function(){
+          home.home_scroll.style.transform="translateY(0)";
+        });
+      }
+      requestAnimationFrame(function(){
+        if (home.menu_sel>1)
+          home.home_header.classList.add('scrolled');
+        else
+          home.home_header.classList.remove('scrolled');
+      });
     }
   },
 };
