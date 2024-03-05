@@ -255,12 +255,6 @@ const _API={
       document.documentElement.className=_API.html_class;
     }
   },
-  theme_next:function(){
-    if (++_API.theme_sel>=_API.theme_list.length)
-      _API.theme_sel=0;
-    _JSAPI.storeSet(_API.user_prefix+"theme", _API.theme_list[_API.theme_sel]);
-    _API.theme_update();
-  },
 
   bgimg_update:function(){
     $('animebg').className='bg'+pb.cfg_data.bgimg;
@@ -1421,6 +1415,26 @@ const pb={
     "MEDIUM",
     "LOW"
   ],
+  cfgwallpaper_name:[
+    "Hill Bench",
+    "Gate",
+    "Waifu 1",
+    "Sunny Go",
+    "Waifu 2",
+    "Your Name",
+    "Fuji",
+    "Chibi Umaru",
+    "No Wallpaper"
+  ],
+  cfgtheme_name:[
+    'Purple',
+    'Blue',
+    'Teal',
+    'Green',
+    'Brown',
+    'Red',
+    'Grey'
+  ],
   cfg_save:function(){
     var savingjs=JSON.stringify(pb.cfg_data);
     _JSAPI.storeSet(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
@@ -1443,13 +1457,16 @@ const pb={
         el.lastElementChild.innerHTML=vtt.stylename(pb.cfg_data.ccstyle);
       }
       else if (key=='bgimg'){
-        el.lastElementChild.innerHTML="Wallpaper-"+(pb.cfg_data.bgimg+1);
+        el.lastElementChild.innerHTML=pb.cfgwallpaper_name[pb.cfg_data.bgimg];
       }
       else if (key=='quality'){
         el.lastElementChild.innerHTML=pb.sel_quality;
       }
       else if (key=='sourcesvr'){
         el.lastElementChild.innerHTML="Source "+__SD_NAME;
+      }
+      else if (key=='theme'){
+        el.lastElementChild.innerHTML=pb.cfgtheme_name[_API.theme_sel];
       }
       else if (key=='fav'){
         if (pb.data.animeid){
@@ -1539,7 +1556,7 @@ const pb={
       pb.cfg_update_el('httpclient');
       
       
-      // pb.cfg_update_el('server');
+      pb.cfg_update_el('theme');
 
       pb.cfg_update_el('scale');
       pb.cfg_update_el('fav');
@@ -2220,7 +2237,17 @@ const pb={
         home.settings.lang_action();
       }
       else if (key=='theme'){
-        _API.theme_next();
+        var chval=_API.listPrompt(
+          "Interface Coloe",
+          pb.cfgtheme_name,
+          _API.theme_sel
+        );
+        if (chval!=null){
+          _API.theme_sel=toInt(chval);
+          _JSAPI.storeSet(_API.user_prefix+"theme", _API.theme_list[_API.theme_sel]);
+          _API.theme_update();
+          pb.cfg_update_el(key);
+        }
       }
       else if (key=='settings'){
         home.settings.open(1);
@@ -2318,7 +2345,6 @@ const pb={
           pb.cfg_update_el(key);
           pb.cfg_save();
           _JSAPI.setHttpClient(pb.cfg_data.httpclient);
-          // _API.reload();
         }
       }
       else if (key=="ccstyle"){
@@ -2342,10 +2368,18 @@ const pb={
         }
       }
       else if (key=="bgimg"){
-        if (++pb.cfg_data.bgimg>=BGIMG_NUM) pb.cfg_data.bgimg=0;
-        pb.cfg_update_el(key);
-        pb.cfg_save();
-        _API.bgimg_update();
+        pb.state=0;
+        var chval=_API.listPrompt(
+          "Wallpaper",
+          pb.cfgwallpaper_name,
+          pb.cfg_data.bgimg
+        );
+        if (chval!=null){
+          pb.cfg_data.bgimg=toInt(chval);
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+          _API.bgimg_update();
+        }
       }
       else if (key=='nonjapan'){
         // Update Home
@@ -3958,11 +3992,10 @@ const home={
 
         home.settings.tools._s_theme=$n(
           'div','',{
-            action:'*theme',
-            s_desc:"Change current interface colorscheme"
+            action:'*theme'
           },
           home.settings.styling.P,
-          "<c>palette</c> Interface Color"
+          '<c>palette</c> Interface Color <span class="value">-</span>'
         );
         
         home.settings.tools._s_bgimg=$n(
