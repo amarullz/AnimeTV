@@ -130,12 +130,18 @@ function findjw(){
     }
     setTimeout(findjw,200);
 }
-findjw();
-try{
-    if (!$('player')){
-        parent.postMessage('player.error','*');
-    }
-}catch(e){}
+
+if (location.hash!='#NOPLAY'){
+    findjw();
+    try{
+        if (!$('player')){
+            parent.postMessage('player.error','*');
+        }
+    }catch(e){}
+}
+else{
+    console.log("NOPLAY");
+}
 
 })();
 </script>

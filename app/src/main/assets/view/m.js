@@ -1778,6 +1778,9 @@ const pb={
       pb.next_ep(0);
     }
     else if (c=='ready'){
+      if (pb.preload_video_started){
+        return;
+      }
       pb.state=2;
       pb.pb_track_ctl.innerHTML='play_circle';
       pb.pb_track_ctl.className='';
@@ -2009,6 +2012,9 @@ const pb={
     pb.data.vizm3u8=null;
     
     _API.setMessage(function(e){
+      if (pb.preload_video_started){
+        return;
+      }
       if (e){
         try{
           console.log("ATVLOG messageVal = "+e.data);
@@ -2129,6 +2135,17 @@ const pb={
 
     pb.pb_vid.innerHTML='';
     (function(){
+      if (pb.preload_episode_video!=null){
+        if (pb.preload_episode_video.u==pb.url_value){
+          if (_API.m3u8cb){
+            console.log("preload_episode_video cb -> "+pb.url_value);
+            _API.m3u8cb(pb.preload_episode_video.d);
+            pb.preload_episode_video=null;
+            return;
+          }
+        }
+      }
+      pb.preload_episode_video=null;
       pb.vid=$n('iframe','',{src:pb.data.stream_vurl,frameborder:'0'},pb.pb_vid,'');
     })();
   },
@@ -2191,8 +2208,11 @@ const pb={
   lastkey:0,
   state:0,
 
+  /* Preload Next Episode data & video */
   preload_episode:null,
+  preload_episode_video:null,
   preload_started:0,
+  preload_video_started:0,
   preload_ep:function(){
     if (pb.preload_started==0){
       pb.preload_started=1;
@@ -2213,12 +2233,33 @@ const pb={
           var epd=pb.data.ep[sel_id];
           console.log('Preloading Episode = '+sel_id+' -> '+epd.url);
           var uid=_API.getView(epd.url,function(d,u){
+            _API.viewcb=null;
             if (uid==u && d.status){
+              pb.preload_episode_video=null;
               pb.preload_episode={
                 'u':epd.url,
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
+              if (!pb.cfg_data.html5player){
+                pb.preload_video_started=1;
+                _API.setVizPageCb(null);
+                _API.setMessage(null);
+                _API.setVizCb(function(d2){
+                  _API.setVizCb(null);
+                  pb.preload_episode_video={
+                    'u':epd.url,
+                    'd':d2
+                  };
+                  console.log('Next EP Video Preloaded = '+JSON.stringify(d2));
+                  pb.pb_vid.innerHTML='';
+                  setTimeout(function(){
+                    pb.preload_video_started=0;
+                  },500);
+                });
+                pb.pb_vid.innerHTML='';
+                $n('iframe','',{src:d.stream_vurl+"#NOPLAY",frameborder:'0'},pb.pb_vid,'');
+              }
             }
           });
         }
@@ -3185,6 +3226,8 @@ const pb={
 
   init:function(){
     pb.preload_started=0;
+    pb.preload_video_started=0;
+
     pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
 
     $('home').style.display=$('search').style.display='none';
