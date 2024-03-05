@@ -1272,7 +1272,8 @@ const pb={
     quality:0,
     uifontsize:0,
     httpclient:0,
-    mirrorserver:false
+    mirrorserver:false,
+    listprog:0
   },
   cfg_load:function(){
     var itm=_JSAPI.storeGet(_API.user_prefix+'pb_cfg',"");
@@ -1345,6 +1346,13 @@ const pb={
           if (sv&&sv>0&&sv<=2)
             pb.cfg_data.httpclient=sv;
         }
+
+        if ('listprog' in j){
+          var sv=parseInt(j.listprog);
+          if (sv&&sv>0&&sv<=4)
+            pb.cfg_data.listprog=sv;
+        }
+
         _JSAPI.setHttpClient(pb.cfg_data.httpclient);
 
         
@@ -1371,6 +1379,8 @@ const pb={
     pb.cfg_data.animation=0;
     pb.cfg_data.uifontsize=0;
     pb.cfg_data.httpclient=0;
+    pb.cfg_data.listprog=0;
+    
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
     pb.cfg_data.ccstyle=0;
@@ -1398,6 +1408,15 @@ const pb={
     'Generic HttpClient',
     'Cronet - Chromium Networking'
   ],
+
+  cfglistprog_name:[
+    'Start playing',
+    'Watched 25%',
+    'Watched 50%',
+    'Watched 75%',
+    'Finish watching',
+  ],
+  
   cfgstreamtype_name:[
     'HARDSUB',
     'SOFTSUB',
@@ -1519,6 +1538,9 @@ const pb={
         else if (key=='httpclient'){
           el.lastElementChild.innerHTML=pb.cfghttpclient_name[pb.cfg_data[key]];
         }
+        else if (key=='listprog'){
+          el.lastElementChild.innerHTML=pb.cfglistprog_name[pb.cfg_data[key]];
+        }
         else if (key=='scale'){
           el.lastElementChild.innerHTML=pb.cfgscale_name[pb.cfg_data[key]];
         }
@@ -1558,7 +1580,7 @@ const pb={
       pb.cfg_update_el('compactlist');
       pb.cfg_update_el('uifontsize');
       pb.cfg_update_el('httpclient');
-      
+      pb.cfg_update_el('listprog');
       
       pb.cfg_update_el('theme');
 
@@ -2351,6 +2373,19 @@ const pb={
           _JSAPI.setHttpClient(pb.cfg_data.httpclient);
         }
       }
+      else if (key=="listprog"){
+        pb.state=0;
+        var chval=_API.listPrompt(
+          "Update watch progress",
+          pb.cfglistprog_name,
+          pb.cfg_data.listprog
+        );
+        if (chval!=null){
+          pb.cfg_data.listprog=toInt(chval);
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+        }
+      }
       else if (key=="ccstyle"){
         var stn=[];
         for (var i=0;i<16;i++){
@@ -2818,6 +2853,7 @@ const pb={
         pb.pb_track_val.style.width=dr+"%";
         pb.pb_track_pos.innerHTML=sec2ts(pos,dur<3600);
         pb.pb_track_dur.innerHTML=sec2ts(dur,dur<3600);
+        pb.update_malist_ep(dr);
     }
     else{
       pb.pb_track_val.style.width="0%";
@@ -3062,6 +3098,45 @@ const pb={
     pb.pb_action_streamtype.classList.add('active');
   },
 
+  need_malist_update:false,
+
+  update_malist_ep:function(dr){
+    if (!pb.need_malist_update){
+      return;
+    }
+
+    if (dr<(pb.cfg_data.listprog * 24)){
+      return;
+    }
+
+
+    /* MAL Update Watched Episode */
+    if (pb.malidsave && (pb.malidanime==pb.data.animeid)){
+      console.log("MAL-PLAY #"+pb.malidsave+" / animeid="+pb.data.animeid);
+      var isanilist=false;
+      var malid="mal_"+pb.malidsave;
+      var cep=toInt(pb.ep_val);
+
+      if ((pb.malidsave+'').startsWith("L")){
+        malid='anilist_'+pb.malidsave.substring(1);
+        isanilist=true;
+      }
+      if (!isanilist && (malid in _MAL.data)){
+        _MAL.update_epel(_MAL.data[malid],cep);
+      }
+      else if (isanilist && (malid in _MAL.aldata)){
+        _MAL.update_epel(_MAL.aldata[malid],cep);
+      }
+      else{
+        pb.malidanime=null;
+        pb.malidsave=null;  
+        console.log("MAL-PLAY #RESET-NOTFOUND");
+      }
+
+      pb.need_malist_update=false;
+    }
+  },
+
   init:function(){
     pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
 
@@ -3193,37 +3268,17 @@ const pb={
       pb.malidreq=null;
     }
 
-    /* MAL Update Watched Episode */
     if (pb.malidsave && (pb.malidanime==pb.data.animeid)){
-      console.log("MAL-PLAY #"+pb.malidsave+" / animeid="+pb.data.animeid);
-      var isanilist=false;
-      var malid="mal_"+pb.malidsave;
-      var cep=toInt(pb.ep_val);
-
-      if ((pb.malidsave+'').startsWith("L")){
-        malid='anilist_'+pb.malidsave.substring(1);
-        isanilist=true;
-      }
-      if (!isanilist && (malid in _MAL.data)){
-        _MAL.update_epel(_MAL.data[malid],cep);
-      }
-      else if (isanilist && (malid in _MAL.aldata)){
-        _MAL.update_epel(_MAL.aldata[malid],cep);
-      }
-      else{
-        pb.malidanime=null;
-        pb.malidsave=null;  
-        console.log("MAL-PLAY #RESET-NOTFOUND");
-      }
+      pb.need_malist_update=true;
     }
     else{
       if (pb.malidsave){
         console.log("MAL-PLAY #RESET");
       }
+      pb.need_malist_update=false;
       pb.malidanime=null;
       pb.malidsave=null;
     }
-
 
     /* settings */
     pb.init_settings();
@@ -4139,6 +4194,15 @@ const home={
           _MAL.islogin(1)?
           '<c>lock_open</c> AniList Logout<span class="value">'+special(_MAL.alauth.user)+'</span>':
           '<c>hub</c> AniList Login'
+        );
+
+        home.settings.tools._s_listprog=$n(
+          'div','',{
+            action:'*listprog',
+            s_desc:"Set on what state it should update MAL/AniList watch progress"
+          },
+          home.settings.integration.P,
+          '<c>cloud_sync</c> Update watch progress<span class="value"></span>'
         );
         
 
