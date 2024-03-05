@@ -821,6 +821,12 @@ const vtt={
 
       // console.error(JSON.stringify(subs));
       for (var i=0;i<subs.length;i++){
+        if (subs[i].l=='english'){
+          vtt.load(subs[i]);
+          return;
+        }
+      }
+      for (var i=0;i<subs.length;i++){
         if (subs[i].d){
           vtt.load(subs[i]);
           return;
@@ -857,6 +863,23 @@ const vtt={
           }
       }
     }
+
+    var lang_name='';
+    for (var i=2;i<_API.tlangs.length;i++){
+      if (_API.tlangs[i][1]==lang){
+        lang_name=_API.tlangs[i][0].toLowerCase();
+        break;
+      }
+    }
+    if (lang_name){
+      for (var i=0;i<t.length;i++){
+        if (t[i].l==lang_name){
+          console.log("VTT MATCH GOT -> "+lang_name+" = "+i+" => "+JSON.stringify(t[i]));
+          return i;
+        }
+      }
+    }
+
     return -1;
   },
   ts2pos:function(ts){
@@ -879,6 +902,7 @@ const vtt={
           try{
             var range=ln.replace(/ /g,'').split("-->",2);
             if (range.length==2){
+              // range[1].split(' ')
               t.push(
                 {
                   ti:p+1,
@@ -1979,7 +2003,7 @@ const pb={
                 pb.subtitles.push({
                   u:tk.file,
                   d:tk.default?1:0,
-                  l:(tk.label+'').toLowerCase()
+                  l:(tk.label+'').toLowerCase().trim()
                 });
               }
             }
@@ -2913,17 +2937,20 @@ const pb={
 
   updateStreamTypeInfo:function(){
     var txtadd='';
+    var translate=false;
     if (pb.data.streamtype=="dub"){
       pb.curr_stream_type=2;
     }
     else if (pb.data.streamtype=="softsub"){
       pb.curr_stream_type=1;
-      txtadd+=(vtt.substyle?' <c>g_translate</c>':'')+' <b class="softsub_lang">'+pb.cfg_data.lang.toUpperCase()+'</b>';
+      txtadd+=' <b class="softsub_lang">'+pb.cfg_data.lang.toUpperCase()+'</b>';
+      translate=vtt.substyle?true:false;
     }
     else{
       pb.curr_stream_type=0;
     }
-    pb.pb_action_streamtype.innerHTML='<c>'+pb.cfgstreamtype_ico[pb.curr_stream_type]+'</c> '+pb.cfgstreamtype_name[pb.curr_stream_type]+txtadd;
+    pb.pb_action_streamtype.innerHTML='<c>'+(translate?"g_translate":pb.cfgstreamtype_ico[pb.curr_stream_type])+'</c> '+
+      (translate?"TRANSLATE":pb.cfgstreamtype_name[pb.curr_stream_type])+txtadd;
     pb.pb_action_streamtype.classList.add('active');
   },
 

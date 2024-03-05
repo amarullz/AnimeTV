@@ -391,7 +391,7 @@ public class AnimeView extends WebViewClient {
               Log.d(_TAG, "sendM3U8Req = " + http.body.toString("UTF-8"));
               sendM3U8Req(http.body.toString("UTF-8"));
               try {
-                Thread.sleep(500);
+                Thread.sleep(200);
               }catch(Exception ignored){}
               Log.d(_TAG, "sendM3U8Req Wait = " + http.body.toString("UTF-8"));
             }
