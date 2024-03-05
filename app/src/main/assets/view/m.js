@@ -3861,6 +3861,11 @@ const home={
         var d=td[i];
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
+
+        // __SD==1/2
+        try{
+          d.poster=d.poster.replace("/s100/","/s300/");
+        }catch(e4){}
         var argv={
           url:d.url,
           img:d.poster,
