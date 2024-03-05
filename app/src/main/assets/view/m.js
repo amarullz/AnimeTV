@@ -325,6 +325,26 @@ const _API={
     ["Sundanese","su"],["Swahili","sw"],["Swedish","sv"],["Tajik","tg"],["Tamil","ta"],["Tatar","tt"],["Telugu","te"],["Tigrinya","ti"],
     ["Tsonga","ts"],["Turkish","tr"],["Turkmen","tk"],["Twi","ak"],["Ukrainian","uk"],["Urdu","ur"],["Uyghur","ug"],["Uzbek","uz"],["Welsh","cy"],
     ["Xhosa","xh"],["Yiddish","yi"],["Yoruba","yo"],["Zulu","zu"]],
+  
+  tlangs_id:function(id,getid){
+    if (!_API.idlang){
+      _API.idlang={};
+      _API.lang_titles=[];
+      for (var i=0;i<_API.tlangs.length;i++){
+        var ti=_API.tlangs[i][1];
+        var tx=_API.tlangs[i][0];
+        _API.idlang[ti]=[tx,i];
+        _API.lang_titles.push(tx);
+      }
+    }
+    if (id in _API.idlang){
+      return _API.idlang[id][getid?1:0];
+    }
+    if (getid){
+      return 0;
+    }
+    return "Hardsub";
+  },
 
   /*** URL API ***/
   setUri:function(u){
@@ -864,14 +884,9 @@ const vtt={
       }
     }
 
-    var lang_name='';
-    for (var i=2;i<_API.tlangs.length;i++){
-      if (_API.tlangs[i][1]==lang){
-        lang_name=_API.tlangs[i][0].toLowerCase();
-        break;
-      }
-    }
+    var lang_name=_API.tlangs_id(lang);
     if (lang_name){
+      lang_name=lang_name.toLowerCase();
       for (var i=0;i<t.length;i++){
         if (t[i].l==lang_name){
           console.log("VTT MATCH GOT -> "+lang_name+" = "+i+" => "+JSON.stringify(t[i]));
@@ -1444,6 +1459,19 @@ const pb={
         if (key=='server'){
           el.lastElementChild.innerHTML=pb.cfgserver_name[pb.cfg_data[key]];
         }
+        else if (key=='lang'){
+          var l=pb.cfg_data[key];
+          var c='subtitles';
+          var at='';
+          if (l=='dub'){
+            c='keyboard_voice';
+          }
+          else if (l && l!='hard'){
+            c='closed_caption';
+            at=' <l>'+(l.toUpperCase())+'</l>';
+          }
+          el.lastElementChild.innerHTML='<c>'+c+'</c> '+_API.tlangs_id(l)+at;
+        }
         else if (key=='animation'){
           el.lastElementChild.innerHTML=pb.cfganimation_name[pb.cfg_data[key]];
         }
@@ -1507,6 +1535,8 @@ const pb={
       pb.cfg_update_el('hardsub');
       pb.cfg_update_el('softsub');
       pb.cfg_update_el('dub');
+
+      pb.cfg_update_el('lang');
     }
   },
   cfg:function(v){
@@ -2168,6 +2198,9 @@ const pb={
           list.fav_add(pb.data.animeid,pb.listobj(),true);
         }
         pb.cfg_update_el(key);
+      }
+      else if (key=='lang'){
+        home.settings.lang_action();
       }
       else if (key=='theme'){
         _API.theme_next();
@@ -3817,73 +3850,39 @@ const home={
     needreload:false,
     settings:$('settings'),
     sscroll:$('settings_scroll'),
-    tlang:$('settings_lang'),
     more:$('settings_more'),
     integration:$('settings_integration'),
     networks:$('settings_networks'),
     video:$('settings_video'),
+    slang:$('settings_lang'),
     styling:$('settings_style'),
     performance:$('settings_performance'),
     about:$('settings_about'),
     tools:{},
     isplayback:0,
     menus:[],
-    langsel:function(g,s){
-      var prevlang=pb.cfg_data.lang;
-      var prevstype=_API.currentStreamType;
-      var i=s._key;
-      var t=s._title;
-      if (i=='hard'){
-        i='';
-      }
-      
-      if (prevlang!=i){
-        console.log("ATVLOG Changelang = "+i);
-        pb.cfg_data.lang=i;
-        pb.cfg_save();
-        var nst=_API.streamTypeById(i);
-        if (nst!=prevstype){
-          _API.setStreamTypeValue(-1,home.settings.isplayback?1:0);
-          if (home.settings.isplayback){
-            // pb.reloadPlayback(2000);
-            pb.startpos_val=pb.vid_stat.pos;
-            pb.init_video();
-          }
-        }
-
-        if (nst==1 && prevstype==1){
-          /* If auto translate */
-          try{
-            // vtt.translate(vtt.playback.sub.p, i);
-            vtt.init(pb.subtitles);
-          }catch(e){}
-        }
-
-        home.settings.refreshlang();
-      }
-    },
     initmore_done:false,
     initmore:function(){
       if (!home.settings.initmore_done){
+        pb.menu_clear(home.settings.slang);
         pb.menu_clear(home.settings.video);
-        // pb.menu_init(home.settings.video);
-
         pb.menu_clear(home.settings.styling);
-        // pb.menu_init(home.settings.styling);
-
         pb.menu_clear(home.settings.performance);
-        // pb.menu_init(home.settings.performance);
-
         pb.menu_clear(home.settings.more);
-        // pb.menu_init(home.settings.more);
-
         pb.menu_clear(home.settings.networks);
         pb.menu_clear(home.settings.integration);
-
         pb.menu_clear(home.settings.about);
-        // pb.menu_init(home.settings.about);
 
         home.settings.tools={};
+
+        home.settings.tools._s_lang=$n(
+          'div','',{
+            action:'*lang',
+            s_desc:"Select language priority for video subtitle and audio"
+          },
+          home.settings.slang.P,
+          '<c>closed_caption</c> Subtitle<span class="value"></span>'
+        );
 
         /* Video */
         home.settings.tools._s_autonext=$n(
@@ -4094,53 +4093,37 @@ const home={
       home.settings.initmore_done=true;
       pb.cfg_update_el();
     },
-    refreshlang:function(){
-      /* Init Langs */
-      pb.menu_clear(home.settings.tlang);
-      pb.menu_init(home.settings.tlang);
-      
-      home.settings.tlang._enter_cb=home.settings.langsel;
-      home.settings.tlang._els=[];
-      var vsel=null;
-      for (var i=0;i<_API.tlangs.length;i++){
-        var lid=_API.tlangs[i][1];
-        var title=special(_API.tlangs[i][0]);
-        if (lid=='hard'){
-          title='<c>subtitles</c> '+title;
-        }
-        else if (lid=='dub'){
-          title='<c>keyboard_voice</c> '+title;
-        }
-        else{
-          if (i>=10){
-            title='<c>g_translate</c> '+title;
+    lang_action:function(){
+      var selid=_API.tlangs_id(pb.cfg_data.lang,1);
+      var chval=_API.listPrompt(
+        "Subtitle",
+        _API.lang_titles,
+        selid
+      );
+      if (chval!=null){
+        var prevstype=_API.currentStreamType;
+
+        var sel=toInt(chval);
+        var nlg=_API.tlangs[sel][1];
+        console.log("Change Language = "+nlg);
+        pb.cfg_data.lang=nlg;
+        pb.cfg_save();
+        pb.cfg_update_el('lang');
+
+        var nst=_API.streamTypeById(nlg);
+        if (nst!=prevstype){
+          _API.setStreamTypeValue(-1,home.settings.isplayback?1:0);
+          if (home.settings.isplayback){
+            pb.startpos_val=pb.vid_stat.pos;
+            pb.init_video();
           }
-          else{
-            title='<c>closed_caption</c> '+title;
-          }
-          title+=' <b>'+special(lid.toUpperCase())+'</b>';
         }
-
-        var gn=$n('div','',{
-          action:'@'+lid,'gid':lid
-        },
-        home.settings.tlang.P,(title));
-        gn._title=title;
-        gn._key=lid;
-
-        home.settings.tlang._els[i]=gn;
-
-        if (lid==pb.cfg_data.lang){
-          vsel=gn;
-          gn.innerHTML='<c>check</c> '+(title);
+        if (nst==1 && prevstype==1){
+          /* Reinit subtitle */
+          try{
+            vtt.init(pb.subtitles);
+          }catch(e){}
         }
-      }
-      if (!vsel){
-        vsel=home.settings.tlang._els[0];
-        vsel.innerHTML='<c>check</c> '+vsel._title;
-      }
-      if (vsel){
-        pb.menu_select(home.settings.tlang,vsel);
       }
     },
     open:function(arg){
@@ -4149,7 +4132,7 @@ const home={
       home.settings.sel=0;
       home.settings.subsel=0;
       home.settings.menus=[
-        home.settings.tlang,
+        home.settings.slang,
         home.settings.video,
         home.settings.styling,
         home.settings.performance,
@@ -4158,20 +4141,10 @@ const home={
         home.settings.integration,
         home.settings.about
       ];
-
       for (var i=0;i<home.settings.menus.length;i++){
         home.settings.menus[i].classList.remove('active');
       }
-
-      home.settings.tlang._midx=
-      home.settings.video._midx=
-      home.settings.styling._midx=
-      home.settings.performance._midx=
-      home.settings.more._midx=
-      home.settings.about._midx=6;
-
       home.onsettings=true;
-      home.settings.refreshlang();
       home.settings.initmore();
       home.settings.update(0,0);
       pb.pb.classList.add('onsettings');
@@ -4196,33 +4169,30 @@ const home={
       home.settings.menus[home.settings.sel].classList.add('active');
 
       var fel=null;
-      if (pc!=0){
-        var gel=home.settings.menus[pc].P;
-        if (spc==-1){
-          spc=gel.childElementCount-1;
-        }
-        home.settings.subsel=spc;
-        fel=gel;
-        for (var i=0;i<gel.childElementCount;i++){
-          var xch=gel.children[i];
-          if (i==spc){
-            xch.classList.add('active');
-            fel=xch;
-          }
-          else{
-            xch.classList.remove('active');
-          }
-        }
+      var gel=home.settings.menus[pc].P;
+      if (spc==-1){
+        spc=gel.childElementCount-1;
       }
-      else{
-        home.settings.subsel=0;
-        fel=home.settings.menus[pc];
+      home.settings.subsel=spc;
+      fel=gel;
+      for (var i=0;i<gel.childElementCount;i++){
+        var xch=gel.children[i];
+        if (i==spc){
+          xch.classList.add('active');
+          fel=xch;
+        }
+        else{
+          xch.classList.remove('active');
+        }
       }
       var ot=0;
       var oh=fel.offsetHeight* 1.25;
       while(fel && fel!=home.settings.sscroll){
         ot+=fel.offsetTop;
         fel=fel.offsetParent;
+      }
+      if (pc==0 && spc==0){
+        ot=0;
       }
       var ob=ot+oh;
       var st=home.settings.sscroll.scrollTop;
@@ -4292,10 +4262,7 @@ const home={
       home.settings.close();
     }
     else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
-      if (pc==0){
-        home.settings.menus[pc]._keycb(home.settings.menus[pc],c);
-      }
-      else if (c==KENTER){
+      if (c==KENTER){
         var gel=home.settings.menus[pc].P;
         var el=gel.children[spc];
         try{
@@ -4309,9 +4276,7 @@ const home={
     }
     else if (c==KUP){
       var doNext=true;
-      if (pc!=0){
-        doNext=(--spc<0)?true:false;
-      }
+      doNext=(--spc<0)?true:false;
       if (doNext){
         if (--pc<0){
           pc=home.settings.menus.length-1;
@@ -4321,9 +4286,7 @@ const home={
     }
     else if (c==KDOWN){
       var doNext=true;
-      if (pc!=0){
-        doNext=(++spc>=home.settings.menus[pc].P.childElementCount)?true:false;
-      }
+      doNext=(++spc>=home.settings.menus[pc].P.childElementCount)?true:false;
       if (doNext){
         if (++pc>=home.settings.menus.length){
           pc=0;
@@ -4880,52 +4843,6 @@ const _MAL={
       }
     }
     console.log("ANILIST-TOKEN: "+_MAL.altoken);
-    if (_MAL.altoken){
-      // _MAL.alreq(`
-      // query {
-      //     Viewer {
-      //         id
-      //         name
-      //     }
-      // }
-      // `,{},function(r){
-      //   console.log("ANILIST-REQ = "+r.responseText);
-      // });
-    }
-    /*
-query ($page: Int, $perPage: Int) {
-  Page(page: $page, perPage: $perPage) {
-    pageInfo {
-      total
-      perPage
-      hasNextPage
-    }
-    mediaList(userName:"amarullz",type:ANIME,status:CURRENT,sort:ADDED_TIME_DESC){
-      id
-      mediaId
-      progress
-      media{
-        title{
-          romaji
-          english
-        }
-        coverImage{
-          medium
-          color
-        }
-        status
-        format
-        seasonYear
-        season
-        isAdult
-        averageScore
-        episodes
-        source
-      }
-    }
-  }
-}
-*/
   },
   req:function(uri, method, cb){
     if (!_MAL.token){

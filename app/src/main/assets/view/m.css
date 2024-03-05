@@ -2021,7 +2021,7 @@ c.loader {
   background: #fff;
   content: 'check';
 }
-#settings .settings_group p div c:not(.check){
+#settings .settings_group p div>c:not(.check){
   float:left;
   margin-left: -4vw;
   font-size: var(--fs-20vw);
@@ -2030,6 +2030,17 @@ c.loader {
   display: block;
   color:var(--accent-1);
   font-size: var(--fs-12vw);
+}
+#settings .settings_group p div span.value l{
+  display: inline-block;
+  background-color: var(--primary-bg);
+  color: #fff;
+  font-size: var(--fs-8vw);
+  padding:0 .4vw 0 .4vw;
+  border-radius: .2vw;
+  font-weight: bold;
+  line-height: 1.2;
+  vertical-align: middle;
 }
 #settings .settings_group p div[s_desc]::after{
   display: block;
