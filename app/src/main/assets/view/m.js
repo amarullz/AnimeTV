@@ -4202,10 +4202,10 @@ const home={
       var sh=home.settings.sscroll.offsetHeight;
       var sb=st+sh;
       if (ot<st){
-        home.settings.sscroll.scrollTo(0,ot);
+        home.settings.sscroll.scrollTop=ot;
       }
       else if (ob>sb){
-        home.settings.sscroll.scrollTo(0,ob-sh);
+        home.settings.sscroll.scrollTop=ob-sh;
       }
     },
     open_donation:function(ispaypal){

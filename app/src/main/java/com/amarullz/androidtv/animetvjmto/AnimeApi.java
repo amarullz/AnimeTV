@@ -26,8 +26,6 @@ import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
-import com.google.net.cronet.okhttptransport.CronetInterceptor;
-
 import org.chromium.net.CronetEngine;
 import org.json.JSONObject;
 
@@ -469,6 +467,8 @@ public class AnimeApi extends WebViewClient {
   public static OkHttpClient bootstrapClient;
   public static String okCacheDir=null;
 
+  public static CronetEngine cronetClient=null;
+
   public static void initHttpEngine(Context c){
     long disk_cache_size = 100 * 1024 * 1024;
     Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir",
@@ -485,14 +485,15 @@ public class AnimeApi extends WebViewClient {
                 .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
                 .addQuicHint(Conf.SOURCE_DOMAIN1, 443, 443)
                 .addQuicHint(Conf.STREAM_DOMAIN2, 443, 443);
-        bootstrapClient = new OkHttpClient.Builder().cache(appCache)
-            .addInterceptor(CronetInterceptor.newBuilder(myBuilder.build()).build())
-            .build();
+        cronetClient=myBuilder.build();
       }catch (Exception ignored){
+        Log.e(_TAG,"Cronet Init Error",ignored);
+        cronetClient=null;
         bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
       }
     }
     else{
+      cronetClient=null;
       bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
     }
     dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
@@ -506,13 +507,33 @@ public class AnimeApi extends WebViewClient {
     public ByteArrayOutputStream body=null;
     public String[] ctype=null;
     public Http(String url){
-      if (Conf.HTTP_CLIENT==1){
+      if (Conf.HTTP_CLIENT>0){
         // Generic HttpURLConnection
         try {
-          URL netConn = new URL(url);
-          http = (HttpURLConnection) netConn.openConnection();
+          if (Conf.HTTP_CLIENT==2){
+            // Cronet HttpURLConnection
+            if (cronetClient!=null){
+              try {
+                http = (HttpURLConnection) cronetClient.openConnection(
+                    new URL(url)
+                );
+              }catch (Exception ignored){
+                http=null;
+              }
+            }
+          }
+          if (http==null) {
+            // Fallback Generic HttpURLConnection
+            URL netConn = new URL(url);
+            http = (HttpURLConnection) netConn.openConnection();
+          }
+          http.setConnectTimeout(5000);
+          http.setReadTimeout(10000);
+          http.setDoInput(true);
           return;
-        }catch(Exception ignored){}
+        }catch(Exception ignored){
+          http=null;
+        }
       }
       // okHTTP Fallback
       req = new Request.Builder();

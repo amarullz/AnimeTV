@@ -339,6 +339,12 @@ public class AnimeView extends WebViewClient {
             Log.d(_TAG, "PROXY-GET = " + proxy_url);
           }
           AnimeApi.Http http=new AnimeApi.Http(proxy_url);
+          for (Map.Entry<String, String> entry :
+              request.getRequestHeaders().entrySet()) {
+            if (!entry.getKey().equals("Post-Body")) {
+              http.addHeader(entry.getKey(), entry.getValue());
+            }
+          }
           if (isPost){
             if (isPostBody){
               http.setMethod(method,bodyData,request.getRequestHeaders().get(
@@ -346,12 +352,6 @@ public class AnimeView extends WebViewClient {
             }
             else {
               http.setMethod(method,queryData,"application/x-www-form-urlencoded");
-            }
-          }
-          for (Map.Entry<String, String> entry :
-              request.getRequestHeaders().entrySet()) {
-            if (!entry.getKey().equals("Post-Body")) {
-              http.addHeader(entry.getKey(), entry.getValue());
             }
           }
           http.execute();
