@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 33
         versionCode 250
-        versionName "2.5.5-Nightly"
+        versionName "2.5.7-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"

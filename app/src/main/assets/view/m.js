@@ -1330,7 +1330,7 @@ const pb={
 
         if ('animation' in j){
           var sv=parseInt(j.animation);
-          if (sv&&sv>0&&sv<=2)
+          if (sv&&sv>0&&sv<=3)
             pb.cfg_data.animation=sv;
         }
 
@@ -3200,7 +3200,7 @@ const pb={
       var malid="mal_"+pb.malidsave;
       var cep=toInt(pb.ep_val);
 
-      if (pb.malidsave.startsWith("L")){
+      if ((pb.malidsave+'').startsWith("L")){
         malid='anilist_'+pb.malidsave.substring(1);
         isanilist=true;
       }
@@ -3339,7 +3339,7 @@ const pb={
     pb.pb_action_streamtype.classList.remove('active');
     var open_stat=0;
     _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
-    pb.malidreq=malid?malid:null;
+    pb.malidreq=malid?(malid+''):null;
 
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;
