@@ -1273,7 +1273,8 @@ const pb={
     uifontsize:0,
     httpclient:0,
     mirrorserver:false,
-    listprog:0
+    listprog:0,
+    preloadep:true
   },
   cfg_load:function(){
     var itm=_JSAPI.storeGet(_API.user_prefix+'pb_cfg',"");
@@ -1292,6 +1293,8 @@ const pb={
         pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
         
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
+        pb.cfg_data.preloadep=('preloadep' in j)?(j.preloadep?true:false):true;
+        
         pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
         pb.cfg_data.progcache=('progcache' in j)?(j.progcache?true:false):true;
         pb.cfg_data.usedoh=('usedoh' in j)?(j.usedoh?true:false):true;
@@ -1364,9 +1367,11 @@ const pb={
     pb.cfg_data.autonext=true;
     pb.cfg_data.html5player=false;
     
+    
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.jptitle=false;
     pb.cfg_data.progcache=true;
+    pb.cfg_data.preloadep=true;
     pb.cfg_data.usedoh=true;
     
     pb.cfg_data.compactlist=false;
@@ -1568,6 +1573,8 @@ const pb={
       pb.cfg_update_el('html5player');
       
       pb.cfg_update_el('skipfiller');
+      pb.cfg_update_el('preloadep'); 
+      
       pb.cfg_update_el('nonjapan');
       pb.cfg_update_el('sourcesvr');
       
@@ -2183,6 +2190,41 @@ const pb={
   ep_index:-1,
   lastkey:0,
   state:0,
+
+  preload_episode:null,
+  preload_started:0,
+  preload_ep:function(){
+    if (pb.preload_started==0){
+      pb.preload_started=1;
+      if (pb.ep_index<pb.data.ep.length-1){
+        var next_id=pb.ep_index+1;
+        var sel_id=-1;
+        if (pb.cfg('skipfiller')){
+          for (var i=next_id;i<pb.data.ep.length;i++){
+            if (!pb.data.ep[i].filler){
+              sel_id=i;
+              break;
+            }
+          }
+        }else{
+          sel_id=next_id;
+        }
+        if (sel_id>-1){
+          var epd=pb.data.ep[sel_id];
+          console.log('Preloading Episode = '+sel_id+' -> '+epd.url);
+          var uid=_API.getView(epd.url,function(d,u){
+            if (uid==u && d.status){
+              pb.preload_episode={
+                'u':epd.url,
+                'd':d
+              };
+              console.log('Next EP Preloaded = '+sel_id);
+            }
+          });
+        }
+      }
+    }
+  },
 
   /* next ep */
   next_ep:function(fn){
@@ -2854,6 +2896,10 @@ const pb={
         pb.pb_track_pos.innerHTML=sec2ts(pos,dur<3600);
         pb.pb_track_dur.innerHTML=sec2ts(dur,dur<3600);
         pb.update_malist_ep(dr);
+
+        if (pb.cfg_data.preloadep && (dr>80) && (pb.preload_started==0)){
+          pb.preload_ep();
+        }
     }
     else{
       pb.pb_track_val.style.width="0%";
@@ -3138,6 +3184,7 @@ const pb={
   },
 
   init:function(){
+    pb.preload_started=0;
     pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
 
     $('home').style.display=$('search').style.display='none';
@@ -3396,6 +3443,32 @@ const pb={
     _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
     pb.malidreq=malid?(malid+''):null;
 
+    /* Init Preloaded Data */
+    if (pb.preload_episode!=null){
+      try{
+        if (pb.preload_episode.u==uri){
+          pb.menu_clear(pb.pb_settings);
+          pb.url_value=uri;
+          pb.startpos_val=0;
+
+          pb.reset(0,noclean);
+
+          console.log("Preload Opened ="+uri);
+
+          pb.data=pb.preload_episode.d;
+          pb.preload_episode=null;
+
+          _API.setUri(uri);
+          
+          pb.init();
+          return;
+        }
+      }catch(e){
+        console.log("Open Preload Error -> "+e);
+      }
+    }
+
+    pb.preload_episode=null;
     var uid=_API.getView(uri,function(d,u){
       open_stat=1;
       if (uid==u && d.status){
@@ -4036,12 +4109,22 @@ const home={
           home.settings.video.P,
           '<c class="check">clear</c><c>move_selection_left</c> Skip Filler'
         );
+        
         home.settings.tools._s_scale=$n(
           'div','',{
             action:'*scale'
           },
           home.settings.video.P,
           '<c>aspect_ratio</c> Video Scaling<span class="value">-</span>'
+        );
+
+        home.settings.tools._s_preloadep=$n(
+          'div','',{
+            action:'*preloadep',
+            s_desc:'Prepare episode data before video finished for faster next episode load'
+          },
+          home.settings.video.P,
+          '<c class="check">clear</c><c>cloud_download</c> Preload Next Episode'
         );
         
 
