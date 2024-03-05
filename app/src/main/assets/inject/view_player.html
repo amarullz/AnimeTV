@@ -22,6 +22,15 @@
         width:100vw !important;
         height:100vh !important;
     }
+    .scale-0 video{
+        object-fit: contain !important;
+    }
+    .scale-1 video{
+        object-fit: cover !important;
+    }
+    .scale-2 video{
+        object-fit: fill !important;
+    }
 </style>
 <script>
 var __JWP=null;
@@ -55,8 +64,18 @@ function jwcmd(c,v){
     else if (c=='seek'){
         __JWP.seek(v);
     }
+    else if (c=='speed'){
+        try{
+        __JWP.setPlaybackRate(v);
+        }catch(e){}
+    }
+    else if (c=='scale'){
+        try{
+            document.firstElementChild.className='scale-'+v;
+        }catch(e){}
+    }
     else if (c=='ready'){
-        jwburstquality();
+        /*jwburstquality();*/
     }
 }
 window.addEventListener('message',function(e) {

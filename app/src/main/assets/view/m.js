@@ -1218,6 +1218,7 @@ const pb={
     bgimg:BGIMG_NUM-1,
     quality:0,
     uifontsize:0,
+    httpclient:0,
     mirrorserver:false
   },
   cfg_load:function(){
@@ -1262,13 +1263,6 @@ const pb={
         pb.cfg_data.bgimg=('bgimg' in j)?j.bgimg:BGIMG_NUM-1;
         _API.bgimg_update();
 
-        /*
-        if ('server' in j){
-          var sv=parseInt(j.server);
-          if (sv&&sv>0&&sv<=2)
-            pb.cfg_data.server=sv;
-        }*/
-
         if ('quality' in j){
           var sv=parseInt(j.quality);
           if (sv&&sv>0&&sv<=3)
@@ -1293,6 +1287,13 @@ const pb={
             pb.cfg_data.uifontsize=sv;
         }
 
+        if ('httpclient' in j){
+          var sv=parseInt(j.httpclient);
+          if (sv&&sv>0&&sv<=2)
+            pb.cfg_data.httpclient=sv;
+        }
+        _JSAPI.setHttpClient(pb.cfg_data.httpclient);
+
         
         pb.updateanimation();
         return;
@@ -1316,6 +1317,7 @@ const pb={
     pb.cfg_data.server=0;
     pb.cfg_data.animation=0;
     pb.cfg_data.uifontsize=0;
+    pb.cfg_data.httpclient=0;
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
     pb.cfg_data.ccstyle=0;
@@ -1336,6 +1338,11 @@ const pb={
     'Small',
     'Medium',
     'Big'
+  ],
+  cfghttpclient_name:[
+    'OkHttp with DoH Support',
+    'Generic HttpClient',
+    'Cronet - Chromium Networking'
   ],
   cfgstreamtype_name:[
     'HARDSUB',
@@ -1419,6 +1426,9 @@ const pb={
         else if (key=='uifontsize'){
           el.lastElementChild.innerHTML=pb.cfguifontsize_name[pb.cfg_data[key]];
         }
+        else if (key=='httpclient'){
+          el.lastElementChild.innerHTML=pb.cfghttpclient_name[pb.cfg_data[key]];
+        }
         else if (key=='scale'){
           el.lastElementChild.innerHTML=pb.cfgscale_name[pb.cfg_data[key]];
         }
@@ -1457,8 +1467,11 @@ const pb={
       
       pb.cfg_update_el('compactlist');
       pb.cfg_update_el('uifontsize');
+      pb.cfg_update_el('httpclient');
       
-      pb.cfg_update_el('server');
+      
+      // pb.cfg_update_el('server');
+
       pb.cfg_update_el('scale');
       pb.cfg_update_el('fav');
       pb.cfg_update_el('speed');
@@ -1651,6 +1664,9 @@ const pb={
       if (pb.startpos_val>0){
         pb.vid_startpos_init();
       }
+      if (pb.cfg_data.html5player){
+        pb.vid_cmd('scale',pb.cfg_data.scale);
+      }
     }
     else if (c=='play'){
       pb.vid_stat.play=true;
@@ -1658,6 +1674,10 @@ const pb={
       pb.menu_autohide();
       pb.setskip_track(1);
       vtt.playback.play();
+      if (pb.cfg_data.html5player){
+        pb.vid_cmd('speed',_API.vidSpeed);
+        pb.vid_cmd('scale',pb.cfg_data.scale);
+      }
     }
     else if (c=='pause'){
       vtt.playback.pause();
@@ -1978,6 +1998,9 @@ const pb={
             pb.init_video_mp4upload(urivid);
           }
         }
+        else{
+          pb.pb_track_pos.innerHTML='STREAMING VIDEO';
+        }
       }catch(e){
         pb.pb_track_pos.innerHTML='VIDEO ERROR: '+e;
       }
@@ -2157,7 +2180,12 @@ const pb={
         if (_API.vidSpeed>2.0){
           _API.vidSpeed=0.5;
         }
-        _API.videoSpeed(_API.vidSpeed);
+        if (pb.cfg_data.html5player){
+          pb.vid_cmd('speed',_API.vidSpeed);
+        }
+        else{
+          _API.videoSpeed(_API.vidSpeed);
+        }
         pb.cfg_update_el(key);
       }
       else if (key=="quality"){
@@ -2202,6 +2230,21 @@ const pb={
           pb.cfg_update_el(key);
           pb.cfg_save();
           pb.updateanimation();
+        }
+      }
+      else if (key=="httpclient"){
+        pb.state=0;
+        var chval=_API.listPrompt(
+          "HTTP Client",
+          pb.cfghttpclient_name,
+          pb.cfg_data.httpclient
+        );
+        if (chval!=null){
+          pb.cfg_data.httpclient=toInt(chval);
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+          _JSAPI.setHttpClient(pb.cfg_data.httpclient);
+          // _API.reload();
         }
       }
       else if (key=="ccstyle"){
@@ -2317,6 +2360,7 @@ const pb={
             pb.cfg_update_el(key);
             pb.cfg_save();
             _API.videoScale(pb.cfg_data.scale);
+            pb.vid_cmd('scale',pb.cfg_data.scale);
           }
         }
         else{
@@ -2824,15 +2868,19 @@ const pb={
   init_settings:function(){
     pb.cfg_load();
     pb.menu_clear(pb.pb_settings);
-    _API.videoSpeed(_API.vidSpeed);
+
+    if (!pb.cfg_data.html5player){
+      _API.videoSpeed(_API.vidSpeed);
+    }
 
     // $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
     // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
     pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> SETTINGS');
     pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
 
+    
+    pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
     if (!pb.cfg_data.html5player){
-      pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
       pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
     }
 
@@ -3924,7 +3972,7 @@ const home={
         home.settings.tools._s_html5player=$n(
           'div','',{
             action:'*html5player',
-            s_desc:"Enable if you have a problem with stuttering playback, many features may disabled"
+            s_desc:"Enable if you have a problem with stuttering playback, some features may disabled"
           },
           home.settings.more.P,
           '<c class="check">check</c><c>live_tv</c> Use HTML5 Video Player'
@@ -3951,10 +3999,18 @@ const home={
         home.settings.tools._s_usedoh=$n(
           'div','',{
             action:'*usedoh',
-            s_desc:"Use dns over https for securely resolving domain name. Enable if your ISP blocked source domain"
+            s_desc:"Use dns over https for securely resolving domain name. Enable if your ISP blocked source domain (Only works with OkHttp)"
           },
           home.settings.networks.P,
           '<c class="check">clear</c><c>encrypted</c> Use DoH'
+        );
+        home.settings.tools._s_httpclient=$n(
+          'div','',{
+            action:'*httpclient',
+            s_desc:"Select HTTP Client that works for your connection"
+          },
+          home.settings.networks.P,
+          '<c>public</c> HTTP Client<span class="value"></span>'
         );
 
         /* Integrations */

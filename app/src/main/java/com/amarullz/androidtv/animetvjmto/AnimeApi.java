@@ -26,6 +26,9 @@ import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
+import com.google.net.cronet.okhttptransport.CronetInterceptor;
+
+import org.chromium.net.CronetEngine;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -36,6 +39,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -271,7 +277,7 @@ public class AnimeApi extends WebViewClient {
     Log.d(_TAG,"Cache Dir = "+okCacheDir);
 
     /* Update Server */
-    initHttpEngine();
+    initHttpEngine(activity);
     updateServerVar(false);
 
     webView = new WebView(activity);
@@ -463,21 +469,52 @@ public class AnimeApi extends WebViewClient {
   public static OkHttpClient bootstrapClient;
   public static String okCacheDir=null;
 
-  public static void initHttpEngine(){
+  public static void initHttpEngine(Context c){
     long disk_cache_size = 100 * 1024 * 1024;
     Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir",
         "okhttpcache"), disk_cache_size);
-    bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
+
+    if (Conf.HTTP_CLIENT==2) {
+      try {
+        CronetEngine.Builder myBuilder =
+            new CronetEngine.Builder(c)
+                .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
+                .enableHttp2(true)
+                .enableQuic(true)
+                .enableBrotli(true)
+                .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
+                .addQuicHint(Conf.SOURCE_DOMAIN1, 443, 443)
+                .addQuicHint(Conf.STREAM_DOMAIN2, 443, 443);
+        bootstrapClient = new OkHttpClient.Builder().cache(appCache)
+            .addInterceptor(CronetInterceptor.newBuilder(myBuilder.build()).build())
+            .build();
+      }catch (Exception ignored){
+        bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
+      }
+    }
+    else{
+      bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
+    }
     dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
         .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
         .build();
   }
   public static class Http{
-    private final Request.Builder req;
+    private HttpURLConnection http=null;
+    private Request.Builder req=null;
     private Response res=null;
     public ByteArrayOutputStream body=null;
     public String[] ctype=null;
     public Http(String url){
+      if (Conf.HTTP_CLIENT==1){
+        // Generic HttpURLConnection
+        try {
+          URL netConn = new URL(url);
+          http = (HttpURLConnection) netConn.openConnection();
+          return;
+        }catch(Exception ignored){}
+      }
+      // okHTTP Fallback
       req = new Request.Builder();
       req.url(url);
     }
@@ -485,15 +522,33 @@ public class AnimeApi extends WebViewClient {
       if (req!=null) {
         req.addHeader(name, val);
       }
+      else if (http!=null){
+        http.setRequestProperty(name, val);
+      }
     }
     public void setMethod(String method, String body, String cType){
       if (req!=null) {
         req.method(method, RequestBody.create(body, MediaType.get(cType)));
       }
+      else if (http!=null){
+        try {
+          http.setRequestProperty("Content-Type", cType);
+          http.setDoOutput(true);
+          OutputStream os = http.getOutputStream();
+          os.write(body.getBytes());
+          os.flush();
+          os.close();
+        }catch (Exception ignored){}
+      }
     }
     public int code(){
       if (res!=null) {
         return res.code();
+      }
+      else if (http!=null){
+        try {
+          return http.getResponseCode();
+        } catch (IOException ignored) {}
       }
       return 0;
     }
@@ -512,6 +567,18 @@ public class AnimeApi extends WebViewClient {
           body.write(Objects.requireNonNull(res.body()).bytes());
         }
         ctype = parseContentType(res.header("Content-Type"));
+      }
+      else if (http!=null){
+        ctype=parseContentType(http.getContentType());
+        body = new ByteArrayOutputStream();
+        InputStream is=http.getInputStream();
+        try {
+          int nRead;
+          byte[] data = new byte[1024];
+          while ((nRead = is.read(data, 0, data.length)) != -1) {
+            body.write(data, 0, nRead);
+          }
+        }catch (Exception ignored){}
       }
     }
   }
@@ -541,10 +608,10 @@ public class AnimeApi extends WebViewClient {
       }
 
       InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
-      Log.d(_TAG,"OKHTTP = "+url+" -> "+http.body.size()+" Bytes");
+//      Log.d(_TAG,"OKHTTP = "+url+" -> "+http.body.size()+" Bytes");
       return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
     } catch (Exception e) {
-      Log.e(_TAG, "OKHTTP ERR =" + url, e);
+      Log.e(_TAG, "defaultRequest ERR =" + url, e);
     }
     return null;
   }

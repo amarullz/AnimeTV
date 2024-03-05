@@ -694,6 +694,13 @@ public class AnimeView extends WebViewClient {
 //      AnimeApi.initHttpEngine();
     }
 
+    // setHttpClient
+    @JavascriptInterface
+    public void setHttpClient(int val){
+      Conf.HTTP_CLIENT=val;
+      AnimeApi.initHttpEngine(activity);
+    }
+
     @JavascriptInterface
     public boolean videoIsPlaying(){
       runOnUiThreadWait(()->{

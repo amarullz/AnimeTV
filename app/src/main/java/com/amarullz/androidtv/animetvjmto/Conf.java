@@ -42,6 +42,8 @@ public class Conf {
 
   public static boolean USE_DOH = true;
 
+  public static int HTTP_CLIENT = 0;
+
   // public static String MAL_CLIENT_ID="7b5a9155e3870fd91382445ef04b133c";
   public static String MAL_CLIENT_ID="0e9466e5ec09684cc69da53f20b07af6";
 

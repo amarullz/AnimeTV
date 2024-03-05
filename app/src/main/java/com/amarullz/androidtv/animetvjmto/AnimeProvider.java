@@ -113,7 +113,7 @@ public class AnimeProvider {
 
     public AnimeProvider(Context c){
         ctx=c;
-        AnimeApi.initHttpEngine();
+        AnimeApi.initHttpEngine(c);
         try {
             CHANNEL_ID = initChannel();
         }catch (Exception ex){
