@@ -72,6 +72,9 @@ ttl{
   --fs-40vw: 4vw;
   --fs-60vw: 6vw;
   --fs-100vw: 10vw;
+
+  /* interpolation */
+  --interpolation: cubic-bezier(.25, .8, .25, 1);
 }
 
 :root.view-bigfont {
@@ -205,14 +208,6 @@ ttl{
   -webkit-mask-image: none !important;
   text-shadow: none;
 }
-.ani_quick *{
-  /* box-shadow: none !important; */
-  /* text-shadow: none !important; */
-}
-/* .ani_super_quick #animebg,
-.ani_quick #animebg {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%) !important;
-} */
 
 body,
 html {
@@ -221,18 +216,24 @@ html {
   font-family: robotoc, Arial, Helvetica, sans-serif;
   font-size: var(--fs-10vw);
   font-weight: normal;
-  /* background-color: var(--primary-bg); */
   background: transparent !important;
   color: #fff;
   scroll-behavior: smooth;
   overflow: hidden;
 }
 
-/* body > div{
-  -webkit-transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  -webkit-perspective: 1000;
-} */
+/* body > div */
+#animebg,
+#home,
+#search,
+#pb,
+#settings,
+#popupcontainer
+{
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
 
 ::-webkit-scrollbar {
   width: .4vw;
@@ -411,7 +412,7 @@ c.loader {
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
-  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-3s) var(--interpolation);
   opacity: 0;
   visibility: hidden;
   z-index: 9999;
@@ -443,7 +444,7 @@ c.loader {
   top: 40vh;
   font-size: var(--fs-10vw);
   text-shadow: 0 0 .1vw #000, 0 0 .2vw #000;
-  transition: all var(--tim-5s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-5s) var(--interpolation);
   opacity: 0;
   visibility: hidden;
   z-index: 10;
@@ -477,7 +478,7 @@ c.loader {
   padding: 5vw;
   font-size: var(--fs-13vw);
   text-shadow: 0 0 .5vw #000, .05vw .05vw .05vw #000;
-  transition: all var(--tim-5s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-5s) var(--interpolation);
   opacity: 0;
   visibility: hidden;
   z-index: 30;
@@ -488,7 +489,7 @@ c.loader {
   width: 40vw;
   padding-bottom: var(--fs-15vw);
   font-weight: bold;
-  transition: all var(--tim-4s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-4s) var(--interpolation);
   opacity: 0;
   transform: translateX(5vw);
 }
@@ -497,7 +498,7 @@ c.loader {
   width: 50vw;
   line-height: 1.5;
   margin-bottom: 1.5vw;
-  transition: all var(--tim-7s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-7s) var(--interpolation);
   opacity: 0;
   transform: translateX(15vw);
   overflow: hidden;
@@ -542,7 +543,7 @@ c.loader {
   transform: translateX(25vw);
   position: absolute;
   bottom: 5vw;
-  transition: all var(--tim-10s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-10s) var(--interpolation);
   padding-bottom: 1vw;
 }
 
@@ -564,7 +565,7 @@ c.loader {
   white-space: nowrap;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(90deg, #000 95%, rgba(0, 0, 0, 0));
-  transition: all var(--tim-8s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-8s) var(--interpolation);
 }
 
 .pb_menu p {
@@ -572,8 +573,8 @@ c.loader {
   padding: 0;
   position: relative;
   display: block;
-  transition: transform var(--tim-3s) cubic-bezier(.25, .8, .25, 1),
-    margin-left var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: transform var(--tim-3s) var(--interpolation),
+    margin-left var(--tim-3s) var(--interpolation);
   transform: translateX(0);
   left: -5vw;
   padding-left: 5vw;
@@ -590,9 +591,13 @@ c.loader {
   border-radius: .2vw;
   margin-right: 0;
   margin-bottom: .2vw;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1), margin-left var(--tim-1s) cubic-bezier(.25, .8, .25, 1), margin-right 0s !important;
+  transition: 
+    transform var(--tim-2s) var(--interpolation),
+    margin-left var(--tim-1s) var(--interpolation),
+    margin-right 0s !important;
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
   transform: scale(.91);
+  will-change: transform;
 }
 
 .pb_menu.active div {
@@ -622,7 +627,7 @@ c.loader {
   left:0;
   right:0;
   bottom:0;
-  transition: all var(--tim-5s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-5s) var(--interpolation);
   opacity: 0;
   visibility: hidden;
   z-index: 50;
@@ -726,7 +731,7 @@ c.loader {
   text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000;
   font-size: var(--fs-13vw);
   border-radius: .3vw;
-  transition: all var(--tim-5s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-5s) var(--interpolation);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
   opacity: 0;
   z-index: 20;
@@ -762,7 +767,7 @@ c.loader {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .95) 100%);
   text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000;
   transform: translateY(calc(100vh - 4vw));
-  transition: all var(--tim-4s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-4s) var(--interpolation);
 }
 
 #pb_lists {
@@ -777,7 +782,7 @@ c.loader {
 #pb_seasons {
   padding: .2vw 5vw 1.5vw 5vw;
   position: relative;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   opacity: .8;
 }
 
@@ -797,7 +802,7 @@ c.loader {
   font-size: var(--fs-12vw);
   font-weight: bold;
   padding-bottom: .5vw;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   position: relative;
   color: #ccc;
   height: 1.5vw;
@@ -828,7 +833,7 @@ c.loader {
   height: 1vw;
   visibility: hidden;
   opacity: 0;
-  transition: all var(--tim-10s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-10s) var(--interpolation);
   transform: translateX(-10vw);
   background-color: var(--primary-2);
   color: #fff;
@@ -969,7 +974,7 @@ c.loader {
 #pb_seasons div img {
   opacity: .8;
   /* filter: grayscale(80%); */
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   will-change: opacity;
 }
 
@@ -1029,7 +1034,7 @@ c.loader {
 #pb_tracks {
   padding: 2.5vw 5vw 1vw 5vw;
   position: relative;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   will-change: opacity;
   opacity: .8;
 }
@@ -1070,7 +1075,7 @@ c.loader {
   width: 2vw;
   height: 2vw;
   vertical-align: middle;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   text-shadow: 0 0 .2vw #000 !important;
   will-change: text-shadow;
 }
@@ -1100,7 +1105,7 @@ c.loader {
   border-radius: .5vw;
   outline: .05vw solid rgba(255, 255, 255, .4);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   will-change: transform;
 }
 
@@ -1111,8 +1116,8 @@ c.loader {
   height: .6vw;
   background: var(--primary-3);
   background: linear-gradient(180deg, var(--dimm-1), var(--dimm-1) 100%);
-  transition: width 0.15s cubic-bezier(.25, .8, .25, 1);
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: width 0.15s var(--interpolation);
+  transition: all var(--tim-2s) var(--interpolation);
   will-change: transform, width;
   z-index:1;
 }
@@ -1158,7 +1163,7 @@ c.loader {
 
 #pb_vid iframe {
   opacity: 0;
-  transition: opacity var(--tim-10s) cubic-bezier(.25, .8, .25, 1);
+  transition: opacity var(--tim-10s) var(--interpolation);
   will-change: opacity;
 }
 
@@ -1177,7 +1182,7 @@ c.loader {
   z-index: 20;
   visibility: visible;
   opacity: 1;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   text-shadow: 0 0 .1vw #000, 0 0 .1vw #000, 0 0 .4vw #000;
   will-change: opacity;
 }
@@ -1200,7 +1205,7 @@ c.loader {
   border-radius: .3vw;
   box-shadow: 0 .17vw .4vw rgba(0, 0, 0, 0.25), 0 .15vw .15vw rgba(0, 0, 0, 0.22);
   overflow: hidden;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   visibility: hidden;
   opacity: 0;
 }
@@ -1257,7 +1262,7 @@ c.loader {
 #home {
   position: fixed;
   z-index: 2;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   display: block;
   /* inset: 0; */
   top:0;
@@ -1270,7 +1275,7 @@ c.loader {
 .home_list {
   padding: .2vw 5vw 1.5vw 5vw;
   position: relative;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   opacity: .8;
   will-change: transform, opacity;
 }
@@ -1321,7 +1326,7 @@ c.loader {
   font-size: var(--fs-12vw);
   font-weight: bold;
   padding-bottom: .5vw;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   position: relative;
   color: #ccc;
   height: 1.5vw;
@@ -1351,7 +1356,7 @@ c.loader {
 
 .home_list div img {
   opacity: .8;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   will-change: opacity;
 }
 
@@ -1483,7 +1488,7 @@ c.loader {
   position: relative;
   display: block;
   z-index:0;
-  transition: transform var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: transform var(--tim-3s) var(--interpolation);
   will-change: transform;
 }
 #home_scroll_mask{
@@ -1503,7 +1508,7 @@ c.loader {
   text-shadow: .2vw .2vw .2vw #000;
   margin: 0;
   padding: 0;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   will-change: transform;
 }
 @keyframes logopaw_ani {
@@ -1523,7 +1528,7 @@ c.loader {
   margin-left:.8vw;
   transform: rotate(6deg);
   animation: logopaw_ani .5s linear infinite alternate;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   will-change: transform;
 }
 .ui_performance #home_header h1 c{
@@ -1545,7 +1550,7 @@ c.loader {
   text-align: center;
   border-radius: 10vw;
   background: var(--primary-1);
-  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  transition: all 0.3s var(--interpolation);
   transform: scale(.8);
   will-change: transform, opacity;
 }
@@ -1563,7 +1568,7 @@ c.loader {
   justify-content: center;
   text-shadow: 0 0 .1vw #000;
 
-  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  transition: all 0.3s var(--interpolation);
   visibility: visible;
   opacity: 1;
   transform: scale(1);
@@ -1641,7 +1646,7 @@ c.loader {
   text-align: center;
   border-radius: 1vw;
   background: var(--primary-1);
-  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  transition: all 0.3s var(--interpolation);
   will-change: transform;
   transform: scale(.8);
 }
@@ -1741,7 +1746,7 @@ c.loader {
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
-  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-3s) var(--interpolation);
   opacity: 0;
   visibility: hidden;
   z-index: 100;
@@ -1770,7 +1775,7 @@ c.loader {
   line-height: 7vw;
   outline: none;
   border-radius: 1.5vw;
-  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-3s) var(--interpolation);
 }
 
 #search_keyword.active {
@@ -1797,7 +1802,7 @@ c.loader {
   line-height: 1.4;
   /* opacity: .5; */
   outline:.12vw solid #000;
-  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-3s) var(--interpolation);
   border-radius: .25vw;
   overflow: hidden;
   background-color: var(--primary-bg);
@@ -1884,7 +1889,7 @@ c.loader {
   width: 34vw;
   box-sizing: border-box;
   background: #222;
-  transition: all var(--tim-4s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-4s) var(--interpolation);
   transform: translateX(100%);
   opacity: 0;
   visibility: hidden;
@@ -1975,7 +1980,7 @@ c.loader {
   display: block;
   font-size: var(--fs-12vw);
   padding: .5vw 2vw .5vw 2vw;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
   position: relative;
   height: 1.5vw;
 }
@@ -2022,7 +2027,7 @@ c.loader {
   background: #eee;
   left:.2vw;
   top:.2vw;
-  transition: all var(--tim-2s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-2s) var(--interpolation);
 
   will-change: left, right;
 
@@ -2094,7 +2099,9 @@ c.loader {
   justify-content: center;
   opacity: 0;
   visibility: hidden;
-  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: 
+    opacity var(--tim-3s) var(--interpolation),
+    visibility var(--tim-3s) var(--interpolation);
   will-change: opacity;
 }
 #popupcontainer.active {
@@ -2112,7 +2119,7 @@ c.loader {
   opacity: 0;
   transform: scale(.5);
   visibility: hidden;
-  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-3s) var(--interpolation);
   will-change: transform, opacity;
   font-weight: bold;
 }
@@ -2149,7 +2156,7 @@ c.loader {
   box-sizing: border-box;
   background: #222;
   color:#fff;
-  transition: all var(--tim-3s) cubic-bezier(.25, .8, .25, 1);
+  transition: all var(--tim-3s) var(--interpolation);
   transform: scale(.5);
   opacity: 0;
   visibility: hidden;

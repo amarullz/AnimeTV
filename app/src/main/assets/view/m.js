@@ -3403,6 +3403,9 @@ const pb={
         var d=pb.data.related[i];
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
+        try{
+          d.poster=d.poster.replace("/s100/","/s300/");
+        }catch(e4){}
         var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_related.P,'');
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
@@ -3422,6 +3425,9 @@ const pb={
         var d=pb.data.recs[i];
         var ps=d.poster.split('-w100');
         d.poster=ps[0];
+        try{
+          d.poster=d.poster.replace("/s100/","/s300/");
+        }catch(e4){}
         var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs.P,'');
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
@@ -6166,4 +6172,5 @@ _API.bgimg_update();
   document.addEventListener('touchstart', handleTouchStart, false);
   document.addEventListener('touchmove', handleTouchMove, false);
   document.addEventListener('touchend', handleTouchEnd, false);
+  
 })();

@@ -207,7 +207,7 @@ public class AnimeApi extends WebViewClient {
         installApk(fp);
       }catch(Exception er){
         activity.runOnUiThread(() ->
-          Toast.makeText(activity,"Update Failed: "+er,
+          Toast.makeText(activity,"Download Update Failed: "+er,
               Toast.LENGTH_SHORT).show()
         );
         Log.d(_TAG,"DOWNLOAD ERR = "+er);

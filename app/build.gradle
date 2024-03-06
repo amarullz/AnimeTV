@@ -11,16 +11,18 @@ android {
         minSdk 22
         targetSdk 33
         versionCode 250
-        versionName "2.5.7-Nightly"
+        versionName "2.5.9-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
+        setProperty("archivesBaseName", "animetv-" + versionName)
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
 
