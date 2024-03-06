@@ -288,6 +288,74 @@ const _API={
     "supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"
   },
 
+  genre_hi:{
+    "_tv":"2","_movie":"1",
+    "_ova":"3","_ona":"4",
+    "_special":"5",
+    "_music":"6",
+
+    "action":"1","adventure":"2","cars":"3","comedy":"4","dementia":"5","demons":"6","drama":"8",
+    "ecchi":"9","fantasy":"10","game":"11","harem":"35","historical":"13","horror":"14","isekai":"44",
+    "josei":"43","kids":"15","magic":"16","martial_arts":"17","mecha":"18","military":"38","music":"19",
+    "mystery":"7","parody":"20","police":"39","psychological":"40","romance":"22","samurai":"21","school":"23",
+    "sci-fi":"24","seinen":"42","shoujo":"25","shoujo_ai":"26","shounen":"27","shounen_ai":"28","slice_of_life":"36",
+    "space":"29","sports":"30","super_power":"31","supernatural":"37","thriller":"41","vampire":"32"
+  },
+
+  filterurl:function(q,genres,sort,page,ses,year){
+    /*
+      sort: 1.Relevant, 2.RecentUpdate
+    */
+    var uri='';
+    if (__SD<=2){
+      var qv=[];
+      
+      qv.push('keyword='+enc(q));
+
+      // Wave & Anix
+      uri='/filter?keyword='+enc(q)+'&sort=most_relevance';
+      if (ses){
+        qv.push('season='+enc(ses));
+      }
+      if (year){
+        qv.push('year='+enc(year));
+      }
+
+      if (!ses){
+        if (genres){
+          for (var i=0;i<genres.length;i++){
+            var vl=genres[i];
+            if (vl.charAt(0)=='_'){
+              qv.push(enc('type[]')+'='+enc(_API.genres[vl]));
+            }
+            else{
+              qv.push(enc('genre[]')+'='+enc(_API.genres[vl]));
+            }
+          }
+          qv.push('genre_mode=and');
+        }
+        if (!pb.cfg_data.nonjapan){
+          qv.push(enc('country[]')+'=120822');
+        }
+        qv.push(enc('language[]')+'=sub');
+      }
+      if (sort==1){
+        qv.push('sort=most_relevance');
+      }
+      else if (sort==2){
+        qv.push('sort=recently_updated');
+      }
+
+      if (page&&(page>1)){
+        qv.push('page='+page);
+      }
+      uri='/filter?'+qv.join('&');
+      console.log('FILTER: '+uri);
+    }
+
+    return uri;
+  },
+
   /*** TRANSLATE LANGUAGES ***/
   tlangs:[
     ["Hardsub","hard"],
@@ -779,6 +847,13 @@ const list={
     list.save(list.history,'list_history');
   },
   history_add:function(id,val,refirst){
+    if (!val.play){
+      if (id in list.history.detail){
+        if ((val.ep==list.history.detail[id].ep) && (list.history.detail[id].play)){
+          val.play=JSON.parse(JSON.stringify(list.history.detail[id].play));
+        }
+      }
+    }
     list.add(list.history,id,val,refirst);
     list.history_save();
   },
@@ -790,6 +865,13 @@ const list={
     list.save(list.fav,'list_fav');
   },
   fav_add:function(id,val){
+    if (!val.play){
+      if (id in list.fav.detail){
+        if ((val.ep==list.fav.detail[id].ep)&&(list.fav.detail[id].play)){
+          val.play=JSON.parse(JSON.stringify(list.fav.detail[id].play));
+        }
+      }
+    }
     list.add(list.fav,id,val);
     list.fav_save();
   },
@@ -1189,17 +1271,38 @@ const pb={
   },
 
   playnext_update:function(pos,dur){
-    try{
-      list.history.detail[pb.data.animeid].play=[pos,dur];
-    }catch(e){}
-    try{
-      if (pb.data.animeid in list.fav.detail)
-        list.fav.detail[pb.data.animeid].play=[pos,dur];
-    }catch(e){}
-    try{
-      _JSAPI.playNextPos(pos,dur);
-      pb.playnext_last_tick=$tick()+2000;
-    }catch(e){}
+    var dr=(pos/dur)*100.0;
+    if (dr>5){
+      /* Update only if progress > 5% */
+      try{
+        var updateit=true;
+        if (list.history.detail[pb.data.animeid].play){
+          if (list.history.detail[pb.data.animeid].play[0]>pos){
+            updateit=false;
+          }
+        }
+        if (updateit){
+          list.history.detail[pb.data.animeid].play=[pos,dur];
+        }
+      }catch(e){}
+      try{
+        if (pb.data.animeid in list.fav.detail){
+          var updateit=true;
+          if (list.fav.detail[pb.data.animeid].play){
+            if (list.fav.detail[pb.data.animeid].play[0]>pos){
+              updateit=false;
+            }
+          }
+          if (updateit){
+            list.fav.detail[pb.data.animeid].play=[pos,dur];
+          }
+        }
+      }catch(e){}
+      try{
+        _JSAPI.playNextPos(pos,dur);
+        pb.playnext_last_tick=$tick()+2000;
+      }catch(e){}
+    }
   },
 
   tip_value:'',
@@ -4755,27 +4858,33 @@ const home={
     
     dosearch:function(getpage){
       if (home.search.kw.value!=''||home.search.genreval.length>0){
-        var qv=[];
-        qv.push('keyword='+enc(home.search.kw.value));
-        for (var i=0;i<home.search.genreval.length;i++){
-          var vl=home.search.genreval[i];
-          if (vl.charAt(0)=='_'){
-            qv.push(enc('type[]')+'='+enc(_API.genres[vl]));
-          }
-          else{
-            qv.push(enc('genre[]')+'='+enc(_API.genres[vl]));
-          }
-        }
-        qv.push('genre_mode=and');
-        if (!pb.cfg_data.nonjapan){
-          qv.push(enc('country[]')+'=120822');
-        }
-        qv.push(enc('language[]')+'=sub');
-        if (home.search.kw.value==''){
-          qv.push('sort=recently_updated');
-        }
+        var uri=_API.filterurl(
+          home.search.kw.value,
+          home.search.genreval,
+          (home.search.kw.value=='')?2:0,
+          getpage
+        );
+        // var qv=[];
+        // qv.push('keyword='+enc(home.search.kw.value));
+        // for (var i=0;i<home.search.genreval.length;i++){
+        //   var vl=home.search.genreval[i];
+        //   if (vl.charAt(0)=='_'){
+        //     qv.push(enc('type[]')+'='+enc(_API.genres[vl]));
+        //   }
+        //   else{
+        //     qv.push(enc('genre[]')+'='+enc(_API.genres[vl]));
+        //   }
+        // }
+        // qv.push('genre_mode=and');
+        // if (!pb.cfg_data.nonjapan){
+        //   qv.push(enc('country[]')+'=120822');
+        // }
+        // qv.push(enc('language[]')+'=sub');
+        // if (home.search.kw.value==''){
+        //   qv.push('sort=recently_updated');
+        // }
         if (getpage&&(getpage>1)){
-          qv.push('page='+getpage);
+          // qv.push('page='+getpage);
         }
         else{
           var rc=home.search.res;
@@ -4790,10 +4899,11 @@ const home={
           rc._onload=0;
           rc._sel=null;
         }
-        console.log(qv.join('&'));
+        // console.log(qv.join('&'));
+        // var uri='/filter?'+qv.join('&');
         home.search.res.classList.add('searching');
         home.search.res._onload=1;
-        $a('/filter?'+qv.join('&'),function(r){
+        $a(uri,function(r){
           if (r.ok){
             home.search.dosearch_parse(r.responseText);
           }
@@ -5611,12 +5721,18 @@ const _MAL={
       var y=d.node.start_season.year;
     }
     uri='/filter?keyword='+enc(kw)+'&sort=most_relevance';
+    var year=null;
+    var season=null;
     if (cnt<2){
-      uri+='&season='+enc(ses);
+      season=ses;
     }
     if (cnt<1){
-      uri+='&year='+enc(y+'');
+      year=y;
     }
+    uri=_API.filterurl(
+      kw,null,1,0,season,year
+    );
+
     $a(uri,function(r){
       if (r.ok){
         var rd=home.search.parse(r.responseText);
