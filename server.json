@@ -1,16 +1,16 @@
 {
   "domain": "aniwave.to",
   "domain2": "anix.to",
-  "domain_default": 2,
+  "domain_default": 1,
 
   "stream_domain": "vidplay.online",
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",
 
-  "appnum": 250,
-  "appver": "2.5.0",
-  "appsize": "14.3 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.5.0/animetv-2.5.0.apk",
+  "appnum": 260,
+  "appver": "2.6.0",
+  "appsize": "8.52 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.6.0/animetv-2.6.0.apk",
   "appnote": 
-    "- AniList Integration\n- DNS over HTTPS Settings\n- Fix unclickable watchlist/history"
+    "- Minify & Strip debug (filesize ~8MB)\n- Fix timing save, MAL not loading, thumbnails\n- Add HTTP client selection\n- Add preload next episode\n- Tweak many UI improvements"
 }
