@@ -3,16 +3,21 @@ const body=document.body;
 /* const _DNS="9anime.to"; */
 const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
 const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
-const __SD_NAME = __SD+"/"+(__SD==1?"WAVE":"ANIX");
+
+const __SOURCE_NAME=[
+  'WAVE', 'ANIX', 'HI'
+]
+const __SD_NAME = __SD+"/"+(__SOURCE_NAME[__SD-1]);
 /* getId */
 function $(i){
   return document.getElementById(i);
 }
 
 /* ajax request */
-function $a(uri, cb){
+function $a(uri, cb, hdr){
   var xhttp = new XMLHttpRequest();
   xhttp.onload = function() {
+    if (__SD!=3){
       if (xhttp.status==403){
         if (((uri.indexOf("https://")==-1)||(uri.indexOf("https://"+__DNS)==0)) 
           && (uri.indexOf("/__proxy/")!=0)){
@@ -23,14 +28,27 @@ function $a(uri, cb){
           return;
         }
       }
-      xhttp.ok=true;
-      cb(xhttp);
+    }
+    xhttp.ok=true;
+    cb(xhttp);
   };
   xhttp.onerror = function() {
       xhttp.ok=false;
       cb(xhttp);
   };
   xhttp.open("GET", uri, true);
+  if (hdr){
+    if (hdr===1){
+      if (__SD==3){
+        xhttp.setRequestHeader('X-Requested-With','XMLHttpRequest');
+      }
+    }
+    else{
+      for (var k in hdr){
+        xhttp.setRequestHeader(k, hdr[k]);
+      }
+    }
+  }
   xhttp.send();
 }
 
@@ -272,6 +290,23 @@ const _API={
     return prompt(JSON.stringify(d));
   },
 
+  animeId:function(url){
+    if (__SD==3){
+      var ux=url.split('/');
+      if (ux.length>1){
+        var url_parse=ux[1].split('#');
+        return url_parse[0];
+      }
+    }
+    else{
+      var url_parse=pb.data.url.split('/');
+      if (url_parse.length>=5){
+        return url_parse[4];
+      }
+    }
+    return null;
+  },
+
   /*** GENRES ***/
   genres:{
     "_tv":"tv","_movie":"movie",
@@ -288,7 +323,7 @@ const _API={
     "supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"
   },
 
-  genre_hi:{
+  genres_hi:{
     "_tv":"2","_movie":"1",
     "_ova":"3","_ona":"4",
     "_special":"5",
@@ -311,9 +346,7 @@ const _API={
       var qv=[];
       
       qv.push('keyword='+enc(q));
-
       // Wave & Anix
-      uri='/filter?keyword='+enc(q)+'&sort=most_relevance';
       if (ses){
         qv.push('season='+enc(ses));
       }
@@ -350,6 +383,61 @@ const _API={
         qv.push('page='+page);
       }
       uri='/filter?'+qv.join('&');
+      console.log('FILTER: '+uri);
+    }
+    else{
+      // HIANIME
+      var qv=[];
+      qv.push('keyword='+enc(q?q:' '));
+
+      // Wave & Anix
+      if (ses){
+        var sesid={
+          'spring':1,
+          'summer':2,
+          'fall':3,
+          'winter':4
+        };
+        var sid=ses.toLowerCase();
+        if (sid in sesid){
+          qv.push('season='+enc(sesid[sid]));
+        }
+      }
+      if (year){
+        qv.push('sy='+enc(year));
+      }
+      if (!ses){
+        if (genres){
+          var tgenre=[];
+          for (var i=0;i<genres.length;i++){
+            var vl=genres[i];
+            if (vl.charAt(0)=='_'){
+              qv.push(enc('type')+'='+enc(_API.genres_hi[vl]));
+            }
+            else{
+              tgenre.push(_API.genres_hi[vl]);
+            }
+          }
+          if (tgenre.length>0){
+            qv.push(enc('genres')+'='+enc(tgenre.join(',')));
+          }
+        }
+        qv.push('language=1');
+      }
+      if (sort==1){
+        qv.push('sort=default');
+      }
+      else if (sort==2){
+        qv.push('sort=recently_updated');
+      }
+      else if (sort==2){
+        qv.push('sort=default');
+      }
+
+      if (page&&(page>1)){
+        qv.push('page='+page);
+      }
+      uri='/search?'+qv.join('&');
       console.log('FILTER: '+uri);
     }
 
@@ -417,11 +505,13 @@ const _API={
 
   reload:function(){
     try{
-      // _JSAPI.reloadHome();
-      var rloc="https://"+_JSAPI.dns()+"/__view/main.html";
-      console.log("RELOAD HOME = "+rloc);
-      location=rloc;
-    }catch(e){}
+      _JSAPI.reloadHome();
+      // var rloc="https://"+_JSAPI.dns()+"/__view/main.html";
+      // console.log("RELOAD HOME = "+rloc);
+      // location=rloc;
+    }catch(e){
+      console.log("ERROR Reload Home = "+e);
+    }
   },
   
   checkUpdate(){
@@ -537,32 +627,45 @@ const _API={
   /*** FETCH AJAX ***/
   getTooltip:function(id, cb, url){
     if (!id && url){
-      // No-ttid fix
-      $a(url,function(r){
-        if (r.ok){
-          var d=$n('div','',0,0,r.responseText);
-          try{
-            if (__SD==1){
-              var tipid=d.querySelector("#watch-main").getAttribute('data-id');
-              var ttid=''+tipid+'?/cache'+$tick();
-              _API.getTooltip(ttid,cb);
-              return;
-            }
-            else{
-              var tipid=d.querySelector("main div.container.watch-wrap").getAttribute('data-id');
-              var ttid=''+tipid+'?/cache'+$tick();
-              _API.getTooltip(ttid,cb);
-              return;
-            }
-          }catch(e){}
-        }
-        cb(null);
-      });
-      return;
+      if (__SD==3){
+        id=url; // home.hi_tipurl(url);
+      }
+      else{
+        // No-ttid fix
+        $a(url,function(r){
+          if (r.ok){
+            var d=$n('div','',0,0,r.responseText);
+            try{
+              if (__SD==1){
+                var tipid=d.querySelector("#watch-main").getAttribute('data-id');
+                var ttid=''+tipid+'?/cache'+$tick();
+                _API.getTooltip(ttid,cb);
+                return;
+              }
+              else{
+                var tipid=d.querySelector("main div.container.watch-wrap").getAttribute('data-id');
+                var ttid=''+tipid+'?/cache'+$tick();
+                _API.getTooltip(ttid,cb);
+                return;
+              }
+            }catch(e){}
+          }
+          cb(null);
+        });
+        return;
+      }
     }
 
-    // https://anix.to/ajax/anime/tooltip/13452?/cache3d23f0
-    $a("https://"+__DNS+"/ajax/anime/tooltip/"+id+"?"+$tick(),function(r){
+    var tt_url='';
+    if (__SD==3){
+      // tt_url="/ajax/movie/qtip/"+id;
+      tt_url=id;
+    }
+    else{
+      tt_url="https://"+__DNS+"/ajax/anime/tooltip/"+id+"?"+$tick();
+    }
+    $a(tt_url,function(r){
+
       if (r.ok){
         var d=$n('div','',0,0,r.responseText);
         var o={
@@ -577,7 +680,126 @@ const _API={
           ttid:id
         };
 
-        if (__SD==1){
+        if (__SD==3){
+          var c=d.querySelector('.anis-content');
+          var et = c.querySelector('h2.film-name');
+          o.title=et?.textContent;
+          o.title_jp=et?.getAttribute('data-jname');
+          
+          try{
+            o.synopsis=c.querySelector('.film-description .text')?.textContent.trim();
+          }catch(e){}
+
+          try{
+            o.ep=c.querySelector('.tick-item.tick-sub')?.textContent.trim();
+          }catch(e){}
+          try{
+            o.rating=c.querySelector('.tick-item.tick-pg')?.textContent.trim();
+          }catch(e){}
+          try{
+            o.type=c.querySelector('.tick .dot+.item').textContent.trim();
+          }catch(e){}
+          try{
+            o.quality=c.querySelector('.tick-item.tick-quality')?.textContent.trim();
+          }catch(e){}
+
+          var dmeta=c.querySelectorAll('.anisc-info-wrap .anisc-info .item');
+          function findMeta(kw){
+            for (var i=0;i<dmeta.length;i++){
+              if ((dmeta[i].firstElementChild.textContent+"").trim().toLowerCase().indexOf(kw)==0){
+                return dmeta[i].firstElementChild;
+              }
+            }
+            return null;
+          }
+          var fs=findMeta("status:");
+          try{
+            if (fs){
+              o.status=fs.nextElementSibling.textContent.trim();
+            }
+          }catch(e){}
+          fs=findMeta("duration:");
+          try{
+            if (fs){
+              o.duration=fs.nextElementSibling.textContent.trim();
+            }
+          }catch(e){}
+
+          var fg=findMeta('genres:');
+          if (fg){
+            var pc=fg.parentElement.children;
+            var gn=[];
+            for (var i=1;i<pc.length;i++){
+              try{
+                var gd={
+                  name:pc[i].textContent.trim(),
+                  val:null
+                };
+                gn.push(gd.name);
+                var gnr=pc[i].getAttribute('href').split('/');
+                gd.val=gnr[gnr.length-1].trim();
+                o.genres.push(gd);
+              }catch(e){}
+            }
+            o.genre=gn.join(', ');
+          }
+
+          // hianime
+          // o.title=d.querySelector('.pre-qtip-title')?.textContent;
+          // o.title_jp=o.title;
+          // try{
+          //   o.synopsis=d.querySelector('.pre-qtip-description').textContent.trim();
+          // }catch(e){}
+          // try{
+          //   o.ep=d.querySelector('.tick-sub').textContent.trim();
+          // }catch(e){}
+          // try{
+          //   o.type=d.querySelector('.badge-quality').textContent.trim();
+          // }catch(e){}
+          // try{
+          //   o.quality=d.querySelector('.tick-quality').textContent.trim();
+          // }catch(e){}
+          // try{
+          //   o.status=d.querySelector('.tick-quality').textContent.trim();
+          // }catch(e){}
+          
+          // var dmeta=d.querySelectorAll('.pre-qtip-line .stick');
+          // function findMeta(kw){
+          //   for (var i=0;i<dmeta.length;i++){
+          //     if ((dmeta[i].textContent+"").trim().toLowerCase().indexOf(kw)==0){
+          //       return dmeta[i];
+          //     }
+          //   }
+          //   return null;
+          // }
+          // var fs=findMeta("status:");
+          // try{
+          //   if (fs){
+          //     o.status=fs.nextElementSibling.textContent.trim();
+          //   }
+          // }catch(e){}
+
+          // var fg=findMeta('genres:');
+          // if (fg){
+          //   var pc=fg.parentElement.children;
+          //   var gn=[];
+          //   for (var i=1;i<pc.length;i++){
+          //     try{
+          //       var gd={
+          //         name:pc[i].textContent.trim(),
+          //         val:null
+          //       };
+          //       gn.push(gd.name);
+          //       var gnr=gn[i].getAttribute('href').split('/');
+          //       gd.val=gnr[gnr.length-1].trim();
+          //       o.genres.push(gd);
+          //     }catch(e){}
+          //   }
+          //   o.genre=gn.join(', ');
+          // }
+
+        }
+        else if (__SD==1){
           // wave
           var tt=d.querySelector('div.title.d-title');
           if (tt){
@@ -2645,16 +2867,16 @@ const pb={
         // Update Home
         var chval=_API.listPrompt(
           "Source Server",
-          ["1. WAVE", "2. ANIX"],
-          (__SD==2)?1:0
+          __SOURCE_NAME,
+          __SD-1
         );
         if (chval!=null){
           chval=toInt(chval)+1;
           if (confirm("You are about to change the source server.\n"+
-            "SOURCE SERVER TARGET : "+chval+". "+(chval==2?"ANIX":"WAVE")+"\n\n"+
+            "SOURCE SERVER TARGET : "+chval+". "+(__SOURCE_NAME[chval-1])+"\n\n"+
             "NOTE: Watchlist & history contents will be changed...\n\n"+
             "Are you sure??")){
-            _JSAPI.setSd((__SD==2)?1:2);
+            _JSAPI.setSd(chval);
             if (pb.status){
               pb.reset(1,0);
             }
@@ -3441,9 +3663,9 @@ const pb={
     }
 
     /* Init Anime ID - Fav & History */
-    var url_parse=pb.data.url.split('/');
-    if (url_parse.length>=5){
-      pb.data.animeid=url_parse[4];
+    var animeid=_API.animeId(pb.data.url);
+    if (animeid){
+      pb.data.animeid=animeid;
       if (pb.data.animeid){
         list.history_add(pb.data.animeid,pb.listobj(),true);
         if (list.fav_exists(pb.data.animeid)){
@@ -3706,12 +3928,75 @@ const home={
   home_settings:$('home_settings'),
   bgimg:null,
 
-  recent_parse:function(g,v){
+  hi_tipurl:function(u){
+    // var ur=u.split('-');
+    return u; //ur[ur.length-1];
+  },
+  hi_animeid:function(u){
+    var ur=u.split('-');
+    return ur[ur.length-1];
+  },
+  hi_parse:function(v){
     var hd=$n('d','','',null,v);
     var rd=[];
+    var it=hd.querySelectorAll('section div.film_list-wrap div.flw-item');
+    for (var i=0;i<it.length;i++){
+      var t=it[i];
+      var ttl='';
+      try{
+        var d={};
+        var at=t.querySelector('.film-name a');
+        d.url=at.getAttribute('href');
+        // qtip = /ajax/movie/qtip/100
+        d.poster=t.querySelector('img').getAttribute('data-src');
+        ttl=d.title=at.getAttribute('title');
+        try{
+          d.title_jp=at.getAttribute('data-jname');
+        }catch(ee){}
 
-    if (__SD==1){
+        d.tip=home.hi_tipurl(d.url);
+
+        // Episode
+        var epl=t.querySelector('.tick-sub');
+        if (!epl){
+          epl=t.querySelector('.tick-dub');
+        }
+        if (epl){
+          d.epavail=d.ep=epl.textContent.trim()
+        }
+
+        // Rate
+        d.adult=false;
+        if (t.querySelector('.tick.tick-rate')){
+          d.adult=true;
+        }
+
+        d.type=t.querySelector('.fd-infor .fdi-item')?.textContent;
+        d.duration=t.querySelector('.fd-infor .fdi-item.fdi-duration')?.textContent+'IN';
+
+        rd.push(d);
+
+        if (i==0){
+          console.log(JSON.stringify(d));
+        }
+      }catch(e){
+        console.log(ttl+' -> '+e);
+      }
+    }
+    hd.innerHTML='';
+    return rd;
+  },
+
+  recent_parse:function(g,v){
+    var rd=[];
+
+    if (__SD==3){
+      // Hi Anime
+      rd=home.hi_parse(v);
+    }
+    else if (__SD==1){
       // wave
+      var hd=$n('d','','',null,v);
       var it=hd.querySelectorAll('div.item');
       for (var i=0;i<it.length;i++){
         var t=it[i];
@@ -3733,9 +4018,11 @@ const home={
           // console.log(e);
         }
       }
+      hd.innerHTML='';
     }
     else{
       // anix
+      var hd=$n('d','','',null,v);
       var it=hd.querySelectorAll('div.piece div.inner');
       for (var i=0;i<it.length;i++){
         var t=it[i];
@@ -3776,9 +4063,9 @@ const home={
           // console.log(e);
         }
       }
+      hd.innerHTML='';
     }
-
-    hd.innerHTML='';
+    
     if (rd&&rd.length){
       for (var i=0;i<rd.length;i++){
         var d=rd[i];
@@ -3812,7 +4099,8 @@ const home={
           hl._ep=$n('span','info',null,hl,infotxt);
         }
       }
-      while (g.P.childElementCount>30){
+      var PGSZ=(__SD==3)?60:30;
+      while (g.P.childElementCount>PGSZ){
         g._spre.push(g.P.firstElementChild.nextElementSibling);
         g.P.removeChild(g.P.firstElementChild.nextElementSibling);
       }
@@ -3827,11 +4115,17 @@ const home={
   recent_load:function(g){
     g._onload=1;
     var load_page=g._page;
+    console.log('RECENT LOAD = '+g._ajaxurl+''+load_page);
     $a(g._ajaxurl+''+load_page,function(r){
       if (r.ok){
         try{
-          var v=JSON.parse(r.responseText);
-          home.recent_parse(g,v.result);
+          if (__SD==3){
+            home.recent_parse(g,r.responseText);
+          }
+          else{
+            var v=JSON.parse(r.responseText);
+            home.recent_parse(g,v.result);
+          }
         }catch(e){}
         g._onload=0;
       }
@@ -3853,13 +4147,14 @@ const home={
     };
     rc.__selectcb=function(g,c){
       if (!c) return;
+      var PGSZ=7;
       var k=c;
       var n=0;
       while(k){
         k=k.previousElementSibling;
-        if (++n>7) break;
+        if (++n>PGSZ) break;
       }
-      if (n<=6){
+      if (n<=PGSZ-1){
         if (g._spre.length>0){
           g.P.insertBefore(g._spre.pop(), g.P.firstElementChild.nextElementSibling);
           g._spost.push(g.P.lastElementChild);
@@ -4011,6 +4306,9 @@ const home={
   },
 
   home_load:function(){
+    if (__SD==3){
+      return;
+    }
     home.home_onload=1;
     $a('/home',function(r){
       if (r.ok){
@@ -4092,10 +4390,23 @@ const home={
     _API.setUri("/home");
     list.load();
 
-    home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
-    home.home_dub._ajaxurl='/ajax/home/widget/updated-dub?page=';
-    home.home_trending._ajaxurl='/ajax/home/widget/trending?page=';
-    home.home_random._ajaxurl='/ajax/home/widget/random?page=';
+    if (__SD==3){
+      // hianime
+      home.home_recent._ajaxurl='/recently-updated?page=';
+      home.home_dub._ajaxurl='/dubbed-anime?page=';
+      home.home_trending._ajaxurl='/top-airing?page=';
+      home.home_random._ajaxurl='/movie?page=';
+
+      home.home_trending.setAttribute('list-title','🏆 Top Airing');
+      home.home_random.setAttribute('list-title','🎥 Movie');
+    }
+    else{
+      // wave & anix
+      home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
+      home.home_dub._ajaxurl='/ajax/home/widget/updated-dub?page=';
+      home.home_trending._ajaxurl='/ajax/home/widget/trending?page=';
+      home.home_random._ajaxurl='/ajax/home/widget/random?page=';
+    }
     home.recent_init(home.home_recent);
     home.recent_init(home.home_dub);
     home.recent_init(home.home_trending);
@@ -4133,7 +4444,7 @@ const home={
     home.menus.push(home.home_trending);
     home.menus.push(home.home_random);
 
-    if (pb.cfg_data.nonjapan){
+    if (pb.cfg_data.nonjapan && (__SD!=3)){
       home.home_chinese.className='home_list pb_menu';
       home.home_chinese.style.display='';
       home.home_chinese._ajaxurl='/ajax/home/widget/updated-china?page=';
@@ -4707,9 +5018,12 @@ const home={
       _API.setUri("/home");
     },
     parse:function(v){
-      var h=$n('div','','',null,v);
       var rd=[];
-      if (__SD==1){
+      if (__SD==3){
+        rd=home.hi_parse(v);
+      }
+      else if (__SD==1){
+        var h=$n('div','','',null,v);
         // wave
         var ls=h.querySelector('#list-items');
         if (ls){
@@ -4755,8 +5069,10 @@ const home={
             rd.push(d);
           }
         }
+        h.innerHTML='';
       }
       else{
+        var h=$n('div','','',null,v);
         // anix
         var it=h.querySelectorAll('section.s-content div.content-item div.piece div.inner');
         for (var i=0;i<it.length;i++){
@@ -4803,8 +5119,8 @@ const home={
             // console.log(e);
           }
         }
+        h.innerHTML='';
       }
-      h.innerHTML='';
       return rd;
     },
     dosearch_parse:function(v){
@@ -4864,43 +5180,19 @@ const home={
           (home.search.kw.value=='')?2:0,
           getpage
         );
-        // var qv=[];
-        // qv.push('keyword='+enc(home.search.kw.value));
-        // for (var i=0;i<home.search.genreval.length;i++){
-        //   var vl=home.search.genreval[i];
-        //   if (vl.charAt(0)=='_'){
-        //     qv.push(enc('type[]')+'='+enc(_API.genres[vl]));
-        //   }
-        //   else{
-        //     qv.push(enc('genre[]')+'='+enc(_API.genres[vl]));
-        //   }
-        // }
-        // qv.push('genre_mode=and');
-        // if (!pb.cfg_data.nonjapan){
-        //   qv.push(enc('country[]')+'=120822');
-        // }
-        // qv.push(enc('language[]')+'=sub');
-        // if (home.search.kw.value==''){
-        //   qv.push('sort=recently_updated');
-        // }
-        if (getpage&&(getpage>1)){
-          // qv.push('page='+getpage);
-        }
-        else{
+        if (!getpage||(getpage<=1)){
           var rc=home.search.res;
           rc._page=1;
           rc._havenext=false;
           pb.menu_clear(rc);
           rc._nojump=true;
-          // rc._keycb=pb.menu_keycb;
           pb.menu_init(rc);
           rc._spre=[];
           rc._spost=[];
           rc._onload=0;
           rc._sel=null;
         }
-        // console.log(qv.join('&'));
-        // var uri='/filter?'+qv.join('&');
+
         home.search.res.classList.add('searching');
         home.search.res._onload=1;
         $a(uri,function(r){
@@ -4996,7 +5288,7 @@ const home={
       ];
       home.search.initresult(home.search.res);
 
-      _API.setUri("/filter");
+      _API.setUri((__SD==3)?"/search":"/filter");
 
       home.onsearch=true;
       home.search.search.classList.add('active');
@@ -5025,10 +5317,12 @@ const home={
       home.search.genres._enter_cb=home.search.genresel;
       home.search.genres._els={};
       var vsel=null;
-      for (var i in _API.genres){
+
+      var genrelist=(__SD==3)?_API.genres_hi:_API.genres;
+      for (var i in genrelist){
         var title=i.replace(/_/g," ").toUpperCase().trim();
         var gn=$n('div','',{
-          action:'!'+i,'gid':_API.genres[i]
+          action:'!'+i,'gid':genrelist[i]
         },
         home.search.genres.P,special(title));
         gn._title=title;
@@ -5913,17 +6207,17 @@ const _MAL={
       }
 
       if (el==_MAL.pop.next){
-        openurl+='/ep-'+_MAL.pop.var.next;
         epsel=_MAL.pop.var.next;
       }
       else if (el==_MAL.pop.resume){
-        openurl+='/ep-'+_MAL.pop.var.resume;
         epsel=_MAL.pop.var.resume;
       }
       else if (el==_MAL.pop.ep){
-        openurl+='/ep-'+_MAL.pop.var.ep;
         epsel=_MAL.pop.var.ep;
       }
+
+      openurl+=(__SD==3)?('#'+epsel):('/ep-'+epsel);
+
       console.log("MAL Open Anime = "+openurl);
       _MAL.popup_close();
       
@@ -5931,7 +6225,12 @@ const _MAL={
       if (toInt(epsel)==_MAL.pop.var.play.e){
         currtime=_MAL.pop.var.play.c;
       }
-      pb.open(openurl, _MAL.pop.var.ttip, undefined, currtime, _MAL.pop.var.malid);
+      if (__SD==3){
+
+      }
+      else{
+        pb.open(openurl, _MAL.pop.var.ttip, undefined, currtime, _MAL.pop.var.malid);
+      }
     }
     else if (c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
       if (_MAL.pop.ep==_MAL.pop.menu[pc]){
@@ -6014,9 +6313,9 @@ const _MAL={
     }
 
     _MAL.pop.var.animeid='';
-    var url_parse=url.split('/');
-    if (url_parse.length>=5){
-      var animeid=_MAL.pop.var.animeid=url_parse[4];
+    var animeid=_API.animeId(url);
+    if (animeid){
+      _MAL.pop.var.animeid=animeid;
       var fav=list.fav;
       var hist=list.history;
       _MAL.pop.watchlist.className='';
@@ -6171,8 +6470,8 @@ const _MAL={
       rating:''
     };
     console.log("Popup = "+JSON.stringify([url, img, titl, ttid, ep, tcurr, tdur,arg,malid]));
-    if (url_parse.length>=5){
-      if(url_parse.length==6){
+    if ((url_parse.length>=5)||(__SD==3)){
+      if((url_parse.length==6)&&(__SD!=3)){
         url_parse.pop();
         url=url_parse.join('/');
       }

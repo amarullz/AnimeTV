@@ -259,7 +259,7 @@ public class AnimeApi extends WebViewClient {
   }
 
   public void setSourceDomain(int i){
-    if (i>=1 && i<=2) {
+    if (i>=1 && i<=3) {
       SharedPreferences.Editor ed = pref.edit();
       ed.putInt("source-domain", i);
       ed.apply();

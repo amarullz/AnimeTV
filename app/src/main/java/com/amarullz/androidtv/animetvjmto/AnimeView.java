@@ -277,9 +277,12 @@ public class AnimeView extends WebViewClient {
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
     if (host==null||accept==null) return aApi.badRequest;
-    if (host.equals(Conf.SOURCE_DOMAIN1)||host.equals(Conf.SOURCE_DOMAIN2)) {
-      String uDomain=host.contains(Conf.SOURCE_DOMAIN1)?
-          Conf.SOURCE_DOMAIN1:Conf.SOURCE_DOMAIN2;
+    if (host.equals(Conf.SOURCE_DOMAIN1)
+        ||host.equals(Conf.SOURCE_DOMAIN2)
+        ||host.equals(Conf.SOURCE_DOMAIN3)) {
+      String uDomain=host;
+      // .contains(Conf.SOURCE_DOMAIN1)? Conf.SOURCE_DOMAIN1:Conf
+      // .SOURCE_DOMAIN2;
       String path=uri.getPath();
       if (path==null)
         path="/";

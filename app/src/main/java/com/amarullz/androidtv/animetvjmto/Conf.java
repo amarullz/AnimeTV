@@ -5,9 +5,9 @@ public class Conf {
   // https://api.mymemory.translated.net/get?q=Hello%20World!&langpair=en|id
   // public static final String DOMAIN = "9anime.to";
   public static String DOMAIN = "anix.to";
-
   public static String SOURCE_DOMAIN1 = "aniwave.to";
   public static String SOURCE_DOMAIN2 = "anix.to";
+  public static String SOURCE_DOMAIN3 = "hianime.to";
   public static int SOURCE_DOMAIN = 1;
 
   public static void updateSource(int num){
@@ -15,22 +15,28 @@ public class Conf {
     if (num==1){
       DOMAIN=SOURCE_DOMAIN1;
     }
-    else{
+    else if (num==2) {
       DOMAIN=SOURCE_DOMAIN2;
+    }
+    else{
+      DOMAIN=SOURCE_DOMAIN3;
     }
   }
   public static String getDomain(){
     if (SOURCE_DOMAIN==1)
       return SOURCE_DOMAIN1;
-    return SOURCE_DOMAIN2;
+    else if (SOURCE_DOMAIN==2)
+      return SOURCE_DOMAIN2;
+    return SOURCE_DOMAIN3;
   }
 
 
   // History
   // * vidplay.site
   public static String STREAM_DOMAIN = "vidplay.online";
-
   public static String STREAM_DOMAIN2 = "mcloud.bz";
+
+  public static String STREAM_DOMAIN3 = "megacloud.tv";
 
   public static String SERVER_VER = "1.0-APK";
 
