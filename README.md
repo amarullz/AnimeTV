@@ -8,14 +8,17 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 ## Donation & More Information
 <img src="app/src/main/assets/view/paypal.png" width="200">
 
-[Donate Here - https://paypal.me/amarullz](https://paypal.me/amarullz)
-
-
-**Detail Information :** [https://amarullz.com/](https://amarullz.com/)
-
-**Discussion on Discord :** [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
+- **Donate Project :** [Paypal Link - https://paypal.me/amarullz](https://paypal.me/amarullz)
+- **Developer Website :** [https://amarullz.com/](https://amarullz.com/)
+- **Nightly Release :** [https://amarullz.com/animetv-nightly/](https://amarullz.com/animetv-nightly/)
+- **Development Discussion :** [https://amarullz.com/animetv-discord/](https://amarullz.com/animetv-discord/)
+- **More Detail Information :** [https://amarullz.com/animetv/](https://amarullz.com/animetv/)
+- **Join Discussion on Discord :** [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
 
 ## Features
+- **NEW** - MAL & AniList Integration
+- **NEW** - DNS over HTTPS and Multiple HTTP Client selection
+- **NEW** - Multiple Source
 - **NEW** - Mirror Stream Server
 - **NEW** - Auto Update App
 - **NEW** - Soft-subtitle & Auto Translate to **134 Languages** (Only for supported contents)
@@ -58,12 +61,14 @@ Almost all data need javascript to make it available (It's not pure HTML that ca
 But the good news is **AnimeTV** will block any analytics and ads domain (dns) when requesting & fetching data. All data like watchlist & watch history also stored local in **localStorage**.
 
 ## Screenshot
-More screenshot is available in my website: https://amarullz.com/2023/09/02/animetv-for-android-tv-google-tv/
+More screenshot is available in my website: https://amarullz.com/animetv/
 Here only a couple screenshot:
 
-![Main Home Screen](https://amarullzcom.files.wordpress.com/2023/09/01-home.jpg)
+![Main Home Screen](https://cdn.discordapp.com/attachments/1214548946521821254/1214940773334786078/image.png?ex=65faf0c4&is=65e87bc4&hm=0a6e18f6ce46829b06d5fc391c1939606f08cc149b32b4d5d45a912a2d8342ea&)
 
-![Play Info](https://amarullzcom.files.wordpress.com/2023/09/07-play-info.jpg)
+![Anime Popup](https://cdn.discordapp.com/attachments/1214548946521821254/1214941019896938516/image.png?ex=65faf0ff&is=65e87bff&hm=3f0c936bba98b85f6d4595f49d1a22d222ecd1640e82d5cbdd20d1a96a452b55&)
+
+![Play Info](https://cdn.discordapp.com/attachments/1214548946521821254/1214941469815607326/image.png?ex=65faf16a&is=65e87c6a&hm=95d783e49fd17d4f2f2c7f77783cdfbefc12b315c90f2549f79392a02f93fc09&)
 
 ## License
 **Copyright 2023 Ahmad Amarullah (https://amarullz.com)**
