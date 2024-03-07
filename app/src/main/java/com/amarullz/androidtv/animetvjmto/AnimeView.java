@@ -369,6 +369,14 @@ public class AnimeView extends WebViewClient {
       Log.d(_TAG, "Load-Source: " + url);
       return super.shouldInterceptRequest(view, request);
     }
+    else if (host.contains(Conf.STREAM_DOMAIN3)){
+      if (accept.startsWith("text/css")||accept.startsWith("image/")){
+        Log.d(_TAG,"STREAM3 BLOCK CSS/IMG = "+url);
+        return aApi.badRequest;
+      }
+      Log.d(_TAG, "STREAM3 = " + url);
+      return super.shouldInterceptRequest(view, request);
+    }
     else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       if (accept.startsWith("text/html")||
           url.startsWith("https://"+Conf.STREAM_DOMAIN+"/mediainfo")||
@@ -423,6 +431,26 @@ public class AnimeView extends WebViewClient {
     ){
       /* BLOCK DNS */
       return aApi.badRequest;
+    }
+    else if (Conf.SOURCE_DOMAIN==3){
+      String path = uri.getPath();
+      if (path.endsWith("/master.m3u8")) {
+        Log.d(_TAG, "GOT-MASTER-M3U8 = " + url);
+        // data.media.sources
+        String m3u8data="{}";
+        try{
+          JSONObject j=
+              new JSONObject("{\"result\":{\"sources\":[{}]}}");
+          j.getJSONObject("result")
+              .getJSONArray("sources")
+              .getJSONObject(0)
+              .put("file",url);
+          m3u8data=j.toString();
+        }catch (Exception ignored){}
+        Log.d(_TAG, "sendM3U8Req = " + m3u8data);
+        sendM3U8Req(m3u8data);
+        return aApi.badRequest;
+      }
     }
     if (Conf.PROGRESSIVE_CACHE) {
       return super.shouldInterceptRequest(view, request);

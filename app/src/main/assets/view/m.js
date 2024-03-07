@@ -14,8 +14,11 @@ function $(i){
 }
 
 /* ajax request */
-function $a(uri, cb, hdr){
+function $a(uri, cb, hdr, pd){
   var xhttp = new XMLHttpRequest();
+  if (pd!==undefined){
+    xhttp.args=pd;
+  }
   xhttp.onload = function() {
     if (__SD!=3){
       if (xhttp.status==403){
@@ -613,42 +616,65 @@ const _API={
       }
     }
 
+    function fetchServer(d, srv_d){
+      var dserver={
+        'raw':[],
+        'sub':[],
+        'dub':[]
+      };
+      var srv_c=0;
+      for (var i=0;i<srv_d.length;i++){
+        var sd=srv_d[i];
+        $a('https://hianime.to/ajax/v2/episode/sources?id='+enc(sd[0]),function(r2){
+          if (r2.ok){
+            try{
+              var jj=JSON.parse(r2.responseText);
+              var sid=srv_d[r2.args];
+              dserver[sid[1]].push({
+                id:sid[0],
+                link:jj.link,
+                server:jj.server,
+                sid:(jj.link.split('?').shift().split('/').pop()),
+                dns:(jj.link.split('/'))[2]
+              });
+            }catch(ee){}
+          }
+          srv_c++;
+          if (srv_c>=srv_d.length){
+            d.ep_servers=dserver;
+            d.stream_vurl  = "";
+            d.ep_stream_sel=null;
+            d.skip=[];
+            runCb(d);
+          }
+        },1,i);
+      }
+    }
+
     function getEpServer(d,eid){
-      console.log("hiView: getEpServer: "+eid);
       $a('/ajax/v2/episode/servers?episodeId='+enc(eid),function(r){
         if (r.ok){
           try{
-            console.log("hiView: getEpServer= "+r.responseText);
             var v=JSON.parse(r.responseText);
             var hd=$n('d','','',null,v.html);
             var srv=hd.querySelectorAll('.server-item');
-            var dserver={
-              'raw':[],
-              'sub':[],
-              'dub':[]
-            };
+            
+
+            var srv_d=[];
 
             // pb.cfg_data.mirrorserver
             for (var i=0;i<srv.length;i++){
               var svid=srv[i].getAttribute('data-id');
               var svtp=srv[i].getAttribute('data-type');
-              if (svtp=='sub'){
-                dserver.sub.push(svid);
-              }
-              else if (svtp=='dub'){
-                dserver.dub.push(svid);
-              }
-              else if (svtp=='raw'){
-                dserver.raw.push(svid);
+              if (svtp=='sub'||svtp=='dub'||svtp=='raw'){
+                srv_d.push([svid,svtp]);
               }
             }
             hd.innerHTML='';
-            d.ep_servers=dserver;
-            runCb(d);
+            fetchServer(d, srv_d);
             return;
           }
           catch(e){
-            console.log("HI-SERVERLOAD-ERROR: "+e);
           }
         }
         f({status:false},uid);
@@ -694,11 +720,9 @@ const _API={
     }
 
     // Get Episodes
-    console.log("hiView: getEp: "+home.hi_animeid(url));
     $a('/ajax/v2/episode/list/'+home.hi_animeid(url),function(r){
       if (r.ok){
         try{
-          console.log("hiView: getEp= "+r.responseText);
           var v=JSON.parse(r.responseText);
           if (v.status){
             var d={
@@ -724,7 +748,6 @@ const _API={
               d.ep.push(s);
             }
 
-            console.log("hiView: getEp Data= "+JSON.stringify(d));
             /* Execute Callbacks */
             hd.innerHTML='';
             if (active_ep_id){
@@ -733,7 +756,6 @@ const _API={
             }
           }
         }catch(e){
-          console.log("ERROR Episode Load = "+e);
         }
       }
       _API.hi_last_view.view_url='';
@@ -940,7 +962,7 @@ const _API={
 
             // Related
             o.related=[];
-            var rh=document.querySelector('#main-sidebar section .block_area-header');
+            var rh=d.querySelector('#main-sidebar section .block_area-header');
             if (rh){
               if (rh.textContent.trim().toLowerCase().indexOf('related')>=0){
                 var rl=rh.nextElementSibling.querySelectorAll('.ulclear li');;
@@ -991,19 +1013,11 @@ const _API={
             }catch(e){}
             o.banner=o.poster;
             o.numep=o.ep;
-
             delete o.ep;
 
             // Tobe Filled
             o.stp=0;
             o.streamtype='';
-            o.stream_vurl='';
-            o.stream_url={
-                hard:'',
-                soft:'',
-                dub:''
-            };
-
             o.url=tt_url;
           }
         }
@@ -2627,27 +2641,29 @@ const pb={
           }catch(e){}
         }
 
-        pb.subtitles=[];
-        window.__subtitle=pb.subtitles;
-        vtt.clear();
-        try{
-          if (d.result.tracks){
-            var n=d.result.tracks.length;
-            for (var i=0;i<n;i++){
-              var tk=d.result.tracks[i];
-              if (tk.kind=='captions'){
-                pb.subtitles.push({
-                  u:tk.file,
-                  d:tk.default?1:0,
-                  l:(tk.label+'').toLowerCase().trim()
-                });
+        if (__SD!=3){
+          pb.subtitles=[];
+          window.__subtitle=pb.subtitles;
+          vtt.clear();
+          try{
+            if (d.result.tracks){
+              var n=d.result.tracks.length;
+              for (var i=0;i<n;i++){
+                var tk=d.result.tracks[i];
+                if (tk.kind=='captions'){
+                  pb.subtitles.push({
+                    u:tk.file,
+                    d:tk.default?1:0,
+                    l:(tk.label+'').toLowerCase().trim()
+                  });
+                }
               }
+              vtt.init(pb.subtitles);
             }
-            vtt.init(pb.subtitles);
-          }
-        }catch(e){}
+          }catch(e){}
+        }
 
-        if (urivid && !pb.cfg_data.html5player){
+        if ((urivid && !pb.cfg_data.html5player) || (__SD==3)){
           pb.data.vizm3u8=urivid;
           console.log("ATVLOG Got VizCB = "+urivid);
           if (pb.cfg('server')==0){
@@ -2713,23 +2729,105 @@ const pb={
       pb.pb_track_pos.innerHTML='LOADING SERVER';
       pb.pb_track_dur.innerHTML='';
 
-      pb.data.stream_vurl = pb.data.stream_url.hard;
-      pb.data.streamtype="sub";
-      if (_API.currentStreamType==1){
-        if (pb.data.stream_url.soft){
-          pb.data.stream_vurl = pb.data.stream_url.soft;
-          pb.data.streamtype="softsub";
+      if (__SD==3){
+        /* Get Servers - HIANIME */
+        var st=_API.currentStreamType;
+        var uid=0;
+        var ut="sub";
+        var valid=false;
+        if (st==2){
+          if (pb.data.ep_servers.dub.length>0){
+            ui="dub";
+            pb.data.streamtype="dub";
+            valid=true;
+          }
         }
-      }
-      else if (_API.currentStreamType==2){
-        if (pb.data.stream_url.dub){
-          pb.data.stream_vurl = pb.data.stream_url.dub;
-          pb.data.streamtype="dub";
+        if (!valid){
+          if (pb.data.ep_servers.sub.length>0){
+            ut="sub";
+            pb.data.streamtype="softsub";
+          }
+          else if (pb.data.ep_servers.raw.length>0){
+            ut="raw";
+            pb.data.streamtype="softsub";
+          }
+          else{
+            ut="dub";
+            pb.data.streamtype="dub";
+          }
         }
-      }
-      pb.updateStreamTypeInfo();
+        if (pb.data.ep_servers[ut].length>0){
+          if (pb.cfg_data.mirrorserver && pb.data.ep_servers[ut].length>1){
+            uid=1;
+          }
+          var seld = pb.data.ep_servers[ut][uid];
+          pb.data.stream_vurl = seld.link;
+          pb.data.ep_stream_sel = seld;
 
-      pb.init_video_vidcloud();
+          // Get Video Data
+          var vvturl='https://'+seld.dns+'/embed-2/ajax/e-1/getSources?id='+enc(seld.sid);
+          $ap(vvturl,function(r){
+            if (r.ok){
+              try{
+                var jv=JSON.parse(r.responseText);
+                /* Load Intro / Outro */
+                try{
+                  var st=jv?.intro?.start;
+                  var en=jv?.intro?.end;
+                  var sto=jv?.outro?.start;
+                  var eno=jv?.outro?.end;
+                  pb.data.skip=[
+                    [st?st:0,en?en:0],
+                    [sto?sto:0,eno?eno:0]
+                  ];
+                }catch(e){}
+
+                /* Load Subtitle */
+                vtt.clear();
+                pb.subtitles=[];
+                window.__subtitle=pb.subtitles;
+                try{
+                  if (jv.tracks){
+                    var n=jv.tracks.length;
+                    for (var i=0;i<n;i++){
+                      var tk=jv.tracks[i];
+                      if (tk.kind=='captions'){
+                        pb.subtitles.push({
+                          u:tk.file,
+                          d:tk.default?1:0,
+                          l:(tk.label+'').toLowerCase().trim()
+                        });
+                      }
+                    }
+                    vtt.init(pb.subtitles);
+                  }
+                }catch(e){}
+              }catch(ee){}
+            }
+          });
+          pb.updateStreamTypeInfo();
+          pb.init_video_vidcloud();
+        }
+      }
+      else{
+        /* GET SERVER WAVE-ANIX */
+        pb.data.stream_vurl = pb.data.stream_url.hard;
+        pb.data.streamtype="sub";
+        if (_API.currentStreamType==1){
+          if (pb.data.stream_url.soft){
+            pb.data.stream_vurl = pb.data.stream_url.soft;
+            pb.data.streamtype="softsub";
+          }
+        }
+        else if (_API.currentStreamType==2){
+          if (pb.data.stream_url.dub){
+            pb.data.stream_vurl = pb.data.stream_url.dub;
+            pb.data.streamtype="dub";
+          }
+        }
+        pb.updateStreamTypeInfo();
+        pb.init_video_vidcloud();
+      }
     });
   },
 
@@ -2774,7 +2872,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (!pb.cfg_data.html5player){
+              if (!pb.cfg_data.html5player && (__SD!=3)){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -3672,12 +3770,14 @@ const pb={
       pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
     }
 
-    pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARDSUB');
-    if (pb.data.stream_url.soft){
-      pb.pb_settings._s_softsub=$n('div','',{action:'*softsub'},pb.pb_settings.P,'<c>clear</c> SOFTSUB');
-    }
-    if (pb.data.stream_url.dub){
-      pb.pb_settings._s_dub=$n('div','',{action:'*dub'},pb.pb_settings.P,'<c>clear</c> DUB');
+    if (__SD!=3){
+      pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARDSUB');
+      if (pb.data.stream_url.soft){
+        pb.pb_settings._s_softsub=$n('div','',{action:'*softsub'},pb.pb_settings.P,'<c>clear</c> SOFTSUB');
+      }
+      if (pb.data.stream_url.dub){
+        pb.pb_settings._s_dub=$n('div','',{action:'*dub'},pb.pb_settings.P,'<c>clear</c> DUB');
+      }
     }
 
     pb.pb_settings._s_mirrorserver=$n(
