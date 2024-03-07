@@ -5,7 +5,7 @@ const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
 const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
 
 const __SOURCE_NAME=[
-  'WAVE', 'ANIX', 'HI'
+  'Anime-Wave', 'Anix', 'Hi-Anime'
 ]
 const __SD_NAME = __SD+"/"+(__SOURCE_NAME[__SD-1]);
 /* getId */
@@ -6508,7 +6508,7 @@ const _MAL={
     else if (c==KENTER){
       var openurl=_MAL.pop.var.url;
       var el=_MAL.pop.menu[pc];
-      var epsel=0;
+      var epsel=1;
 
       /* Watchlist & History */
       if (el==_MAL.pop.watchlist){

@@ -1350,6 +1350,7 @@ c.loader {
 }
 
 .home_list div img {
+  background-color: #111;
   width: 12vw;
   height: 17vw;
 }

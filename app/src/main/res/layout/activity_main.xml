@@ -15,13 +15,13 @@
         android:id="@+id/splash"
         android:src="@drawable/ic_splash"
         tools:ignore="ContentDescription" />
-    <RelativeLayout
+    <FrameLayout
         android:background="#ff000000"
         android:id="@+id/video_layout"
         android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </RelativeLayout>
+    </FrameLayout>
     <WebView
         android:visibility="invisible"
         android:layout_width="500dp"

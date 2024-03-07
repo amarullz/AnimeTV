@@ -32,6 +32,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -56,9 +57,11 @@ public class AnimeView extends WebViewClient {
   public final WebView webView;
   public final WebView webView2;
   public VideoView videoView=null;
+
+  public VideoView videoViewCache=null;
   public LinearLayout cfProgress;
   public final ImageView splash;
-  public final RelativeLayout videoLayout;
+  public final FrameLayout videoLayout;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
@@ -229,16 +232,20 @@ public class AnimeView extends WebViewClient {
     webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
   }
 
+  public void videoScaling(VideoView v){
+    if (videoStatScaleType == 0)
+      v.setScaleType(ScaleType.FIT_CENTER);
+    else if (videoStatScaleType == 1)
+      v.setScaleType(ScaleType.CENTER_CROP);
+    else if (videoStatScaleType == 2)
+      v.setScaleType(ScaleType.FIT_XY);
+  }
+
   public void videoViewSetScale(int type){
     videoStatScaleType=type;
     activity.runOnUiThread(()-> {
       try {
-        if (type == 0)
-          videoView.setScaleType(ScaleType.FIT_CENTER);
-        else if (type == 1)
-          videoView.setScaleType(ScaleType.CENTER_CROP);
-        else if (type == 2)
-          videoView.setScaleType(ScaleType.FIT_XY);
+        videoScaling(videoView);
       }catch (Exception ignored){}
     });
   }
@@ -257,10 +264,6 @@ public class AnimeView extends WebViewClient {
     videoLayout.addView(videoView);
     videoView.setVideoControls(null);
     videoView.setOnPreparedListener(videoView::start);
-
-
-
-//    videoView.data
   }
 
   @Override
