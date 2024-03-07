@@ -659,15 +659,20 @@ const _API={
       /* Just Load Server */
       var eps=_API.hi_last_view.data.ep;
       var active_ep_id=null;
+      _API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index].active=false;
       for (var i=0;i<eps.length;i++){
         var s=eps[i];
         if (get_ep==s.ep){
           active_ep_id=s.ep_id;
+          _API.hi_last_view.data.active_ep=active_ep_id;
+          _API.hi_last_view.data.active_ep_index=i;
+          _API.hi_last_view.data.ep[i].active=true;
           break;
         }
       }
       if (active_ep_id){
         getEpServer({},active_ep_id);
+        return uid;
       }
     }
     else{
@@ -713,6 +718,8 @@ const _API={
               s.title=p.getAttribute('title');
               if (s.active){
                 active_ep_id=s.ep_id;
+                d.active_ep=active_ep_id;
+                d.active_ep_index=i;
               }
               d.ep.push(s);
             }
@@ -983,6 +990,9 @@ const _API={
               o.poster=d.querySelector('#ani_detail .film-poster img').getAttribute('src').replace('100x200','300x400');
             }catch(e){}
             o.banner=o.poster;
+            o.numep=o.ep;
+
+            delete o.ep;
 
             // Tobe Filled
             o.stp=0;
