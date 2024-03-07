@@ -371,11 +371,9 @@ public class AnimeView extends WebViewClient {
     }
     else if (host.contains(Conf.STREAM_DOMAIN3)){
       if (accept.startsWith("text/css")||accept.startsWith("image/")){
-        Log.d(_TAG,"STREAM3 BLOCK CSS/IMG = "+url);
         return aApi.badRequest;
       }
-      Log.d(_TAG, "STREAM3 = " + url);
-      return super.shouldInterceptRequest(view, request);
+      return aApi.defaultRequest(view,request);
     }
     else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       if (accept.startsWith("text/html")||
@@ -427,6 +425,7 @@ public class AnimeView extends WebViewClient {
       host.contains("addthis.com")||
       host.contains("amung.us")||
       host.contains("www.googletagmanager.com")||
+        host.contains("megastatics.com")||
       host.contains("ontosocietyweary.com")
     ){
       /* BLOCK DNS */
@@ -436,7 +435,6 @@ public class AnimeView extends WebViewClient {
       String path = uri.getPath();
       if (path.endsWith("/master.m3u8")) {
         Log.d(_TAG, "GOT-MASTER-M3U8 = " + url);
-        // data.media.sources
         String m3u8data="{}";
         try{
           JSONObject j=

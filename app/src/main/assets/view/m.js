@@ -314,7 +314,7 @@ const _API={
       }
     }
     else{
-      var url_parse=pb.data.url.split('/');
+      var url_parse=url.split('/');
       if (url_parse.length>=5){
         return url_parse[4];
       }
@@ -612,7 +612,7 @@ const _API={
           _API.hi_last_view.data[k]=d[k];
         }
         _API.hi_last_view.data.status=true;
-        f(_API.hi_last_view.data,uid);
+        f(JSON.parse(JSON.stringify(_API.hi_last_view.data)),uid);
       }
     }
 
@@ -2325,9 +2325,6 @@ const pb={
       pb.next_ep(0);
     }
     else if (c=='ready'){
-      if (pb.preload_video_started){
-        return;
-      }
       pb.state=2;
       pb.pb_track_ctl.innerHTML='play_circle';
       pb.pb_track_ctl.className='';
@@ -2731,83 +2728,10 @@ const pb={
 
       if (__SD==3){
         /* Get Servers - HIANIME */
-        var st=_API.currentStreamType;
-        var uid=0;
-        var ut="sub";
-        var valid=false;
-        if (st==2){
-          if (pb.data.ep_servers.dub.length>0){
-            ui="dub";
-            pb.data.streamtype="dub";
-            valid=true;
-          }
-        }
-        if (!valid){
-          if (pb.data.ep_servers.sub.length>0){
-            ut="sub";
-            pb.data.streamtype="softsub";
-          }
-          else if (pb.data.ep_servers.raw.length>0){
-            ut="raw";
-            pb.data.streamtype="softsub";
-          }
-          else{
-            ut="dub";
-            pb.data.streamtype="dub";
-          }
-        }
-        if (pb.data.ep_servers[ut].length>0){
-          if (pb.cfg_data.mirrorserver && pb.data.ep_servers[ut].length>1){
-            uid=1;
-          }
-          var seld = pb.data.ep_servers[ut][uid];
-          pb.data.stream_vurl = seld.link;
-          pb.data.ep_stream_sel = seld;
-
-          // Get Video Data
-          var vvturl='https://'+seld.dns+'/embed-2/ajax/e-1/getSources?id='+enc(seld.sid);
-          $ap(vvturl,function(r){
-            if (r.ok){
-              try{
-                var jv=JSON.parse(r.responseText);
-                /* Load Intro / Outro */
-                try{
-                  var st=jv?.intro?.start;
-                  var en=jv?.intro?.end;
-                  var sto=jv?.outro?.start;
-                  var eno=jv?.outro?.end;
-                  pb.data.skip=[
-                    [st?st:0,en?en:0],
-                    [sto?sto:0,eno?eno:0]
-                  ];
-                }catch(e){}
-
-                /* Load Subtitle */
-                vtt.clear();
-                pb.subtitles=[];
-                window.__subtitle=pb.subtitles;
-                try{
-                  if (jv.tracks){
-                    var n=jv.tracks.length;
-                    for (var i=0;i<n;i++){
-                      var tk=jv.tracks[i];
-                      if (tk.kind=='captions'){
-                        pb.subtitles.push({
-                          u:tk.file,
-                          d:tk.default?1:0,
-                          l:(tk.label+'').toLowerCase().trim()
-                        });
-                      }
-                    }
-                    vtt.init(pb.subtitles);
-                  }
-                }catch(e){}
-              }catch(ee){}
-            }
-          });
+        pb.hiLoadVideo(pb.data, true, function(){
           pb.updateStreamTypeInfo();
           pb.init_video_vidcloud();
-        }
+        });
       }
       else{
         /* GET SERVER WAVE-ANIX */
@@ -2872,7 +2796,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (!pb.cfg_data.html5player && (__SD!=3)){
+              if (!pb.cfg_data.html5player){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -2889,12 +2813,109 @@ const pb={
                   },500);
                 });
                 pb.pb_vid.innerHTML='';
-                $n('iframe','',{src:d.stream_vurl+"#NOPLAY",frameborder:'0'},pb.pb_vid,'');
+                if (__SD==3){
+                  pb.hiLoadVideo(d, false, function(){
+                    $n('iframe','',{src:d.stream_vurl,frameborder:'0'},pb.pb_vid,'');
+                  });
+                }
+                else{
+                  $n('iframe','',{src:d.stream_vurl+"#NOPLAY",frameborder:'0'},pb.pb_vid,'');
+                }
               }
             }
           });
         }
       }
+    }
+  },
+
+  hiLoadVideo:function(dt,loadSubtitle,cb){
+    var st=_API.currentStreamType;
+    var uid=0;
+    var ut="sub";
+    var valid=false;
+    if (st==2){
+      if (dt.ep_servers.dub.length>0){
+        ui="dub";
+        dt.streamtype="dub";
+        valid=true;
+      }
+    }
+    if (!valid){
+      if (dt.ep_servers.sub.length>0){
+        ut="sub";
+        dt.streamtype="softsub";
+      }
+      else if (dt.ep_servers.raw.length>0){
+        ut="raw";
+        dt.streamtype="softsub";
+      }
+      else{
+        ut="dub";
+        dt.streamtype="dub";
+      }
+    }
+    if (dt.ep_servers[ut].length>0){
+      for (var i=0;i<dt.ep_servers[ut].length;i++){
+        var q=dt.ep_servers[ut][i];
+        if (q.server==1||q.server==4){
+          if (pb.cfg_data.mirrorserver && uid!=0){
+            uid=i;
+          }
+          else if (uid==0){
+            uid=i;
+          }
+        }
+      }
+      var seld = dt.ep_servers[ut][uid];
+      dt.stream_vurl = seld.link;
+      dt.ep_stream_sel = seld;
+      console.log("GOT-VIDEO-IFRAME-URL : "+seld.link);
+
+      // Get Video Data
+      if (loadSubtitle){
+        var vvturl='https://'+seld.dns+'/embed-2/ajax/e-1/getSources?id='+enc(seld.sid);
+        $ap(vvturl,function(r){
+          if (r.ok){
+            try{
+              var jv=JSON.parse(r.responseText);
+              /* Load Intro / Outro */
+              try{
+                var st=jv?.intro?.start;
+                var en=jv?.intro?.end;
+                var sto=jv?.outro?.start;
+                var eno=jv?.outro?.end;
+                dt.skip=[
+                  [st?st:0,en?en:0],
+                  [sto?sto:0,eno?eno:0]
+                ];
+              }catch(e){}
+              
+              /* Load Subtitle */
+              vtt.clear();
+              pb.subtitles=[];
+              window.__subtitle=pb.subtitles;
+              try{
+                if (jv.tracks){
+                  var n=jv.tracks.length;
+                  for (var i=0;i<n;i++){
+                    var tk=jv.tracks[i];
+                    if (tk.kind=='captions'){
+                      pb.subtitles.push({
+                        u:tk.file,
+                        d:tk.default?1:0,
+                        l:(tk.label+'').toLowerCase().trim()
+                      });
+                    }
+                  }
+                  vtt.init(pb.subtitles);
+                }
+              }catch(e){}
+            }catch(ee){}
+          }
+        });
+      }
+      cb();
     }
   },
 
@@ -6624,6 +6645,7 @@ const _MAL={
   },
   pop_initlist:function(url){
     /* Remove watchlist&history from menu */
+    
     while (_MAL.pop.menu.length>0){
       var elast=_MAL.pop.menu[_MAL.pop.menu.length-1];
       if (elast==_MAL.pop.watchlist||elast==_MAL.pop.history){
@@ -6636,6 +6658,7 @@ const _MAL={
 
     _MAL.pop.var.animeid='';
     var animeid=_API.animeId(url);
+    console.log("pop_initlist : "+url+" / "+animeid);
     if (animeid){
       _MAL.pop.var.animeid=animeid;
       var fav=list.fav;
@@ -6698,6 +6721,7 @@ const _MAL={
     if (!_MAL.onpopup){
       return;
     }
+    console.log("PreviewDo = "+JSON.stringify([url, img, ttid, currep, tcurr, tdur,d,arg,malid]));
     try{
     var numep=toInt(d.ep);
     currep=toInt(currep);
