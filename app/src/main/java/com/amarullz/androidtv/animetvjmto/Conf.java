@@ -8,6 +8,7 @@ public class Conf {
   public static String SOURCE_DOMAIN1 = "aniwave.to";
   public static String SOURCE_DOMAIN2 = "anix.to";
   public static String SOURCE_DOMAIN3 = "hianime.to";
+  public static String SOURCE_DOMAIN4 = "aniwatchtv.to";
   public static int SOURCE_DOMAIN = 1;
 
   public static void updateSource(int num){
@@ -18,8 +19,11 @@ public class Conf {
     else if (num==2) {
       DOMAIN=SOURCE_DOMAIN2;
     }
-    else{
+    else if (num==3) {
       DOMAIN=SOURCE_DOMAIN3;
+    }
+    else{
+      DOMAIN=SOURCE_DOMAIN4;
     }
   }
   public static String getDomain(){
@@ -27,7 +31,9 @@ public class Conf {
       return SOURCE_DOMAIN1;
     else if (SOURCE_DOMAIN==2)
       return SOURCE_DOMAIN2;
-    return SOURCE_DOMAIN3;
+    else if (SOURCE_DOMAIN==3)
+      return SOURCE_DOMAIN3;
+    return SOURCE_DOMAIN4;
   }
 
 

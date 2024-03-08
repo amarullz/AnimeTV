@@ -282,7 +282,8 @@ public class AnimeView extends WebViewClient {
     if (host==null||accept==null) return aApi.badRequest;
     if (host.equals(Conf.SOURCE_DOMAIN1)
         ||host.equals(Conf.SOURCE_DOMAIN2)
-        ||host.equals(Conf.SOURCE_DOMAIN3)) {
+        ||host.equals(Conf.SOURCE_DOMAIN3)
+        ||host.equals(Conf.SOURCE_DOMAIN4)) {
       String uDomain=host;
       // .contains(Conf.SOURCE_DOMAIN1)? Conf.SOURCE_DOMAIN1:Conf
       // .SOURCE_DOMAIN2;
@@ -434,7 +435,7 @@ public class AnimeView extends WebViewClient {
       /* BLOCK DNS */
       return aApi.badRequest;
     }
-    else if (Conf.SOURCE_DOMAIN==3){
+    else if (Conf.SOURCE_DOMAIN==3||Conf.SOURCE_DOMAIN==4){
       String path = uri.getPath();
       if (path.endsWith("/master.m3u8")) {
         Log.d(_TAG, "GOT-MASTER-M3U8 = " + url);

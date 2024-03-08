@@ -259,7 +259,7 @@ public class AnimeApi extends WebViewClient {
   }
 
   public void setSourceDomain(int i){
-    if (i>=1 && i<=3) {
+    if (i>=1 && i<=4) {
       SharedPreferences.Editor ed = pref.edit();
       ed.putInt("source-domain", i);
       ed.apply();
@@ -472,7 +472,9 @@ public class AnimeApi extends WebViewClient {
   public static void initHttpEngine(Context c){
     long disk_cache_size = 100 * 1024 * 1024;
     if (cronetClient!=null){
-      cronetClient.shutdown();
+      try {
+        cronetClient.shutdown();
+      }catch (Exception ignored){}
       cronetClient=null;
     }
 
