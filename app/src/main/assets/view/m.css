@@ -2053,6 +2053,13 @@ c.loader {
 #settings .settings_group p div c.check.checked{
   background: var(--primary-3);
 }
+#settings .settings_group p div.disabled{
+  opacity:.3;
+}
+#settings .settings_group p div.disabled c.check.checked{
+  background: var(--dimm-1) !important;
+}
+
 #settings .settings_group p div c.check.checked:after{
   left:2.1vw;
   background: #fff;

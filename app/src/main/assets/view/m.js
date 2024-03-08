@@ -2016,6 +2016,14 @@ const pb={
 //    localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
     // console.log('ATVLOG STORAGE SAVE = '+savingjs);
   },
+  cfg_setactive(el, state){
+    if (state){
+      el.classList.remove('disabled');
+    }
+    else{
+      el.classList.add('disabled');
+    }
+  },
   cfg_update_el_root:function(key, root){
     if (!root){
       root=pb.pb_settings;
@@ -2065,6 +2073,15 @@ const pb={
         }
       }
       else if (key in pb.cfg_data){
+        /* Set Active */
+        if (key=='usedoh'){
+          pb.cfg_setactive(el,pb.cfg_data.httpclient==0);
+        }
+        else if (key=='html5player'){
+          pb.cfg_setactive(el,__SD!=3);
+        }
+
+        /* Set Values */
         if (key=='server'){
           el.lastElementChild.innerHTML=pb.cfgserver_name[pb.cfg_data[key]];
         }
@@ -3104,6 +3121,7 @@ const pb={
         if (chval!=null){
           pb.cfg_data.httpclient=toInt(chval);
           pb.cfg_update_el(key);
+          pb.cfg_update_el('usedoh');
           pb.cfg_save();
           _JSAPI.setHttpClient(pb.cfg_data.httpclient);
         }
@@ -5287,6 +5305,9 @@ const home={
         var gel=home.settings.menus[pc].P;
         var el=gel.children[spc];
         try{
+          if (el.classList.contains('disabled')){
+            return;
+          }
           var action=el.getAttribute('action');
           var arg=el.getAttribute('arg');
           pb.action_handler(action,arg);

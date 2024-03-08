@@ -471,14 +471,20 @@ public class AnimeApi extends WebViewClient {
 
   public static void initHttpEngine(Context c){
     long disk_cache_size = 100 * 1024 * 1024;
-    Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir",
-        "okhttpcache"), disk_cache_size);
+    if (cronetClient!=null){
+      cronetClient.shutdown();
+      cronetClient=null;
+    }
 
     if (Conf.HTTP_CLIENT==2) {
       try {
+        File ccache=new File((okCacheDir!=null)?okCacheDir:"cacheDir","cronet");
+        ccache.mkdir();
         CronetEngine.Builder myBuilder =
             new CronetEngine.Builder(c)
-                .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
+//                .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 819200)
+                .setStoragePath(ccache.getAbsolutePath())
+                .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_DISK,disk_cache_size)
                 .enableHttp2(true)
                 .enableQuic(true)
                 .enableBrotli(true)
@@ -489,13 +495,12 @@ public class AnimeApi extends WebViewClient {
       }catch (Exception ignored){
         Log.e(_TAG,"Cronet Init Error",ignored);
         cronetClient=null;
-        bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
       }
     }
-    else{
-      cronetClient=null;
-      bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
-    }
+
+    Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir",
+        "okhttpcache"), disk_cache_size);
+    bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
     dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
         .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
         .build();
