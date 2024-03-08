@@ -56,6 +56,70 @@ function $a(uri, cb, hdr, pd){
   xhttp.send();
 }
 
+if (!__SD3){
+  function anix_challange(a,b){
+    var k='f0357a3f154bc2ffe2bff55055457068',
+    l=k.length,
+    i,
+    o='';
+    for(i=0;i<l;i++){
+      o+=k[i]+a[i]+b[i];
+    }
+    // __jscheck
+    return o;
+  }
+  function deleteAllCookies() {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
+  }
+  // deleteAllCookies();
+  $a('/',function(r){
+    if (r.ok){
+      var x=r.responseText;
+      if (x.indexOf('"/waf-js-run"')>0){
+        // console.log(r.getAllResponseHeaders());
+        // console.log(xs[0]+" _A/B="+a+" / "+b+" => "+o);
+        _JSAPI.rayOk();
+        setTimeout(function(){
+          _JSAPI.cfCheck();
+        },500);
+        
+        // setTimeout(function(){
+        //   $a('/?__jscheck='+o,function(r){
+        //     console.log(r.getAllResponseHeaders());
+        //     console.log(r.responseText);
+        //     $a('/',function(r){
+        //       console.log(r.getAllResponseHeaders());
+        //       console.log(r.responseText);
+        //     });
+        //   });
+        // },1500);
+
+        var xs=x.split('<script>');
+        xs=xs[1].split('setTimeout');
+        var vs=xs[0].split("'");
+        var a=vs[1];
+        var b=vs[3];
+        var o=anix_challange(a,b);
+        console.log(xs[0]+"WAF Check _A/B="+a+"/"+b+" => "+o);
+      }
+      else{
+        _JSAPI.rayOk();
+      }
+    }
+  });
+}
+function __CFRAYOK(){
+  if (!__SD3){
+    _JSAPI.reloadHome();
+  }
+}
+
 /* proxy ajax */
 function $ap(uri, cb){
   $a("/__proxy/"+uri,cb);
@@ -4549,21 +4613,56 @@ const home={
     }
   },
 
-  ttip_desc:function(el,ttip,url){
-    _API.getTooltip(ttip,function(d){
-      if (d){
-        el.innerHTML=special(d.synopsis);
+  ttip_desc:function(hl,ttip,url,ddat){
+    // _API.getTooltip(ttip,function(d){
+    //   if (d){
+    //     el.innerHTML=special(d.synopsis);
+    //   }
+    // }, url);
+    $a(url,function(r){
+      if (r.ok){
+        try{
+          var d=$n('div','',0,0,r.responseText);
+          var w={
+            banner:null,
+            synopsis:''
+          };
+          if (__SD==1){
+            try{
+              w.banner=d.querySelector('#player').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+            }catch(e){}
+            try{
+              w.synopsis=d.querySelector('#w-info .info .synopsis .content').textContent.trim();
+            }catch(e){}
+          }
+          else if (__SD==2){
+              w.banner=d.querySelector('#ani-player-section div.player-bg').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+              w.synopsis=d.querySelector('#ani-detail-info .description .short div').textContent.trim();
+          }
+          if (w.banner){
+            hl._img.src=$img(w.banner);
+          }
+          else{
+            hl._img.src=$img(ddat.poster);
+          }
+          hl._desc.innerHTML=special(w.synopsis);
+          d.innerHTML='';
+          return;
+        }catch(e){
+          console.log('ttip err '+e);
+        }
       }
-    }, url);
+      hl._img.src=$img(ddat.poster);
+      hl._desc.innerHTML="...";
+    });
   },
 
   home_parser:function(v){
     var h=$n('div','','',null,v);
     var td=[];
     try{
+      home.home_slide._midx=2.5;
       if (__SD3){
-        home.home_slide._midx=2.5;
-
         // wave
         var tops=h.querySelectorAll('#slider .swiper-wrapper .swiper-slide');
         for (var i=0;i<tops.length;i++){
@@ -4595,6 +4694,8 @@ const home={
         }
       }
       else if (__SD==1){
+        // home.home_slide._midx=2.5;
+
         // wave
         var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
         for (var i=0;i<tops.length;i++){
@@ -4665,8 +4766,8 @@ const home={
           title:d.title
         };
 
-        var hl=$n('div',(__SD3)?'fullimg':'',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
-        hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
+        var hl=$n('div','fullimg',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
+        hl._img=$n('img','',{loading:'lazy' /*,src:$img(d.poster)*/ },hl,'');
         hl._img.onload=function(){
           this.classList.add('loaded');
         };
@@ -4679,7 +4780,7 @@ const home={
         }
         else{
           hl._desc=$n('span','desc',null,hl._view,'');
-          home.ttip_desc(hl._desc, d.tip, d.url);
+          home.ttip_desc(hl, d.tip, d.url, d);
         }
         
         var infotxt='';

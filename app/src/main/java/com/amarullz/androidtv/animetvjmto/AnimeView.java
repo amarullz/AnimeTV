@@ -215,6 +215,11 @@ public class AnimeView extends WebViewClient {
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
     webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
+//    webView2.loadUrl("https://"+Conf.getDomain()+"/");
+//    webView2.setVisibility(View.VISIBLE);
+//    webView.setBackgroundColor(Color.WHITE);
+//    webView.loadUrl("https://"+Conf.getDomain()+"/");
+
 //    webView.loadUrl("https://www.reddit.com/");
 //    splash.setVisibility(View.GONE);
 //    videoLayout.setVisibility(View.VISIBLE);
@@ -279,14 +284,13 @@ public class AnimeView extends WebViewClient {
     String url = uri.toString();
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
+
     if (host==null||accept==null) return aApi.badRequest;
     if (host.equals(Conf.SOURCE_DOMAIN1)
         ||host.equals(Conf.SOURCE_DOMAIN2)
         ||host.equals(Conf.SOURCE_DOMAIN3)
         ||host.equals(Conf.SOURCE_DOMAIN4)) {
       String uDomain=host;
-      // .contains(Conf.SOURCE_DOMAIN1)? Conf.SOURCE_DOMAIN1:Conf
-      // .SOURCE_DOMAIN2;
       String path=uri.getPath();
       if (path==null)
         path="/";
@@ -367,10 +371,13 @@ public class AnimeView extends WebViewClient {
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
-      if (view.equals(webView)) {
-        return aApi.defaultRequest(view,request);
+      if (Conf.PROGRESSIVE_CACHE) {
+        return super.shouldInterceptRequest(view, request);
       }
-      Log.d(_TAG, "Load-Source: " + url);
+      WebResourceResponse wr=aApi.defaultRequest(view,request);
+      if (wr!=null){
+        return wr;
+      }
       return super.shouldInterceptRequest(view, request);
     }
     else if (host.contains(Conf.STREAM_DOMAIN3)){
@@ -833,12 +840,15 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public void rayOk() {
       if (cfOnCheck) {
+        cfOnCheck=false;
         runOnUiThreadWait(() -> {
           webView2.loadData(
               "<html><body>Finish</body></html>","text/html",
               null
           );
-          webView2.setVisibility(View.INVISIBLE);
+          webView.evaluateJavascript(
+              "__CFRAYOK()", null);
+          webView2.setVisibility(View.GONE);
           Toast.makeText(activity,"Validation successful...",
               Toast.LENGTH_SHORT).show();
           cfProgress.setVisibility(View.INVISIBLE);
@@ -861,6 +871,7 @@ public class AnimeView extends WebViewClient {
       cfProgress.setVisibility(View.VISIBLE);
       cfOnCheck=true;
       webView2.loadUrl("https://"+Conf.getDomain()+"/");
+      webView2.reload();
     });
   }
 
@@ -872,7 +883,8 @@ public class AnimeView extends WebViewClient {
         webView2.setVisibility(View.VISIBLE);
         view.evaluateJavascript(
             "if (document.getElementById('i-wrapper')||document.querySelector('a.btn[href=home]')){ " +
-                "_JSAPI.rayOk(); }", null);
+                "setTimeout(function(){_JSAPI.rayOk();},1000);" +
+                " }", null);
         String ijs=
             "function t1(){" +
                 "var a=document.querySelector('div#turnstile-wrapper');" +
