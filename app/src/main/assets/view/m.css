@@ -782,16 +782,16 @@ c.loader {
 #pb_seasons {
   padding: .2vw 5vw 1.5vw 5vw;
   position: relative;
-  transition: all var(--tim-2s) var(--interpolation);
-  opacity: .8;
+  /* transition: all var(--tim-2s) var(--interpolation); */
+  /* opacity: .8; */
 }
 
-#pb_recs.active,
+/* #pb_recs.active,
 #pb_related.active,
 #pb_episodes.active,
 #pb_seasons.active {
   opacity: 1;
-}
+} */
 
 #pb_recs:before,
 #pb_related:before,
@@ -1416,6 +1416,11 @@ c.loader {
 #home_slide.home_list div img {
   width: 12vw !important;
   object-fit: cover;
+  opacity: 0;
+  transition: all var(--tim-6s) linear;
+}
+#home_slide.home_list div img.loaded{
+  opacity: 1;
 }
 #home_slide.home_list div span.info{
   font-size:var(--fs-12vw);
@@ -1446,6 +1451,44 @@ c.loader {
   width:100%;
   box-sizing: border-box;
 }
+
+#home_slide.home_list div.fullimg{
+  width: 50vw !important;
+  height: 20vw !important;
+  background-color: #000 !important;
+  background-image: none !important;
+}
+#home_slide.home_list div.fullimg img {
+  width: 50vw !important;
+  height: 20vw !important;
+  left:auto;
+  right:0;
+  position: absolute;
+  will-change: transform;
+  transform: scale(1);
+}
+@keyframes homebgani {
+  0% {
+    transform: scale(1)
+  }
+
+  100% {
+    transform: scale(1.15)
+  }
+}
+#home_slide.home_list.active div.fullimg.active img {
+  animation: homebgani 15s linear forwards;
+}
+#home_slide.home_list div.fullimg span.infobox{
+  left: 0;
+  right: 17vw;
+  padding-left: 1vw;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, .8) 40%, rgba(0, 0, 0, 0) 100%);
+}
+#home_slide.home_list div.fullimg span.infobox *{
+  text-shadow: .05vw .05vw .3vw #000 !important;
+}
+
 #home_slide.home_list div span.infobox span.infovalue h4{
   margin:0;
   padding:0;
@@ -1554,6 +1597,7 @@ c.loader {
   transition: all 0.3s var(--interpolation);
   transform: scale(.8);
   will-change: transform, opacity;
+  overflow: hidden;
 }
 
 #home_discord_info{
@@ -1650,6 +1694,7 @@ c.loader {
   transition: all 0.3s var(--interpolation);
   will-change: transform;
   transform: scale(.8);
+  overflow: hidden;
 }
 
 #home_about{

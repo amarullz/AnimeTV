@@ -942,6 +942,10 @@ const _API={
             o.genre=gn.join(', ');
           }
 
+          try{
+            o.poster=d.querySelector('#ani_detail .film-poster img').getAttribute('src').replace('100x200','300x400');
+          }catch(e){}
+
           // Is View
           if (isview){
             o.seasons=[];
@@ -1007,10 +1011,7 @@ const _API={
                 rating:o.rating,
                 quality:o.quality
             };
-
-            try{
-              o.poster=d.querySelector('#ani_detail .film-poster img').getAttribute('src').replace('100x200','300x400');
-            }catch(e){}
+            
             o.banner=o.poster;
             o.numep=o.ep;
             delete o.ep;
@@ -4556,7 +4557,40 @@ const home={
     var h=$n('div','','',null,v);
     var td=[];
     try{
-      if (__SD==1){
+      if (__SD==3){
+        home.home_slide._midx=2.5;
+
+        // wave
+        var tops=h.querySelectorAll('#slider .swiper-wrapper .swiper-slide');
+        for (var i=0;i<tops.length;i++){
+          var t=tops[i];
+          var d={};
+          var tt=t.querySelector('.deslide-item-content .desi-head-title');
+          d.title=tt.textContent.trim();
+          d.title_jp=tt.getAttribute('data-jname');
+          d.url=t.querySelector('.deslide-item-content .desi-buttons .btn-secondary').getAttribute('href');
+          d.synopsis=t.querySelector('.deslide-item-content .desi-description').textContent.trim();
+          d.tip=home.hi_tipurl(d.url);
+          d.poster=t.querySelector('.deslide-cover img').getAttribute('data-src');
+          try{
+            var epel=t.querySelector('.deslide-item-content .sc-detail .tick-item.tick-sub');
+            if (!epel)
+              t.querySelector('.deslide-item-content .sc-detail .tick-item.tick-eps');
+            d.ep=(epel.textContent+'').trim();
+          }catch(e){
+          }
+          try{
+            d.type=(t.querySelector('.deslide-item-content .sc-detail .fa-play-circle').parentElement.textContent+'').trim();
+          }catch(e){
+          }
+          try{
+            d.duration=(t.querySelector('.deslide-item-content .sc-detail .fa-clock').parentElement.textContent+'').trim()+"IN";
+          }catch(e){
+          }
+          td.push(d);
+        }
+      }
+      else if (__SD==1){
         // wave
         var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
         for (var i=0;i<tops.length;i++){
@@ -4612,13 +4646,15 @@ const home={
       for (var i=0;i<td.length;i++){
         try{
         var d=td[i];
-        var ps=d.poster.split('-w100');
-        d.poster=ps[0];
+        
+        if (__SD!=3){
+          var ps=d.poster.split('-w100');
+          d.poster=ps[0];
+          try{
+            d.poster=d.poster.replace("/s100/","/s300/");
+          }catch(e4){}
+        }
 
-        // __SD==1/2
-        try{
-          d.poster=d.poster.replace("/s100/","/s300/");
-        }catch(e4){}
         var argv={
           url:d.url,
           img:d.poster,
@@ -4628,16 +4664,30 @@ const home={
           ep:toInt(d.ep?d.ep:0),
           title:d.title
         };
-        var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
+
+        var hl=$n('div',(__SD==3)?'fullimg':'',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
+        hl._img.onload=function(){
+          this.classList.add('loaded');
+        };
         hl._viewbox=$n('span','infobox',null,hl,'');
         hl._view=$n('span','infovalue',null,hl._viewbox,'');
         hl._title=$n('h4','',{jp:d.title_jp?d.title_jp:d.title},hl._view,tspecial(d.title));
-        hl._desc=$n('span','desc',null,hl._view,'');
-        home.ttip_desc(hl._desc, d.tip, d.url);
+
+        if (__SD==3){
+          hl._desc=$n('span','desc',null,hl._view,special(d.synopsis));
+        }
+        else{
+          hl._desc=$n('span','desc',null,hl._view,'');
+          home.ttip_desc(hl._desc, d.tip, d.url);
+        }
+        
         var infotxt='';
         if (d.adult){
           infotxt+='<span class="info_adult">18+</span>';
+        }
+        if (d.duration){
+          infotxt+='<span class="info_duration">'+special((d.duration+"").toUpperCase())+'</span>';
         }
         if (d.type){
           infotxt+='<span class="info_type">'+special(d.type)+'</span>';
@@ -4655,9 +4705,6 @@ const home={
   },
 
   home_load:function(){
-    if (__SD==3){
-      return;
-    }
     home.home_onload=1;
     $a('/home',function(r){
       if (r.ok){
@@ -6851,6 +6898,9 @@ const _MAL={
           if (!ttid){
             console.log("New TTID = "+d.ttid);
             ttid=d.ttid;
+          }
+          if (d.poster){
+            img=d.poster;
           }
           _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,d,arg,malid);
           return;
