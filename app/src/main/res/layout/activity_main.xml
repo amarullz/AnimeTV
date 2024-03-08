@@ -61,7 +61,7 @@
             android:textSize="12sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Please Wait...\nWorking on cloudflare ray validation"
+            android:text="Working with CF-RAY\nMake sure to select Generic HTTPClient"
             />
     </LinearLayout>
 </FrameLayout>

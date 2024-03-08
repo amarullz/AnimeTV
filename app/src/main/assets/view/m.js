@@ -56,6 +56,7 @@ function $a(uri, cb, hdr, pd){
   xhttp.send();
 }
 
+var __cf_onvalidation=false;
 if (!__SD3){
   function anix_challange(a,b){
     var k='f0357a3f154bc2ffe2bff55055457068',
@@ -84,6 +85,7 @@ if (!__SD3){
       if (x.indexOf('"/waf-js-run"')>0){
         // console.log(r.getAllResponseHeaders());
         // console.log(xs[0]+" _A/B="+a+" / "+b+" => "+o);
+        __cf_onvalidation=true;
         _JSAPI.rayOk();
         setTimeout(function(){
           _JSAPI.cfCheck();
@@ -116,7 +118,9 @@ if (!__SD3){
 }
 function __CFRAYOK(){
   if (!__SD3){
-    _JSAPI.reloadHome();
+    if (__cf_onvalidation){
+      _JSAPI.reloadHome();
+    }
   }
 }
 
@@ -4663,7 +4667,7 @@ const home={
     try{
       home.home_slide._midx=2.5;
       if (__SD3){
-        // wave
+        // hianime
         var tops=h.querySelectorAll('#slider .swiper-wrapper .swiper-slide');
         for (var i=0;i<tops.length;i++){
           var t=tops[i];
@@ -4694,8 +4698,6 @@ const home={
         }
       }
       else if (__SD==1){
-        // home.home_slide._midx=2.5;
-
         // wave
         var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
         for (var i=0;i<tops.length;i++){
@@ -4767,7 +4769,7 @@ const home={
         };
 
         var hl=$n('div','fullimg',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
-        hl._img=$n('img','',{loading:'lazy' /*,src:$img(d.poster)*/ },hl,'');
+        hl._img=$n('img','',{loading:'lazy' ,src:__SD3?$img(d.poster):'' },hl,'');
         hl._img.onload=function(){
           this.classList.add('loaded');
         };

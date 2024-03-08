@@ -4,7 +4,7 @@ public class Conf {
   // Translate API:
   // https://api.mymemory.translated.net/get?q=Hello%20World!&langpair=en|id
   // public static final String DOMAIN = "9anime.to";
-  public static String DOMAIN = "anix.to";
+  public static String DOMAIN = "aniwave.to";
   public static String SOURCE_DOMAIN1 = "aniwave.to";
   public static String SOURCE_DOMAIN2 = "anix.to";
   public static String SOURCE_DOMAIN3 = "hianime.to";

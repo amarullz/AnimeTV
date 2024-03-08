@@ -57,8 +57,6 @@ public class AnimeView extends WebViewClient {
   public final WebView webView;
   public final WebView webView2;
   public VideoView videoView=null;
-
-  public VideoView videoViewCache=null;
   public LinearLayout cfProgress;
   public final ImageView splash;
   public final FrameLayout videoLayout;
@@ -92,9 +90,9 @@ public class AnimeView extends WebViewClient {
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//      webSettings.setSafeBrowsingEnabled(true);
-//    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      webSettings.setSafeBrowsingEnabled(true);
+    }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);
@@ -371,7 +369,7 @@ public class AnimeView extends WebViewClient {
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
-      if (Conf.PROGRESSIVE_CACHE) {
+      if (Conf.HTTP_CLIENT==1) {
         return super.shouldInterceptRequest(view, request);
       }
       WebResourceResponse wr=aApi.defaultRequest(view,request);
