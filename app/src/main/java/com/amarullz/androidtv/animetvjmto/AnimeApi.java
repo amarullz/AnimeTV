@@ -438,12 +438,18 @@ public class AnimeApi extends WebViewClient {
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/9anime_inject.js");
       }
+      if (Conf.HTTP_CLIENT==1) {
+        return super.shouldInterceptRequest(view,request);
+      }
       return defaultRequest(view, request, "/__inject.js", "text/html");
     }
     else if (host.equals(Conf.SOURCE_DOMAIN2)) {
       if (Objects.equals(uri.getPath(), "/__inject.js")) {
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/anix_inject.js");
+      }
+      if (Conf.HTTP_CLIENT==1) {
+        return super.shouldInterceptRequest(view,request);
       }
       return defaultRequest(view, request, "/__inject.js", "text/html");
     }
