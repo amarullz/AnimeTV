@@ -526,6 +526,7 @@ const _API={
   tlangs:[
     ["Hardsub","hard"],
     ["Dub","dub"],
+    ["Disable Subtitle","nosub"],
     ["English","en"],
     /* sources */
     ["Arabic","ar"],["German","de"], ["French","fr"], ["Italian","it"], ["Portuguese","pt"], ["Russian","ru"], ["Spanish","es"],
@@ -1425,6 +1426,17 @@ const vtt={
     return sty+', '+fnt;
   },
   init:function(subs){
+    if (pb.cfg_data.lang=='nosub'){
+      /* No Subtitle */
+      vtt.set('');
+      vtt.playback.sub=null;
+      vtt.playback.pos=0;
+      vtt.playback.posid=0;
+      vtt.substyle=0;
+      vtt.playback.show=false;
+      return;
+    }
+
     if (subs.length>0){
       if (pb.cfg_data.lang!='' && pb.cfg_data.lang!='en'){
         var ffind = vtt.find_match(subs, pb.cfg_data.lang);
@@ -1881,6 +1893,7 @@ const pb={
     httpclient:0,
     mirrorserver:false,
     listprog:0,
+    dubaudio:false,
     preloadep:true
   },
   cfg_load:function(){
@@ -1898,6 +1911,7 @@ const pb={
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
+        pb.cfg_data.dubaudio=('dubaudio' in j)?(j.dubaudio?true:false):false;
         
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.preloadep=('preloadep' in j)?(j.preloadep?true:false):true;
@@ -1973,7 +1987,7 @@ const pb={
     pb.cfg_data.autoskip=false;
     pb.cfg_data.autonext=true;
     pb.cfg_data.html5player=false;
-    
+    pb.cfg_data.dubaudio=false;
     
     pb.cfg_data.skipfiller=false;
     pb.cfg_data.jptitle=false;
@@ -2140,6 +2154,11 @@ const pb={
         else if (key=='html5player'){
           pb.cfg_setactive(el,!__SD3);
         }
+        else if (key=='dubaudio'){
+          pb.cfg_setactive(el,__SD3);
+        }
+
+        
 
         /* Set Values */
         if (key=='server'){
@@ -2194,6 +2213,8 @@ const pb={
       pb.cfg_update_el('animation');
       pb.cfg_update_el('autoskip');
       pb.cfg_update_el('autonext');
+      pb.cfg_update_el('dubaudio');
+      
       pb.cfg_update_el('html5player');
       
       pb.cfg_update_el('skipfiller');
@@ -2911,14 +2932,16 @@ const pb={
     var uid=0;
     var ut="sub";
     var valid=false;
-    if (st==2){
+    var subvalid=false;
+    if (st==2||pb.cfg_data.dubaudio){
       if (dt.ep_servers.dub.length>0){
         ut="dub";
         dt.streamtype="dub";
         valid=true;
+        subvalid=true;
       }
     }
-    if (!valid){
+    if (!valid || pb.cfg_data.dubaudio){
       if (dt.ep_servers.sub.length>0){
         ut="sub";
         dt.streamtype="softsub";
@@ -2932,6 +2955,7 @@ const pb={
         dt.streamtype="dub";
       }
     }
+
     if (dt.ep_servers[ut].length>0){
       for (var i=0;i<dt.ep_servers[ut].length;i++){
         var q=dt.ep_servers[ut][i];
@@ -2944,14 +2968,35 @@ const pb={
           }
         }
       }
+      var subuid=uid;
+      var subut=ut;
+      if (subvalid && (ut!="dub")){
+        ut="dub";
+        var dubuid=0;
+        for (var i=0;i<dt.ep_servers[ut].length;i++){
+          var q=dt.ep_servers[ut][i];
+          if (q.server==1||q.server==4){
+            if (pb.cfg_data.mirrorserver && dubuid!=0){
+              dubuid=i;
+            }
+            else if (uid==0){
+              dubuid=i;
+            }
+          }
+        }
+        uid=dubuid;
+      }
+
       var seld = dt.ep_servers[ut][uid];
       dt.stream_vurl = seld.link;
       dt.ep_stream_sel = seld;
+      var subld = dt.ep_servers[subut][subuid];
       console.log("GOT-VIDEO-IFRAME-URL : "+seld.link);
+      console.log("GOT-SUB-URL : "+subld.link);
 
       // Get Video Data
       if (loadSubtitle){
-        var vvturl='https://'+seld.dns+'/embed-2/ajax/e-1/getSources?id='+enc(seld.sid);
+        var vvturl='https://'+seld.dns+'/embed-2/ajax/e-1/getSources?id='+enc(subld.sid);
         $ap(vvturl,function(r){
           if (r.ok){
             try{
@@ -5050,6 +5095,14 @@ const home={
           },
           home.settings.slang.P,
           '<c>closed_caption</c> Subtitle<span class="value"></span>'
+        );
+        home.settings.tools._s_dubaudio=$n(
+          'div','',{
+            action:'*dubaudio',
+            s_desc:"Always use DUB audio stream with subtitle if available. Only work with source 3 and 4"
+          },
+          home.settings.slang.P,
+          '<c class="check">check</c><c>speech_to_text</c> Use DUB Stream'
         );
 
         /* Video */
