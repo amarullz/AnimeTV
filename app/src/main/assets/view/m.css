@@ -888,6 +888,15 @@ c.loader {
   color: #fda;
 }
 
+#pb_episodes div.hasbg{
+  background-position: center center;
+  background-size: cover;
+  text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000 !important;
+}
+#pb_episodes div.hasbg.active{
+  outline: .15vw solid #fff;
+}
+
 #pb_episodes div i {
   display: block;
   position: absolute;
@@ -2303,6 +2312,9 @@ c.loader {
   font-size:var(--fs-11vw);
   line-height: 2.2vw;
   background-color: #121212;
+  background-position: 98% .5vw;
+  background-size: auto 3vw;
+  background-repeat: no-repeat;
 }
 
 #malview_info div{

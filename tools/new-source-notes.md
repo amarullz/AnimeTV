@@ -13,6 +13,13 @@ https://api.animeflix.dev/player?id=sousou-no-frieren-1-source&server=gogo&serve
 https://api.animeflix.dev/episodes?id=oroka-na-tenshi-wa-akuma-to-odoru&dub=false&c=5b5e5b574h255a4h255g515a5f5455255j4h254h575h594h255g5b255b505b5e5h
 
 
+/watch/sousou-no-frieren-episode-1?server=&c=5f5b5h5f5b5h255a5b25525e55515e515a25515c555f5b50512529
+/watch/shangri-la-frontier-dub-episode-19?server=&c=5f544h5a535e5525584h25525e5b5a5g55515e25505h4i25515c555f5b505125292h
+
+DUB:
+/watch/<slug>-dub-episode-<epnum>?server=&c=5f544h5a535e5525584h25525e5b5a5g55515e25505h4i25515c555f5b505125292h
+/watch/<slug>-episode-<epnum>?server=&c=5f544h5a535e5525584h25525e5b5a5g55515e25505h4i25515c555f5b505125292h
+
 Search:
 https://api.animeflix.dev/info/?query=Game&limit=15&filters={%22type%22:%22[\%22TV\%22]%22,%22genre%22:%22[\%22Comedy\%22,\%22Romance\%22]%22}&k=3b4h59
 Filters--> {"type":"["TV"]","genre":"["Comedy","Romance"]"}
@@ -32,7 +39,7 @@ function aflix_encode(x){
     for (i=0;i<l;i++){
         o.push(x.charCodeAt(i).toString(20));
     }
-    return o.join('');
+    return o.join('').toUpperCase();
 }
 ```
 

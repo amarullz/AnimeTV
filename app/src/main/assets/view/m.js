@@ -277,11 +277,49 @@ const __AFLIX = {
   setUrl:function(slug,alid){
     return slug+"/"+alid;
   },
+  getUrl:function(url){
+    return url.split("#")[0];
+  },
+  getEp:function(url){
+    var p=url.split("#");
+    return toInt(p[1]?p[1]:1);
+  },
   getSlug:function(url){
-    return url.split("/")[0];
+    return __AFLIX.getUrl(url).split("/")[0];
   },
   getAid:function(url){
-    return url.split("/")[1];
+    return __AFLIX.getUrl(url).split("/")[1];
+  },
+  getTitle:function(u,jp){
+    if (jp){
+      if (u.title.romaji)
+        return u.title.romaji;
+    }
+    else{
+      if (u.title.english)
+        return u.title.english;
+    }
+    if (u.userPreferred)
+        return u.userPreferred;
+    if (u.title.english)
+        return u.title.english;
+    if (u.title.romaji)
+        return u.title.romaji;
+    return 'No-title';
+  },
+  dec:function(x){
+    var l=x.length,o=[],i;
+    for (i=0;i<l;i+=2){
+        o.push(String.fromCharCode(parseInt(x.substring(i,i+2), 20)));
+    }
+    return o.join('');
+  },
+  enc:function(x){
+      var l=x.length,o=[],i;
+      for (i=0;i<l;i++){
+          o.push(x.charCodeAt(i).toString(20));
+      }
+      return o.join('').toUpperCase();
   }
 };
 
@@ -677,6 +715,9 @@ const _API={
     if (__SD3){
       return _API.getViewHi(url,f);
     }
+    else if (__SD5){
+      return _API.getViewFlix(url,f);
+    }
     _API.viewcb=f;
     var uid=++_API.viewid;
     if (_JSAPI.getview(url,uid))
@@ -688,6 +729,168 @@ const _API={
   hi_last_view:{
     view_url:'',
     data:null
+  },
+  getViewFlix:function(url,f){
+    var slug=__AFLIX.getSlug(url);
+    var aid=__AFLIX.getAid(url);
+    var get_ep = __AFLIX.getEp(url);
+    var viewurl = __AFLIX.getUrl(url);
+    var uid=++_API.viewid;
+
+    function runCb(d){
+      if (_API.hi_last_view.data==null){
+        _API.hi_last_view.data=d;
+      }
+      else{
+        for (var k in d){
+          _API.hi_last_view.data[k]=d[k];
+        }
+        _API.hi_last_view.data.status=true;
+        f(JSON.parse(JSON.stringify(_API.hi_last_view.data)),uid);
+      }
+    }
+
+    function getEpServer(d,edat){
+      var load_n=0;
+      console.log(edat);
+      if (edat.sub){
+        load_n++;
+        $a(edat.sub,function(r){
+          if (r.ok){
+            var k=JSON.parse(r.responseText);
+            d.stream_sub_url=k.source;
+          }
+          if (--load_n<1){
+            runCb(d);
+          }
+        });
+      }
+      if (edat.dub){
+        load_n++;
+        $a(edat.dub,function(r){
+          if (r.ok){
+            var k=JSON.parse(r.responseText);
+            d.stream_dub_url=k.source;
+          }
+          if (--load_n<1){
+            runCb(d);
+          }
+        });
+      }
+      if (load_n==0){
+        f({status:false},uid);
+      }
+    }
+
+    if (_API.hi_last_view.view_url==aid){
+      pb.open_ttip(_API.hi_last_view.data);
+      /* Just Load Server */
+      var eps=_API.hi_last_view.data.ep;
+      var active_ep_id=null;
+      _API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index].active=false;
+      for (var i=0;i<eps.length;i++){
+        var s=eps[i];
+        if (get_ep==s.ep){
+          active_ep_id=s;
+          _API.hi_last_view.data.active_ep=active_ep_id;
+          _API.hi_last_view.data.active_ep_index=i;
+          _API.hi_last_view.data.ep[i].active=true;
+          break;
+        }
+      }
+      console.log("CACHED : "+active_ep_id);
+      if (active_ep_id){
+        getEpServer({},active_ep_id);
+        return uid;
+      }
+    }
+    else{
+      _API.hi_last_view.data=null;
+    }
+    _API.hi_last_view.view_url=aid;
+
+    // Get Data
+    if (_API.hi_last_view.data==null){
+      _API.getTooltip(aid,function(d){
+        if (d){
+          pb.open_ttip(d);
+          runCb(d);
+        }else{
+          _API.hi_last_view.view_url='';
+          _API.hi_last_view.data=null;
+          f({status:false},uid);
+        }
+      },url,1);
+    }
+
+    var epurl=
+      '/episodes?id='+enc(slug)+'&c='+__AFLIX.enc(slug)+'&dub=';
+    var ep_data={
+      d:{ep:[]},
+      n:0,
+      active_ep:null
+    };
+    function ep_cb(r,dub){
+      if (r.ok){
+        try{
+          var t=JSON.parse(r.responseText);
+          var l=t.episodes.length;
+          for (var i=0;i<l;i++){
+            var p=t.episodes[i];
+            var s={};
+            if (!ep_data.d.ep[p.number-1]){
+              s.ep=p.number;
+              s.url=viewurl+"#"+s.ep;
+              s.active=(get_ep==s.ep)?true:false;
+              s.filler=false;
+              s.img=p.image;
+              s.title=p.title;
+              if (s.active){
+                ep_data.active_ep=s;
+                ep_data.d.active_ep=ep_data.active_ep;
+                ep_data.d.active_ep_index=p.number-1;
+              }
+              ep_data.d.ep[p.number-1]=s;
+            }
+            else{
+              s=ep_data.d.ep[p.number-1];
+            }
+            if (dub){
+              var surl=slug+'-dub-episode-'+s.ep;
+              var c=__AFLIX.enc(surl);
+              s.dub='/watch/'+surl+'?server=&c='+c;
+            }
+            else{
+              var surl=slug+'-episode-'+s.ep;
+              var c=__AFLIX.enc(surl);
+              s.sub='/watch/'+surl+'?server=&c='+c;
+            }
+          }
+        }catch(e){
+          console.log("EPCBERR: "+e+" -> "+r.responseText);
+        }
+      }
+      if (++ep_data.n>=2){
+        // runCb(ep_data.d);
+        if (ep_data.active_ep){
+          getEpServer(ep_data.d,ep_data.active_ep);
+        }
+        else{
+          f({status:false},uid);
+        }
+      }
+    }
+    // Get Episodes
+    $a(epurl+'false',function(r){
+      // sub
+      ep_cb(r,false);
+    });
+    $a(epurl+'true',function(r){
+      // dub
+      ep_cb(r,true);
+    });
+
+    return uid;
   },
   getViewHi:function(url,f){
     var uid=++_API.viewid;
@@ -919,7 +1122,7 @@ const _API={
   },
 
   /*** FETCH AJAX ***/
-  tooltipFlixParse(jsn){
+  tooltipFlixParse(jsn,isview){
     var o={
       title:'',
       title_jp:'',
@@ -939,16 +1142,22 @@ const _API={
       }
       __AFLIX.setCache(u);
       o.url=__AFLIX.setUrl(u.slug,u.anilistID);
-      o.title=u.title.english;
-      o.title_jp=u.title.romaji;
+      o.title=__AFLIX.getTitle(u);
+      o.title_jp=__AFLIX.getTitle(u,1);
       o.ttid=u.anilistID;
       o.synopsis=stripHtml(u.description);
       o.poster=u.images.medium;
       o.ep=u.episodeNum;
-      o.type=u.type;
-      o.status=u.status;
+      o.type=u.type?u.type:'';
+      o.status=u.status?u.status:'';
       if (u.duration){
         o.duration=u.duration+'MIN';
+      }
+      if(u.bannerImage){
+        o.headimg=u.bannerImage;
+      }
+      if(u.logoart){
+        o.logoimg=u.logoart;
       }
       o.genre=u.genres.join(", ");
       for (var i=1;i<u.genres.length;i++){
@@ -958,6 +1167,37 @@ const _API={
             val:u.genres[i]
           });
         }catch(e){}
+      }
+      if (isview){
+        o.seasons=[];
+        o.related=[];
+        o.recs=[];
+
+        o.info={
+          type:{
+            val:o.type.toLowerCase(),
+            name:o.type,
+          },
+          rating:null,
+          quality:null
+        };
+        o.banner=null;
+        if (u.bannerart){
+          if (u.bannerart.medium){
+            o.banner=u.bannerart.medium;
+          }
+          else if (u.bannerart.large){
+            o.banner=u.bannerart.large;
+          }
+        }
+        if (!o.banner){
+          o.banner=u.bannerImage?u.bannerImage:o.poster;
+        }
+        o.numep=o.ep;
+        delete o.ep;
+        o.stp=0;
+        o.streamtype='';
+        o.url=__AFLIX.setUrl(u.slug,u.anilistID);
       }
       return o;
     }catch(e){
@@ -1006,7 +1246,7 @@ const _API={
     }
     else if (__SD5){
       if (id in __AFLIX.cache){
-        cb(_API.tooltipFlixParse(__AFLIX.cache[id]));
+        cb(_API.tooltipFlixParse(__AFLIX.cache[id],isview));
         return;
       }
       tt_url="/idtoinfo?ids=["+id+"]&y=5550555a525b";
@@ -1028,7 +1268,7 @@ const _API={
           ttid:id
         };
         if (__SD5){
-          cb(_API.tooltipFlixParse(r.responseText));
+          cb(_API.tooltipFlixParse(r.responseText,isview));
           return;
         }
 
@@ -2441,7 +2681,9 @@ const pb={
     vtt.clear();
 
     if (noclean){
-      pb.pb_meta.classList.add('active');
+      if (noclean!==2){
+        pb.pb_meta.classList.add('active');
+      }
     }
     else{
       pb.pb.style.backgroundImage='';
@@ -2926,6 +3168,9 @@ const pb={
           pb.init_video_vidcloud();
         });
       }
+      else if (__SD5){
+        pb.flix_load_video();
+      }
       else{
         /* GET SERVER WAVE-ANIX */
         pb.data.stream_vurl = pb.data.stream_url.hard;
@@ -2946,6 +3191,93 @@ const pb={
         pb.init_video_vidcloud();
       }
     });
+  },
+
+  flix_load_video_url:function(){
+    var u=pb.data.stream_vurl;
+    if (!u){
+      return;
+    }
+    /* Load Player */
+    $a(u,function(r){
+      if (r.ok){
+        var play_data={
+          subs:[],
+          pos:[[0,0],[0,0]]
+        };
+
+        // Parsing Player HTML
+        var d=$n('div','',null,null,r.responseText);
+        var srcscript=d.querySelectorAll('script')[2];
+        var iscript = srcscript.innerText.split('};').shift()+'};';
+
+        // Load Subtitles:
+        (function(){
+          try{
+            var subs=d.querySelectorAll('video#player track');
+            var i,l=subs.length;
+            for (i=0;i<l;i++){
+              var sb=subs[i];
+              var sd={};
+              if (sb.getAttribute('kind')=='captions'){
+                sd.url=sb.getAttribute('id');
+                sd.label=sb.getAttribute('label');
+                sd.label=sd.label?(sd.label.toLowerCase()):'';
+                sd.id=sb.getAttribute('srclang');
+                play_data.subs.push(sd);
+              }
+            }
+          }catch(e){}
+        })();
+
+        // Get M3U8 URL
+        (function(){
+          console.log("RUN SCRIPT\n"+iscript);
+          try{
+            eval(iscript+`
+            play_data.url=source;
+            play_data.pos[0]=[starttime,endtime];
+            `);
+          }catch(e){
+            console.log("Error Eval : "+e);
+          }
+        })();
+
+        // Cleanup
+        d.innerHTML='';
+        d=null;
+
+        // Playing:
+        if (play_data.url){
+          // Set Skip Time
+          pb.data.skip=play_data.pos;
+
+          // Loading Subtitle
+          // TODO
+
+          // Playing Video
+          _JSAPI.videoSetUrl(play_data.url);
+          pb.data.vizm3u8=play_data.url;
+          pb.pb_vid.innerHTML='';
+          pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
+          _API.setMessage(null);
+          pb.init_video_mp4upload(play_data.url);
+        }
+        console.log("PLAYER INFO: "+JSON.stringify(play_data));
+      }
+    });
+  },
+  flix_load_video:function(){
+    pb.data.stream_vurl = pb.data.stream_sub_url;
+    pb.data.streamtype="softsub";
+    if (_API.currentStreamType==2){
+      if (pb.data.stream_dub_url){
+        pb.data.stream_vurl = pb.data.stream_dub_url;
+        pb.data.streamtype="dub";
+      }
+    }
+    pb.updateStreamTypeInfo();
+    pb.flix_load_video_url();
   },
 
   /* view data */
@@ -3012,7 +3344,7 @@ const pb={
                   });
                 }
                 else{
-                  $n('iframe','',{src:d.stream_vurl+"#NOPLAY",frameborder:'0'},pb.pb_vid,'');
+                  $n('iframe','',{src:d.stream_vurl+(__SD5?"":"#NOPLAY"),frameborder:'0'},pb.pb_vid,'');
                 }
               }
             }
@@ -3942,6 +4274,10 @@ const pb={
         var d=pb.data.ep[i];
         var adh='';
         var hl=$n('div',d.active?'playing':'',{action:d.url,arg:pb.tip_value+';1'},pb.pb_episodes.P,special(d.ep)+adh);
+        if (d.img){
+          hl.style.backgroundImage='linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .6)), url('+d.img+')';
+          hl.classList.add('hasbg');
+        }
         if (d.title)
           hl.setAttribute('data-title',d.title);
         if (d.active){
@@ -4009,7 +4345,7 @@ const pb={
       pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
     }
 
-    if (!__SD3){
+    if (!__SD3&&!__SD5){
       pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARDSUB');
       if (pb.data.stream_url.soft){
         pb.pb_settings._s_softsub=$n('div','',{action:'*softsub'},pb.pb_settings.P,'<c>clear</c> SOFTSUB');
@@ -4352,13 +4688,22 @@ const pb={
   malidreq:null,
   malidsave:null,
   malidanime:null,
+  load_open_stat:0,
 
   open:function(uri, ttid, noclean, startpos, malid){
     console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos+" -> "+uri);
     pb.pb_action_streamtype.classList.remove('active');
-    var open_stat=0;
+    pb.load_open_stat=0;
     _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
     pb.malidreq=malid?(malid+''):null;
+
+    if (noclean){
+      pb.pb_meta.classList.add('active');
+    }
+    else{
+      pb.pb.style.backgroundImage='';
+      pb.pb_meta.classList.remove('active');
+    }
 
     /* Init Preloaded Data */
     if (pb.preload_episode!=null){
@@ -4387,7 +4732,7 @@ const pb={
 
     pb.preload_episode=null;
     var uid=_API.getView(uri,function(d,u){
-      open_stat=1;
+      pb.load_open_stat=1;
       if (uid==u && d.status){
         console.log("GETVIEW: "+JSON.stringify(d,null,'\t'));
         pb.data=d;
@@ -4401,51 +4746,58 @@ const pb={
       pb.url_value=uri;
       pb.startpos_val=(startpos!==undefined)?(startpos?parseInt(startpos):0):0;
       console.log("ATVLOG OPENPB => POS="+pb.startpos_val);
-      if (!noclean && (!__SD3)){
-        _API.getTooltip(ttid,function(d){
-          if (d){
-            if (!ttid){
-              pb.tip_value=ttid=d.ttid;
-            }
-            if (open_stat==0){
-              pb.pb_title.innerHTML=tspecial(d.title);
-              pb.pb_title.setAttribute('jp',d.title_jp?d.title_jp:d.title)
-              var addb='';
-              try{
-                var bb='';
-                if (d.quality){
-                  bb+='<span>'+special(d.quality)+'</span>';
-                }
-                if (d.rating){
-                  bb+='<span>'+special(d.rating)+'</span>';
-                }
-                if(bb){
-                  addb='<b>'+bb+'</b>';
-                }
-              }catch(e){}
-              pb.pb_desc.innerHTML=addb+special(d.synopsis);
-              pb.pb_meta.classList.add('active');
-              try{
-                pb.menu_clear(pb.pb_genres);
-                for (var i=0;i<d.genres.length;i++){
-                  $n('div','',0,pb.pb_genres.P,special(d.genres[i].name));
-                }
-              }catch(e){}
-            }
-          }
-        }, uri);
+      if (!noclean && (!__SD3) &&(!__SD5)){
+        _API.getTooltip(ttid,pb.open_ttip, uri);
       }
-      pb.reset(0,noclean);
+      pb.reset(0,((__SD3||__SD5))?2:noclean);
       _API.setKey(function(ke){
         if (ke==KBACK){
           uid=-1;
-          open_stat=3;
+          pb.load_open_stat=3;
           pb.reset(1,0);
           // _JSAPI.appQuit();
         }
       });
     }
     return uid;
+  },
+  open_ttip:function(d){
+    if (d){
+      if (!pb.tip_value){
+        pb.tip_value=d.ttid;
+      }
+      if (pb.load_open_stat==0){
+        pb.pb_title.innerHTML=tspecial(d.title);
+        pb.pb_title.setAttribute('jp',d.title_jp?d.title_jp:d.title)
+        pb.pb_meta.classList.add('active');
+        var addb='';
+        try{
+          var bb='';
+          if (d.quality){
+            bb+='<span>'+special(d.quality)+'</span>';
+          }
+          if (d.rating){
+            bb+='<span>'+special(d.rating)+'</span>';
+          }
+          if(bb){
+            addb='<b>'+bb+'</b>';
+          }
+        }catch(e){}
+        pb.pb_desc.innerHTML=addb+special(d.synopsis);
+        try{
+          pb.menu_clear(pb.pb_genres);
+          for (var i=0;i<d.genres.length;i++){
+            $n('div','',0,pb.pb_genres.P,special(d.genres[i].name));
+          }
+        }catch(e){}
+        if (d.banner){
+          pb.pb.style.backgroundImage='url('+(d.banner)+')';
+        }
+        else if (d.poster){
+          pb.pb.style.backgroundImage='url('+(d.poster)+')';
+        }
+      }
+    }
   }
 };
 
@@ -4550,8 +4902,8 @@ const home={
           var u=t[i];
           __AFLIX.setCache(u);
           d.url=__AFLIX.setUrl(u.slug,u.anilistID);
-          d.title=u.title.english;
-          d.title_jp=u.title.romaji;
+          d.title=__AFLIX.getTitle(u);
+          d.title_jp=__AFLIX.getTitle(u,1);
           d.tip=u.anilistID;
           d.poster=u.images.medium;
           d.epavail=d.ep=u.episodeNum;
@@ -4559,7 +4911,9 @@ const home={
           if (u.duration){
             d.duration=u.duration+'MIN';
           }
-          rd.push(d);
+          if (u.status!='NOT_YET_RELEASED'){
+            rd.push(d);
+          }
         }catch(e2){}
       }
     }catch(e){
@@ -4886,8 +5240,8 @@ const home={
               var u=t[i];
               __AFLIX.setCache(u);
               d.url=__AFLIX.setUrl(u.slug,u.anilistID);
-              d.title=u.title.english;
-              d.title_jp=u.title.romaji;
+              d.title=__AFLIX.getTitle(u);
+              d.title_jp=__AFLIX.getTitle(u,1);
               d.tip=u.anilistID;
               d.synopsis=stripHtml(u.description);
               d.poster=u.images.medium;
@@ -4907,7 +5261,9 @@ const home={
               if (u.duration){
                 d.duration=u.duration+'MIN';
               }
-              td.push(d);
+              if (u.status!='NOT_YET_RELEASED'){
+                td.push(d);
+              }
             }catch(e2){
               console.log("ERR2-SD5-HOMEPARSE: "+e);
             }
@@ -7175,6 +7531,9 @@ const _MAL={
     _MAL.pop.var.play.c=tcurr;
     _MAL.pop.var.play.d=tdur;
     _MAL.pop.var.play.e=currep;
+
+    // headimg
+    $('malview_info').style.backgroundImage=((d&&d.logoimg)?('url('+d.logoimg+')'):'');
 
     _MAL.preview_detail(d);
 
