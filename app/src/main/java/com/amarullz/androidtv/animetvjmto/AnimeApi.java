@@ -259,7 +259,7 @@ public class AnimeApi extends WebViewClient {
   }
 
   public void setSourceDomain(int i){
-    if (i>=1 && i<=4) {
+    if (i>=1 && i<Conf.SOURCE_DOMAINS.length) {
       SharedPreferences.Editor ed = pref.edit();
       ed.putInt("source-domain", i);
       ed.apply();
@@ -433,7 +433,7 @@ public class AnimeApi extends WebViewClient {
       return super.shouldInterceptRequest(view, request);
     }
     else if (accept.startsWith("image/")) return badRequest;
-    else if (host.equals(Conf.SOURCE_DOMAIN1)) {
+    else if (host.equals(Conf.SOURCE_DOMAINS[1])) {
       if (Objects.equals(uri.getPath(), "/__inject.js")){
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/9anime_inject.js");
@@ -443,7 +443,7 @@ public class AnimeApi extends WebViewClient {
       }
       return defaultRequest(view, request, "/__inject.js", "text/html");
     }
-    else if (host.equals(Conf.SOURCE_DOMAIN2)) {
+    else if (host.equals(Conf.SOURCE_DOMAINS[2])) {
       if (Objects.equals(uri.getPath(), "/__inject.js")) {
         Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
         return assetsRequest("inject/anix_inject.js");
@@ -497,7 +497,7 @@ public class AnimeApi extends WebViewClient {
                 .enableQuic(true)
                 .enableBrotli(true)
                 .enablePublicKeyPinningBypassForLocalTrustAnchors(false)
-                .addQuicHint(Conf.SOURCE_DOMAIN1, 443, 443)
+                .addQuicHint(Conf.SOURCE_DOMAINS[1], 443, 443)
                 .addQuicHint(Conf.STREAM_DOMAIN2, 443, 443);
         cronetClient=myBuilder.build();
       }catch (Exception ignored){
@@ -553,6 +553,12 @@ public class AnimeApi extends WebViewClient {
       req.url(url);
     }
     public void addHeader(String name, String val){
+      /* don't send any X-Requested-With */
+      if (name.equalsIgnoreCase("X-Requested-With")){
+        if (!val.equalsIgnoreCase("XMLHttpRequest")){
+          return;
+        }
+      }
       if (req!=null) {
         req.addHeader(name, val);
       }
@@ -672,8 +678,8 @@ public class AnimeApi extends WebViewClient {
   @Override
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
-    return (!url.startsWith("https://"+Conf.SOURCE_DOMAIN1+"/")&&!url.startsWith(
-        "https://"+Conf.SOURCE_DOMAIN2+"/"));
+    return (!url.startsWith("https://"+Conf.SOURCE_DOMAINS[1]+"/")&&!url.startsWith(
+        "https://"+Conf.SOURCE_DOMAINS[2]+"/"));
   }
 
   public void pauseView(boolean pause){

@@ -322,7 +322,19 @@ public class AnimeView extends WebViewClient {
   @Override
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
-    return (!url.startsWith("https://"+Conf.SOURCE_DOMAIN1+"/")&&!url.startsWith("https://"+Conf.SOURCE_DOMAIN2+"/"));
+    return (
+        !url.startsWith("https://"+Conf.SOURCE_DOMAINS[1]+"/")&&
+            !url.startsWith("https://"+Conf.SOURCE_DOMAINS[2]+"/")
+    );
+  }
+
+  public boolean isSourceDomain(String host){
+    for (int i=1;i<Conf.SOURCE_DOMAINS.length;i++){
+      if (host.equals(Conf.SOURCE_DOMAINS[i])){
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -334,11 +346,7 @@ public class AnimeView extends WebViewClient {
     String accept = request.getRequestHeaders().get("Accept");
 
     if (host==null||accept==null) return aApi.badRequest;
-    if (host.equals(Conf.SOURCE_DOMAIN1)
-        ||host.equals(Conf.SOURCE_DOMAIN2)
-        ||host.equals(Conf.SOURCE_DOMAIN3)
-        ||host.equals(Conf.SOURCE_DOMAIN4)) {
-      String uDomain=host;
+    if (isSourceDomain(host)) {
       String path=uri.getPath();
       if (path==null)
         path="/";
@@ -348,7 +356,7 @@ public class AnimeView extends WebViewClient {
             /* dev web */
             try {
               Log.d(_TAG, "VIEW GET " + url + " = " + accept);
-              String newurl = url.replace("https://"+uDomain,"http://192" +
+              String newurl = url.replace("https://"+host,"http://192" +
                   ".168.100.245");
               AnimeApi.Http http=new AnimeApi.Http(newurl);
               for (Map.Entry<String, String> entry :
@@ -367,7 +375,7 @@ public class AnimeView extends WebViewClient {
       else if (path.startsWith("/__proxy/")){
         /* Proxy */
         try {
-          String proxy_url=url.replace("https://"+uDomain+"/__proxy/","");
+          String proxy_url=url.replace("https://"+host+"/__proxy/","");
           String method=request.getMethod();
           boolean isPost=method.equals("POST")||method.equals("PUT");
           boolean isPostBody=false;

@@ -4,11 +4,14 @@ const body=document.body;
 const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
 const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
 const __SD3=((__SD==3) || (__SD==4))?true:false;
+const __SD5=(__SD==5);
 
 const __SOURCE_NAME=[
-  'Anime-Wave', 'Anix', 'Hi-Anime', 'Anime-WatchTV'
+  'Anime-Wave', 'Anix', 'Hi-Anime', 'Anime-WatchTV', 'Animeflix'
 ]
+
 const __SD_NAME = __SD+"/"+(__SOURCE_NAME[__SD-1]);
+
 /* getId */
 function $(i){
   return document.getElementById(i);
@@ -144,6 +147,14 @@ function $imgcdn(src){
   return src;
 }
 
+function stripHtml(s){
+  var d=$n('div','',null,null,s);
+  s=d.textContent;
+  d.innerHTML='';
+  d=null;
+  return s;
+}
+
 /* new element */
 function $n(t,c,a,p,h){
   var l=document.createElement(t);
@@ -252,6 +263,27 @@ function md2html(text){
     .replace(/(?:_)([^_<\n]+)(?:_)/g, "<i>$1</i>")
     .replace(/(?:`)([^`<\n]+)(?:`)/g, "<t>$1</t>")
 }
+
+/**************************** ANIMEFLIX ***************************/
+const __AFLIX = {
+  cache:{},
+  slug_cache:{},
+  setCache:function(u){
+    try{
+      __AFLIX.cache[u.anilistID]=JSON.stringify(u);
+      __AFLIX.slug_cache[u.slug]=u.anilistID;
+    }catch(e){};
+  },
+  setUrl:function(slug,alid){
+    return slug+"/"+alid;
+  },
+  getSlug:function(url){
+    return url.split("/")[0];
+  },
+  getAid:function(url){
+    return url.split("/")[1];
+  }
+};
 
 /**************************** GLOBAL LISTENERS ***************************/
 /* Key event handler */
@@ -388,6 +420,9 @@ const _API={
         var url_parse=ux[1].split('#');
         return url_parse[0];
       }
+    }
+    else if (__SD5){
+      return url;
     }
     else{
       var url_parse=url.split('/');
@@ -884,10 +919,60 @@ const _API={
   },
 
   /*** FETCH AJAX ***/
+  tooltipFlixParse(jsn){
+    var o={
+      title:'',
+      title_jp:'',
+      synopsis:'',
+      genres:[],
+      quality:null,
+      ep:0,
+      rating:'',
+      ttid:''
+    };
+    try{
+      var da=JSON.parse(jsn);
+      console.log("JSON : "+jsn);
+      var u=('slug' in da)?da:da[0];
+      if (!u){
+        return null;
+      }
+      __AFLIX.setCache(u);
+      o.url=__AFLIX.setUrl(u.slug,u.anilistID);
+      o.title=u.title.english;
+      o.title_jp=u.title.romaji;
+      o.ttid=u.anilistID;
+      o.synopsis=stripHtml(u.description);
+      o.poster=u.images.medium;
+      o.ep=u.episodeNum;
+      o.type=u.type;
+      o.status=u.status;
+      if (u.duration){
+        o.duration=u.duration+'MIN';
+      }
+      o.genre=u.genres.join(", ");
+      for (var i=1;i<u.genres.length;i++){
+        try{
+          o.genres.push({
+            name:u.genres[i],
+            val:u.genres[i]
+          });
+        }catch(e){}
+      }
+      return o;
+    }catch(e){
+      console.log("ERR "+e);
+    }
+    return null;
+  },
+
   getTooltip:function(id, cb, url, isview){
     if (!id && url){
       if (__SD3){
         id=home.hi_tipurl(url);
+      }
+      else if (__SD5){
+        id=__AFLIX.getAid(url);
       }
       else{
         // No-ttid fix
@@ -919,25 +1004,35 @@ const _API={
     if (__SD3){
       tt_url=id;
     }
+    else if (__SD5){
+      if (id in __AFLIX.cache){
+        cb(_API.tooltipFlixParse(__AFLIX.cache[id]));
+        return;
+      }
+      tt_url="/idtoinfo?ids=["+id+"]&y=5550555a525b";
+      console.log("TTURL = "+tt_url);
+    }
     else{
       tt_url="https://"+__DNS+"/ajax/anime/tooltip/"+id+"?"+$tick();
     }
     $a(tt_url,function(r){
-
       if (r.ok){
-        var d=$n('div','',0,0,r.responseText);
         var o={
           title:'',
           title_jp:'',
           synopsis:'',
           genres:[],
-          rating:null,
           quality:null,
           ep:0,
           rating:'',
           ttid:id
         };
+        if (__SD5){
+          cb(_API.tooltipFlixParse(r.responseText));
+          return;
+        }
 
+        var d=$n('div','',0,0,r.responseText);
         if (__SD3){
           var c=d.querySelector('.anis-content');
           var et = c.querySelector('h2.film-name');
@@ -4441,12 +4536,48 @@ const home={
     return rd;
   },
 
+  flix_parse:function(v){
+    var rd=[];
+    try{
+      var t=JSON.parse(v);
+      if ('trending' in t){
+        t=t.trending;
+      }
+      var l=t.length;
+      for (var i=0;i<l;i++){
+        try{
+          var d={};
+          var u=t[i];
+          __AFLIX.setCache(u);
+          d.url=__AFLIX.setUrl(u.slug,u.anilistID);
+          d.title=u.title.english;
+          d.title_jp=u.title.romaji;
+          d.tip=u.anilistID;
+          d.poster=u.images.medium;
+          d.epavail=d.ep=u.episodeNum;
+          d.type=u.type;
+          if (u.duration){
+            d.duration=u.duration+'MIN';
+          }
+          rd.push(d);
+        }catch(e2){}
+      }
+    }catch(e){
+      console.log("ERR: "+e);
+    }
+    return rd;
+  },
+
   recent_parse:function(g,v){
     var rd=[];
 
     if (__SD3){
       // Hi Anime
       rd=home.hi_parse(v);
+    }
+    else if (__SD5){
+      // Hi Anime
+      rd=home.flix_parse(v);
     }
     else if (__SD==1){
       // wave
@@ -4531,7 +4662,7 @@ const home={
     if (rd&&rd.length){
       for (var i=0;i<rd.length;i++){
         var d=rd[i];
-        if (g==home.home_dub){
+        if (g==home.home_dub && !__SD5){
           if (d.epdub){
             d.ep=d.epdub;
           }
@@ -4566,7 +4697,7 @@ const home={
           hl._ep=$n('span','info',null,hl,infotxt);
         }
       }
-      var PGSZ=(__SD3)?60:30;
+      var PGSZ=(__SD3||__SD5)?60:30;
       while (g.P.childElementCount>PGSZ){
         g._spre.push(g.P.firstElementChild.nextElementSibling);
         g.P.removeChild(g.P.firstElementChild.nextElementSibling);
@@ -4582,11 +4713,14 @@ const home={
   recent_load:function(g){
     g._onload=1;
     var load_page=g._page;
+    if (__SD5){
+      load_page--;
+    }
     console.log('RECENT LOAD = '+g._ajaxurl+''+load_page);
     $a(g._ajaxurl+''+load_page,function(r){
       if (r.ok){
         try{
-          if (__SD3){
+          if (__SD3||__SD5){
             home.recent_parse(g,r.responseText);
           }
           else{
@@ -4742,6 +4876,46 @@ const home={
           td.push(d);
         }
       }
+      else if (__SD5){
+        try{
+          var t=JSON.parse(v);
+          var l=t.length;
+          for (var i=0;i<l;i++){
+            try{
+              var d={};
+              var u=t[i];
+              __AFLIX.setCache(u);
+              d.url=__AFLIX.setUrl(u.slug,u.anilistID);
+              d.title=u.title.english;
+              d.title_jp=u.title.romaji;
+              d.tip=u.anilistID;
+              d.synopsis=stripHtml(u.description);
+              d.poster=u.images.medium;
+              if (u.bannerart){
+                if (u.bannerart.medium){
+                  d.poster=u.bannerart.medium;
+                }
+                else if (u.bannerart.large){
+                  d.poster=u.bannerart.large;
+                }
+              }
+              else if(u.bannerImage){
+                d.poster=u.bannerImage;
+              }
+              d.epavail=d.ep=u.episodeNum;
+              d.type=u.type;
+              if (u.duration){
+                d.duration=u.duration+'MIN';
+              }
+              td.push(d);
+            }catch(e2){
+              console.log("ERR2-SD5-HOMEPARSE: "+e);
+            }
+          }
+        }catch(e){
+          console.log("ERR2-SD1-HOMEPARSE: "+e);
+        }
+      }
       else if (__SD==1){
         // wave
         var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
@@ -4814,7 +4988,7 @@ const home={
         };
 
         var hl=$n('div','fullimg',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
-        hl._img=$n('img','',{loading:'lazy' ,src:__SD3?$img(d.poster):'' },hl,'');
+        hl._img=$n('img','',{loading:'lazy' ,src:(__SD3||__SD5)?$img(d.poster):'' },hl,'');
         hl._img.onload=function(){
           this.classList.add('loaded');
         };
@@ -4822,7 +4996,7 @@ const home={
         hl._view=$n('span','infovalue',null,hl._viewbox,'');
         hl._title=$n('h4','',{jp:d.title_jp?d.title_jp:d.title},hl._view,tspecial(d.title));
 
-        if (__SD3){
+        if (__SD3||__SD5){
           hl._desc=$n('span','desc',null,hl._view,special(d.synopsis));
         }
         else{
@@ -4854,7 +5028,7 @@ const home={
 
   home_load:function(){
     home.home_onload=1;
-    $a('/home',function(r){
+    $a(__SD5?'/airing':'/home',function(r){
       if (r.ok){
         try{
           home.home_parser(r.responseText);
@@ -4942,6 +5116,22 @@ const home={
       home.home_trending.setAttribute('list-title','🏆 Top Airing');
       home.home_random.setAttribute('list-title','🎥 Movie');
     }
+    else if (__SD5){
+      // hianime
+      home.home_recent._ajaxurl='/trending?page=';
+      home.home_dub._ajaxurl='/popular?page=';
+      // home.home_trending._ajaxurl='/trending?page=';
+      home.home_random._ajaxurl='/movies?page=';
+      
+      home.home_slide.setAttribute('list-title','🛰️ Airing');
+      home.home_recent.setAttribute('list-title','⭐ Trending');
+      home.home_dub.setAttribute('list-title','❤️ Popular');
+      home.home_random.setAttribute('list-title','🎥 Movie');
+
+      home.home_trending.style.display='none !important';
+      home.home_trending.innerHTML='';
+      home.home_trending.className='';
+    }
     else{
       // wave & anix
       home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
@@ -4951,7 +5141,9 @@ const home={
     }
     home.recent_init(home.home_recent);
     home.recent_init(home.home_dub);
-    home.recent_init(home.home_trending);
+    if (!__SD5){
+      home.recent_init(home.home_trending);
+    }
     home.recent_init(home.home_random);
 
     home.home_load();
@@ -4983,10 +5175,12 @@ const home={
     
 
     home.menus.push(home.home_dub);
-    home.menus.push(home.home_trending);
+    if (!__SD5){
+      home.menus.push(home.home_trending);
+    }
     home.menus.push(home.home_random);
 
-    if (pb.cfg_data.nonjapan && (!__SD3)){
+    if (pb.cfg_data.nonjapan && (!__SD3) && (!__SD5)){
       home.home_chinese.className='home_list pb_menu';
       home.home_chinese.style.display='';
       home.home_chinese._ajaxurl='/ajax/home/widget/updated-china?page=';
@@ -6153,6 +6347,7 @@ const _MAL={
           id
           progress
           media{
+            id
             title{
               romaji
               english
@@ -6555,6 +6750,20 @@ const _MAL={
     var id='';
     if (isanilist){
       id=d.id;
+
+      if (__SD5){
+        _API.getTooltip(d.media.id+'',function(r){
+          if (r){
+            d.srcanime=[r];
+            cb(d.srcanime);
+            return;
+          }
+          d.srcanime=[];
+          cb(d.srcanime);
+        });
+        return;
+      }
+      
       var kw=d.media.title.romaji;
       if (__SD3){
         kw=d.media.title.english;
@@ -7038,8 +7247,8 @@ const _MAL={
       rating:''
     };
     console.log("Popup = "+JSON.stringify([url, img, titl, ttid, ep, tcurr, tdur,arg,malid]));
-    if ((url_parse.length>=5)||(__SD3)){
-      if((url_parse.length==6)&&(!__SD3)){
+    if ((url_parse.length>=5)||__SD3||__SD5){
+      if((url_parse.length==6)&&(!__SD3)&&(!__SD5)){
         url_parse.pop();
         url=url_parse.join('/');
       }

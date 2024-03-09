@@ -1,21 +1,3 @@
-# KICKASSANIME
-ANIME INFO:
-
-`https://www1.kickassanime.mx/api/show/my-instant-death-ability-is-so-overpowered-no-one-in-this-other-world-stands-a-chance-against-me-7cdb`
-
-
-`https://www1.kickassanime.mx/api/show/my-instant-death-ability-is-so-overpowered-no-one-in-this-other-world-stands-a-chance-against-me-7cdb/episodes?ep=10&lang=ja-JP`
-
-`https://www1.kickassanime.mx/api/show/the-weakest-tamer-began-a-journey-to-pick-up-trash-ce7c/ep-9-254017`
-
-
-`https://www1.kickassanime.mx/api/show/the-weakest-tamer-began-a-journey-to-pick-up-trash-ce7c/episodes?lang=en-US`
-
-```
-https://www1.kickassanime.mx/api/show/the-weakest-tamer-began-a-journey-to-pick-up-trash-ce7c/episode/ep-9-254017
-                                                                                                      ep-9-slug
-```
-
 # ANIMEFLIX
 
 ## Important urls:
@@ -29,6 +11,11 @@ https://api.animeflix.dev/watch/sousou-no-frieren-episode-1?server=&c=5f5b5h5f5b
 https://api.animeflix.dev/player?id=sousou-no-frieren-1-source&server=gogo&servers=0011&position=undefined
 
 https://api.animeflix.dev/episodes?id=oroka-na-tenshi-wa-akuma-to-odoru&dub=false&c=5b5e5b574h255a4h255g515a5f5455255j4h254h575h594h255g5b255b505b5e5h
+
+
+Search:
+https://api.animeflix.dev/info/?query=Game&limit=15&filters={%22type%22:%22[\%22TV\%22]%22,%22genre%22:%22[\%22Comedy\%22,\%22Romance\%22]%22}&k=3b4h59
+Filters--> {"type":"["TV"]","genre":"["Comedy","Romance"]"}
 ```
 
 ### Encode & Decode
@@ -91,6 +78,8 @@ https://api.animeflix.dev/idtoinfo?ids=[163076,151807,164244,155963,20447,21507,
 
 
 https://api.animeflix.dev/idtoinfo?ids=[21,137908,143866,153518,155963,162144,163076,166531,166610,168374]&y=5550555a525b
+https://api.animeflix.dev/idtoinfo?ids=[393582593]&y=5550555a525b
+
 
 # Get Mal List
 https://api.animeflix.dev/maluser?username=amarullz
@@ -101,6 +90,11 @@ https://api.animeflix.dev/maluser?username=amarullz
 5a n
 52 f
 5b o
+
+AniSkip:
+https://api.aniskip.com/v2/skip-times/52701/5?types[]=op&types[]=ed&episodeLength=
+
+https://api.aniskip.com/v2/skip-times/<MAL-ID>/<EP-NUM>?types[]=op&types[]=ed&episodeLength=
 ```
 
 ### M3U8
@@ -134,6 +128,27 @@ https://v2.gogocden.site/sasaki-to-pi-chan-10/1080p.m3u8?k=UTPw89rbPKdl_5LsF-g9K
 
 $a('/__proxy/https://v2.gogocden.site/sasaki-to-pi-chan-10/1080p.m3u8',function(r){ console.log(r); });
 ```
+
+---------------------------------------------------------------------------------------
+
+# KICKASSANIME
+ANIME INFO:
+
+`https://www1.kickassanime.mx/api/show/my-instant-death-ability-is-so-overpowered-no-one-in-this-other-world-stands-a-chance-against-me-7cdb`
+
+
+`https://www1.kickassanime.mx/api/show/my-instant-death-ability-is-so-overpowered-no-one-in-this-other-world-stands-a-chance-against-me-7cdb/episodes?ep=10&lang=ja-JP`
+
+`https://www1.kickassanime.mx/api/show/the-weakest-tamer-began-a-journey-to-pick-up-trash-ce7c/ep-9-254017`
+
+
+`https://www1.kickassanime.mx/api/show/the-weakest-tamer-began-a-journey-to-pick-up-trash-ce7c/episodes?lang=en-US`
+
+```
+https://www1.kickassanime.mx/api/show/the-weakest-tamer-began-a-journey-to-pick-up-trash-ce7c/episode/ep-9-254017
+                                                                                                      ep-9-slug
+```
+
 
 ---------------------------------------------------------------------------------------
 # HI-ANIME:

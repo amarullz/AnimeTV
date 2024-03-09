@@ -1,39 +1,33 @@
 package com.amarullz.androidtv.animetvjmto;
 
 public class Conf {
-  // Translate API:
-  // https://api.mymemory.translated.net/get?q=Hello%20World!&langpair=en|id
-  // public static final String DOMAIN = "9anime.to";
   public static String DOMAIN = "aniwave.to";
-  public static String SOURCE_DOMAIN1 = "aniwave.to";
-  public static String SOURCE_DOMAIN2 = "anix.to";
-  public static String SOURCE_DOMAIN3 = "hianime.to";
-  public static String SOURCE_DOMAIN4 = "aniwatchtv.to";
+  public static String[] SOURCE_DOMAINS={
+      "aniwave.to", /* default */
+      "aniwave.to",
+      "anix.to",
+      "hianime.to",
+      "aniwatchtv.to",
+      "api.animeflix.dev"
+  };
+//  public static String SOURCE_DOMAIN1 = "aniwave.to";
+//  public static String SOURCE_DOMAIN2 = "anix.to";
+//  public static String SOURCE_DOMAIN3 = "hianime.to";
+//  public static String SOURCE_DOMAIN4 = "aniwatchtv.to";
+//  public static String SOURCE_DOMAIN5 = "aniwatchtv.to";
   public static int SOURCE_DOMAIN = 1;
 
   public static void updateSource(int num){
     SOURCE_DOMAIN=num;
-    if (num==1){
-      DOMAIN=SOURCE_DOMAIN1;
-    }
-    else if (num==2) {
-      DOMAIN=SOURCE_DOMAIN2;
-    }
-    else if (num==3) {
-      DOMAIN=SOURCE_DOMAIN3;
-    }
-    else{
-      DOMAIN=SOURCE_DOMAIN4;
+    if (num>0 && num<SOURCE_DOMAINS.length){
+      SOURCE_DOMAINS[0]=DOMAIN=SOURCE_DOMAINS[num];
     }
   }
   public static String getDomain(){
-    if (SOURCE_DOMAIN==1)
-      return SOURCE_DOMAIN1;
-    else if (SOURCE_DOMAIN==2)
-      return SOURCE_DOMAIN2;
-    else if (SOURCE_DOMAIN==3)
-      return SOURCE_DOMAIN3;
-    return SOURCE_DOMAIN4;
+    if (SOURCE_DOMAIN>0 && SOURCE_DOMAIN<SOURCE_DOMAINS.length){
+      return SOURCE_DOMAINS[SOURCE_DOMAIN];
+    }
+    return DOMAIN;
   }
 
 
