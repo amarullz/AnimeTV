@@ -3169,7 +3169,9 @@ const pb={
         });
       }
       else if (__SD5){
-        pb.flix_load_video();
+        pb.flix_load_video(pb.data, true, function(){
+          pb.flix_play_video();
+        });
       }
       else{
         /* GET SERVER WAVE-ANIX */
@@ -3193,8 +3195,8 @@ const pb={
     });
   },
 
-  flix_load_video_url:function(){
-    var u=pb.data.stream_vurl;
+  flix_load_video_url:function(dd,loadss,cb){
+    var u=dd.stream_vurl;
     if (!u){
       return;
     }
@@ -3213,21 +3215,23 @@ const pb={
 
         // Load Subtitles:
         (function(){
-          try{
-            var subs=d.querySelectorAll('video#player track');
-            var i,l=subs.length;
-            for (i=0;i<l;i++){
-              var sb=subs[i];
-              var sd={};
-              if (sb.getAttribute('kind')=='captions'){
-                sd.url=sb.getAttribute('id');
-                sd.label=sb.getAttribute('label');
-                sd.label=sd.label?(sd.label.toLowerCase()):'';
-                sd.id=sb.getAttribute('srclang');
-                play_data.subs.push(sd);
+          if (loadss){
+            try{
+              var subs=d.querySelectorAll('video#player track');
+              var i,l=subs.length;
+              for (i=0;i<l;i++){
+                var sb=subs[i];
+                var sd={};
+                if (sb.getAttribute('kind')=='captions'){
+                  sd.url=sb.getAttribute('id');
+                  sd.label=sb.getAttribute('label');
+                  sd.label=sd.label?(sd.label.toLowerCase()):'';
+                  sd.id=sb.getAttribute('srclang');
+                  play_data.subs.push(sd);
+                }
               }
-            }
-          }catch(e){}
+            }catch(e){}
+          }
         })();
 
         // Get M3U8 URL
@@ -3250,34 +3254,39 @@ const pb={
         // Playing:
         if (play_data.url){
           // Set Skip Time
-          pb.data.skip=play_data.pos;
+          dd.skip=JSON.parse(JSON.stringify(play_data.pos));
 
           // Loading Subtitle
           // TODO
 
-          // Playing Video
-          _JSAPI.videoSetUrl(play_data.url);
-          pb.data.vizm3u8=play_data.url;
-          pb.pb_vid.innerHTML='';
-          pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
-          _API.setMessage(null);
-          pb.init_video_mp4upload(play_data.url);
+          // Save Video Data
+          dd.play_data=play_data;
+          dd.vizm3u8=pb.data.play_data.url;
+
+          // Run Callback
+          cb();
         }
         console.log("PLAYER INFO: "+JSON.stringify(play_data));
       }
     });
   },
-  flix_load_video:function(){
-    pb.data.stream_vurl = pb.data.stream_sub_url;
-    pb.data.streamtype="softsub";
+  flix_play_video:function(){
+    pb.pb_vid.innerHTML='';
+    pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
+    _API.setMessage(null);
+    // _JSAPI.videoSetUrl(pb.data.play_data.url);
+    pb.init_video_mp4upload(pb.data.play_data.url);
+  },
+  flix_load_video:function(dd,loadss,cb){
+    dd.stream_vurl = dd.stream_sub_url;
+    dd.streamtype="softsub";
     if (_API.currentStreamType==2){
-      if (pb.data.stream_dub_url){
-        pb.data.stream_vurl = pb.data.stream_dub_url;
-        pb.data.streamtype="dub";
+      if (dd.stream_dub_url){
+        dd.stream_vurl = dd.stream_dub_url;
+        dd.streamtype="dub";
       }
     }
-    pb.updateStreamTypeInfo();
-    pb.flix_load_video_url();
+    pb.flix_load_video_url(dd,loadss,cb);
   },
 
   /* view data */
@@ -3321,7 +3330,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (!pb.cfg_data.html5player){
+              if (!pb.cfg_data.html5player&&!__SD5){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -3488,7 +3497,11 @@ const pb={
         }
         if (sel_id>-1){
           var epd=pb.data.ep[sel_id];
-          pb.action_handler(epd.url,';1');
+          action_value=epd.url;
+          if (__SD3||__SD5){
+            action_value='>'+epd.url;
+          }
+          pb.action_handler(action_value,';1');
         }
       }
     }
@@ -3498,13 +3511,17 @@ const pb={
   action_handler:function(action,arg){
     if (!action) return false;
     console.log("action_handler -> "+action+" / "+arg);
-    if (action.startsWith("http")||(action.startsWith("/")&&(__SD3))){
+    if (action.startsWith("http")||action.startsWith(">")){
       var args=[0,0,0];
       if (arg)
         args=arg.split(';');
       var startpos=0;
       if (args.length>=3) startpos=parseInt(args[2]);
-      pb.open(action, args[0], parseInt(args[1]), startpos);
+      var url=action;
+      if (action.startsWith(">")){
+        url=action.substring(1);
+      }
+      pb.open(url, args[0], parseInt(args[1]), startpos);
       return true;
     } 
     else if (action.startsWith("!")){
@@ -4273,7 +4290,11 @@ const pb={
       for (var i=start;((i<pb.data.ep.length)&&(i<start+paging_sz));i++){
         var d=pb.data.ep[i];
         var adh='';
-        var hl=$n('div',d.active?'playing':'',{action:d.url,arg:pb.tip_value+';1'},pb.pb_episodes.P,special(d.ep)+adh);
+        var action_value=d.url;
+        if (__SD3||__SD5){
+          action_value='>'+d.url;
+        }
+        var hl=$n('div',d.active?'playing':'',{action:action_value,arg:pb.tip_value+';1'},pb.pb_episodes.P,special(d.ep)+adh);
         if (d.img){
           hl.style.backgroundImage='linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .6)), url('+d.img+')';
           hl.classList.add('hasbg');
@@ -4612,7 +4633,11 @@ const pb={
         try{
           d.poster=$imgcdn(d.poster);
         }catch(e4){}
-        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_related.P,'');
+        var action_value=d.url;
+        if (__SD3||__SD5){
+          action_value='>'+d.url;
+        }
+        var hl=$n('div','',{action:action_value,arg:(d.tip?d.tip:'')+';0'},pb.pb_related.P,'');
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
       }
@@ -4632,7 +4657,11 @@ const pb={
         try{
           d.poster=$imgcdn(d.poster);
         }catch(e4){}
-        var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs.P,'');
+        var action_value=d.url;
+        if (__SD3||__SD5){
+          action_value='>'+d.url;
+        }
+        var hl=$n('div','',{action:action_value,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs.P,'');
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
       }
@@ -7351,7 +7380,7 @@ const _MAL={
         epsel=_MAL.pop.var.ep;
       }
 
-      openurl+=(__SD3)?('#'+epsel):('/ep-'+epsel);
+      openurl+=(__SD3||__SD5)?('#'+epsel):('/ep-'+epsel);
 
       console.log("MAL Open Anime = "+openurl);
       _MAL.popup_close();
