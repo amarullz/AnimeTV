@@ -18,6 +18,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -38,8 +39,20 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.datasource.TransferListener;
+
+import com.devbrackets.android.exomedia.core.source.data.DataSourceFactoryProvider;
+import com.devbrackets.android.exomedia.core.video.scale.MatrixManager;
 import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
-import com.devbrackets.android.exomedia.ui.widget.VideoView;
+import com.devbrackets.android.exomedia.core.video.surface.SurfaceEnvelope;
+import com.devbrackets.android.exomedia.core.video.surface.SurfaceViewSurfaceEnvelope;
+import com.devbrackets.android.exomedia.nmp.ExoMediaPlayerImpl;
+import com.devbrackets.android.exomedia.nmp.config.PlayerConfig;
+import com.devbrackets.android.exomedia.nmp.config.PlayerConfigBuilder;
 import com.google.common.base.Charsets;
 
 import org.json.JSONArray;
@@ -49,6 +62,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class AnimeView extends WebViewClient {
@@ -56,7 +70,8 @@ public class AnimeView extends WebViewClient {
   private final Activity activity;
   public final WebView webView;
   public final WebView webView2;
-  public VideoView videoView=null;
+  public SurfaceView videoView=null;
+  public ExoMediaPlayerImpl videoPlayer=null;
   public LinearLayout cfProgress;
   public final ImageView splash;
   public final FrameLayout videoLayout;
@@ -235,38 +250,73 @@ public class AnimeView extends WebViewClient {
     webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
   }
 
-  public void videoScaling(VideoView v){
+  public void videoScaling(){
     if (videoStatScaleType == 0)
-      v.setScaleType(ScaleType.FIT_CENTER);
+      videoViewEnvelope.setScaleType(ScaleType.FIT_CENTER);
     else if (videoStatScaleType == 1)
-      v.setScaleType(ScaleType.CENTER_CROP);
+      videoViewEnvelope.setScaleType(ScaleType.CENTER_CROP);
     else if (videoStatScaleType == 2)
-      v.setScaleType(ScaleType.FIT_XY);
+      videoViewEnvelope.setScaleType(ScaleType.FIT_XY);
   }
 
   public void videoViewSetScale(int type){
     videoStatScaleType=type;
     activity.runOnUiThread(()-> {
       try {
-        videoScaling(videoView);
+        videoScaling();
       }catch (Exception ignored){}
     });
   }
-
+  public SurfaceEnvelope videoViewEnvelope;
+  public PlayerConfig videoPlayerConfig;
   public void initVideoView(){
     if (videoView!=null){
       videoLayout.removeAllViews();
       videoView=null;
     }
-    videoView = new VideoView(activity);
+    videoPlayerConfig=
+        new PlayerConfigBuilder(activity).setDataSourceFactoryProvider(new DataSourceFactoryProvider() {
+          @SuppressLint("UnsafeOptInUsageError")
+          @NonNull
+          @Override
+          public DataSource.Factory provide(@NonNull String s, @Nullable TransferListener transferListener) {
+            Map<String, String> settings = new HashMap();
+//            settings.put("origin", "https://vidco.pro");
+            settings.put("origin", "https://api.animeflix.dev");
+            return new DefaultHttpDataSource.Factory()
+                .setUserAgent(Conf.USER_AGENT)
+                .setDefaultRequestProperties(settings)
+                .setAllowCrossProtocolRedirects(true);
+          }
+        }).build();
+
+    videoView=new SurfaceView(activity);
+    videoViewEnvelope=new SurfaceViewSurfaceEnvelope(videoView,new MatrixManager());
     videoView.setLayoutParams(
         new RelativeLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT)
     );
     videoLayout.addView(videoView);
-    videoView.setVideoControls(null);
-    videoView.setOnPreparedListener(videoView::start);
+
+    // Create Video
+    videoPlayer=new ExoMediaPlayerImpl(videoPlayerConfig);
+    videoPlayer.setSurface(videoView.getHolder().getSurface());
+    videoPlayer.setVideoSizeListener(videoSize -> videoViewEnvelope.setVideoSize(videoSize.width, videoSize.height,
+        videoSize.pixelWidthHeightRatio));
+  }
+
+  public void videoPlayerPlay(){
+    videoPlayer.start();
+    videoView.setKeepScreenOn(true);
+  }
+  public void videoPlayerPause(){
+    videoView.setKeepScreenOn(false);
+    videoPlayer.pause();
+  }
+  public void videoPlayerStop(){
+    videoView.setKeepScreenOn(false);
+    videoPlayer.stop();
   }
 
   @Override
@@ -350,7 +400,8 @@ public class AnimeView extends WebViewClient {
           AnimeApi.Http http=new AnimeApi.Http(proxy_url);
           for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {
-            if (!entry.getKey().equals("Post-Body")) {
+            if (!entry.getKey().equals("Post-Body")&&!entry.getKey().equals(
+                "Referer")) {
               http.addHeader(entry.getKey(), entry.getValue());
             }
           }
@@ -634,12 +685,11 @@ public class AnimeView extends WebViewClient {
       activity.runOnUiThread(()->{
         try {
           if (url.equals("")) {
-            videoView.stop();
-            videoView.setMedia((Uri) null);
-            videoView.reset();
+            videoPlayerStop();
+            videoPlayer.setMediaUri((Uri) null);
           } else {
-            videoView.setMedia(Uri.parse(url));
-            videoView.start();
+            videoPlayer.setMediaUri(Uri.parse(url));
+            videoPlayerPlay();
           }
         }catch(Exception ignored){}
       });
@@ -650,7 +700,7 @@ public class AnimeView extends WebViewClient {
       activity.runOnUiThread(()-> {
         try {
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            videoView.setPlaybackSpeed(speed);
+            videoPlayer.setPlaybackSpeed(speed);
           }
         }catch(Exception ignored){}
       });
@@ -697,7 +747,7 @@ public class AnimeView extends WebViewClient {
     public void videoSetPosition(int pos){
       activity.runOnUiThread(()-> {
         try {
-          videoView.seekTo(pos);
+          videoPlayer.seekTo(pos);
         }catch(Exception ignored){}
       });
     }
@@ -706,7 +756,7 @@ public class AnimeView extends WebViewClient {
       runOnUiThreadWait(()-> {
         try {
           videoDuration =
-              (int) Math.floor(videoView.getDuration());
+              (int) Math.floor(videoPlayer.getDuration());
         }catch(Exception ignored){}
       });
       return videoDuration;
@@ -743,7 +793,7 @@ public class AnimeView extends WebViewClient {
     public boolean videoIsPlaying(){
       runOnUiThreadWait(()->{
         try {
-          videoIsPlaying = videoView.isPlaying();
+          videoIsPlaying = videoPlayer.getPlaying();
         }catch(Exception ignored){}
       });
       return videoIsPlaying;
@@ -753,7 +803,7 @@ public class AnimeView extends WebViewClient {
       runOnUiThreadWait(()->{
         try {
           videoPosition =
-              (int) Math.ceil(videoView.getCurrentPosition());
+              (int) Math.ceil(videoPlayer.getCurrentPosition());
         }catch (Exception ignored){}
       });
       return videoPosition;
@@ -763,9 +813,9 @@ public class AnimeView extends WebViewClient {
       activity.runOnUiThread(()->{
         try {
           if (play)
-            videoView.start();
+            videoPlayerPlay();
           else
-            videoView.pause();
+            videoPlayerPause();
         }catch (Exception ignored){}
       });
     }
@@ -988,19 +1038,19 @@ public class AnimeView extends WebViewClient {
       initVideoView();
       videoViewSetScale(videoStatScaleType);
       if (!videoStatCurrentUrl.equals("")){
-        videoView.setMedia(Uri.parse(videoStatCurrentUrl));
+        videoPlayer.setMediaUri(Uri.parse(videoStatCurrentUrl));
         if (videoStatCurrentPosition>0) {
-          videoView.seekTo(videoStatCurrentPosition);
+          videoPlayer.seekTo(videoStatCurrentPosition);
           if (videoStatIsPlaying)
-            videoView.start();
+            videoPlayerPlay();
         }
       }
       Log.d(_TAG,"ONSTART -> "+videoStatCurrentPosition);
     }
     else{
-      if (videoView.getDuration()>0) {
-        videoStatCurrentPosition = (int) videoView.getCurrentPosition();
-        videoStatIsPlaying = videoView.isPlaying();
+      if (videoPlayer.getDuration()>0) {
+        videoStatCurrentPosition = (int) videoPlayer.getCurrentPosition();
+        videoStatIsPlaying = videoPlayer.getPlaying();
       }
       else {
         videoStatCurrentPosition = 0;
@@ -1014,8 +1064,8 @@ public class AnimeView extends WebViewClient {
     if (isSave){
       webView.saveState(bundle);
       aApi.webView.saveState(bundle);
-      if (videoView.getDuration()>0)
-        bundle.putInt("VIDEO_CURRPOS", (int) videoView.getCurrentPosition());
+      if (videoPlayer.getDuration()>0)
+        bundle.putInt("VIDEO_CURRPOS", (int) videoPlayer.getCurrentPosition());
       else
         bundle.putInt("VIDEO_CURRPOS", 0);
       bundle.putString("VIDEO_CURR_URL", videoStatCurrentUrl);
@@ -1036,8 +1086,8 @@ public class AnimeView extends WebViewClient {
       if (!saveUrl.equals("")) {
         if (savedPos > 0) {
           try {
-            videoView.seekTo(savedPos);
-            videoView.start();
+            videoPlayer.seekTo(savedPos);
+            videoPlayerPlay();
           }catch (Exception ignored){}
         }
       }
