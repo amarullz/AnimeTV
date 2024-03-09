@@ -27,6 +27,26 @@ https://api.animeflix.dev/trending?page=0
 
 https://api.animeflix.dev/watch/sousou-no-frieren-episode-1?server=&c=5f5b5h5f5b5h255a5b25525e55515e515a25515c555f5b50512529
 https://api.animeflix.dev/player?id=sousou-no-frieren-1-source&server=gogo&servers=0011&position=undefined
+
+https://api.animeflix.dev/episodes?id=oroka-na-tenshi-wa-akuma-to-odoru&dub=false&c=5b5e5b574h255a4h255g515a5f5455255j4h254h575h594h255g5b255b505b5e5h
+```
+
+### Encode & Decode
+```
+function aflix_decode(x){
+    var l=x.length,o=[],i;
+    for (i=0;i<l;i+=2){
+        o.push(String.fromCharCode(parseInt(x.substring(i,i+2), 20)));
+    }
+    return o.join('');
+}
+function aflix_encode(x){
+    var l=x.length,o=[],i;
+    for (i=0;i<l;i++){
+        o.push(x.charCodeAt(i).toString(20));
+    }
+    return o.join('');
+}
 ```
 
 ## Searching
@@ -62,6 +82,25 @@ https://api.animeflix.dev/player?id=sousou-no-frieren-1-source&server=gogo&serve
 ```
 GET k parameter:
 "z".charCodeAt(0).toString(20)
+```
+
+### AniList Integration
+```
+https://api.animeflix.dev/idtoinfo?ids=[163076,151807,164244,155963,20447,21507,132405,162780,146066,162144,143866,168374,152072,156131,162002,153518,158028,21,151970,166610,166216,151801,137908,150672,169935,147642,152682,130003,166522,1210,105333,20954,99578,133965,18897,120697,523,21049,171019,141821,142329,5114]
+&y=5550555a525b
+
+
+https://api.animeflix.dev/idtoinfo?ids=[21,137908,143866,153518,155963,162144,163076,166531,166610,168374]&y=5550555a525b
+
+# Get Mal List
+https://api.animeflix.dev/maluser?username=amarullz
+
+55 i
+50 d
+55 i
+5a n
+52 f
+5b o
 ```
 
 ### M3U8
