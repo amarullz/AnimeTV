@@ -8,8 +8,10 @@ public class Conf {
       "anix.to",
       "hianime.to",
       "aniwatchtv.to",
-      "api.animeflix.dev"
+      "animeflix.live"
   };
+
+  public static String SOURCE_DOMAIN5_API = "api.animeflix.dev";
 //  public static String SOURCE_DOMAIN1 = "aniwave.to";
 //  public static String SOURCE_DOMAIN2 = "anix.to";
 //  public static String SOURCE_DOMAIN3 = "hianime.to";

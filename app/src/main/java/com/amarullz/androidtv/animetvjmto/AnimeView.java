@@ -282,7 +282,7 @@ public class AnimeView extends WebViewClient {
           public DataSource.Factory provide(@NonNull String s, @Nullable TransferListener transferListener) {
             Map<String, String> settings = new HashMap();
 //            settings.put("origin", "https://vidco.pro");
-            settings.put("origin", "https://api.animeflix.dev");
+            settings.put("origin", "https://"+Conf.SOURCE_DOMAIN5_API);
             return new DefaultHttpDataSource.Factory()
                 .setUserAgent(Conf.USER_AGENT)
                 .setDefaultRequestProperties(settings)
@@ -405,12 +405,29 @@ public class AnimeView extends WebViewClient {
           else{
             Log.d(_TAG, "PROXY-GET = " + proxy_url);
           }
+
+          String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
+          String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
+
           AnimeApi.Http http=new AnimeApi.Http(proxy_url);
           for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {
-            if (!entry.getKey().equals("Post-Body")&&!entry.getKey().equals(
+            String k=entry.getKey();
+            boolean sent=false;
+            if (k.equalsIgnoreCase("origin") && proxyOrigin!=null){
+              http.addHeader("Origin", proxyOrigin);
+              sent=true;
+            }
+            else if (k.equalsIgnoreCase("referer") && proxyReferer!=null){
+              http.addHeader("Referer", proxyReferer);
+              sent=true;
+            }
+            else if (k.equalsIgnoreCase("X-Org-Prox")||k.equalsIgnoreCase("X-Ref-Prox")){
+              sent=true;
+            }
+            if (!sent&&!k.equals("Post-Body")&&!k.equals(
                 "Referer")) {
-              http.addHeader(entry.getKey(), entry.getValue());
+              http.addHeader(k, entry.getValue());
             }
           }
           if (isPost){
@@ -428,7 +445,7 @@ public class AnimeView extends WebViewClient {
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
-      if (Conf.HTTP_CLIENT==1) {
+      if (Conf.HTTP_CLIENT==1 && Conf.SOURCE_DOMAIN<3) {
         return super.shouldInterceptRequest(view, request);
       }
       WebResourceResponse wr=aApi.defaultRequest(view,request);
@@ -442,6 +459,33 @@ public class AnimeView extends WebViewClient {
         return aApi.badRequest;
       }
       return aApi.defaultRequest(view,request);
+    }
+    else if (host.equals(Conf.SOURCE_DOMAIN5_API)){
+      try {
+        AnimeApi.Http http=new AnimeApi.Http(url);
+        http.addHeader("Referer", "https://"+Conf.SOURCE_DOMAIN5_API);
+        http.addHeader("Origin", "https://"+Conf.SOURCE_DOMAIN5_API);
+        for (Map.Entry<String, String> entry :
+            request.getRequestHeaders().entrySet()) {
+          String k=entry.getKey();
+          boolean sent=false;
+          if (k.equalsIgnoreCase("origin")||
+              k.equalsIgnoreCase("referer")||
+              k.equalsIgnoreCase("X-Org-Prox")||
+              k.equalsIgnoreCase("X-Ref-Prox")){
+            sent=true;
+          }
+          if (!sent) {
+            http.addHeader(k, entry.getValue());
+          }
+        }
+        http.execute();
+        InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
+        return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
+      } catch (Exception e) {
+        Log.e(_TAG, "AFLIX-API ERR =" + url, e);
+      }
+      return super.shouldInterceptRequest(view, request);
     }
     else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
       if (accept.startsWith("text/html")||
@@ -831,6 +875,11 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public String dns(){
       return Conf.getDomain();
+    }
+
+    @JavascriptInterface
+    public String flix_dns(){
+      return Conf.SOURCE_DOMAIN5_API;
     }
 
     @JavascriptInterface

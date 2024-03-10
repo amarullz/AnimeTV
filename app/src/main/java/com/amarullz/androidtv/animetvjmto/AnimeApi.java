@@ -474,6 +474,8 @@ public class AnimeApi extends WebViewClient {
   public static String okCacheDir=null;
 
   public static CronetEngine cronetClient=null;
+  public static OkHttpClient httpClient=null;
+  public static Cache appCache=null;
 
   public static void initHttpEngine(Context c){
     long disk_cache_size = 100 * 1024 * 1024;
@@ -506,12 +508,20 @@ public class AnimeApi extends WebViewClient {
       }
     }
 
-    Cache appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir",
+    appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir",
         "okhttpcache"), disk_cache_size);
+
     bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
     dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
         .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
         .build();
+
+    if (Conf.USE_DOH) {
+      httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
+    }
+    else{
+      httpClient = bootstrapClient.newBuilder().build();
+    }
   }
   public static class Http{
     private HttpURLConnection http=null;
@@ -559,6 +569,7 @@ public class AnimeApi extends WebViewClient {
           return;
         }
       }
+
       if (req!=null) {
         req.addHeader(name, val);
       }
@@ -594,12 +605,13 @@ public class AnimeApi extends WebViewClient {
     }
     public void execute() throws Exception{
       if (req!=null) {
-        OkHttpClient httpClient;
-        if (Conf.USE_DOH) {
-          httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
-        }
-        else{
-          httpClient = bootstrapClient.newBuilder().build();
+        if (httpClient==null){
+          if (Conf.USE_DOH) {
+            httpClient = bootstrapClient.newBuilder().dns(dohClient).build();
+          }
+          else{
+            httpClient = bootstrapClient.newBuilder().build();
+          }
         }
         res = httpClient.newCall(req.build()).execute();
         body = new ByteArrayOutputStream();
@@ -631,10 +643,33 @@ public class AnimeApi extends WebViewClient {
     String url = uri.toString();
     try {
       Http http=new Http(url);
+      String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
+      String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
       for (Map.Entry<String, String> entry :
-              request.getRequestHeaders().entrySet()) {
-        http.addHeader(entry.getKey(), entry.getValue());
+          request.getRequestHeaders().entrySet()) {
+        String k=entry.getKey();
+        boolean sent=false;
+        if (k.equalsIgnoreCase("origin") && proxyOrigin!=null){
+          http.addHeader("Origin", proxyOrigin);
+          sent=true;
+        }
+        else if (k.equalsIgnoreCase("referer") && proxyReferer!=null){
+          http.addHeader("Referer", proxyReferer);
+          sent=true;
+        }
+        else if (k.equalsIgnoreCase("X-Org-Prox")||k.equalsIgnoreCase("X-Ref-Prox")){
+          sent=true;
+        }
+        if (!sent&&!k.equals("Post-Body")&&!k.equals(
+            "Referer")) {
+          http.addHeader(k, entry.getValue());
+        }
       }
+
+//      for (Map.Entry<String, String> entry :
+//              request.getRequestHeaders().entrySet()) {
+//        http.addHeader(entry.getKey(), entry.getValue());
+//      }
       http.execute();
 
       // Inject

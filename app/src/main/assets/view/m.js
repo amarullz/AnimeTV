@@ -128,8 +128,8 @@ function __CFRAYOK(){
 }
 
 /* proxy ajax */
-function $ap(uri, cb){
-  $a("/__proxy/"+uri,cb);
+function $ap(uri, cb, hdr){
+  $a("/__proxy/"+uri,cb, hdr);
 }
 
 /* proxy image */
@@ -266,6 +266,7 @@ function md2html(text){
 
 /**************************** ANIMEFLIX ***************************/
 const __AFLIX = {
+  ns:'https://'+_JSAPI.flix_dns(),
   cache:{},
   slug_cache:{},
   setCache:function(u){
@@ -322,7 +323,10 @@ const __AFLIX = {
       return o.join('').toUpperCase();
   }
 };
-
+__AFLIX.origin={
+  "X-Org-Prox":__AFLIX.ns,
+  "X-Ref-Prox":__AFLIX.ns
+};
 /**************************** GLOBAL LISTENERS ***************************/
 /* Key event handler */
 window._KEYEV=function(key, evSource){
@@ -752,32 +756,59 @@ const _API={
 
     function getEpServer(d,edat){
       var load_n=0;
+      d.skip=[];
       console.log(edat);
       if (edat.sub){
         load_n++;
-        $a(edat.sub,function(r){
-          if (r.ok){
-            var k=JSON.parse(r.responseText);
-            d.stream_sub_url=k.source;
-          }
-          if (--load_n<1){
-            runCb(d);
-          }
-        });
+        var load_sub_n=4;
+        function LoadSub(){
+          $ap(__AFLIX.ns+edat.sub+"&"+$tick(),function(r){
+            if (r.ok){
+              try{
+                var k=JSON.parse(r.responseText);
+                d.stream_sub_url=k.source;
+                load_sub_n=0;
+              }catch(e){}
+            }
+            if (load_sub_n>0){
+              --load_sub_n;
+              LoadSub();
+              return;
+            }
+            if (--load_n<1){
+              runCb(d);
+            }
+          },__AFLIX.origin);
+        }
+        LoadSub();
       }
       if (edat.dub){
         load_n++;
-        $a(edat.dub,function(r){
-          if (r.ok){
-            var k=JSON.parse(r.responseText);
-            d.stream_dub_url=k.source;
-          }
-          if (--load_n<1){
-            runCb(d);
-          }
-        });
+        var load_dub_n=4;
+        function LoadDub(){
+          $ap(__AFLIX.ns+edat.dub+"&"+$tick(),function(r){
+            if (r.ok){
+              try{
+                var k=JSON.parse(r.responseText);
+                d.stream_dub_url=k.source;
+                load_dub_n=0;
+              }catch(e){}
+            }
+            if (load_dub_n>0){
+              --load_dub_n;
+              LoadDub();
+              return;
+            }
+            if (--load_n<1){
+              runCb(d);
+            }
+          },__AFLIX.origin);
+        }
+        LoadDub();
       }
       if (load_n==0){
+        _API.hi_last_view.view_url='';
+        _API.hi_last_view.data=null;
         f({status:false},uid);
       }
     }
@@ -787,21 +818,23 @@ const _API={
       /* Just Load Server */
       var eps=_API.hi_last_view.data.ep;
       var active_ep_id=null;
-      _API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index].active=false;
-      for (var i=0;i<eps.length;i++){
-        var s=eps[i];
-        if (get_ep==s.ep){
-          active_ep_id=s;
-          _API.hi_last_view.data.active_ep=active_ep_id;
-          _API.hi_last_view.data.active_ep_index=i;
-          _API.hi_last_view.data.ep[i].active=true;
-          break;
+      if (_API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index]){
+        _API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index].active=false;
+        for (var i=0;i<eps.length;i++){
+          var s=eps[i];
+          if (get_ep==s.ep){
+            active_ep_id=s;
+            _API.hi_last_view.data.active_ep=active_ep_id;
+            _API.hi_last_view.data.active_ep_index=i;
+            _API.hi_last_view.data.ep[i].active=true;
+            break;
+          }
         }
-      }
-      console.log("CACHED : "+active_ep_id);
-      if (active_ep_id){
-        getEpServer({},active_ep_id);
-        return uid;
+        console.log("CACHED : "+active_ep_id);
+        if (active_ep_id){
+          getEpServer({},active_ep_id);
+          return uid;
+        }
       }
     }
     else{
@@ -831,6 +864,7 @@ const _API={
       active_ep:null
     };
     function ep_cb(r,dub){
+      console.log("EPCB = "+r.responseText);
       if (r.ok){
         try{
           var t=JSON.parse(r.responseText);
@@ -876,22 +910,26 @@ const _API={
           getEpServer(ep_data.d,ep_data.active_ep);
         }
         else{
+          _API.hi_last_view.view_url='';
+          _API.hi_last_view.data=null;
           f({status:false},uid);
         }
       }
     }
     // Get Episodes
-    $a(epurl+'false',function(r){
+    console.log("Get Episode URL: "+epurl);
+    $ap(__AFLIX.ns+epurl+'false&'+$tick(),function(r){
       // sub
       ep_cb(r,false);
-    });
-    $a(epurl+'true',function(r){
+    },__AFLIX.origin);
+    $ap(__AFLIX.ns+epurl+'true&'+$tick(),function(r){
       // dub
       ep_cb(r,true);
-    });
+    },__AFLIX.origin);
 
     return uid;
   },
+
   getViewHi:function(url,f){
     var uid=++_API.viewid;
     var tipurl=home.hi_tipurl(url);
@@ -1249,7 +1287,7 @@ const _API={
         cb(_API.tooltipFlixParse(__AFLIX.cache[id],isview));
         return;
       }
-      tt_url="/idtoinfo?ids=["+id+"]&y=5550555a525b";
+      tt_url='/__proxy/'+__AFLIX.ns+"/idtoinfo?ids=["+id+"]&y=5550555a525b";
       console.log("TTURL = "+tt_url);
     }
     else{
@@ -1528,7 +1566,7 @@ const _API={
       }
       else
         cb(null);
-    });
+    },__SD5?__AFLIX.origin:null);
   },
 
   /*** VIDEO VIEW API ***/
@@ -1772,12 +1810,14 @@ const vtt={
       return;
     }
 
+    console.log("SUBTITLE INIT = ");
     if (subs.length>0){
+      console.log("SUBTITLE LENGTH = "+subs.length);
       if (pb.cfg_data.lang!='' && pb.cfg_data.lang!='en'){
         var ffind = vtt.find_match(subs, pb.cfg_data.lang);
-        // console.log("SUBTITLES SOFT = "+pb.cfg_data.lang+" => "+ffind+" // "+JSON.stringify(subs,null,'\t'));
+        console.log("SUBTITLES SOFT = "+pb.cfg_data.lang+" => "+ffind+" // "+JSON.stringify(subs,null,'\t'));
         if (ffind>-1){
-          // console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
+          console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
           vtt.load(subs[ffind], 1);
           return;
         }
@@ -1785,7 +1825,8 @@ const vtt={
 
       // console.error(JSON.stringify(subs));
       for (var i=0;i<subs.length;i++){
-        if (subs[i].l=='english'){
+        if ((subs[i].l=='english')||(subs[i].i && subs[i].i=='en')){
+          console.log("SUBTITLE LENGTH = FOUND ENGLISH");
           vtt.load(subs[i]);
           return;
         }
@@ -1832,7 +1873,7 @@ const vtt={
     if (lang_name){
       lang_name=lang_name.toLowerCase();
       for (var i=0;i<t.length;i++){
-        if (t[i].l==lang_name){
+        if ((t[i].l==lang_name) || (t[i].i && t[i].i==lang)){
           console.log("VTT MATCH GOT -> "+lang_name+" = "+i+" => "+JSON.stringify(t[i]));
           return i;
         }
@@ -1882,6 +1923,71 @@ const vtt={
         }
       }
     }catch(e){
+    }
+    return t;
+  },
+  parse_ass:function(dt){
+    var d=(dt+"").replace(/\r/g,'').trim();
+    var l=d.split('\n');
+    var s=l.length;
+    var t=[];
+    var onevent=false;
+    var format=null;
+    var fl=0;
+    var p=-1;
+    for (var i=0;i<s;i++){
+      var n=l[i];
+      if (onevent){
+        var m=n.split(':');
+        if (m.length>=2){
+          var k=m.shift().trim().toLowerCase();
+          m=m.join(':');
+          if (k=='format'){
+            format=(m.trim().toLowerCase()).split(',');
+            fl=format.length;
+          }
+          else if(format!=null && k=='dialogue'){
+            var v=(m.trim()).split(',');
+            var o={};
+            var q={ti:p+1};
+            for (var j=0;j<fl;j++){
+              var cn=format[j].trim();
+              if (j==fl-1){
+                o[cn]=v.join(',');
+              }
+              else{
+                o[cn]=v.shift();
+              }
+              if (cn=='text'){
+                q.tx=o[cn].replace(/(?:{)([^}<\n]+)(?:})/g, "")
+                  .replace(/\\N/g,'\n');
+              }
+              else if (cn=='start'){
+                q.ts=vtt.ts2pos(o[cn]);
+              }
+              else if (cn=='end'){
+                q.te=vtt.ts2pos(o[cn]);
+              }
+            }
+            if (('tx' in q) && ('ts' in q) && ('te' in q)){
+              if (q.tx){
+                if (q.tx.toLowerCase().indexOf('animeflix.live')==-1){
+                  t.push(q);
+                  p++;
+                }
+              }
+            }
+          }
+        }
+      }
+      else{
+        if (n.toLowerCase().trim()=='[events]'){
+          onevent=true;
+        }
+        else if (n.trim().startsWith('[')){
+          onevent=false;
+        }
+      }
     }
     return t;
   },
@@ -1962,10 +2068,22 @@ const vtt={
     vtt.playback.posid=0;
     vtt.substyle=0;
     vtt.playback.show=false;
+    console.log("LOADING SUBTITLE = "+JSON.stringify(sub));
+    var hdr=null;
+    if (__SD5){
+      hdr=__AFLIX.origin;
+    }
     $ap(sub.u,function(r){
       if (r.ok){
         sub.v=r.responseText;
-        sub.p=vtt.parse(sub.v);
+        console.log("LOADING GET SUB RAW = "+sub.v);
+        if (__SD5){
+          sub.p=vtt.parse_ass(sub.v);
+          console.log("LOADING PARSED ASS = "+JSON.stringify(sub.p));
+        }
+        else{
+          sub.p=vtt.parse(sub.v);
+        }
 
         if (pb.cfg_data.lang!='en' && 
           pb.cfg_data.lang!='hard' && 
@@ -1983,7 +2101,10 @@ const vtt={
 
         pb.updateStreamTypeInfo();
       }
-    });
+      else{
+        console.log("LOADING GET SUB RAW FAILED");
+      }
+    }, hdr);
   },
   clear:function(){
     clearInterval(vtt.playback.intv);
@@ -2896,7 +3017,7 @@ const pb={
       }
     ];
     console.log("PARSED-M3u8 QUALITY="+pb.cfg_data.quality);
-    $ap(src,function(r){
+    function getm3u8cb(r){
       if (r.ok){
         pb.m3u8_parse_main(src,r.responseText);
         if (pb.cfg_data.quality<pb.data.vsources.length){
@@ -2910,7 +3031,13 @@ const pb={
       pb.sel_quality="AUTO";
       pb.init_video_player_url(src);
       pb.cfg_update_el("quality");
-    });
+    }
+    if (__SD5){
+      $ap(src,getm3u8cb,__AFLIX.origin);
+    }
+    else{
+      $ap(src,getm3u8cb);
+    }
   },
   init_video_mp4upload_html5:function(src){
     pb.data.mp4url=src;
@@ -3201,7 +3328,7 @@ const pb={
       return;
     }
     /* Load Player */
-    $a(u,function(r){
+    function videoLoaded(r){
       if (r.ok){
         var play_data={
           subs:[],
@@ -3223,10 +3350,10 @@ const pb={
                 var sb=subs[i];
                 var sd={};
                 if (sb.getAttribute('kind')=='captions'){
-                  sd.url=sb.getAttribute('id');
-                  sd.label=sb.getAttribute('label');
-                  sd.label=sd.label?(sd.label.toLowerCase()):'';
-                  sd.id=sb.getAttribute('srclang');
+                  sd.u=sb.getAttribute('id');
+                  sd.l=sb.getAttribute('label');
+                  sd.l=sd.l?(sd.l.toLowerCase().trim()):'';
+                  sd.i=sb.getAttribute('srclang');
                   play_data.subs.push(sd);
                 }
               }
@@ -3257,7 +3384,11 @@ const pb={
           dd.skip=JSON.parse(JSON.stringify(play_data.pos));
 
           // Loading Subtitle
-          // TODO
+          if (loadss){
+            vtt.clear();
+            pb.subtitles=JSON.parse(JSON.stringify(play_data.subs));
+            vtt.init(pb.subtitles);
+          }
 
           // Save Video Data
           dd.play_data=play_data;
@@ -3268,7 +3399,20 @@ const pb={
         }
         console.log("PLAYER INFO: "+JSON.stringify(play_data));
       }
-    });
+    }
+    var video_loading_n=0;
+    function startLoad(){
+      $ap(__AFLIX.ns+u+(video_loading_n?'&'+$tick():''),function(r){
+        if (r.ok){
+          videoLoaded(r);
+          return;
+        }
+        if (++video_loading_n<6){
+          setTimeout(startLoad,10*video_loading_n);
+        }
+      },__AFLIX.origin);
+    }
+    startLoad();
   },
   flix_play_video:function(){
     pb.pb_vid.innerHTML='';
@@ -5115,7 +5259,7 @@ const home={
       }
       else
         setTimeout(function(){home.recent_load(g)},2000);
-    });
+    },__SD5?__AFLIX.origin:null);
   },
   recent_init:function(rc, loader){
     rc._page=1;
@@ -5413,7 +5557,7 @@ const home={
 
   home_load:function(){
     home.home_onload=1;
-    $a(__SD5?'/airing':'/home',function(r){
+    $a(__SD5?('/__proxy/'+__AFLIX.ns+'/airing'):'/home',function(r){
       if (r.ok){
         try{
           home.home_parser(r.responseText);
@@ -5422,7 +5566,7 @@ const home={
       }
       else
         setTimeout(home.home_load,2000);
-    });
+    },__SD5?__AFLIX.origin:null);
   },
   
   menus:[],
@@ -5503,10 +5647,10 @@ const home={
     }
     else if (__SD5){
       // hianime
-      home.home_recent._ajaxurl='/trending?page=';
-      home.home_dub._ajaxurl='/popular?page=';
+      home.home_recent._ajaxurl='/__proxy/'+__AFLIX.ns+'/trending?page=';
+      home.home_dub._ajaxurl='/__proxy/'+__AFLIX.ns+'/popular?page=';
       // home.home_trending._ajaxurl='/trending?page=';
-      home.home_random._ajaxurl='/movies?page=';
+      home.home_random._ajaxurl='/__proxy/'+__AFLIX.ns+'/movies?page=';
       
       home.home_slide.setAttribute('list-title','🛰️ Airing');
       home.home_recent.setAttribute('list-title','⭐ Trending');
