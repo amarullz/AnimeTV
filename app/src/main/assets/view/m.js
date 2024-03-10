@@ -1810,14 +1810,14 @@ const vtt={
       return;
     }
 
-    console.log("SUBTITLE INIT = ");
+    // console.log("SUBTITLE INIT = ");
     if (subs.length>0){
-      console.log("SUBTITLE LENGTH = "+subs.length);
+      // console.log("SUBTITLE LENGTH = "+subs.length);
       if (pb.cfg_data.lang!='' && pb.cfg_data.lang!='en'){
         var ffind = vtt.find_match(subs, pb.cfg_data.lang);
-        console.log("SUBTITLES SOFT = "+pb.cfg_data.lang+" => "+ffind+" // "+JSON.stringify(subs,null,'\t'));
+        // console.log("SUBTITLES SOFT = "+pb.cfg_data.lang+" => "+ffind+" // "+JSON.stringify(subs,null,'\t'));
         if (ffind>-1){
-          console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
+          // console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
           vtt.load(subs[ffind], 1);
           return;
         }
@@ -1874,7 +1874,7 @@ const vtt={
       lang_name=lang_name.toLowerCase();
       for (var i=0;i<t.length;i++){
         if ((t[i].l==lang_name) || (t[i].i && t[i].i==lang)){
-          console.log("VTT MATCH GOT -> "+lang_name+" = "+i+" => "+JSON.stringify(t[i]));
+          // console.log("VTT MATCH GOT -> "+lang_name+" = "+i+" => "+JSON.stringify(t[i]));
           return i;
         }
       }
@@ -2068,7 +2068,7 @@ const vtt={
     vtt.playback.posid=0;
     vtt.substyle=0;
     vtt.playback.show=false;
-    console.log("LOADING SUBTITLE = "+JSON.stringify(sub));
+    // console.log("LOADING SUBTITLE = "+JSON.stringify(sub));
     var hdr=null;
     if (__SD5){
       hdr=__AFLIX.origin;
@@ -2076,10 +2076,10 @@ const vtt={
     $ap(sub.u,function(r){
       if (r.ok){
         sub.v=r.responseText;
-        console.log("LOADING GET SUB RAW = "+sub.v);
+        // console.log("LOADING GET SUB RAW = "+sub.v);
         if (__SD5){
           sub.p=vtt.parse_ass(sub.v);
-          console.log("LOADING PARSED ASS = "+JSON.stringify(sub.p));
+          // console.log("LOADING PARSED ASS = "+JSON.stringify(sub.p));
         }
         else{
           sub.p=vtt.parse(sub.v);
@@ -2102,7 +2102,7 @@ const vtt={
         pb.updateStreamTypeInfo();
       }
       else{
-        console.log("LOADING GET SUB RAW FAILED");
+        // console.log("LOADING GET SUB RAW FAILED");
       }
     }, hdr);
   },
@@ -3243,6 +3243,7 @@ const pb={
 
     pb.pb_vid.innerHTML='';
     (function(){
+      console.log("INIT-VIDEO-IFRAME : "+pb.data.stream_vurl);
       if (pb.preload_episode_video!=null){
         if (pb.preload_episode_video.u==pb.url_value){
           if (_API.m3u8cb){
@@ -4754,7 +4755,11 @@ const pb={
       var act=null;
       for (var i=0;i<pb.data.seasons.length;i++){
         var d=pb.data.seasons[i];
-        var hl=$n('div',d.active?'playing':'',{action:d.url},pb.pb_seasons.P,'');
+        var action_value=d.url;
+        if (__SD3||__SD5){
+          action_value='>'+d.url;
+        }
+        var hl=$n('div',d.active?'playing':'',{action:action_value},pb.pb_seasons.P,'');
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
         if (d.active) act=hl;

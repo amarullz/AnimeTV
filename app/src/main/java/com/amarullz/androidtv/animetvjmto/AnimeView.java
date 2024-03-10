@@ -78,7 +78,7 @@ public class AnimeView extends WebViewClient {
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -105,9 +105,9 @@ public class AnimeView extends WebViewClient {
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      webSettings.setSafeBrowsingEnabled(true);
-    }
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//      webSettings.setSafeBrowsingEnabled(true);
+//    }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);
@@ -459,6 +459,7 @@ public class AnimeView extends WebViewClient {
         return aApi.badRequest;
       }
       return aApi.defaultRequest(view,request);
+//      return super.shouldInterceptRequest(view, request);
     }
     else if (host.equals(Conf.SOURCE_DOMAIN5_API)){
       try {

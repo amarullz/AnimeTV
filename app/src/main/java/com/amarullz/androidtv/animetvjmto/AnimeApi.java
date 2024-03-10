@@ -297,9 +297,9 @@ public class AnimeApi extends WebViewClient {
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      webSettings.setSafeBrowsingEnabled(true);
-    }
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//      webSettings.setSafeBrowsingEnabled(true);
+//    }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setBlockNetworkImage(true);
     webView.addJavascriptInterface(new JSApi(), "_JSAPI");
@@ -643,33 +643,33 @@ public class AnimeApi extends WebViewClient {
     String url = uri.toString();
     try {
       Http http=new Http(url);
-      String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
-      String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
-      for (Map.Entry<String, String> entry :
-          request.getRequestHeaders().entrySet()) {
-        String k=entry.getKey();
-        boolean sent=false;
-        if (k.equalsIgnoreCase("origin") && proxyOrigin!=null){
-          http.addHeader("Origin", proxyOrigin);
-          sent=true;
-        }
-        else if (k.equalsIgnoreCase("referer") && proxyReferer!=null){
-          http.addHeader("Referer", proxyReferer);
-          sent=true;
-        }
-        else if (k.equalsIgnoreCase("X-Org-Prox")||k.equalsIgnoreCase("X-Ref-Prox")){
-          sent=true;
-        }
-        if (!sent&&!k.equals("Post-Body")&&!k.equals(
-            "Referer")) {
-          http.addHeader(k, entry.getValue());
-        }
-      }
-
+//      String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
+//      String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
 //      for (Map.Entry<String, String> entry :
-//              request.getRequestHeaders().entrySet()) {
-//        http.addHeader(entry.getKey(), entry.getValue());
+//          request.getRequestHeaders().entrySet()) {
+//        String k=entry.getKey();
+//        boolean sent=false;
+//        if (k.equalsIgnoreCase("origin") && proxyOrigin!=null){
+//          http.addHeader("Origin", proxyOrigin);
+//          sent=true;
+//        }
+//        else if (k.equalsIgnoreCase("referer") && proxyReferer!=null){
+//          http.addHeader("Referer", proxyReferer);
+//          sent=true;
+//        }
+//        else if (k.equalsIgnoreCase("X-Org-Prox")||k.equalsIgnoreCase("X-Ref-Prox")){
+//          sent=true;
+//        }
+//        if (!sent&&!k.equals("Post-Body")&&!k.equals(
+//            "Referer")) {
+//          http.addHeader(k, entry.getValue());
+//        }
 //      }
+
+      for (Map.Entry<String, String> entry :
+              request.getRequestHeaders().entrySet()) {
+        http.addHeader(entry.getKey(), entry.getValue());
+      }
       http.execute();
 
       // Inject
