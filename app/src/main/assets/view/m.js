@@ -61,60 +61,19 @@ function $a(uri, cb, hdr, pd){
 
 var __cf_onvalidation=false;
 if (!__SD3&&!__SD5){
-  function anix_challange(a,b){
-    var k='f0357a3f154bc2ffe2bff55055457068',
-    l=k.length,
-    i,
-    o='';
-    for(i=0;i<l;i++){
-      o+=k[i]+a[i]+b[i];
-    }
-    // __jscheck
-    return o;
-  }
-  function deleteAllCookies() {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    }
-  }
-  // deleteAllCookies();
   $a('/',function(r){
     if (r.ok){
       var x=r.responseText;
       if (x.indexOf('"/waf-js-run"')>0){
-        // console.log(r.getAllResponseHeaders());
-        // console.log(xs[0]+" _A/B="+a+" / "+b+" => "+o);
-        __cf_onvalidation=true;
-        _JSAPI.rayOk();
-        setTimeout(function(){
-          _JSAPI.cfCheck();
-        },500);
-        
-        // setTimeout(function(){
-        //   $a('/?__jscheck='+o,function(r){
-        //     console.log(r.getAllResponseHeaders());
-        //     console.log(r.responseText);
-        //     $a('/',function(r){
-        //       console.log(r.getAllResponseHeaders());
-        //       console.log(r.responseText);
-        //     });
-        //   });
-        // },1500);
-
-        var xs=x.split('<script>');
-        xs=xs[1].split('setTimeout');
-        var vs=xs[0].split("'");
-        var a=vs[1];
-        var b=vs[3];
-        var o=anix_challange(a,b);
-        console.log(xs[0]+"WAF Check _A/B="+a+"/"+b+" => "+o);
-      }
-      else{
-        _JSAPI.rayOk();
+        if (confirm(
+          "Source : "+__SD_NAME+" Is Blocked your connection\n"+
+          "Change source now?"
+        )){
+          _JSAPI.setSd(5);
+          setTimeout(function(){
+            _API.reload();
+          },200);
+        }
       }
     }
   });
@@ -1748,6 +1707,7 @@ const _API={
   videoSeek:function(v){
     _JSAPI.videoSetPosition(v*1000);
   },
+  videoCompleteTo:null,
   setVideo:function(src, cb){
     clearInterval(_API.vidInterval);
     if (src){
@@ -1781,7 +1741,18 @@ const _API={
             var np=_API.videoGetPos();
             cb('time',np);
             if ((np.duration>0)&&(np.duration-1<=np.position)){
-              cb('complete',0);
+              if (!_API.videoCompleteTo){
+                console.log("Post Video Completed");
+                _API.videoCompleteTo=setTimeout(function(){
+                  console.log("Trigger Video Completed");
+                  _API.videoCompleteTo=null;
+                  cb('complete',0);
+                },1500);
+              }
+            }
+            else if (_API.videoCompleteTo){
+              clearTimeout(_API.videoCompleteTo);
+              _API.videoCompleteTo=null;
             }
           }
         }
@@ -5242,9 +5213,31 @@ const home={
     var rd=[];
     try{
       var t=JSON.parse(v);
+      // asr.sort(function(a,b){
+      //   return b.airingTime-a.airingTime
+      // })
       if ('trending' in t){
         t=t.trending;
       }
+      else{
+        /* Schedule */
+        if (t.length==7){
+          if (t[0].animes && t[0].title){
+            var scd=t;
+            t=[];
+            for (var i=0;i<scd.length;i++){
+                for (var j=0;j<scd[i].animes.length;j++){
+                    t.push(scd[i].animes[j]);
+                }
+            }
+            t.sort(function(a,b){
+              return b.airingTime-a.airingTime
+            });
+            console.log(["SORTED: ",t]);
+          }
+        }
+      }
+
       var l=t.length;
       for (var i=0;i<l;i++){
         try{
@@ -5425,6 +5418,12 @@ const home={
     var load_page=g._page;
     if (__SD5){
       load_page--;
+      if (g._ajaxurl.indexOf('schedule')>0){
+        if (load_page>0){
+          return;
+        }
+        load_page='';
+      }
     }
     // console.log('RECENT LOAD = '+g._ajaxurl+''+load_page);
     $a(g._ajaxurl+''+load_page,function(r){
@@ -5835,19 +5834,15 @@ const home={
     }
     else if (__SD5){
       // hianime
-      home.home_recent._ajaxurl='/__proxy/'+__AFLIX.ns+'/trending?page=';
+      home.home_recent._ajaxurl='/__proxy/'+__AFLIX.ns+'/schedule';
       home.home_dub._ajaxurl='/__proxy/'+__AFLIX.ns+'/popular?page=';
-      // home.home_trending._ajaxurl='/trending?page=';
+      home.home_trending._ajaxurl='/__proxy/'+__AFLIX.ns+'/trending?page=';
       home.home_random._ajaxurl='/__proxy/'+__AFLIX.ns+'/movies?page=';
       
       home.home_slide.setAttribute('list-title','🛰️ Airing');
-      home.home_recent.setAttribute('list-title','⭐ Trending');
+      home.home_trending.setAttribute('list-title','⭐ Trending');
       home.home_dub.setAttribute('list-title','❤️ Popular');
       home.home_random.setAttribute('list-title','🎥 Movie');
-
-      home.home_trending.style.display='none !important';
-      home.home_trending.innerHTML='';
-      home.home_trending.className='';
     }
     else{
       // wave & anix
@@ -5858,9 +5853,7 @@ const home={
     }
     home.recent_init(home.home_recent);
     home.recent_init(home.home_dub);
-    if (!__SD5){
-      home.recent_init(home.home_trending);
-    }
+    home.recent_init(home.home_trending);
     home.recent_init(home.home_random);
 
     home.home_load();
@@ -5892,9 +5885,7 @@ const home={
     
 
     home.menus.push(home.home_dub);
-    if (!__SD5){
-      home.menus.push(home.home_trending);
-    }
+    home.menus.push(home.home_trending);
     home.menus.push(home.home_random);
 
     if (pb.cfg_data.nonjapan && (!__SD3) && (!__SD5)){
