@@ -1,8 +1,8 @@
 /* Body */
 const body=document.body;
 /* const _DNS="9anime.to"; */
-const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
-const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
+const __DNS=('_JSAPI' in window)?_JSAPI.dns():"animeflix.live";
+const __SD=('_JSAPI' in window)?_JSAPI.getSd():5;
 const __SD3=((__SD==3) || (__SD==4))?true:false;
 const __SD5=(__SD==5);
 
@@ -371,6 +371,10 @@ const __AFLIX = {
   }
 };
 __AFLIX.origin={
+  "X-Org-Prox":__AFLIX.ns,
+  "X-Ref-Prox":"https://"+__DNS+"/"
+};
+__AFLIX.origin_dev={
   "X-Org-Prox":__AFLIX.ns,
   "X-Ref-Prox":__AFLIX.ns
 };
@@ -2127,7 +2131,7 @@ const vtt={
     // console.log("LOADING SUBTITLE = "+JSON.stringify(sub));
     var hdr=null;
     if (__SD5){
-      hdr=__AFLIX.origin;
+      hdr=__AFLIX.origin_dev;
     }
     $ap(sub.u,function(r){
       if (r.ok){
@@ -3089,7 +3093,7 @@ const pb={
       pb.cfg_update_el("quality");
     }
     if (__SD5){
-      $ap(src,getm3u8cb,__AFLIX.origin);
+      $ap(src,getm3u8cb,__AFLIX.origin_dev);
     }
     else{
       $ap(src,getm3u8cb);

@@ -1,23 +1,17 @@
 package com.amarullz.androidtv.animetvjmto;
 
 public class Conf {
-  public static String DOMAIN = "aniwave.to";
+  public static String DOMAIN = "animeflix.live";
   public static String[] SOURCE_DOMAINS={
-      "aniwave.to", /* default */
+      "animeflix.live", /* default */
       "aniwave.to",
       "anix.to",
       "hianime.to",
       "aniwatchtv.to",
       "animeflix.live"
   };
-
   public static String SOURCE_DOMAIN5_API = "api.animeflix.dev";
-//  public static String SOURCE_DOMAIN1 = "aniwave.to";
-//  public static String SOURCE_DOMAIN2 = "anix.to";
-//  public static String SOURCE_DOMAIN3 = "hianime.to";
-//  public static String SOURCE_DOMAIN4 = "aniwatchtv.to";
-//  public static String SOURCE_DOMAIN5 = "aniwatchtv.to";
-  public static int SOURCE_DOMAIN = 1;
+  public static int SOURCE_DOMAIN = 5;
 
   public static void updateSource(int num){
     SOURCE_DOMAIN=num;

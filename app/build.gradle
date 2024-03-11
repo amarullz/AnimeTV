@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android' version '1.9.20' apply false
 }
 
 android {
@@ -11,7 +12,7 @@ android {
         minSdk 22
         targetSdk 33
         versionCode 260
-        versionName "2.7.5-Nightly"
+        versionName "2.7.9-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
@@ -45,7 +46,6 @@ dependencies {
 
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'com.devbrackets.android:exomedia:5.0.0'
-
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation('com.squareup.okhttp3:okhttp-dnsoverhttps:4.12.0')
