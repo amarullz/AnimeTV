@@ -1,4 +1,30 @@
 # Changelogs
+- **2.8.8 🍕**
+  - Add recently updated to Source-5
+  - Add source1/2 blocked confirmation
+  - Fix video end before actually end
+  - Add Source-5 From Animeflix
+  - Update video player handling & exomedia data source
+  - Set Source-5 as default source
+  - Source 5: Add Dub icon in episode
+  - From 2.7.1 to 2.7.9
+    - Add Use DUB Stream settings to watch dub with subtitle
+    - Add Disable Subtitle to watch japan audio without subtitle (Only for softsub source)
+    - Fix anix playback of WAF blocked
+    - Fix source3 & 4 slideshow image
+    - If you have a problem with source 1/2, Select source 2 & use Generic HttpClient
+    - Add Source-4 from aniwatchtv with same scrapper as Source-3
+    - Fix yet another pixelated thumbnails (source1/2) of top-anime,related & reccommendation
+    - Add source-3 from hianime
+    - Add cronet disk cache
+    - Disable settings items if it doesn't support with other settings
+    - Prevent action if settings item is disabled
+    - Update some typo & Source naming
+    - Add new slideshow style for source 3
+    - Add slow scaling animation on slideshow
+    - Remove opacity from unactive home list
+    - Make sure search & settings button hidden non-liga character
+    - Add lazy loading transition for slideshow
 - **2.6.0 🍬**
   - Fix history/watchlist timing reset on uncompleted rewatch
   - Fix low-res reccommendation & related thumbnails

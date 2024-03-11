@@ -7,10 +7,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",
 
-  "appnum": 260,
-  "appver": "2.6.0",
-  "appsize": "8.52 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.6.0/animetv-2.6.0.apk",
+  "appnum": 288,
+  "appver": "2.8.8",
+  "appsize": "8.43 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.8.8/animetv-2.8.8.apk",
   "appnote": 
-    "- Minify & Strip debug (filesize ~8MB)\n- Fix timing save, MAL not loading, thumbnails\n- Add HTTP client selection\n- Add preload next episode\n- Tweak many UI improvements"
+    "- Add 3 New Source from HiAnime, AnimeWatchTv and AnimeFlix\n- Update exomedia video handler\n- New slideshow style"
 }

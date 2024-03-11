@@ -11,8 +11,8 @@ android {
         applicationId "com.amarullz.androidtv.animetvjmto"
         minSdk 22
         targetSdk 33
-        versionCode 260
-        versionName "2.7.9-Nightly"
+        versionCode 288
+        versionName "2.8.8"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
