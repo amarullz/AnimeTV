@@ -60,7 +60,7 @@ function $a(uri, cb, hdr, pd){
 }
 
 var __cf_onvalidation=false;
-if (!__SD3){
+if (!__SD3&&!__SD5){
   function anix_challange(a,b){
     var k='f0357a3f154bc2ffe2bff55055457068',
     l=k.length,
@@ -367,12 +367,22 @@ const __AFLIX = {
       for (i=0;i<l;i++){
           o.push(x.charCodeAt(i).toString(20));
       }
-      return o.join('').toUpperCase();
+      return o.join('');
+  },
+  enc_kk:["getUTCDate", "getUTCMonth", "0", "padStart", "floor", "charCodeAt", "", "reduce", "split"],
+  enc2:function(e) {
+      var kk=__AFLIX.enc_kk;
+      var t = new Date
+        , n = 17 + (t[kk[0]]() - t[kk[1]]()) / 2;
+      return e[kk[8]](kk[6])[kk[7]](((e,t)=>e + t[kk[5]](0).toString(Math[kk[4]](n))[kk[3]](2, kk[2])), kk[6])
   }
 };
 __AFLIX.origin={
   "X-Org-Prox":__AFLIX.ns,
-  "X-Ref-Prox":"https://"+__DNS+"/"
+  "X-Ref-Prox":"https://"+__DNS+"/",
+  'X-Requested-With':'XMLHttpRequest',
+  'Pragma':'no-cache',
+  'Cache-Control':'no-cache'
 };
 __AFLIX.origin_dev={
   "X-Org-Prox":__AFLIX.ns,
@@ -822,7 +832,7 @@ const _API={
           if (--load_n<1){
             runCb(d);
           }
-        },3);
+        },6);
       }
       if (edat.dub){
         __AFLIX.req(edat.dub,function(r){
@@ -888,7 +898,7 @@ const _API={
     }
 
     var epurl=
-      '/episodes?id='+enc(slug)+'&c='+__AFLIX.enc(slug)+'&dub=';
+      '/episodes?id='+enc(slug)+'&c='+__AFLIX.enc2(slug)+'&dub=';
     var ep_data={
       d:{ep_val:{}},
       n:0,
@@ -899,6 +909,7 @@ const _API={
         try{
           var t=JSON.parse(r.responseText);
           var l=t.episodes.length;
+          var active_s=null;
           for (var i=0;i<l;i++){
             var p=t.episodes[i];
             var s={};
@@ -909,6 +920,9 @@ const _API={
               s.filler=false;
               s.img=p.image;
               s.title=p.title;
+              if (!active_s){
+                active_s=s;
+              }
               if (s.active){
                 ep_data.active_ep=s;
                 ep_data.d.active_ep=ep_data.active_ep;
@@ -920,14 +934,18 @@ const _API={
             }
             if (dub){
               var surl=slug+'-dub-episode-'+s.ep;
-              var c=__AFLIX.enc(surl);
+              var c=__AFLIX.enc2(surl);
               s.dub='/watch/'+surl+'?server=&c='+c;
             }
             else{
               var surl=slug+'-episode-'+s.ep;
-              var c=__AFLIX.enc(surl);
+              var c=__AFLIX.enc2(surl);
               s.sub='/watch/'+surl+'?server=&c='+c;
             }
+          }
+          if (!ep_data.active_ep && active_s){
+            ep_data.active_ep=active_s;
+            ep_data.d.active_ep=ep_data.active_ep;
           }
         }catch(e){
           console.log("EPCBERR: "+e+" -> "+r.responseText);
@@ -977,7 +995,7 @@ const _API={
         }
         r.ok=false;
         ep_cb(r,false);
-      }, 4);
+      }, 0);
     }
     fetchEpInfo(false);
     fetchEpInfo(true);
@@ -4502,7 +4520,6 @@ const pb={
       var act=null;
       var first_ep='';
       var last_ep='';
-      console.log("EP: "+JSON.stringify(pb.data.ep));
       for (var i=start;((i<pb.data.ep.length)&&(i<start+paging_sz));i++){
         var d=pb.data.ep[i];
         var adh='';
@@ -4987,6 +5004,12 @@ const pb={
         pb.data=d;
         _API.setUri(uri);
         pb.init();
+      }
+      else if (uid==u){
+        if (!noclean){
+          pb.reset(1);
+        }
+        _API.showToast("Playing episode failed. Please try again...");
       }
     });
     if (uid){
