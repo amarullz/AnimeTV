@@ -182,13 +182,17 @@ function trim(s){
   return (s+"").trim();
 }
 
-function slugString(Text) {
+function slugString(Text,rp) {
+  if (!rp){
+    rp=' ';
+  }
   return Text.toLowerCase()
     .replace(/[^\w]+/g, " ")
     .replace(/  /g, "  ")
     .replace(/  /g, " ")
     .replace(/  /g, " ")
-    .replace(/  /g, " ").trim();
+    .replace(/  /g, " ")
+    .replace(/ /g, rp).trim();
 }
 
 /* nl2br */
@@ -268,7 +272,50 @@ function md2html(text){
 const __AFLIX = {
   ns:'https://'+_JSAPI.flix_dns(),
   cache:{},
+  req_cache:{},
   slug_cache:{},
+  req:function(u,cb,shouldJson,nocache){
+    var cache_name=slugString(u,'_');
+    if (!nocache){
+      if (cache_name in __AFLIX.req_cache){
+        if (__AFLIX.req_cache[cache_name].exp>$time()){
+          setTimeout(function(){
+            cb(JSON.parse(JSON.stringify(__AFLIX.req_cache[cache_name])));
+          },5);
+          return;
+        }
+      }
+    }
+    $ap(__AFLIX.ns+u,function(r){
+      if (r.ok){
+        r.contentType=r.getResponseHeader('content-type');
+        if (shouldJson && r.contentType!='application/json'){
+          r.ok=false;
+        }
+      }
+      if (r.ok){
+        __AFLIX.req_cache[cache_name]=JSON.parse(JSON.stringify({
+          responseText:r.responseText,
+          contentType:r.contentType,
+          ok:true,
+          exp:$time()+240
+        }));
+      }
+      else{
+        delete __AFLIX.req_cache[cache_name];
+        if (shouldJson){
+          if (--shouldJson>0){
+            // Retry
+            setTimeout(function(){
+              __AFLIX.req(u,cb,shouldJson);
+            },10);
+            return;
+          }
+        }
+      }
+      cb(r);
+    },__AFLIX.origin);
+  },
   setCache:function(u){
     try{
       __AFLIX.cache[u.anilistID]=JSON.stringify(u);
@@ -283,7 +330,7 @@ const __AFLIX = {
   },
   getEp:function(url){
     var p=url.split("#");
-    return toInt(p[1]?p[1]:1);
+    return (p[1]?p[1]:1);
   },
   getSlug:function(url){
     return __AFLIX.getUrl(url).split("/")[0];
@@ -756,55 +803,35 @@ const _API={
 
     function getEpServer(d,edat){
       var load_n=0;
+      if (edat.sub) load_n++;
+      if (edat.dub) load_n++;
       d.skip=[];
-      console.log(edat);
+      console.log(['getEpServer',edat]);
       if (edat.sub){
-        load_n++;
-        var load_sub_n=4;
-        function LoadSub(){
-          $ap(__AFLIX.ns+edat.sub+"&"+$tick(),function(r){
-            if (r.ok){
-              try{
-                var k=JSON.parse(r.responseText);
-                d.stream_sub_url=k.source;
-                load_sub_n=0;
-              }catch(e){}
-            }
-            if (load_sub_n>0){
-              --load_sub_n;
-              LoadSub();
-              return;
-            }
-            if (--load_n<1){
-              runCb(d);
-            }
-          },__AFLIX.origin);
-        }
-        LoadSub();
+        __AFLIX.req(edat.sub,function(r){
+          if (r.ok){
+            try{
+              var k=JSON.parse(r.responseText);
+              d.stream_sub_url=k.source;
+            }catch(e){}
+          }
+          if (--load_n<1){
+            runCb(d);
+          }
+        },3);
       }
       if (edat.dub){
-        load_n++;
-        var load_dub_n=4;
-        function LoadDub(){
-          $ap(__AFLIX.ns+edat.dub+"&"+$tick(),function(r){
-            if (r.ok){
-              try{
-                var k=JSON.parse(r.responseText);
-                d.stream_dub_url=k.source;
-                load_dub_n=0;
-              }catch(e){}
-            }
-            if (load_dub_n>0){
-              --load_dub_n;
-              LoadDub();
-              return;
-            }
-            if (--load_n<1){
-              runCb(d);
-            }
-          },__AFLIX.origin);
-        }
-        LoadDub();
+        __AFLIX.req(edat.dub,function(r){
+          if (r.ok){
+            try{
+              var k=JSON.parse(r.responseText);
+              d.stream_dub_url=k.source;
+            }catch(e){}
+          }
+          if (--load_n<1){
+            runCb(d);
+          }
+        },3);
       }
       if (load_n==0){
         _API.hi_last_view.view_url='';
@@ -814,32 +841,32 @@ const _API={
     }
 
     if (_API.hi_last_view.view_url==aid){
-      pb.open_ttip(_API.hi_last_view.data);
-      /* Just Load Server */
-      var eps=_API.hi_last_view.data.ep;
-      var active_ep_id=null;
-      if (_API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index]){
-        _API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index].active=false;
-        for (var i=0;i<eps.length;i++){
-          var s=eps[i];
-          if (get_ep==s.ep){
-            active_ep_id=s;
-            _API.hi_last_view.data.active_ep=active_ep_id;
-            _API.hi_last_view.data.active_ep_index=i;
-            _API.hi_last_view.data.ep[i].active=true;
-            break;
+      if (_API.hi_last_view.data && _API.hi_last_view.data.ep){
+        pb.open_ttip(_API.hi_last_view.data);
+        /* Just Load Server */
+        var eps=_API.hi_last_view.data.ep;
+        var active_ep_id=null;
+        if (_API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index]){
+          _API.hi_last_view.data.ep[_API.hi_last_view.data.active_ep_index].active=false;
+          for (var i=0;i<eps.length;i++){
+            var s=eps[i];
+            if (get_ep==s.ep){
+              active_ep_id=s;
+              _API.hi_last_view.data.active_ep=active_ep_id;
+              _API.hi_last_view.data.active_ep_index=i;
+              _API.hi_last_view.data.ep[i].active=true;
+              break;
+            }
           }
-        }
-        console.log("CACHED : "+active_ep_id);
-        if (active_ep_id){
-          getEpServer({},active_ep_id);
-          return uid;
+          console.log("CACHED : "+active_ep_id);
+          if (active_ep_id){
+            getEpServer({},active_ep_id);
+            return uid;
+          }
         }
       }
     }
-    else{
-      _API.hi_last_view.data=null;
-    }
+    _API.hi_last_view.data=null;
     _API.hi_last_view.view_url=aid;
 
     // Get Data
@@ -859,12 +886,11 @@ const _API={
     var epurl=
       '/episodes?id='+enc(slug)+'&c='+__AFLIX.enc(slug)+'&dub=';
     var ep_data={
-      d:{ep:[]},
+      d:{ep_val:{}},
       n:0,
       active_ep:null
     };
     function ep_cb(r,dub){
-      console.log("EPCB = "+r.responseText);
       if (r.ok){
         try{
           var t=JSON.parse(r.responseText);
@@ -872,7 +898,7 @@ const _API={
           for (var i=0;i<l;i++){
             var p=t.episodes[i];
             var s={};
-            if (!ep_data.d.ep[p.number-1]){
+            if (!ep_data.d.ep_val[p.number]){
               s.ep=p.number;
               s.url=viewurl+"#"+s.ep;
               s.active=(get_ep==s.ep)?true:false;
@@ -882,12 +908,11 @@ const _API={
               if (s.active){
                 ep_data.active_ep=s;
                 ep_data.d.active_ep=ep_data.active_ep;
-                ep_data.d.active_ep_index=p.number-1;
               }
-              ep_data.d.ep[p.number-1]=s;
+              ep_data.d.ep_val[p.number]=s;
             }
             else{
-              s=ep_data.d.ep[p.number-1];
+              s=ep_data.d.ep_val[p.number];
             }
             if (dub){
               var surl=slug+'-dub-episode-'+s.ep;
@@ -907,6 +932,28 @@ const _API={
       if (++ep_data.n>=2){
         // runCb(ep_data.d);
         if (ep_data.active_ep){
+          /* Fix ep ordering */
+          var ep=ep_data.d.ep_val;
+          delete ep_data.d.ep_val;
+          ep_data.d.ep=[];
+          var esorted=[];
+          for (var i in ep){
+            esorted.push(i);
+          }
+          esorted.sort(function(a, b) {
+            return Number(a) - Number(b);
+          });
+          var vindex=0;
+          for (var i=0;i<esorted.length;i++){
+            var id=esorted[i];
+            if (ep[id]){
+              ep_data.d.ep.push(ep[id]);
+              if (ep[id].active){
+                ep_data.d.active_ep_index=vindex;
+              }
+              vindex++;
+            }
+          }
           getEpServer(ep_data.d,ep_data.active_ep);
         }
         else{
@@ -918,14 +965,18 @@ const _API={
     }
     // Get Episodes
     console.log("Get Episode URL: "+epurl);
-    $ap(__AFLIX.ns+epurl+'false&'+$tick(),function(r){
-      // sub
-      ep_cb(r,false);
-    },__AFLIX.origin);
-    $ap(__AFLIX.ns+epurl+'true&'+$tick(),function(r){
-      // dub
-      ep_cb(r,true);
-    },__AFLIX.origin);
+    function fetchEpInfo(isdub){
+      __AFLIX.req(epurl+(isdub?'true':'false'),function(r){
+        if (r.contentType=='application/json'){
+          ep_cb(r,false);
+          return;
+        }
+        r.ok=false;
+        ep_cb(r,false);
+      }, 4);
+    }
+    fetchEpInfo(false);
+    fetchEpInfo(true);
 
     return uid;
   },
@@ -1173,7 +1224,7 @@ const _API={
     };
     try{
       var da=JSON.parse(jsn);
-      console.log("JSON : "+jsn);
+      // console.log("JSON : "+jsn);
       var u=('slug' in da)?da:da[0];
       if (!u){
         return null;
@@ -1186,6 +1237,11 @@ const _API={
       o.synopsis=stripHtml(u.description);
       o.poster=u.images.medium;
       o.ep=u.episodeNum;
+      if (u.nextAiringEpisode){
+        if (u.nextAiringEpisode.episode && u.nextAiringEpisode.episode>1){
+          o.ep=o.epavail=u.nextAiringEpisode.episode-1;
+        }
+      }
       o.type=u.type?u.type:'';
       o.status=u.status?u.status:'';
       if (u.duration){
@@ -3339,6 +3395,11 @@ const pb={
         // Parsing Player HTML
         var d=$n('div','',null,null,r.responseText);
         var srcscript=d.querySelectorAll('script')[2];
+        if (!srcscript){
+          console.log("Player HTML Failed = "+r.responseText);
+          d.innerHTML='';
+          return false;
+        }
         var iscript = srcscript.innerText.split('};').shift()+'};';
 
         // Load Subtitles:
@@ -3397,23 +3458,28 @@ const pb={
 
           // Run Callback
           cb();
+          return true;
         }
-        console.log("PLAYER INFO: "+JSON.stringify(play_data));
       }
+      return false;
     }
-    var video_loading_n=0;
-    function startLoad(){
-      $ap(__AFLIX.ns+u+(video_loading_n?'&'+$tick():''),function(r){
+    function reqPlayer(nc){
+      __AFLIX.req(u,function(r){
         if (r.ok){
-          videoLoaded(r);
-          return;
+          if (!videoLoaded(r)){
+            if (++nc<5){
+              setTimeout(function(){
+                reqPlayer(1);
+              },500);
+            }
+            else{
+              _API.showToast("Loading video failed...");
+            }
+          }
         }
-        if (++video_loading_n<6){
-          setTimeout(startLoad,10*video_loading_n);
-        }
-      },__AFLIX.origin);
+      });
     }
-    startLoad();
+    reqPlayer(0);
   },
   flix_play_video:function(){
     pb.pb_vid.innerHTML='';
@@ -4432,6 +4498,7 @@ const pb={
       var act=null;
       var first_ep='';
       var last_ep='';
+      console.log("EP: "+JSON.stringify(pb.data.ep));
       for (var i=start;((i<pb.data.ep.length)&&(i<start+paging_sz));i++){
         var d=pb.data.ep[i];
         var adh='';
@@ -5085,6 +5152,11 @@ const home={
           d.tip=u.anilistID;
           d.poster=u.images.medium;
           d.epavail=d.ep=u.episodeNum;
+          if (u.nextAiringEpisode){
+            if (u.nextAiringEpisode.episode && u.nextAiringEpisode.episode>1){
+              d.ep=d.epavail=u.nextAiringEpisode.episode-1;
+            }
+          }
           d.type=u.type;
           if (u.duration){
             d.duration=u.duration+'MIN';
@@ -5248,7 +5320,7 @@ const home={
     if (__SD5){
       load_page--;
     }
-    console.log('RECENT LOAD = '+g._ajaxurl+''+load_page);
+    // console.log('RECENT LOAD = '+g._ajaxurl+''+load_page);
     $a(g._ajaxurl+''+load_page,function(r){
       if (r.ok){
         try{
@@ -5435,6 +5507,11 @@ const home={
                 d.poster=u.bannerImage;
               }
               d.epavail=d.ep=u.episodeNum;
+              if (u.nextAiringEpisode){
+                if (u.nextAiringEpisode.episode && u.nextAiringEpisode.episode>1){
+                  d.ep=d.epavail=u.nextAiringEpisode.episode-1;
+                }
+              }
               d.type=u.type;
               if (u.duration){
                 d.duration=u.duration+'MIN';
@@ -6777,7 +6854,7 @@ const _MAL={
             localStorage.removeItem(_API.user_prefix+"mal_auth");
         }
     }
-    console.log("MAL-INIT: "+maldata);
+    // console.log("MAL-INIT: "+maldata);
     if (maldata){
       try{
         _MAL.auth = JSON.parse(maldata);
@@ -6794,10 +6871,10 @@ const _MAL={
         _MAL.auth=null;
       }
     }
-    console.log("MAL-TOKEN: "+_MAL.token);
+    // console.log("MAL-TOKEN: "+_MAL.token);
 
     var aldata=_JSAPI.storeGet(_API.user_prefix+"anilist_auth","");
-    console.log("ANILIST-INIT: "+aldata);
+    // console.log("ANILIST-INIT: "+aldata);
     if (aldata){
       try{
         _MAL.alauth = JSON.parse(aldata);
@@ -6814,7 +6891,7 @@ const _MAL={
         _MAL.alauth=null;
       }
     }
-    console.log("ANILIST-TOKEN: "+_MAL.altoken);
+    // console.log("ANILIST-TOKEN: "+_MAL.altoken);
   },
   req:function(uri, method, cb){
     if (!_MAL.token){
@@ -7077,7 +7154,7 @@ const _MAL={
     var load_page=(g._page-1)*_MAL.limit;
     _MAL.list(load_page, function(r){
       if (r.ok){
-        console.log("MAL-LIST: "+r.responseText);
+        // console.log("MAL-LIST: "+r.responseText);
         try{
           var v=JSON.parse(r.responseText);
           _MAL.list_parse(g,v);
@@ -7087,7 +7164,7 @@ const _MAL={
       }
       else{
         setTimeout(function(){_MAL.home_loader(g)},10000);
-        console.log("MAL-LIST: ERROR");
+        // console.log("MAL-LIST: ERROR");
       }
     });
   },
@@ -7095,7 +7172,7 @@ const _MAL={
     g._onload=1;
     _MAL.allist(g._page,function(r){
       if (r.ok){
-        console.log("ANILIST-LIST: "+r.responseText);
+        // console.log("ANILIST-LIST: "+r.responseText);
         try{
           var v=JSON.parse(r.responseText);
           _MAL.allist_parse(g,v);
@@ -7104,7 +7181,7 @@ const _MAL={
       }
       else{
         setTimeout(function(){_MAL.alhome_loader(g)},10000);
-        console.log("ANILIST-LIST: ERROR -> "+r.responseText);
+        // console.log("ANILIST-LIST: ERROR -> "+r.responseText);
       }
     });
   },
@@ -7686,7 +7763,7 @@ const _MAL={
     if (!_MAL.onpopup){
       return;
     }
-    console.log("PreviewDo = "+JSON.stringify([url, img, ttid, currep, tcurr, tdur,d,arg,malid]));
+    // console.log("PreviewDo = "+JSON.stringify([url, img, ttid, currep, tcurr, tdur,d,arg,malid]));
     try{
     var numep=toInt(d.ep);
     currep=toInt(currep);
