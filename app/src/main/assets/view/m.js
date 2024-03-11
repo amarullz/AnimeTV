@@ -558,6 +558,8 @@ const _API={
     "_special":"5",
     "_music":"6",
 
+    // "TV","MOVIE","OVA","ONA","SPECIAL"
+
     "action":"1","adventure":"2","cars":"3","comedy":"4","dementia":"5","demons":"6","drama":"8",
     "ecchi":"9","fantasy":"10","game":"11","harem":"35","historical":"13","horror":"14","isekai":"44",
     "josei":"43","kids":"15","magic":"16","martial_arts":"17","mecha":"18","military":"38","music":"19",
@@ -566,12 +568,22 @@ const _API={
     "space":"29","sports":"30","super_power":"31","supernatural":"37","thriller":"41","vampire":"32"
   },
 
+  genres_flix:{
+    "_tv":"TV","_movie":"MOVIE",
+    "_ova":"OVA","_ona":"ONA",
+    "_special":"SPECIAL",
+
+    "action":"Action","adventure":"Adventure","comedy":"Comedy","drama":"Drama","ecchi":"Ecchi","fantasy":"Fantasy",
+    "horror":"Horror","mecha":"Mecha","mystery":"Mystery","psychological":"Psychological","romance":"Romance",
+    "sci_fi":"Sci-Fi","sports":"Sports","supernatural":"Supernatural","thriller":"Thriller"
+  },
+
   filterurl:function(q,genres,sort,page,ses,year){
     /*
       sort: 1.Relevant, 2.RecentUpdate
     */
     var uri='';
-    if (!__SD3){
+    if (!__SD3 && !__SD5){
       var qv=[];
       
       qv.push('keyword='+enc(q));
@@ -612,6 +624,50 @@ const _API={
         qv.push('page='+page);
       }
       uri='/filter?'+qv.join('&');
+      console.log('FILTER: '+uri);
+    }
+    else if (__SD5){
+      // ANIME FLIX
+      var filters={};
+      var qv=[];
+      q=(q+'').toLowerCase();
+      qv.push('query='+enc(q));
+      if (genres){
+        var gnr=[];
+        var tps=[];
+        for (var i=0;i<genres.length;i++){
+          var vl=genres[i];
+          if (vl.charAt(0)=='_'){
+            tps.push(_API.genres_flix[vl]);
+          }
+          else{
+            gnr.push(_API.genres_flix[vl]);
+          }
+        }
+        if (tps.length>0){
+          filters.type=tps;
+        }
+        if (gnr.length>0){
+          filters.genre=gnr;
+        }
+      }
+      var ksalt=q;
+      if (q.length>3){
+        ksalt=q.substring(0,3);
+      }
+      qv.push('limit=15');
+      qv.push('filters='+enc(JSON.stringify(filters)));
+      qv.push('k='+enc(__AFLIX.enc2(ksalt)));
+
+      if (!q){
+        uri='';
+        if (filters.genre.length>0){
+          uri='/__proxy/'+__AFLIX.ns+'/genres/'+(filters.genre[filters.genre.length-1])+'?page='+(page>1?page-1:0);
+        }
+      }
+      else{
+        uri='/__proxy/'+__AFLIX.ns+'/info/?'+qv.join('&');
+      }
       console.log('FILTER: '+uri);
     }
     else{
@@ -5199,6 +5255,7 @@ const home={
           d.title=__AFLIX.getTitle(u);
           d.title_jp=__AFLIX.getTitle(u,1);
           d.tip=u.anilistID;
+          d.malid=u.malID;
           d.poster=u.images.medium;
           d.epavail=d.ep=u.episodeNum;
           if (u.nextAiringEpisode){
@@ -6429,6 +6486,9 @@ const home={
       if (__SD3){
         rd=home.hi_parse(v);
       }
+      else if (__SD5){
+        rd=home.flix_parse(v);
+      }
       else if (__SD==1){
         var h=$n('div','','',null,v);
         // wave
@@ -6600,15 +6660,17 @@ const home={
           rc._sel=null;
         }
 
-        home.search.res.classList.add('searching');
-        home.search.res._onload=1;
-        $a(uri,function(r){
-          if (r.ok){
-            home.search.dosearch_parse(r.responseText);
-          }
-          home.search.res.classList.remove('searching');
-          home.search.res._onload=0;
-        });
+        if (uri){
+          home.search.res.classList.add('searching');
+          home.search.res._onload=1;
+          $a(uri,function(r){
+            if (r.ok){
+              home.search.dosearch_parse(r.responseText);
+            }
+            home.search.res.classList.remove('searching');
+            home.search.res._onload=0;
+          },__SD5?__AFLIX.origin:null);
+        }
       }
     },
     initresult:function(rc){
@@ -6695,7 +6757,7 @@ const home={
       ];
       home.search.initresult(home.search.res);
 
-      _API.setUri((__SD3)?"/search":"/filter");
+      _API.setUri((__SD3||__SD5)?"/search":"/filter");
 
       home.onsearch=true;
       home.search.search.classList.add('active');
@@ -6725,7 +6787,14 @@ const home={
       home.search.genres._els={};
       var vsel=null;
 
-      var genrelist=(__SD3)?_API.genres_hi:_API.genres;
+      var genrelist=_API.genres;
+      if (__SD3){
+        genrelist=_API.genres_hi;
+      }
+      else if (__SD5){
+        genrelist=_API.genres_flix;
+      }
+      
       for (var i in genrelist){
         var title=i.replace(/_/g," ").toUpperCase().trim();
         var gn=$n('div','',{
@@ -6735,7 +6804,7 @@ const home={
         gn._title=title;
         gn._key=i;
         if (srcgenre){
-          if (srcgenre==i){
+          if (srcgenre.toLowerCase()==i.toLowerCase()){
             vsel=gn;
             gn.innerHTML='<c>check</c> '+special(title);
             home.search.genreval.push(i);
@@ -7465,9 +7534,26 @@ const _MAL={
           var sel=rd[0];
           var slkw=slugString(kw);
           for (var i=0;i<rd.length;i++){
-            if ((slugString(rd[i].title)==slkw)||(slugString(rd[i].title_jp)==slkw)){
-              sel=rd[i];
-              break;
+            if (__SD5){
+              if (isanilist){
+                if (d.media.id==rd[i].tip){
+                  sel=rd[i];
+                  break;
+                }
+              }
+              else{
+                if (d.id==rd[i].malid){
+                  console.log("MAL MATCH = "+rd[i].malid+" -> "+d.id);
+                  sel=rd[i];
+                  break;
+                }
+              }
+            }
+            else{
+              if ((slugString(rd[i].title)==slkw)||(slugString(rd[i].title_jp)==slkw)){
+                sel=rd[i];
+                break;
+              }
             }
           }
 
@@ -7483,7 +7569,7 @@ const _MAL={
       }
       d.srcanime=[];
       cb(d.srcanime);
-    });
+    },__SD5?__AFLIX.origin:null);
   },
   action_handler:function(id){
     try{
