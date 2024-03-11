@@ -990,11 +990,11 @@ const _API={
     function fetchEpInfo(isdub){
       __AFLIX.req(epurl+(isdub?'true':'false'),function(r){
         if (r.contentType=='application/json'){
-          ep_cb(r,false);
+          ep_cb(r,isdub);
           return;
         }
         r.ok=false;
-        ep_cb(r,false);
+        ep_cb(r,isdub);
       }, 0);
     }
     fetchEpInfo(false);
@@ -1314,6 +1314,21 @@ const _API={
         o.stp=0;
         o.streamtype='';
         o.url=__AFLIX.setUrl(u.slug,u.anilistID);
+
+        /* Get Related */
+        if (u.relatedAnime){
+          for (var i=0;i<u.relatedAnime.length;i++){
+            var rel=u.relatedAnime[i];
+            var sv={};
+            sv.url=__AFLIX.setUrl(rel.slug,rel.anilistID);
+            sv.tip=rel.anilistID;
+            rel.title=rel.animeName;
+            sv.title=__AFLIX.getTitle(rel);
+            sv.title_jp=__AFLIX.getTitle(rel,1);
+            sv.poster=rel.images.medium;
+            o.related.push(sv);
+          }
+        }
       }
       return o;
     }catch(e){
@@ -3376,6 +3391,7 @@ const pb={
       }
       else if (__SD5){
         pb.flix_load_video(pb.data, true, function(){
+          pb.updateStreamTypeInfo();
           pb.flix_play_video();
         });
       }
@@ -4542,6 +4558,10 @@ const pb={
           hl.classList.add('filler');
           hl.innerHTML+='<i>FILLER</i>';
         }
+        if (d.dub){
+          hl.classList.add('havedub');
+          hl.innerHTML+='<c class="dubinfo">mic</c>';
+        }
         if (!first_ep) first_ep=d.ep;
         last_ep=d.ep;
       }
@@ -4609,13 +4629,15 @@ const pb={
       }
     }
 
-    pb.pb_settings._s_mirrorserver=$n(
-      'div','',{
-        action:'*mirrorserver'
-      },
-      pb.pb_settings.P,
-      '<c>clear</c> MIRROR SERVER'
-    );
+    if (!__SD5){
+      pb.pb_settings._s_mirrorserver=$n(
+        'div','',{
+          action:'*mirrorserver'
+        },
+        pb.pb_settings.P,
+        '<c>clear</c> MIRROR SERVER'
+      );
+    }
     
     /*
     sub, softsub, dub

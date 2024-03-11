@@ -887,7 +887,16 @@ c.loader {
 #pb_episodes div.filler {
   color: #fda;
 }
-
+#pb_episodes div.havedub c.dubinfo {
+  position: absolute;
+  top: .2vw;
+  left: .2vw;
+  font-size: var(--fs-10vw);
+  color:#fff;
+  background-color: rgba(0,0,0,.6);
+  border-radius: .2vw;
+  outline: .1vw solid #000;
+}
 #pb_episodes div.hasbg{
   background-position: center center;
   background-size: cover;
