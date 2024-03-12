@@ -59,32 +59,24 @@ function $a(uri, cb, hdr, pd){
   xhttp.send();
 }
 
-var __cf_onvalidation=false;
-if (!__SD3&&!__SD5){
-  $a('/',function(r){
-    if (r.ok){
-      var x=r.responseText;
-      if (x.indexOf('"/waf-js-run"')>0){
-        if (confirm(
-          "Source : "+__SD_NAME+" Is Blocked your connection\n"+
-          "Change source now?"
-        )){
-          _JSAPI.setSd(5);
-          setTimeout(function(){
-            _API.reload();
-          },200);
-        }
-      }
-    }
-  });
-}
-function __CFRAYOK(){
-  if (!__SD3){
-    if (__cf_onvalidation){
-      _JSAPI.reloadHome();
-    }
-  }
-}
+// if (!__SD3&&!__SD5){
+//   $a('/ajax/user/panel',function(r){
+//     if (r.ok){
+//       var x=r.responseText;
+//       if (x.indexOf('"/waf-js-run"')>0){
+//         if (confirm(
+//           "Source : "+__SD_NAME+" Is Blocked your connection\n"+
+//           "Change source now?"
+//         )){
+//           _JSAPI.setSd(5);
+//           setTimeout(function(){
+//             _API.reload();
+//           },200);
+//         }
+//       }
+//     }
+//   });
+// }
 
 /* proxy ajax */
 function $ap(uri, cb, hdr){
@@ -5506,47 +5498,47 @@ const home={
   },
 
   ttip_desc:function(hl,ttip,url,ddat){
-    // _API.getTooltip(ttip,function(d){
-    //   if (d){
-    //     el.innerHTML=special(d.synopsis);
-    //   }
-    // }, url);
-    $a(url,function(r){
-      if (r.ok){
-        try{
-          var d=$n('div','',0,0,r.responseText);
-          var w={
-            banner:null,
-            synopsis:''
-          };
-          if (__SD==1){
-            try{
-              w.banner=d.querySelector('#player').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
-            }catch(e){}
-            try{
-              w.synopsis=d.querySelector('#w-info .info .synopsis .content').textContent.trim();
-            }catch(e){}
-          }
-          else if (__SD==2){
-              w.banner=d.querySelector('#ani-player-section div.player-bg').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
-              w.synopsis=d.querySelector('#ani-detail-info .description .short div').textContent.trim();
-          }
-          if (w.banner){
-            hl._img.src=$img(w.banner);
-          }
-          else{
-            hl._img.src=$img(ddat.poster);
-          }
-          hl._desc.innerHTML=special(w.synopsis);
-          d.innerHTML='';
-          return;
-        }catch(e){
-          console.log('ttip err '+e);
-        }
+    _API.getTooltip(ttip,function(d){
+      if (d){
+        hl._desc.innerHTML=special(d.synopsis);
       }
-      hl._img.src=$img(ddat.poster);
-      hl._desc.innerHTML="...";
-    });
+    }, url);
+    // $a(url,function(r){
+    //   if (r.ok){
+    //     try{
+    //       var d=$n('div','',0,0,r.responseText);
+    //       var w={
+    //         banner:null,
+    //         synopsis:''
+    //       };
+    //       if (__SD==1){
+    //         try{
+    //           w.banner=d.querySelector('#player').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+    //         }catch(e){}
+    //         try{
+    //           w.synopsis=d.querySelector('#w-info .info .synopsis .content').textContent.trim();
+    //         }catch(e){}
+    //       }
+    //       else if (__SD==2){
+    //           w.banner=d.querySelector('#ani-player-section div.player-bg').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+    //           w.synopsis=d.querySelector('#ani-detail-info .description .short div').textContent.trim();
+    //       }
+    //       if (w.banner){
+    //         hl._img.src=$img(w.banner);
+    //       }
+    //       else{
+    //         hl._img.src=$img(ddat.poster);
+    //       }
+    //       hl._desc.innerHTML=special(w.synopsis);
+    //       d.innerHTML='';
+    //       return;
+    //     }catch(e){
+    //       console.log('ttip err '+e);
+    //     }
+    //   }
+    //   hl._img.src=$img(ddat.poster);
+    //   hl._desc.innerHTML="...";
+    // });
   },
 
   home_parser:function(v){
@@ -5689,7 +5681,7 @@ const home={
         try{
         var d=td[i];
         
-        if (!__SD3){
+        if (!__SD3&&!__SD5){
           d.poster=$imgcdn(d.poster);
         }
 
@@ -5703,8 +5695,8 @@ const home={
           title:d.title
         };
 
-        var hl=$n('div','fullimg',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
-        hl._img=$n('img','',{loading:'lazy' ,src:(__SD3||__SD5)?$img(d.poster):'' },hl,'');
+        var hl=$n('div',(__SD3||__SD5)?'fullimg':'',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
+        hl._img=$n('img','',{loading:'lazy' ,src:$img(d.poster)},hl,'');
         hl._img.onload=function(){
           this.classList.add('loaded');
         };

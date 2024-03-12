@@ -12,7 +12,7 @@ android {
         minSdk 22
         targetSdk 33
         versionCode 288
-        versionName "2.8.8"
+        versionName "2.9.0-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"

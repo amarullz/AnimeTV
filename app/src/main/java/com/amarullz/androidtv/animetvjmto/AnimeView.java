@@ -445,9 +445,9 @@ public class AnimeView extends WebViewClient {
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
-      if (Conf.HTTP_CLIENT==1 && Conf.SOURCE_DOMAIN<3) {
-        return super.shouldInterceptRequest(view, request);
-      }
+//      if (Conf.HTTP_CLIENT==1 && Conf.SOURCE_DOMAIN<3) {
+//        return super.shouldInterceptRequest(view, request);
+//      }
       WebResourceResponse wr=aApi.defaultRequest(view,request);
       if (wr!=null){
         return wr;
