@@ -282,7 +282,9 @@ public class AnimeView extends WebViewClient {
           public DataSource.Factory provide(@NonNull String s, @Nullable TransferListener transferListener) {
             Map<String, String> settings = new HashMap();
 //            settings.put("origin", "https://vidco.pro");
-            settings.put("origin", "https://"+Conf.SOURCE_DOMAIN5_API);
+            if (Conf.SOURCE_DOMAIN==5) {
+              settings.put("origin", "https://" + Conf.SOURCE_DOMAIN5_API);
+            }
             return new DefaultHttpDataSource.Factory()
                 .setUserAgent(Conf.USER_AGENT)
                 .setDefaultRequestProperties(settings)
@@ -890,6 +892,7 @@ public class AnimeView extends WebViewClient {
     @JavascriptInterface
     public void setSd(int s){
       aApi.setSourceDomain(s);
+      activity.runOnUiThread(AnimeView.this::initVideoView);
     }
 
     @JavascriptInterface
