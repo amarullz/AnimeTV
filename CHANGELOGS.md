@@ -1,4 +1,6 @@
 # Changelogs
+- **2.8.9 🍕**
+  - Disable new slideshow for source 1/2 to prevent WAF
 - **2.8.8 🍕**
   - Add recently updated to Source-5
   - Add source1/2 blocked confirmation
