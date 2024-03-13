@@ -3375,7 +3375,7 @@ const pb={
     "Waifu 2",
     "Your Name",
     "Fuji",
-    "Chibi Umaru",
+    "Your Name 2",
     "No Wallpaper"
   ],
   cfgtheme_name:[
