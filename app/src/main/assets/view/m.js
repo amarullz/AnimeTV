@@ -277,12 +277,13 @@ const wave={
       }
       $a(slist_url,function(r){
         if (r.ok){
+          var query_el=(__SD==1)?'li':'div.server';
           try{
             var j=JSON.parse(r.responseText);
             var d=$n('div','',0,0,j.result);
-            fetchServer('hard',findServer(d.querySelectorAll('[data-type=sub] li')));
-            fetchServer('soft',findServer(d.querySelectorAll('[data-type=softsub] li')));
-            fetchServer('dub',findServer(d.querySelectorAll('[data-type=dub] li')));
+            fetchServer('hard',findServer(d.querySelectorAll('[data-type=sub] '+query_el)));
+            fetchServer('soft',findServer(d.querySelectorAll('[data-type=softsub] '+query_el)));
+            fetchServer('dub',findServer(d.querySelectorAll('[data-type=dub] '+query_el)));
             d.innerHTML='';
             d='';
             return;
@@ -362,12 +363,17 @@ const wave={
           try{
             var j=JSON.parse(r.responseText);
             var d=$n('div','',0,0,j.result);
-            var ep=d.querySelectorAll(".body li");
+            var ep=[];
+            if (__SD==1){
+              ep=d.querySelectorAll(".body li a");
+            }
+            else{
+              ep=d.querySelectorAll("div.range-wrap a");
+            }
             data.ep=[];
             for (var i=0;i<ep.length;i++){
-              var p=ep[i];
+              var a=ep[i];
               var s={};
-              var a=p.querySelector('a');
               s.ids=a.getAttribute('data-ids');
               s.sub=toInt(a.getAttribute('data-sub'))?true:false;
               s.dub=toInt(a.getAttribute('data-dub'))?true:false;
@@ -423,25 +429,103 @@ const wave={
         data.title_jp=title.getAttribute('data-jp');
         data.synopsis=d.querySelector('#w-info .info .synopsis .content').textContent;
 
-        /* genres */
-        var genres=d.querySelectorAll('#w-info .bmeta .meta:first-child div:last-child a');
-        for (var i=0;i<genres.length;i++){
-          try{
-              var gn={};
-              gn.val=genres[i].href.substring(k[i].href.lastIndexOf('/')+1);
-              gn.name=genres[i].textContent.trim();
-              data.genres.push(gn);
-          }catch(ee){}
+        /* info */
+        var info=d.querySelector('#w-info');
+        if (info){
+            /* get genres */
+            var bmeta=info.getElementsByClassName('bmeta');
+            if (bmeta[0]){
+                try{
+                    /* Find Genres */
+                    var k=bmeta[0].firstElementChild.lastElementChild.getElementsByTagName('a');
+                    for (var i=0;i<k.length;i++){
+                        try{
+                            var gn={};
+                            gn.val=k[i].href.substring(k[i].href.lastIndexOf('/')+1);
+                            gn.name=k[i].textContent.trim();
+                            data.genres.push(gn);
+                        }catch(ee){}
+                    }
+                }catch(e){}
+                try{
+                    /* Find Type */
+                    var r=bmeta[0].firstElementChild.firstElementChild.getElementsByTagName('a');
+                    if (r.length>0){
+                        data.info.type={
+                            val:r[0].getAttribute('href'),
+                            name:r[0].textContent.trim()
+                        };
+                    }
+                }catch(e){}
+            }
+            try{
+                /* rating */
+                data.info.rating=info.querySelectorAll("i.rating")[0].textContent;
+            }catch(e){}
+            try{
+                /* quality */
+                data.info.quality=info.querySelectorAll("i.quality")[0].textContent;
+            }catch(e){}
         }
-        var atype=d.querySelector('#w-info .bmeta .meta:first-child div:first-child a');
-        if (atype){
-          data.info.type={
-            val:atype.getAttribute('href'),
-            name:atype.textContent.trim()
-          };
+
+        /* get seasons */
+        var ses=d.querySelector('#w-seasons');
+        if (ses){
+            var sa=ses.getElementsByTagName('a');
+            data.seasons=[];
+            for (var i=0;i<sa.length;i++){
+                var sv={};
+                sv.url=sa[i].href;
+                sv.title=sa[i].textContent.trim();
+                if (sa[i].parentNode.className.indexOf(' active')>0)
+                    sv.active=true;
+                try{
+                    sv.poster=sa[i].style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+                }catch(e){}
+                data.seasons.push(sv);
+            }
         }
-        data.info.rating=d.querySelector('#w-info .info .meta .rating')?.textContent;
-        data.info.quality=d.querySelector('#w-info .info .meta .quality')?.textContent;
+
+        /* get related */
+        var rel=d.querySelector('#w-related');
+        if (rel){
+            var ri=rel.getElementsByTagName('a');
+            for (var i=0;i<ri.length;i++){
+                try{
+                    var ra=ri[i];
+                    var rd={};
+                    rd.poster=ra.getElementsByTagName('img')[0].src;
+                    rd.url=ra.href;
+                    rd.title=ra.getElementsByClassName('d-title')[0].textContent.trim();
+                    var dtip=ra.querySelector('[data-tip]');
+                    if (dtip)
+                       rd.tip=dtip.getAttribute('data-tip');
+                    data.related.push(rd);
+                }catch(e){}
+            }
+        }
+
+        /* get recs */
+        var ws=d.querySelector('#watch-second');
+        if (ws){
+            var wss=ws.querySelector('section.w-side-section');
+            if (wss){
+                var recs=wss.querySelectorAll('a.item');
+                for (var i=0;i<recs.length;i++){
+                    try{
+                        var ra=recs[i];
+                        var rd={};
+                        rd.url=ra.href;
+                        rd.poster=ra.querySelector('img').src;
+                        rd.title=ra.querySelector('div.d-title').textContent.trim();
+                        var dtip=ra.querySelector('[data-tip]');
+                        if (dtip)
+                           rd.tip=dtip.getAttribute('data-tip');
+                        data.recs.push(rd);
+                    }catch(e){}
+                }
+            }
+        }
 
         getEpisodes();
         return true;
@@ -451,7 +535,136 @@ const wave={
       return false;
     }
 
-    var watch_url='/watch/'+animeId+'/ep-'+epId;
+    function anixParse(d){
+      try{
+        data.animeId=d.querySelector('main div.watch-wrap').getAttribute('data-id');
+        var ply=d.querySelector('#ani-player-section');
+        try{
+          data.banner=ply.querySelector('div.player-bg').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+        }catch(e){}
+        /* info */
+        var info=d.querySelector('#ani-detail-info');
+        if (info){
+            var poster=info.querySelector('div.poster img');
+            var title=info.querySelector('.maindata h1');
+            var content=info.querySelector('.maindata .description .full.cts-block');
+            if (poster){
+              data.poster=poster.src;
+            }
+            if (title){
+                data.title=(title.textContent+"").trim();
+                data.title_jp=title.getAttribute('data-jp');
+            }
+            if (content){
+              data.synopsis=(content.textContent+"").trim();
+            }
+
+            /* get genres */
+            var bmeta=info.querySelector('.metadata');
+            if (bmeta){
+              var cmeta=bmeta.querySelectorAll('div.limiter div div');
+              function findMeta(kw){
+                for (var i=0;i<cmeta.length;i++){
+                  if ((cmeta[i].textContent+"").trim().toLowerCase()==kw){
+                    return cmeta[i].nextElementSibling;
+                  }
+                }
+                return null;
+              }
+
+              var gnr=findMeta('genre:');
+              if (gnr){
+                try{
+                  var k=gnr.querySelectorAll('a');
+                  for (var i=0;i<k.length;i++){
+                    try{
+                      var gn={};
+                      gn.val=k[i].href.substring(k[i].href.lastIndexOf('/')+1);
+                      gn.name=k[i].textContent.trim();
+                      data.genres.push(gn);
+                    }catch(ee){}
+                  }
+                }catch(e){}
+              }
+              
+              gnr=findMeta('type:');
+              if (gnr){
+                try{
+                  var k=gnr.querySelector('a');
+                  if (k){
+                    data.info.type={
+                      val:k.getAttribute('href'),
+                      name:k.textContent.trim()
+                    };
+                  }
+                }catch(e){}
+              }
+            }
+            try{
+                /* rating */
+                data.info.rating=info.querySelector('.maindata .sub-info .rating').textContent;
+            }catch(e){}
+
+            try{
+                /* quality */
+                data.info.quality=info.querySelector('.maindata .sub-info .quality').textContent;
+            }catch(e){}
+        }
+
+        /* get seasons */
+        if (ply){
+          data.seasons=[];
+          var sa=ply.querySelectorAll('div.ani-season div.ani-season-body a');
+          for (var i=0;i<sa.length;i++){
+              var sv={};
+              sv.url=sa[i].href;
+              sv.title=(sa[i].textContent+'').trim();
+              if (sa[i].classList.contains('active')){
+                  sv.active=true;
+              }
+              try{
+                  sv.poster=sa[i].querySelector('div.swiper-banner').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+              }catch(e){}
+              data.seasons.push(sv);
+          }
+        }
+
+        /* get related */
+        var ri=d.querySelectorAll('section.sidebar-set.related div.sidebar-item a');
+        for (var i=0;i<ri.length;i++){
+            try{
+                var ra=ri[i];
+                var rd={};
+                rd.poster=ra.querySelector('div.poster img').src;
+                rd.url=ra.href;
+                rd.title=(ra.querySelector('div.ani-detail div.ani-name').textContent+'').trim();
+                rd.tip=ra.querySelector('div.poster').getAttribute('data-tip');
+                data.related.push(rd);
+            }catch(e){}
+        }
+
+        var ws=d.querySelectorAll('section.sidebar-set:not(.related) div.sidebar-item a');
+        for (var i=0;i<ws.length;i++){
+            try{
+                var ra=ws[i];
+                var rd={};
+                rd.poster=ra.querySelector('div.poster img').src;
+                rd.url=ra.href;
+                rd.title=(ra.querySelector('div.ani-detail div.ani-name').textContent+'').trim();
+                rd.tip=ra.querySelector('div.poster').getAttribute('data-tip');
+                data.recs.push(rd);
+            }catch(e){}
+        }
+
+        getEpisodes();
+        return true;
+      }catch(e){
+        console.warn("Error anixParse "+e);
+      }
+      return false;
+    }
+
+    var watch_url=(__SD==1?'/watch/':'/anime/')+animeId+'/ep-'+epId;
     $a(watch_url,function(r){
       if (r.ok){
         try{
@@ -459,6 +672,9 @@ const wave={
           var isok=false;
           if (__SD==1){
             isok=waveParse(d);
+          }
+          else{
+            isok=anixParse(d);
           }
           d.innerHTML='';
           d='';
@@ -1255,7 +1471,7 @@ const _API={
     else if (__SD5){
       return _API.getViewFlix(url,f);
     }
-    else if (__SD==1){
+    else if (__SD==1||__SD==2){
       return wave.getView(url,f);
     }
     _API.viewcb=f;
@@ -5746,7 +5962,9 @@ const home={
                 }
             }
             t.sort(function(a,b){
-              return b.airingTime-a.airingTime
+              var aa=(a.nextAiringEpisode)?a.nextAiringEpisode.airingAt:0;
+              var bb=(b.nextAiringEpisode)?b.nextAiringEpisode.airingAt:0;
+              return bb-aa;
             });
             console.log(["SORTED: ",t]);
           }
