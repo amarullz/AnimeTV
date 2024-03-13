@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,10 +61,15 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class AnimeView extends WebViewClient {
   private static final String _TAG="ATVLOG-VIEW";
@@ -970,6 +976,36 @@ public class AnimeView extends WebViewClient {
     public void cfCheck() {
       cfRayCheck();
     }
+
+    @JavascriptInterface
+    public String vrfEnc(String input) {
+      try {
+        return vrfEncrypt(input);
+      }catch (Exception ignore){}
+      return "";
+    }
+    @JavascriptInterface
+    public String vrfDec(String input) {
+      try {
+        return vrfDecrypt(input);
+      }catch (Exception ignore){}
+      return "";
+    }
+
+    @JavascriptInterface
+    public String aesDec(String cipherText, String key, String ivhex) {
+      return aesDecrypt(cipherText, key, ivhex);
+    }
+
+    @JavascriptInterface
+    public String vidEncode(String vid, String k1, String k2) {
+      try {
+        return vidIdEncode(vid, k1, k2);
+      } catch (Exception e) {
+        return "";
+      }
+    }
+
   }
 
   public boolean cfOnCheck=false;
@@ -1220,4 +1256,102 @@ public class AnimeView extends WebViewClient {
             });
     alert.show();
   }
+
+  /* VRF ANIWAVE */
+  public String vrfEncrypt(String input) throws Exception {
+    SecretKeySpec rc4Key = new SecretKeySpec("ysJhV6U27FVIjjuk".getBytes(), "RC4");
+    Cipher cipher = Cipher.getInstance("RC4");
+    cipher.init(Cipher.DECRYPT_MODE, rc4Key, cipher.getParameters());
+    byte[] vrf = cipher.doFinal(input.getBytes());
+    vrf = Base64.encode(vrf, Base64.URL_SAFE | Base64.NO_WRAP);
+    vrf = Base64.encode(vrf, Base64.DEFAULT | Base64.NO_WRAP);
+    vrf = vrfShift(vrf);
+    vrf = Base64.encode(vrf, Base64.DEFAULT);
+    vrf = rot13(vrf);
+    String stringVrf = new String(vrf, "UTF-8");
+    return stringVrf.trim();
+  }
+
+  public String vrfDecrypt(String input) throws Exception {
+    byte[] vrf = input.getBytes();
+    vrf = Base64.decode(vrf, Base64.URL_SAFE);
+    SecretKeySpec rc4Key = new SecretKeySpec("hlPeNwkncH0fq9so".getBytes(), "RC4");
+    Cipher cipher = Cipher.getInstance("RC4");
+    cipher.init(Cipher.DECRYPT_MODE, rc4Key, cipher.getParameters());
+    vrf = cipher.doFinal(vrf);
+    return URLDecoder.decode(new String(vrf, "UTF-8"), "utf-8");
+  }
+
+  private byte[] rot13(byte[] vrf) {
+    for (int i = 0; i < vrf.length; i++) {
+      byte b = vrf[i];
+      if (b >= 'A' && b <= 'Z') {
+        vrf[i] = (byte) (((b - 'A' + 13) % 26) + 'A');
+      } else if (b >= 'a' && b <= 'z') {
+        vrf[i] = (byte) (((b - 'a' + 13) % 26) + 'a');
+      }
+    }
+    return vrf;
+  }
+
+  private byte[] vrfShift(byte[] vrf) {
+    int[] shift = {-3, 3, -4, 2, -2, 5, 4, 5};
+    for (int i = 0; i < vrf.length; i++) {
+      vrf[i] = (byte) (vrf[i] + shift[i % 8]);
+    }
+    return vrf;
+  }
+
+  private final static String HASH_CIPHER = "AES/CBC/PKCS7PADDING";
+  private final static String HASH_CIPHER_FALLBACK = "AES/CBC/PKCS5PADDING";
+  private static String decryptAES(byte[] cipherTextBytes, byte[] keyBytes, byte[] ivBytes) {
+    try {
+      Cipher cipher;
+      try {
+        cipher = Cipher.getInstance(HASH_CIPHER);
+      } catch (Throwable e) {
+        cipher = Cipher.getInstance(HASH_CIPHER_FALLBACK);
+      }
+      SecretKeySpec keyS = new SecretKeySpec(keyBytes, "AES");
+      cipher.init(Cipher.DECRYPT_MODE, keyS, new IvParameterSpec(ivBytes));
+      return new String(cipher.doFinal(cipherTextBytes), Charsets.UTF_8);
+    } catch (Exception e) {
+      return "";
+    }
+  }
+  public String aesDecrypt(String cipherText, String key, String ivhex) {
+    byte[] iv = hexStringToByteArray(ivhex);
+    byte[] keyBytes = key.getBytes();
+    try {
+      byte[] cipherTextBytes = Base64.decode(cipherText,Base64.DEFAULT);
+      return decryptAES(cipherTextBytes, keyBytes, iv);
+    } catch (Exception e) {
+      return "";
+    }
+  }
+
+  private static byte[] hexStringToByteArray(String hex) {
+    int len = hex.length();
+    byte[] data = new byte[len / 2];
+    for (int i = 0; i < len; i += 2) {
+      data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+              + Character.digit(hex.charAt(i + 1), 16));
+    }
+    return data;
+  }
+
+  private static String vidIdEncode(String videoID, String k1, String k2) throws Exception {
+    SecretKeySpec rc4Key1 = new SecretKeySpec(k1.getBytes(), "RC4");
+    SecretKeySpec rc4Key2 = new SecretKeySpec(k2.getBytes(), "RC4");
+    Cipher cipher1 = Cipher.getInstance("RC4");
+    Cipher cipher2 = Cipher.getInstance("RC4");
+    cipher1.init(Cipher.DECRYPT_MODE, rc4Key1, cipher1.getParameters());
+    cipher2.init(Cipher.DECRYPT_MODE, rc4Key2, cipher2.getParameters());
+    byte[] encoded = videoID.getBytes();
+    encoded = cipher1.doFinal(encoded);
+    encoded = cipher2.doFinal(encoded);
+    encoded = Base64.encode(encoded, Base64.DEFAULT);
+    return new String(encoded, "UTF-8").replace("/", "_").trim();
+  }
+
 }

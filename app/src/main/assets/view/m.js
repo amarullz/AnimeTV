@@ -17,6 +17,153 @@ function $(i){
   return document.getElementById(i);
 }
 
+// "VidStreaming" -> "e13d38099bf562e8b9851a652d2043d3"
+// "DuckStream" -> "4504447b74641ad972980a6b8ffd7631"
+// "BirdStream" -> "4b14d0ff625163e3c9c7a47926484bf2"
+
+// kzLk6Q9JavBLGTvYqwZbQ9BGZo0SE2apU9tq9ifAmmclwKpGaG/arl09zQSfwopfPvVIeMXg50oV1CbmTecmk3kr1Q9wCX3Rd/A+sPFYBsLX/Ht+b+8m7XR+VSQVV2gu0kJid+mNB7sbwCJv95AQwWDrgDlHQmaXwqikq8dvA3c4KoJ3iej9yG2hQ/J/NpUKdAr7W1a1tJNiz+PhgIyG83/CwNDAtogXLU2qX38sfYkZ/SvEm8m/3wqGr7n/6vfWUlLn8wm2URJjSZNUW/GzgWpSaF/lsccwTu+c3WFqa4gadE7gCZaCpXUOFh0zDyMe6InavJOMORqXSqPNIV3RuVi5QXq+TkrgOCRdgwDyraAFKMR94D+fmWjfYI6teVn5YqH5cmYaD8dqFD6S9fIqI0cMxh7ffb60kC6v8W+yXqq9vEGMdCG4JS3/bD6UcKGIu/4+oq4ZKQQfEZDb2lmQLYg7PTYFcU+mtH8+nDg69C/We2h40acNw5zuJGjIwUnWL8VXkVzVRO0Oyf1m9QthgjL8NOER7pQx0Fp1WJW3hOjRe7PYj0PqZaDBRXnAjOxiTUce5Q6wsPFiiQ50mpqNvKewhQisVl6A2g/amoFES/BQLsb198bp9Ye/OkPeTDMqqHfs1lrYOqCRY+CIeNf2djJ2fOphvxjT+LzoQnWmJcBeGHC12+CNATSQ8s+089CL00htFcfstHn/rRbjfYPyWtEM5J08nfGfO9aXObnAS1FK5VJC2vND64HSjtxnRn4TCicRPBPezvLNCkkATBU1FqcpcOdPBu1QHOVRbZRvZIKbRwZmTbpOg8bVDysDOswfJ4jS9rCss/Tes86oq7OpktH7XIdbgcqN9ut0dwLGU+cTgbnqeFQz8auox+FRSVY8RMazxkspQ/3PVcB/bJygQ4+mInYhBkJpW8o78orKqzMbOxLHFugXMdCoU9Xu7raSeEo04Lzuw7Lx39IxslPgq+EFd2qn/xh7ir5ms56FEbVhkErOo5JvIpWacaui1cQUqfylzsHRHb/AbZDbOln4vEoyB0AhLT8luA9v3jRKVkSEvXuI5j5Sh6+l/LfCNJSBoWHMeQgi9C/2vuareh7IupHxrmkEBtDJE57Y2WQXNxNrhy2xz3NoXsDrsSIf3Pgz50qh12UyW2PpBqLP/QCe5cUtmXuKs4lAq2k+bCgQlUUV1heqAQtZIp5V6A1tC5Yx/bt5g0wA8UKQJz4pPD5F5fbbyVinitw74bbxpclc+C7xCCf79kOFJq/1kc3oxQTm51tUPXd0oB5xqBFeItr9/Fm3aLNu6rtRWIq9eiGS6yJAqXXp6dm8Vxq0fNrUgU/Jv4V9C0PauYDtJoJ139BvWOvy9131aF5UcRKuyH/X3ozaJpEnmyQVaqFrfInEoBiXb84SOqZXKKbLKHZc7OXlNzNjX8gCrVx3lnXlXMs1f4fOdpdtd+HDPm5God76pc94
+// baa7d8a875a7722cf5f9a0ba1b4530b3
+
+// KdR5L4vJVe5OLJL8hd8GtuiFEigy6dQuAwspZVWDU05838AczX4Gc7naG1//zk8BfbH53SZ1a3CdMorMFNQBJeiOWM+5dTPXqnq6FGsl8Il9PFS/yoiWwvAa2KYsuwm/cO1FJJpd2eG47M1ye4LDuI5AwSoXWIreWfOplPUeDTFr+jksj8Eiv4EufsxN/IGb5kteRoiY9mJq4BiANqyXz7VS1pUh4iFbiB2q+P1Jrfs+zPOotYnWoHtqnOdDwz+YdRRCZia99ZYkW0rTL4ANwP1ZTuA6JPG42V9v7forGxcjXiiqCcGEbryc1qwsY8ZX0zMX0BuPYZ3KMZhy+3e6tm2/Nb9dfsviW28KLqWlnBu4lGfn7G0ngr0gtuctpESoZXo3PB+6S3ea7JrhoOx1cLx+nA4cRmri7o2YXzh1ZJLKdl3a8ECyqcFbzkoHZ4UiEjBSB7HqiqRh67KG/Gn3X0edjDNAxy7x+QJCdeLm5adVD/vt66vNN1X73nnTJAsM0AQLMLDZQxvY2tYrLhONmHsBPHtHBeMNvtcjxTHb51N2PL5NfvHMigB9+z4GhXRoqUJvxKjMVP/eS3h1db5uUsdsyJG5KcA+JLZ15qY0HsELj6InaNAGNETjjkJXLlAWYFOKKuLCE7t4mm+xRa7jAWlnH0hsz5ZUKRS0sN1r9wu9pMxCQ2rJb6Y4D7Og6NmURQOQH+bdRjqqbFjVB6CFpKDSEEpG67n5/izZXoJVIZX03dVL8m+feaEjKGreXVnvfrOHpYbeAUGXzDSygRSHBZ9TSB9a9X94seyHBgxPwADAMKVQ21J+DTegl60kiyaP8A39bnucL6IctGetRnjcFyEk1LoX30Y+9aeH+Jj/Ui9vCb2nVeASDcK7nH/6/38XgMIaFwes24wles8gZzuCDKgDFkWZqAEE+IWBYB7NgAZbZ9FXVguSA8CsEE4WvOyykAmeD7OjjoiScYxaAir/KkuA3MbAcrSCISFSskqOHkIZFw7mS4GLRRUloLbXwyAP989s0KE88pFAFPB2MTFnaXwZdTQTfSaQOHY46sDwtL6wIA0mSv5+BlvKhHZ5Rr6UOQAoc2l+dbmuFzHq6IZotVQ6iRAaKQx3Im+3+uo+oM1tgDeAbXbDX/tlBxUgYQt0cnCUOtimmAIM3k/sslqVpdRfAy9i2RYdnHqyfAhWs8CL9QnwgajUGS2NPh1+bY1CPDst89wpAdKfxcj1OEzcbP9vij1W/tAF5Na9otfMK1OG/Hfdb0d1Q/a8OTBJj4h/zLzIet+2laorvXk7BtprwP7P1opNMNo5Z6C+mwUXquaMjFncNuI5mQqsmhtCAkS4Y9pJLNLF5UAz4gJVvuPAWv4NpldrN6AF6S6M+bMr1K8yiCKKBY6Y+C/0jz3C/nrp5BlEUmPuaARSiOr5VR1Ihij1PCx+rdKZvsSN1k4v3SO/cxZNWIxSFR2DA9Y1MHTdXQ63SRh5c2fiz0EzbRuuO02YEo1q+8Wu+raiITu0zDu7MHJs3+5cYVoKD/zpTJ4u
+// 5bb7d561d616070aec300b54d2300397
+//
+// var k= _JSAPI.aesDec(
+//   'KdR5L4vJVe5OLJL8hd8GtuiFEigy6dQuAwspZVWDU05838AczX4Gc7naG1//zk8BfbH53SZ1a3CdMorMFNQBJeiOWM+5dTPXqnq6FGsl8Il9PFS/yoiWwvAa2KYsuwm/cO1FJJpd2eG47M1ye4LDuI5AwSoXWIreWfOplPUeDTFr+jksj8Eiv4EufsxN/IGb5kteRoiY9mJq4BiANqyXz7VS1pUh4iFbiB2q+P1Jrfs+zPOotYnWoHtqnOdDwz+YdRRCZia99ZYkW0rTL4ANwP1ZTuA6JPG42V9v7forGxcjXiiqCcGEbryc1qwsY8ZX0zMX0BuPYZ3KMZhy+3e6tm2/Nb9dfsviW28KLqWlnBu4lGfn7G0ngr0gtuctpESoZXo3PB+6S3ea7JrhoOx1cLx+nA4cRmri7o2YXzh1ZJLKdl3a8ECyqcFbzkoHZ4UiEjBSB7HqiqRh67KG/Gn3X0edjDNAxy7x+QJCdeLm5adVD/vt66vNN1X73nnTJAsM0AQLMLDZQxvY2tYrLhONmHsBPHtHBeMNvtcjxTHb51N2PL5NfvHMigB9+z4GhXRoqUJvxKjMVP/eS3h1db5uUsdsyJG5KcA+JLZ15qY0HsELj6InaNAGNETjjkJXLlAWYFOKKuLCE7t4mm+xRa7jAWlnH0hsz5ZUKRS0sN1r9wu9pMxCQ2rJb6Y4D7Og6NmURQOQH+bdRjqqbFjVB6CFpKDSEEpG67n5/izZXoJVIZX03dVL8m+feaEjKGreXVnvfrOHpYbeAUGXzDSygRSHBZ9TSB9a9X94seyHBgxPwADAMKVQ21J+DTegl60kiyaP8A39bnucL6IctGetRnjcFyEk1LoX30Y+9aeH+Jj/Ui9vCb2nVeASDcK7nH/6/38XgMIaFwes24wles8gZzuCDKgDFkWZqAEE+IWBYB7NgAZbZ9FXVguSA8CsEE4WvOyykAmeD7OjjoiScYxaAir/KkuA3MbAcrSCISFSskqOHkIZFw7mS4GLRRUloLbXwyAP989s0KE88pFAFPB2MTFnaXwZdTQTfSaQOHY46sDwtL6wIA0mSv5+BlvKhHZ5Rr6UOQAoc2l+dbmuFzHq6IZotVQ6iRAaKQx3Im+3+uo+oM1tgDeAbXbDX/tlBxUgYQt0cnCUOtimmAIM3k/sslqVpdRfAy9i2RYdnHqyfAhWs8CL9QnwgajUGS2NPh1+bY1CPDst89wpAdKfxcj1OEzcbP9vij1W/tAF5Na9otfMK1OG/Hfdb0d1Q/a8OTBJj4h/zLzIet+2laorvXk7BtprwP7P1opNMNo5Z6C+mwUXquaMjFncNuI5mQqsmhtCAkS4Y9pJLNLF5UAz4gJVvuPAWv4NpldrN6AF6S6M+bMr1K8yiCKKBY6Y+C/0jz3C/nrp5BlEUmPuaARSiOr5VR1Ihij1PCx+rdKZvsSN1k4v3SO/cxZNWIxSFR2DA9Y1MHTdXQ63SRh5c2fiz0EzbRuuO02YEo1q+8Wu+raiITu0zDu7MHJs3+5cYVoKD/zpTJ4u',
+//   'e13d38099bf562e8b9851a652d2043d3',
+//   '5bb7d561d616070aec300b54d2300397'
+// );
+// JSON.parse(k);
+//
+// ["de5y3vCJ2LcsXpB4","qeTyrL6NB0XVAyFT"]
+
+
+//
+// https://vidplay.online/e/0RYXD41N8PNV?t=4xjRCfcjDVwMzQ%3D%3D&autostart=true
+// https://vidplay.online/mediainfo/VXJUraga5p7Mr5ojXboaTTfHJ_oamgJCbg==,205,191,182,203,233,207,189,178,174,221,153,189,169,131,199,196?t=4xjRCfcjDVwMzQ%3D%3D&autostart=true
+//
+// vidId=0RYXD41N8PNV
+// keyList=["de5y3vCJ2LcsXpB4","qeTyrL6NB0XVAyFT"]
+// _JSAPI.vidEncode('0RYXD41N8PNV',"de5y3vCJ2LcsXpB4","qeTyrL6NB0XVAyFT");
+// wglvwnVQymbp7NXZ
+//
+// mediainfo/VXJUraga5p7PpponUcprSzHGJf4elAxN,205,191,182,203,233,207,189,178,174,221,153,192,167,190,199,200?t=4xjRCfcjDVwMzQ%3D%3D&autostart=true
+// function qqr(k,v) {
+//   var a=[k];
+//   for(var i=0;i<v.length;i++){
+//     a.push(k.charCodeAt(i%k.length)+v.charCodeAt(i));
+//   }
+//   return 'mediainfo/'+a.join(',');
+// }
+//
+
+// https://vidplay.online/mediainfo/VXJUraga5p7PqJogXboaTTfHJ_oWkw9MbQ==,168,171,148,195,216,198,153,192,138,212,122,136,179,193,179,225?t=4xjRCfcvBFEAzw%3D%3D&autostart=true
+// https://vidplay.online/mediainfo/VXJUraga5p7MrJojXboaTTfHJ_oWkw9DbQ==,168,171,148,195,216,198,153,192,138,212,122,133,180,193,179,228?t=4xjRCfcvBFEAzw%3D%3D&autostart=true
+// https://vidplay.online/mediainfo/VXJUraga5p7MrJojXboaTTfHJ_oWkwNHZw==,168,171,148,195,216,198,153,192,138,212,122,133,180,193,179,228?t=4xjRCfcvBFEAzw%3D%3D&autostart=true
+
+
+//
+// https://vidplay.online/e/83P784EK7JLE?t=4xjRCfchAF0Lzw%3D%3D&autostart=true
+//                                      ?t=4xjRCfchAF0Lzw%3D%3D&autostart=true
+// https://vidplay.online/mediainfo/VXJUraga5p7PqJogXboaTTfHJ_oYlwNHbQ==,157,131,193,152,232,197,212,211,133,191,142,151,185,146,186,209?t=4xjRCfchAF0Lzw%3D%3D&autostart=true
+
+const wave={
+  vidplayKeys:function(cb){
+    $ap("https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/keys.json?"+$tick(),
+    function(r){
+      if (r.ok){
+        try{
+          var d=JSON.parse(r.responseText);
+          cb(d);
+          return;
+        }catch(e){}
+      }
+      cb(null);
+    },{
+      'Pragma':'no-cache',
+      'Cache-Control':'no-cache'
+    });
+  },
+  vidplayFuToken:function(host,embedurl,data,cb){
+    $ap("https://"+host+"/futoken",
+      function(r){
+        if (r.ok){
+          try{
+            var d=r.responseText;
+            var su=d.substring(d.indexOf('function(v)'));
+            su="("+su.substring(0,su.indexOf('+location')).replace('jQuery.ajax','')+')})';
+            var param=eval(su+"('"+data+"')");
+            cb(param);
+            return;
+          }catch(e){}
+        }
+        cb(null);
+      },
+      {
+        "X-Org-Prox":"https://"+host+"/",
+        "X-Ref-Prox":embedurl,
+        'Pragma':'no-cache',
+        'Cache-Control':'no-cache'
+      });
+  },
+  vidplayGetMedia:function(u, cb){
+    var vidLoc=u.substring(0,u.indexOf("?"));
+    var vidSearch=u.substring(u.indexOf("?"));
+    var vidHost=vidLoc.split('/')[2];
+    var vidId=vidLoc.substring(vidLoc.lastIndexOf("/")+1);
+    wave.vidplayKeys(function(k){
+      if (k){
+        var dataId=_JSAPI.vidEncode(vidId,k[0],k[1]);
+        console.warn([dataId,vidId,k[0],k[1]]);
+        if (dataId){
+          wave.vidplayFuToken(vidHost,u,dataId,function(slug){
+            if (slug){
+              var mediaUrl=
+                'https://'+
+                vidHost+
+                '/'+
+                slug+
+                vidSearch;
+              cb(mediaUrl);
+              return;
+            }
+            cb(null);
+          });
+          return;
+        }
+      }
+      cb(null);
+    });
+  },
+  vidplayGetData:function(u,cb){
+    var vidHost=u.split('/')[2];
+    wave.vidplayGetMedia(u,function(url){
+      if (url){
+        $ap(url,function(r){
+          if (r.ok){
+            try{
+              var d=JSON.parse(r.responseText);
+              cb(d);
+              return;
+            }catch(e){}
+          }
+          cb(null);
+        },
+        {
+          "X-Org-Prox":"https://"+vidHost+"/",
+          "X-Ref-Prox":u,
+          'X-Requested-With':'XMLHttpRequest',
+          'Accept':'application/json, text/javascript, */*; q=0.01'
+        }
+        );
+        return;
+      }
+      cb(null);
+    });
+  }
+
+};
+
+
 /* ajax request */
 function $a(uri, cb, hdr, pd){
   var xhttp = new XMLHttpRequest();
@@ -801,6 +948,57 @@ const _API={
   hi_last_view:{
     view_url:'',
     data:null
+  },
+  getViewWave:function(url,f){
+    function cbErr(){
+      f({status:false},uid);
+    }
+    var data={
+      streamtype:"",
+      stp:0,
+      status:true,
+      title:'-',
+      title_jp:'-',
+      synopsis:'',
+      stream_url:{
+          hard:'',
+          soft:'',
+          dub:''
+      },
+      stream_vurl:'',
+      poster:'',
+      banner:null,
+      "url":url,
+      skip:[],
+      ep:[],
+      related:[],
+      genres:[],
+      seasons:[],
+      recs:[],
+      info:{
+          type:null,
+          rating:null,
+          quality:null
+      }
+    };
+
+    /* Load Main Episode */
+    $a(url,function(r){
+      if (r.ok){
+        try{
+          var d=$n('div','',0,0,r.responseText);
+
+          if (__SD==1){
+            // Wave
+
+          }
+          
+          d.innerHTML='';
+          return;
+        }catch(e){}
+      }
+      cbErr();
+    });
   },
   getViewFlix:function(url,f){
     var slug=__AFLIX.getSlug(url);
