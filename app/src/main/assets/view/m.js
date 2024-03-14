@@ -164,8 +164,13 @@ const wave={
     if (url_parse[5]){
       epId=url_parse[5].substring(3);
     }
+
+    var root_view_url='https://'+__DNS+(__SD==1?'/watch/':'/anime/')+animeId;
+    var watch_url=root_view_url+'/ep-'+epId;
+    console.log("WATCH URL : "+watch_url);
+
     console.log(
-      "wave.getView - EPID: "+epId+" / url="+url+" / fullurl = "+url_with_hash+" / animeId = "+animeId);
+      "wave.getView - EPID: "+epId+" / url="+url+" / fullurl = "+url_with_hash+" / animeId = "+animeId+" / ROOTURL = "+root_view_url);
     var data=null;
 
     function cbErr(msg){
@@ -301,7 +306,7 @@ const wave={
 
     if (animeId in wave.view_cache){
       data=wave.view_cache[animeId];
-      data.url=url;
+      data.url=watch_url;
       var sold=data.ep[data.curr_ep_index];
       if (sold){
         sold.active=false;
@@ -341,7 +346,7 @@ const wave={
         stream_vurl:'',
         poster:'',
         banner:null,
-        "url":url,
+        "url":watch_url,
         skip:[],
         ep:[],
         related:[],
@@ -382,7 +387,7 @@ const wave={
               s.dub=toInt(a.getAttribute('data-dub'))?true:false;
               s.slug=a.getAttribute('data-slug');
               s.datanum=a.getAttribute('data-num');
-              s.url=url+'/ep-'+s.slug+"#"+s.ids;
+              s.url=root_view_url+'/ep-'+s.slug+"#"+s.ids;
               var b=a.firstElementChild;
               if (b){
                 s.ep=b.textContent;
@@ -667,7 +672,6 @@ const wave={
       return false;
     }
 
-    var watch_url=(__SD==1?'/watch/':'/anime/')+animeId+'/ep-'+epId;
     $a(watch_url,function(r){
       if (r.ok){
         try{
@@ -5783,7 +5787,7 @@ const pb={
     var uid=_API.getView(uri,function(d,u){
       pb.load_open_stat=1;
       if (uid==u && d.status){
-        console.log("GETVIEW: "+JSON.stringify(d,null,'\t'));
+        // console.log("GETVIEW: "+JSON.stringify(d,null,'\t'));
         pb.data=d;
         _API.setUri(uri);
         pb.init();
