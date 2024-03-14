@@ -61,6 +61,8 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Date;
@@ -288,9 +290,30 @@ public class AnimeView extends WebViewClient {
           public DataSource.Factory provide(@NonNull String s, @Nullable TransferListener transferListener) {
             Map<String, String> settings = new HashMap();
 //            settings.put("origin", "https://vidco.pro");
+//            Log.d(_TAG,"VIDEO-DATA-SOURCE : "+videoStatCurrentUrl);
             if (Conf.SOURCE_DOMAIN==5) {
-              settings.put("origin", "https://" + Conf.SOURCE_DOMAIN5_API);
+              settings.put("Origin", "https://" + Conf.SOURCE_DOMAIN5_API);
             }
+            else{
+              try {
+                URL vurl=new URL(videoStatCurrentUrl);
+                String host=vurl.getHost();
+                if (host.contains(Conf.STREAM_DOMAIN1)){
+                  settings.put("Origin", "https://" + Conf.STREAM_DOMAIN1);
+                }
+                else if (host.contains(Conf.STREAM_DOMAIN2)){
+                  settings.put("Origin", "https://" + Conf.STREAM_DOMAIN2);
+                  settings.put("Referer", "https://" + Conf.STREAM_DOMAIN2+"/");
+                }
+                else if (host.contains(Conf.STREAM_DOMAIN)){
+                  settings.put("Origin", "https://" + Conf.STREAM_DOMAIN);
+                }
+                else if (host.contains(Conf.STREAM_DOMAIN3)){
+                  settings.put("Origin", "https://" + Conf.STREAM_DOMAIN3);
+                }
+              } catch (MalformedURLException ignored) {}
+            }
+            Log.d(_TAG,"VIDEO-DATA-SOURCE : "+videoStatCurrentUrl+" / ORIGIN : "+settings.get("Origin"));
             return new DefaultHttpDataSource.Factory()
                 .setUserAgent(Conf.USER_AGENT)
                 .setDefaultRequestProperties(settings)
@@ -496,10 +519,11 @@ public class AnimeView extends WebViewClient {
       }
       return super.shouldInterceptRequest(view, request);
     }
-    else if (host.contains(Conf.STREAM_DOMAIN)||host.contains(Conf.STREAM_DOMAIN2)){
+    else if (host.contains(Conf.STREAM_DOMAIN)
+            ||host.contains(Conf.STREAM_DOMAIN1)
+            ||host.contains(Conf.STREAM_DOMAIN2)){
       if (accept.startsWith("text/html")||
-          url.startsWith("https://"+Conf.STREAM_DOMAIN+"/mediainfo")||
-          url.startsWith("https://"+Conf.STREAM_DOMAIN2+"/mediainfo")) {
+          url.startsWith("https://"+host+"/mediainfo")) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
         if (!accept.startsWith("text/html"))
           sendVidpageLoaded(1);

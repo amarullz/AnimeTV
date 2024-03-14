@@ -245,11 +245,15 @@ public class AnimeApi extends WebViewClient {
     if (!prefServer.equals("")){
       try {
         JSONObject j=new JSONObject(prefServer);
-//        Conf.SOURCE_DOMAIN1=j.getString("domain");
-        Conf.STREAM_DOMAIN=j.getString("stream_domain");
+        Conf.SOURCE_DOMAINS[1]=j.getString("domain");
+        Conf.SOURCE_DOMAINS[2]=j.getString("domain2");
+
         Conf.SERVER_VER=j.getString("update");
+
+        Conf.STREAM_DOMAIN=j.getString("stream_domain");
+        Conf.STREAM_DOMAIN1=j.getString("stream_domain1");
         Conf.STREAM_DOMAIN2=j.getString("stream_domain2");
-//        Conf.SOURCE_DOMAIN2=j.getString("domain2");
+
       }catch(Exception ignored){}
     }
     Conf.SOURCE_DOMAIN=pref.getInt("source-domain",Conf.SOURCE_DOMAIN);
