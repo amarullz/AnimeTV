@@ -3890,7 +3890,17 @@ const pb={
       $ap(src,getm3u8cb,__AFLIX.origin_dev);
     }
     else{
-      $ap(src,getm3u8cb);
+      var origin={};
+      try{
+        var host_src=src.split('/')[2];
+        var host_g=host_src.split('.');
+        var host=host_g[host_g.length-2]+'.'+host_g[host_g.length-1];
+        origin={
+          "X-Org-Prox":'https://'+host,
+          "X-Ref-Prox":'https://'+host+'/'
+        };
+      }catch(e){}
+      $ap(src,getm3u8cb,origin);
     }
   },
   init_video_mp4upload_html5:function(src){
