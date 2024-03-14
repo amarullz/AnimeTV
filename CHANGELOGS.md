@@ -1,4 +1,20 @@
 # Changelogs
+- **2.9.8 🍕**
+  - Fix unsupported unary syntax for old webview
+  - Fix mirror streaming playback for source 1 & 2
+- **2.9.7 🍕**
+  - Fix history select episode not works
+- **2.9.6 🍕**
+  - Update Skip intro/outro time priority
+- **2.9.5 🍕**
+  - Update streaming domain for source 1/2 video streaming
+  - Change playback loading data for Source 1 & Source 2, should be faster
+  - Change chibi wallpaper to requested Kimi-no-nawa wallpaper
+  - Add source encryption functions
+  - Tweak dub icon inside episode
+  - Add dub icon per episode for source 1&2
+- **2.9.0 🍕**
+  - Fix source 1/2 video player
 - **2.8.9 🍕**
   - Disable new slideshow for source 1/2 to prevent WAF
 - **2.8.8 🍕**

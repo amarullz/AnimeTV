@@ -6,12 +6,12 @@
   "stream_domain": "vidplay.online",
   "stream_domain1": "ea1928580f.site",
   "stream_domain2": "mcloud.bz",
-  "update": "1.0-240206",
+  "update": "1.0-240314",
 
-  "appnum": 297,
-  "appver": "2.9.7",
+  "appnum": 298,
+  "appver": "2.9.8",
   "appsize": "9.02 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.8.8/animetv-2.9.7.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.8.8/animetv-2.9.8.apk",
   "appnote": 
-    "- Fix episode bug\n- Update video streaming domain\n- New playback data loader for Source 1/2\n- Add dub indicator on episodes\n- Update intro skip time priority"
+    "- Fix unsupported unary syntax for old webview\n- Fix mirror streaming playback for source 1 and 2\n- Fix episode bug\n- Update video streaming domain\n- New playback data loader for Source 1/2\n- Add dub indicator on episodes\n- Update intro skip time priority"
 }
