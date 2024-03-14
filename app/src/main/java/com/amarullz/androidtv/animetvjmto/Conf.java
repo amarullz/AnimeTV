@@ -1,9 +1,9 @@
 package com.amarullz.androidtv.animetvjmto;
 
 public class Conf {
-  public static String DOMAIN = "animeflix.live";
+  public static String DOMAIN = "aniwave.to";
   public static String[] SOURCE_DOMAINS={
-      "animeflix.live", /* default */
+      "aniwave.to", /* default */
       "aniwave.to",
       "anix.to",
       "hianime.to",
@@ -11,7 +11,7 @@ public class Conf {
       "animeflix.live"
   };
   public static String SOURCE_DOMAIN5_API = "api.animeflix.dev";
-  public static int SOURCE_DOMAIN = 5;
+  public static int SOURCE_DOMAIN = 1;
 
   public static void updateSource(int num){
     SOURCE_DOMAIN=num;

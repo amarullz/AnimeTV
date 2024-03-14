@@ -2156,24 +2156,24 @@ const _API={
         if (__SD3){
           var c=d.querySelector('.anis-content');
           var et = c.querySelector('h2.film-name');
-          o.title=et?.textContent;
-          o.title_jp=et?.getAttribute('data-jname');
+          o.title=et.textContent;
+          o.title_jp=et.getAttribute('data-jname');
           
           try{
-            o.synopsis=c.querySelector('.film-description .text')?.textContent.trim();
+            o.synopsis=c.querySelector('.film-description .text').textContent.trim();
           }catch(e){}
 
           try{
-            o.ep=c.querySelector('.tick-item.tick-sub')?.textContent.trim();
+            o.ep=c.querySelector('.tick-item.tick-sub').textContent.trim();
           }catch(e){}
           try{
-            o.rating=c.querySelector('.tick-item.tick-pg')?.textContent.trim();
+            o.rating=c.querySelector('.tick-item.tick-pg').textContent.trim();
           }catch(e){}
           try{
             o.type=c.querySelector('.tick .dot+.item').textContent.trim();
           }catch(e){}
           try{
-            o.quality=c.querySelector('.tick-item.tick-quality')?.textContent.trim();
+            o.quality=c.querySelector('.tick-item.tick-quality').textContent.trim();
           }catch(e){}
 
           var dmeta=c.querySelectorAll('.anisc-info-wrap .anisc-info .item');
@@ -4463,10 +4463,10 @@ const pb={
               var jv=JSON.parse(r.responseText);
               /* Load Intro / Outro */
               try{
-                var st=jv?.intro?.start;
-                var en=jv?.intro?.end;
-                var sto=jv?.outro?.start;
-                var eno=jv?.outro?.end;
+                var st=jv.intro.start;
+                var en=jv.intro.end;
+                var sto=jv.outro.start;
+                var eno=jv.outro.end;
                 dt.skip=[
                   [st?st:0,en?en:0],
                   [sto?sto:0,eno?eno:0]
@@ -5945,8 +5945,8 @@ const home={
           d.adult=true;
         }
 
-        d.type=t.querySelector('.fd-infor .fdi-item')?.textContent;
-        d.duration=t.querySelector('.fd-infor .fdi-item.fdi-duration')?.textContent+'IN';
+        d.type=t.querySelector('.fd-infor .fdi-item').textContent;
+        d.duration=t.querySelector('.fd-infor .fdi-item.fdi-duration').textContent+'IN';
 
         rd.push(d);
       }catch(e){
