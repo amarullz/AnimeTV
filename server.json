@@ -8,10 +8,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240206",
 
-  "appnum": 295,
-  "appver": "2.9.5",
+  "appnum": 296,
+  "appver": "2.9.6",
   "appsize": "9.02 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.8.8/animetv-2.9.5.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.8.8/animetv-2.9.6.apk",
   "appnote": 
-    "- Update video streaming domain\n- New playback data loader for Source 1/2\n- Add dub indicator on episodes"
+    "- Update video streaming domain\n- New playback data loader for Source 1/2\n- Add dub indicator on episodes\n- Update intro skip time priority"
 }

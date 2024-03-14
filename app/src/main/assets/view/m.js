@@ -172,6 +172,12 @@ const wave={
       console.warn(msg);
       f({status:false},uid);
     }
+
+    function skipScore(s){
+      var sc=(s[0][0]+s[0][1]>0)?1:0;
+      sc+=(s[1][0]+s[1][1]>0)?1:0;
+      return sc;
+    }
     function callCb(d){
       if (!d.stream_url.hard){
         d.stream_url.hard=d.stream_url.soft;
@@ -179,6 +185,7 @@ const wave={
       }
       d.stream_vurl = d.stream_url.hard;
       d.skip=d.skip_vals.hard;
+      var cscore=skipScore(d.skip);
       d.streamtype="sub";
       var is_soft=false;
       if (_API.currentStreamType==2){
@@ -186,7 +193,9 @@ const wave={
           d.stream_vurl = d.stream_url.dub;
           d.streamtype="dub";
           if (d.skip_vals.dub.length>0){
-            d.skip=d.skip_vals.dub;
+            if (cscore<skipScore(d.skip_vals.dub)){
+              d.skip=d.skip_vals.dub;
+            }
           }
         }
         else if (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub'){
@@ -198,16 +207,10 @@ const wave={
           d.stream_vurl = d.stream_url.soft;
           d.streamtype="softsub";
           if (d.skip_vals.soft.length>0){
-            d.skip=d.skip_vals.soft;
+            if (cscore<skipScore(d.skip_vals.soft)){
+              d.skip=d.skip_vals.soft;
+            }
           }
-        }
-      }
-      if (d.skip.length==0){
-        if (d.skip_vals.soft.length>0){
-          d.skip=d.skip_vals.soft;
-        }
-        else if (d.skip_vals.dub.length>0){
-          d.skip=d.skip_vals.dub;
         }
       }
       f(JSON.parse(JSON.stringify(d)),uid);
