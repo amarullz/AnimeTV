@@ -156,7 +156,7 @@ const wave={
       try{
         var h={};
         var slide_url=r[i].querySelector('a.btn.play').getAttribute('href');
-        h.poster=r[i].querySelector('.image div').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+        h.banner=r[i].querySelector('.image div').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
         h.synopsis=r[i].querySelector('.info .synopsis').textContent.trim();
         var t=d.querySelector('#top-anime .side [href="'+slide_url+'"].item');
         if (t){
@@ -165,7 +165,7 @@ const wave={
           h.title_jp=tt.getAttribute('data-jp');
           h.url=t.href;
           h.tip=t.querySelector('div.poster').getAttribute('data-tip');
-          // h.poster=t.querySelector('img').src;
+          h.poster=$imgcdn(t.querySelector('img').src);
           h.adult=t.querySelector('div.adult')?true:false;
           try{
             h.ep=(t.querySelector('span.ep-status.sub').textContent+'').trim()
@@ -6488,7 +6488,7 @@ const home={
         };
 
         var hl=$n('div',(__SD!=2)?'fullimg':'',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
-        hl._img=$n('img','',{loading:'lazy' ,src:$img(d.poster)},hl,'');
+        hl._img=$n('img','',{loading:'lazy' ,src:$img(d.banner?d.banner:d.poster)},hl,'');
         hl._img.onload=function(){
           this.classList.add('loaded');
         };
