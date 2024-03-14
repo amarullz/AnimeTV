@@ -147,6 +147,38 @@ const wave={
     vrf = wave.rc4("hlPeNwkncH0fq9so",vrf);
     return decodeURIComponent(vrf);
   },
+
+  /* PARSE HOME SLIDESHOW */
+  parseHomeSlideshow:function(d){
+    var r=d.querySelectorAll('.swiper-wrapper .swiper-slide.item');
+    var g=[];
+    for (var i=0;i<r.length;i++){
+      try{
+        var h={};
+        var slide_url=r[i].querySelector('a.btn.play').getAttribute('href');
+        h.poster=r[i].querySelector('.image div').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+        h.synopsis=r[i].querySelector('.info .synopsis').textContent.trim();
+        var t=d.querySelector('#top-anime .side [href="'+slide_url+'"].item');
+        if (t){
+          var tt=t.querySelector('div.d-title');
+          h.title=tt.textContent.trim();
+          h.title_jp=tt.getAttribute('data-jp');
+          h.url=t.href;
+          h.tip=t.querySelector('div.poster').getAttribute('data-tip');
+          // h.poster=t.querySelector('img').src;
+          h.adult=t.querySelector('div.adult')?true:false;
+          try{
+            h.ep=(t.querySelector('span.ep-status.sub').textContent+'').trim()
+          }catch(e){}
+          try{
+            h.type=(t.querySelector('div.info .meta span.dot:not(.ep-wrap)').textContent+'').trim();
+          }catch(e){}
+          g.push(h);
+        }
+      }catch(e2){}
+    }
+    return g;
+  },
   
   /* Get Episode View */
   view_cache:{},
@@ -3375,7 +3407,7 @@ const pb={
     "LOW"
   ],
   cfgwallpaper_name:[
-    "Hill Bench",
+    "No Wallpaper",
     "Gate",
     "Waifu 1",
     "Sunny Go",
@@ -3383,7 +3415,8 @@ const pb={
     "Your Name",
     "Fuji",
     "Your Name 2",
-    "No Wallpaper"
+    "Hill Bench",
+    "Gojo Satoru",
   ],
   cfgtheme_name:[
     'Purple',
@@ -6303,7 +6336,7 @@ const home={
     var h=$n('div','','',null,v);
     var td=[];
     try{
-      home.home_slide._midx=2.5;
+      home.home_slide._midx=(__SD==2)?2:2.5;
       if (__SD3){
         // hianime
         var tops=h.querySelectorAll('#slider .swiper-wrapper .swiper-slide');
@@ -6383,28 +6416,29 @@ const home={
         }
       }
       else if (__SD==1){
+        td=wave.parseHomeSlideshow(h);
         // wave
-        var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
-        for (var i=0;i<tops.length;i++){
-          var t=tops[i];
-          var d={};
-          var tt=t.querySelector('div.d-title');
-          d.title=tt.textContent.trim();
-          d.title_jp=tt.getAttribute('data-jp');
-          d.url=t.href;
-          d.tip=t.querySelector('div.poster').getAttribute('data-tip');
-          d.poster=t.querySelector('img').src;
-          d.adult=t.querySelector('div.adult')?true:false;
-          try{
-            d.ep=(t.querySelector('span.ep-status.sub').textContent+'').trim()
-          }catch(e){
-          }
-          try{
-            d.type=(t.querySelector('div.info .meta span.dot:not(.ep-wrap)').textContent+'').trim();
-          }catch(e){
-          }
-          td.push(d);
-        }
+        // var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
+        // for (var i=0;i<tops.length;i++){
+        //   var t=tops[i];
+        //   var d={};
+        //   var tt=t.querySelector('div.d-title');
+        //   d.title=tt.textContent.trim();
+        //   d.title_jp=tt.getAttribute('data-jp');
+        //   d.url=t.href;
+        //   d.tip=t.querySelector('div.poster').getAttribute('data-tip');
+        //   d.poster=t.querySelector('img').src;
+        //   d.adult=t.querySelector('div.adult')?true:false;
+        //   try{
+        //     d.ep=(t.querySelector('span.ep-status.sub').textContent+'').trim()
+        //   }catch(e){
+        //   }
+        //   try{
+        //     d.type=(t.querySelector('div.info .meta span.dot:not(.ep-wrap)').textContent+'').trim();
+        //   }catch(e){
+        //   }
+        //   td.push(d);
+        // }
       }
       else{
         // anix
@@ -6453,7 +6487,7 @@ const home={
           title:d.title
         };
 
-        var hl=$n('div',(__SD3||__SD5)?'fullimg':'',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
+        var hl=$n('div',(__SD!=2)?'fullimg':'',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
         hl._img=$n('img','',{loading:'lazy' ,src:$img(d.poster)},hl,'');
         hl._img.onload=function(){
           this.classList.add('loaded');
@@ -6462,7 +6496,7 @@ const home={
         hl._view=$n('span','infovalue',null,hl._viewbox,'');
         hl._title=$n('h4','',{jp:d.title_jp?d.title_jp:d.title},hl._view,tspecial(d.title));
 
-        if (__SD3||__SD5){
+        if (__SD!=2){
           hl._desc=$n('span','desc',null,hl._view,special(d.synopsis));
         }
         else{

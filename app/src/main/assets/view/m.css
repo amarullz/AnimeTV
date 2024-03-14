@@ -1436,7 +1436,7 @@ c.loader {
   width: 12vw !important;
   object-fit: cover;
   opacity: 0;
-  transition: all var(--tim-6s) linear;
+  transition: all 2s linear;
 }
 #home_slide.home_list div img.loaded{
   opacity: 1;
@@ -1761,8 +1761,9 @@ c.loader {
   background-repeat:no-repeat;
   background-size: cover;
   background-position: center center;
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/0.webp);
   z-index: 0;
+  background-image: none;
+  background-color: var(--primary-bg);
 }
 
 #animebg.bg1 {
@@ -1787,15 +1788,21 @@ c.loader {
   background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/7.jpg);
 }
 #animebg.bg8 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/8.webp);
+}
+#animebg.bg9 {
+  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/9.webp);
+}
+
+#animebg.bg0 {
   background-image: none !important;
   background-color: var(--primary-bg) !important;
 }
-
-.ui_performance #animebg.bg8 + #home #home_scroll{
+.ui_performance #animebg.bg0 + #home #home_scroll{
   background-image: none;
   background-color: var(--primary-bg) !important;
 }
-.ui_performance #animebg.bg8{
+.ui_performance #animebg.bg0{
   background-image: none !important;
   background-color: var(--primary-bg) !important;
 }
