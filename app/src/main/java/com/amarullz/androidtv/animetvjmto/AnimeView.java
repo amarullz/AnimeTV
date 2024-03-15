@@ -65,8 +65,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.crypto.Cipher;
@@ -289,8 +292,6 @@ public class AnimeView extends WebViewClient {
           @Override
           public DataSource.Factory provide(@NonNull String s, @Nullable TransferListener transferListener) {
             Map<String, String> settings = new HashMap();
-//            settings.put("origin", "https://vidco.pro");
-//            Log.d(_TAG,"VIDEO-DATA-SOURCE : "+videoStatCurrentUrl);
             if (Conf.SOURCE_DOMAIN==5) {
               settings.put("Origin", "https://" + Conf.SOURCE_DOMAIN5_API);
             }
@@ -310,6 +311,11 @@ public class AnimeView extends WebViewClient {
                 }
                 else if (host.contains(Conf.STREAM_DOMAIN3)){
                   settings.put("Origin", "https://" + Conf.STREAM_DOMAIN3);
+                }
+                else{
+                  String[] h=host.split("\\.");
+                  String h2=h[h.length-2]+"."+h[h.length-1];
+                  settings.put("Origin", "https://" +h2);
                 }
               } catch (MalformedURLException ignored) {}
             }
@@ -439,26 +445,36 @@ public class AnimeView extends WebViewClient {
 
           String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
           String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
+          String noHeaderProxy = request.getRequestHeaders().get("X-NoH-Proxy");
 
           AnimeApi.Http http=new AnimeApi.Http(proxy_url);
-          for (Map.Entry<String, String> entry :
-              request.getRequestHeaders().entrySet()) {
-            String k=entry.getKey();
-            boolean sent=false;
-            if (k.equalsIgnoreCase("origin") && proxyOrigin!=null){
+          if (noHeaderProxy!=null){
+            if (proxyOrigin!=null) {
               http.addHeader("Origin", proxyOrigin);
-              sent=true;
             }
-            else if (k.equalsIgnoreCase("referer") && proxyReferer!=null){
-              http.addHeader("Referer", proxyReferer);
-              sent=true;
+            if (proxyReferer!=null) {
+              http.addHeader("Referer", proxyOrigin);
             }
-            else if (k.equalsIgnoreCase("X-Org-Prox")||k.equalsIgnoreCase("X-Ref-Prox")){
-              sent=true;
-            }
-            if (!sent&&!k.equals("Post-Body")&&!k.equals(
-                "Referer")) {
-              http.addHeader(k, entry.getValue());
+            http.addHeader("User-Agent", Conf.USER_AGENT);
+          }
+          else {
+            for (Map.Entry<String, String> entry :
+                    request.getRequestHeaders().entrySet()) {
+              String k = entry.getKey();
+              boolean sent = false;
+              if (k.equalsIgnoreCase("origin") && proxyOrigin != null) {
+                http.addHeader("Origin", proxyOrigin);
+                sent = true;
+              } else if (k.equalsIgnoreCase("referer") && proxyReferer != null) {
+                http.addHeader("Referer", proxyReferer);
+                sent = true;
+              } else if (k.equalsIgnoreCase("X-Org-Prox") || k.equalsIgnoreCase("X-Ref-Prox")) {
+                sent = true;
+              }
+              if (!sent && !k.equals("Post-Body") && !k.equals(
+                      "Referer")) {
+                http.addHeader(k, entry.getValue());
+              }
             }
           }
           if (isPost){
@@ -1001,18 +1017,19 @@ public class AnimeView extends WebViewClient {
       cfRayCheck();
     }
 
+
     @JavascriptInterface
-    public String vrfEnc(String input) {
+    public String sha1sum(String value) {
       try {
-        return vrfEncrypt(input);
-      }catch (Exception ignore){}
-      return "";
-    }
-    @JavascriptInterface
-    public String vrfDec(String input) {
-      try {
-        return vrfDecrypt(input);
-      }catch (Exception ignore){}
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        byte[] bytes = md.digest(value.getBytes());
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+          sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+      } catch (Exception ignored) {
+      }
       return "";
     }
 
@@ -1029,7 +1046,6 @@ public class AnimeView extends WebViewClient {
         return "";
       }
     }
-
   }
 
   public boolean cfOnCheck=false;
@@ -1281,51 +1297,8 @@ public class AnimeView extends WebViewClient {
     alert.show();
   }
 
-  /* VRF ANIWAVE */
-  public String vrfEncrypt(String input) throws Exception {
-    SecretKeySpec rc4Key = new SecretKeySpec("ysJhV6U27FVIjjuk".getBytes(), "RC4");
-    Cipher cipher = Cipher.getInstance("RC4");
-    cipher.init(Cipher.DECRYPT_MODE, rc4Key, cipher.getParameters());
-    byte[] vrf = cipher.doFinal(input.getBytes());
-    vrf = Base64.encode(vrf, Base64.URL_SAFE | Base64.NO_WRAP);
-    vrf = Base64.encode(vrf, Base64.DEFAULT | Base64.NO_WRAP);
-    vrf = vrfShift(vrf);
-    vrf = Base64.encode(vrf, Base64.DEFAULT);
-    vrf = rot13(vrf);
-    String stringVrf = new String(vrf, "UTF-8");
-    return stringVrf.trim();
-  }
 
-  public String vrfDecrypt(String input) throws Exception {
-    byte[] vrf = input.getBytes();
-    vrf = Base64.decode(vrf, Base64.URL_SAFE);
-    SecretKeySpec rc4Key = new SecretKeySpec("hlPeNwkncH0fq9so".getBytes(), "RC4");
-    Cipher cipher = Cipher.getInstance("RC4");
-    cipher.init(Cipher.DECRYPT_MODE, rc4Key, cipher.getParameters());
-    vrf = cipher.doFinal(vrf);
-    return URLDecoder.decode(new String(vrf, "UTF-8"), "utf-8");
-  }
-
-  private byte[] rot13(byte[] vrf) {
-    for (int i = 0; i < vrf.length; i++) {
-      byte b = vrf[i];
-      if (b >= 'A' && b <= 'Z') {
-        vrf[i] = (byte) (((b - 'A' + 13) % 26) + 'A');
-      } else if (b >= 'a' && b <= 'z') {
-        vrf[i] = (byte) (((b - 'a' + 13) % 26) + 'a');
-      }
-    }
-    return vrf;
-  }
-
-  private byte[] vrfShift(byte[] vrf) {
-    int[] shift = {-3, 3, -4, 2, -2, 5, 4, 5};
-    for (int i = 0; i < vrf.length; i++) {
-      vrf[i] = (byte) (vrf[i] + shift[i % 8]);
-    }
-    return vrf;
-  }
-
+  /* KICKASS UTILS */
   private final static String HASH_CIPHER = "AES/CBC/PKCS7PADDING";
   private final static String HASH_CIPHER_FALLBACK = "AES/CBC/PKCS5PADDING";
   private static String decryptAES(byte[] cipherTextBytes, byte[] keyBytes, byte[] ivBytes) {

@@ -55,6 +55,9 @@ function $(i){
 //   return 'mediainfo/'+a.join(',');
 // }
 //
+// https://vidco.pro/vidstreaming/source.php?id=65f327f5b97399e0e1031e80&e=1710501295&s=00445b97e001f8add0f34a75564da5d1356c3684
+// 78a0d85b2b3f232db0e5673fcd51d0acbaed1543
+// 00445b97e001f8add0f34a75564da5d1356c3684
 
 // https://vidplay.online/mediainfo/VXJUraga5p7PqJogXboaTTfHJ_oWkw9MbQ==,168,171,148,195,216,198,153,192,138,212,122,136,179,193,179,225?t=4xjRCfcvBFEAzw%3D%3D&autostart=true
 // https://vidplay.online/mediainfo/VXJUraga5p7MrJojXboaTTfHJ_oWkw9DbQ==,168,171,148,195,216,198,153,192,138,212,122,133,180,193,179,228?t=4xjRCfcvBFEAzw%3D%3D&autostart=true
@@ -66,6 +69,112 @@ function $(i){
 //                                      ?t=4xjRCfchAF0Lzw%3D%3D&autostart=true
 // https://vidplay.online/mediainfo/VXJUraga5p7PqJogXboaTTfHJ_oYlwNHbQ==,157,131,193,152,232,197,212,211,133,191,142,151,185,146,186,209?t=4xjRCfchAF0Lzw%3D%3D&autostart=true
 
+/* KICAKASSANIME SOURCE */
+var kaas={
+  stream_keys:{
+    vidstreaming:'e13d38099bf562e8b9851a652d2043d3',
+    duckstream:'4504447b74641ad972980a6b8ffd7631',
+    birdstream:'4b14d0ff625163e3c9c7a47926484bf2'
+  },
+  stream_sig_order:{
+    vidstreaming:["IP", "USERAGENT", "ROUTE", "MID", "TIMESTAMP", "KEY"],
+    duckstream:["IP", "USERAGENT", "ROUTE", "MID", "TIMESTAMP", "KEY"],
+    birdstream:["IP", "USERAGENT", "ROUTE", "MID", "KEY"]
+  },
+  hex2a:function(hexx) {
+    var hex = hexx.toString();//force conversion
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+  },
+  streamGet:function(url, type, cb){
+    var vidUrl=new URL(url);
+    var vidMid=(type=='duckstream')?'mid':'id';
+    var vidBird=(type=='birdstream')?true:false;
+    var vidId=vidUrl.searchParams.get(vidMid);
+    var vidLang=vidUrl.searchParams.get('ln');
+    var vidHost=vidUrl.host;
+    var vidPath=vidUrl.pathname;
+    var vidKey=(type in kaas.stream_keys)?kaas.stream_keys[type]:kaas.stream_keys.vidstreaming;
+    var vidOrder=(type in kaas.stream_sig_order)?kaas.stream_sig_order[type]:kaas.stream_sig_order.vidstreaming;
+    var vidUag=navigator.userAgent;
+
+    /* Load Source Data */
+    function streamLoadSource(sourceUrl){
+      $ap(sourceUrl,function(r){
+        if (r.ok){
+          try{
+            var srcData=JSON.parse(r.responseText);
+            var encData=srcData.data.split(':');
+            var data=JSON.parse(_JSAPI.aesDec(
+              encData[0],
+              vidKey,
+              encData[1]
+            ));
+            cb(data);
+            return;
+          }catch(e){}
+        }
+        cb(null);
+      },
+      {
+        "X-Ref-Prox":url,
+        "Accept":"application/json, text/plain, */*"
+      });
+    }
+
+    /* Generate Source Url */
+    function generateSourceUrl(playerConfig){
+      var timeStamp = $time()+60;
+      var cid=kaas.hex2a(playerConfig.cid).split('|');
+      var route=cid[1].replace("player.php", "source.php");
+      var sigs=[];
+      for (var i in vidOrder){
+        var b=vidOrder[i];
+        if (b=="IP") sigs.push(cid[0]);
+        else if (b=="USERAGENT") sigs.push(vidUag);
+        else if (b=="ROUTE") sigs.push(route);
+        else if (b=="MID") sigs.push(vidId);
+        else if (b=="TIMESTAMP") sigs.push(timeStamp);
+        else if (b=="KEY") sigs.push(vidKey);
+        else if (b=="SIG") sigs.push(playerConfig.config_params.signature);
+      }
+      var sig_plain=sigs.join('');
+      var signature=_JSAPI.sha1sum(sig_plain);
+      var sourceUrl=[
+        'https://', vidHost, route, "?"+vidMid+"="+vidId,
+        vidBird?'':'&e='+timeStamp,
+        '&s='+signature
+      ].join('');
+      return sourceUrl;
+    }
+
+    /* Load Player HTML */
+    $ap(url,function(r){
+      if (r.ok){
+        try{
+          var d=$n('div','',0,0,r.responseText);
+          var k=d.querySelector('#player + script').innerHTML.trim();
+          var ku=k.substring(k.indexOf('=')+1).trim();
+          var playerConfig=JSON.parse(eval("JSON.stringify("+ku+")"));
+          var sourceUrl=generateSourceUrl(playerConfig);
+          streamLoadSource(sourceUrl);
+          return;
+        }catch(e){
+          console.warn(e);
+        }
+      }
+      cb(null);
+      return;
+    },
+    {
+      "X-Ref-Prox":"https://www1.kickassanime.mx/"
+    });
+  }
+};
+
+/* ANIWAVE & ANIX SOURCE */
 const wave={
   ns:'https://'+__DNS,
   origin:{
