@@ -4069,7 +4069,11 @@ const pb={
         pb.pb_track_pos.innerHTML='RETRY LOADING';
         pb.pb_vid.innerHTML='';
         (function(){
-          pb.vid=$n('iframe','',{src:pb.data.stream_vurl,frameborder:'0'},pb.pb_vid,'');
+          var iframe_src=pb.data.stream_vurl;
+          if (pb.cfg_data.html5player && __SD<3){
+            iframe_src+='&autostart=true';
+          }
+          pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
         })();
       }
       else{
@@ -4152,7 +4156,12 @@ const pb={
         }
       }
       pb.preload_episode_video=null;
-      pb.vid=$n('iframe','',{src:pb.data.stream_vurl,frameborder:'0'},pb.pb_vid,'');
+
+      var iframe_src=pb.data.stream_vurl;
+      if (pb.cfg_data.html5player && __SD<3){
+        iframe_src+='&autostart=true';
+      }
+      pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
     })();
   },
 
