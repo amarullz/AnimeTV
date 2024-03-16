@@ -1,13 +1,14 @@
 /* Body */
 const body=document.body;
 /* const _DNS="9anime.to"; */
-const __DNS=('_JSAPI' in window)?_JSAPI.dns():"animeflix.live";
-const __SD=('_JSAPI' in window)?_JSAPI.getSd():5;
+const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
+const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
 const __SD3=((__SD==3) || (__SD==4))?true:false;
 const __SD5=(__SD==5);
+const __SD6=(__SD==6);
 
 const __SOURCE_NAME=[
-  'Anime-Wave', 'Anix', 'Hi-Anime', 'Anime-WatchTV', 'Animeflix'
+  'Anime-Wave', 'Anix', 'Hi-Anime', 'Anime-WatchTV', 'Animeflix', 'KickAss'
 ]
 
 const __SD_NAME = __SD+"/"+(__SOURCE_NAME[__SD-1]);
@@ -87,6 +88,457 @@ var kaas={
     for (var i = 0; i < hex.length; i += 2)
         str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
     return str;
+  },
+  animeStatus:function(status){
+    if (status=='currently_airing'){
+      return 'RELEASING';
+    }
+    else if (status=='finished_airing'){
+      return 'COMPLETED';
+    }
+    return '';
+  },
+
+  /* API */
+  getAnimeId:function(url){
+    var ux=url.split('#');
+    return ux[0];
+  },
+  getFilterUrl:function(q,genres,sort,page,ses,year){
+    return "";
+  },
+  ttip_cache:{},
+  getTooltip:function(id, cb, url, isview){
+    if (!id){
+      id=url;
+    }
+    var tturl='/api/show/'+id;
+    var epsurl='/api/show/'+id+'/episodes?ep=1&lang=ja-JP&page=1';
+    var epsurl_dub='/api/show/'+id+'/episodes?ep=1&lang=en-US&page=1';
+    function processData(ld){
+      var u=ld.info;
+      var p=ld.ep;
+      var pd=ld.epdub;
+      var o={
+        title:'',
+        title_jp:'',
+        synopsis:'',
+        genres:[],
+        quality:null,
+        ep:0,
+        rating:'',
+        ttid:id
+      };
+
+      o.url=u.slug;
+      o.ttid=u.slug;
+      o.title=u.title_en?u.title_en:u.title;
+      o.title_jp=u.title;
+      o.synopsis=u.synopsis;
+      
+      o.poster=kaas.imgPoster(u.poster,0);
+      if (u.banner){
+        o.banner=kaas.imgPoster(u.banner,1);
+      }
+
+      var epnum=0;
+      var epdub=0;
+      try{
+        if (p.pages.length>0){
+          epnum=toInt(p.pages[p.pages.length-1].to);
+        }
+      }catch(e){}
+      try{
+        if (pd.pages.length>0){
+          epdub=toInt(pd.pages[pd.pages.length-1].to);
+        }
+      }catch(e){}
+
+      o.rating=u.rating?u.rating:'';
+      o.status=kaas.animeStatus(u.status);
+      o.epavail=o.ep=epnum;
+      o.epdub=epdub;
+      o.type=u.type?u.type.toUpperCase():'';
+      if (u.duration){
+        o.duration=Math.floor(u.duration/60000)+'MIN';
+      }
+      if (u.episode_duration){
+        o.duration=Math.floor(u.episode_duration/60)+'MIN';
+      }
+      o.genre=u.genres.join(", ");
+      for (var i=1;i<u.genres.length;i++){
+        try{
+          o.genres.push({
+            name:u.genres[i],
+            val:u.genres[i].toLowerCase()
+          });
+        }catch(e){}
+      }
+      if (isview){
+        o.kaasep_data=p;
+        o.kaasepdub_data=pd;
+        o.info={
+          type:o.type?{
+            val:'_'+o.type,
+            name:o.type
+          }:null,
+          rating:o.rating,
+          quality:null
+        };
+      }
+      cb(o);
+    }
+
+    if (!kaas.ttip_cache[id]){
+      kaas.ttip_cache[id]={
+        ep:null,
+        epdub:null,
+        info:null
+      };
+    }
+    var loaded_data=kaas.ttip_cache[id];
+    
+
+    function dtLoad(){
+      if (loaded_data.info==null) return;
+      if (loaded_data.ep==null) return;
+      if (isview && loaded_data.epdub==null) return;
+      processData(loaded_data);
+    }
+    
+    if (!loaded_data.info){
+      $a(tturl,function(r){
+        if (r.ok){
+          loaded_data.info=JSON.parse(r.responseText);
+          dtLoad();
+          return;
+        }
+        cb(null);
+      });
+    }
+
+    if (!loaded_data.ep){
+      $a(epsurl,function(r){
+        if (r.ok){
+          loaded_data.ep=JSON.parse(r.responseText);
+          dtLoad();
+          return;
+        }
+        cb(null);
+      });
+    }
+
+    if (isview){
+      if (!loaded_data.epdub){
+        $a(epsurl_dub,function(r){
+          if (r.ok){
+            loaded_data.epdub=JSON.parse(r.responseText);
+            dtLoad();
+            return;
+          }
+          cb(null);
+        });
+      }
+    }
+
+    dtLoad();
+  },
+  view_cache:{},
+  getView:function(url,f){
+    var uid=++_API.viewid;
+    var view_data=null;
+    var ux=url.split('#');
+    var uri=ux[0];
+    var ep=1;
+    if (ux.length==2){
+      ep=ux[1]?ux[1]:0;
+    }
+
+    function callCb(d){
+      d.stream_vurl = d.stream_url.hard;
+      d.stream_sname = d.stream_types.hard;
+      d.streamtype="sub";
+      var is_soft=false;
+      if (_API.currentStreamType==2){
+        if (d.stream_url.dub){
+          d.stream_vurl = d.stream_url.dub;
+          d.stream_sname = d.stream_types.dub;
+          d.streamtype="dub";
+        }
+        else if (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub'){
+          is_soft=true;
+        }
+      }
+      if (is_soft||_API.currentStreamType==1){
+        if (d.stream_url.soft){
+          d.stream_vurl = d.stream_url.soft;
+          d.stream_sname = d.stream_types.soft;
+          d.streamtype="softsub";
+        }
+      }
+      d.status=true;
+      console.log(["KAAS callCb", d, uid]);
+      f(JSON.parse(JSON.stringify(d)),uid);
+    }
+
+    function selectServer(d){
+      if (!d || d.length<1){
+        return null;
+      }
+      var ismirror= pb.cfg_data.mirrorserver;
+      var od=d[i];
+      for (var i=0;i<d.length;i++){
+        var di=d[i];
+        if (di.name=='VidStreaming'){
+          if (!ismirror){
+            return di;
+          }
+        }
+        else{
+          return di;
+        }
+      }
+      return od;
+    }
+
+    function loadServer(){
+      if (view_data && view_data._active_ep){
+        try{
+          var d=view_data._active_ep;
+          var sub_url=null;
+          var dub_url=null;
+          var sv_num=0;
+
+          function parseServer(){
+            if (--sv_num>0){
+              return;
+            }
+            view_data.stream_url={
+              'hard':'',
+              'soft':'',
+              'dub':''
+            };
+            view_data.stream_types={
+              'hard':'',
+              'soft':'',
+              'dub':''
+            };
+            view_data.skip=[];
+            if (d.sub_data){
+              var sv=selectServer(d.sub_data);
+              if (sv){
+                view_data.stream_url.hard=
+                view_data.stream_url.soft=sv.src;
+                view_data.stream_types.hard=
+                view_data.stream_types.soft=sv.name.toLowerCase();
+              }
+            }
+            if (d.dub_data){
+              var sv=selectServer(d.dub_data);
+              if (sv){
+                view_data.stream_url.dub=sv.src;
+                view_data.stream_types.dub=sv.name.toLowerCase();
+              }
+            }
+            if (d.img){
+              view_data.banner=d.img;
+            }
+            callCb(view_data);
+          }
+          if (d.sub){
+            sub_url='/api/show/'+uri+'/episode/ep-'+d.ep+'-'+d.sub;
+            sv_num++;
+          }
+          if (d.dub){
+            dub_url='/api/show/'+uri+'/episode/ep-'+d.ep+'-'+d.dub;
+            sv_num++;
+          }
+          if (sub_url){
+            if (d.sub_data){
+              setTimeout(parseServer,250);
+            }
+            else{
+              $a(sub_url,function(r){
+                if (r.ok){
+                  try{
+                    d.sub_data=JSON.parse(r.responseText).servers;
+                  }catch(e){}
+                }
+                parseServer();
+              });
+            }
+          }
+          if (dub_url){
+            if (d.dub_data){
+              setTimeout(parseServer,250);
+            }
+            else{
+              $a(dub_url,function(r){
+                if (r.ok){
+                  try{
+                    d.dub_data=JSON.parse(r.responseText).servers;
+                  }catch(e){}
+                }
+                parseServer();
+              });
+            }
+          }
+          return;
+        }catch(e){
+          console.warn("GET VIEW KAAS: "+e);
+        }
+      }
+      f({status:false},uid);
+    }
+
+    if (kaas.view_cache[uri]){
+      view_data=kaas.view_cache[uri];
+      if (view_data._active_ep){
+        view_data._active_ep.active=false;
+      }
+      for (var i=0;i<view_data.ep.length;i++){
+        if (view_data.ep[i].ep==ep){
+          view_data.ep[i].active=true;
+          view_data._active_ep=view_data.ep[i];
+        }
+      }
+      loadServer();
+      return uid;
+    }
+    var view_load_en_num=0;
+    var view_eps={};
+    function ep_loaded(r,isdub){
+      if (r && r.result){
+        for (var i=0;i<r.result.length;i++){
+          var p=r.result[i];
+          var d=null;
+          if (p.episode_number in view_eps){
+            d=view_eps[p.episode_number];
+          }
+          else{
+            view_eps[p.episode_number]={};
+            d=view_eps[p.episode_number];
+            // d.title=p.title;
+            d.ep=p.episode_number;
+            d.url=uri+"#"+d.ep;
+            if (d.ep==ep){
+              d.active=true;
+              view_data._active_ep=d;
+            }
+          }
+          if (isdub){
+            d.dub=p.slug;
+          }
+          else{
+            d.sub=p.slug;
+          }
+          if (!d.img){
+            if (p.thumbnail){
+              d.img=kaas.imgPoster(p.thumbnail,2);
+            }
+          }
+        }
+      }
+      if (--view_load_en_num<1){
+        view_data.ep=[];
+        var vep=view_data.ep;
+        for (var i in view_eps){
+          vep.push(view_eps[i]);
+        }
+        vep.sort(function(a, b) {
+          return Number(a.ep) - Number(a.ep);
+        });
+        kaas.view_cache[uri]=view_data;
+        loadServer();
+      }
+    }
+    kaas.getTooltip(uri,function(k){
+      if (k){
+        console.log(["KAAS getView Tooltip",k]);
+        view_data=k;
+        view_load_en_num=2;
+        ep_loaded(k.kaasep_data,false);
+        ep_loaded(k.kaasepdub_data,true);
+        for (var i=1;i<k.kaasep_data.pages.length;i++){
+          var u='/api/show/'+uri+'/episodes?ep=1&lang=ja-JP&page='+
+            (k.kaasep_data.pages[i].number);
+            view_load_en_num++;
+          $a(u,function(r){
+            var d=null;
+            try{
+              d=JSON.parse(r.responseText);
+            }catch(e){}
+            ep_loaded(d,false);
+          });
+        }
+        for (var i=1;i<k.kaasepdub_data.pages.length;i++){
+          var u='/api/show/'+uri+'/episodes?ep=1&lang=en-US&page='+
+            (k.kaasepdub_data.pages[i].number);
+            view_load_en_num++;
+            $a(u,function(r){
+              var d=null;
+              try{
+                d=JSON.parse(r.responseText);
+              }catch(e){}
+              ep_loaded(d,true);
+            });
+        }
+        delete k.kaasep_data;
+        delete k.kaasepdub_data;
+      }
+    },uri,true);
+    return uid;
+  },
+  imgPoster:function(poster, isbanner){
+    if (!poster || !poster.formats){
+      return null;
+    }
+    var type='poster';
+    if (isbanner==2){
+      type='thumbnail';
+    }
+    else if (isbanner){
+      type='banner';
+    }
+    var base='/image/'+type+'/';
+    var ext=(poster.formats.indexOf('webp')>-1)?'webp':'jpg';
+    var slug=poster.hq?poster.hq:poster.sm;
+    return base+slug+"."+ext;
+  },
+  recentParse:function(v){
+    var rd=[];
+    try{
+      var j=JSON.parse(v);
+      var t=j.result;
+      var l=t.length;
+      for (var i=0;i<l;i++){
+        try{
+          var d={};
+          var u=t[i];
+          d.url=u.slug;
+          d.title=u.title_en?u.title_en:u.title;
+          d.title_jp=u.title;
+          d.tip=u.slug;
+          d.poster=kaas.imgPoster(u.poster,0);
+          d.epavail=d.ep=u.episode_number?u.episode_number:'';
+          d.type=u.type?u.type.toUpperCase():'';
+          if (u.duration){
+            d.duration=Math.floor(u.duration/60000)+'MIN';
+          }
+          rd.push(d);
+        }catch(e2){}
+      }
+
+    }catch(e){
+      console.log("ERR kaas.recentParse: "+e);
+    }
+    return rd;
+  },
+
+  /* Scrapper */
+  subtitle_origin:{
+    "X-Org-Prox":"https://vidco.pro",
+    "X-NoH-Proxy":"true"
   },
   streamGet:function(url, type, cb){
     var vidUrl=new URL(url);
@@ -888,25 +1340,6 @@ function $a(uri, cb, hdr, pd){
   xhttp.send();
 }
 
-// if (!__SD3&&!__SD5){
-//   $a('/ajax/user/panel',function(r){
-//     if (r.ok){
-//       var x=r.responseText;
-//       if (x.indexOf('"/waf-js-run"')>0){
-//         if (confirm(
-//           "Source : "+__SD_NAME+" Is Blocked your connection\n"+
-//           "Change source now?"
-//         )){
-//           _JSAPI.setSd(5);
-//           setTimeout(function(){
-//             _API.reload();
-//           },200);
-//         }
-//       }
-//     }
-//   });
-// }
-
 /* proxy ajax */
 function $ap(uri, cb, hdr){
   $a("/__proxy/"+uri,cb, hdr);
@@ -1307,6 +1740,9 @@ const _API={
     else if (__SD5){
       return url;
     }
+    else if (__SD6){
+      return kaas.getAnimeId(url);
+    }
     else{
       var url_parse=url.split('/');
       if (url_parse.length>=5){
@@ -1363,7 +1799,10 @@ const _API={
       sort: 1.Relevant, 2.RecentUpdate
     */
     var uri='';
-    if (!__SD3 && !__SD5){
+    if (__SD6){
+      return kaas.getFilterUrl(q,genres,sort,page,ses,year);
+    }
+    else if (!__SD3 && !__SD5){
       var qv=[];
       
       qv.push('keyword='+enc(q));
@@ -1618,6 +2057,9 @@ const _API={
     }
     else if (__SD5){
       return _API.getViewFlix(url,f);
+    }
+    else if (__SD6){
+      return kaas.getView(url,f);
     }
     else if (__SD==1||__SD==2){
       return wave.getView(url,f);
@@ -2228,6 +2670,10 @@ const _API={
   },
 
   getTooltip:function(id, cb, url, isview){
+    if (__SD6){
+      return kaas.getTooltip(id, cb, url, 0);
+    }
+
     if (!id && url){
       if (__SD3){
         id=home.hi_tipurl(url);
@@ -3067,6 +3513,9 @@ const vtt={
     var hdr=null;
     if (__SD5){
       hdr=__AFLIX.origin_dev;
+    }
+    else if (__SD6){
+      hdr=kaas.subtitle_origin;
     }
     $ap(sub.u,function(r){
       if (r.ok){
@@ -4317,6 +4766,40 @@ const pb={
           pb.flix_play_video();
         });
       }
+      else if (__SD6){
+        kaas.streamGet(
+          pb.data.stream_vurl, 
+          pb.data.stream_sname, function(b){
+            console.log(['STREAMLOAD SD6',b]);
+            
+            pb.pb_vid.innerHTML='';
+            pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
+            _API.setMessage(null);
+            
+            /* Load Subtitle */
+            vtt.clear();
+            pb.subtitles=[];
+            window.__subtitle=pb.subtitles;
+            try{
+              if (b.subtitles){
+                var n=b.subtitles.length;
+                for (var i=0;i<n;i++){
+                  var tk=b.subtitles[i];
+                  pb.subtitles.push({
+                    u:'https:'+tk.src,
+                    d:(i==0)?1:0,
+                    l:(tk.name+'').toLowerCase().trim(),
+                    i:(tk.language+'').toLowerCase().trim()
+                  });
+                }
+                vtt.init(pb.subtitles);
+              }
+            }catch(e){}
+
+            /* Load Videos */
+            pb.init_video_mp4upload('https:'+b.hls);
+          });
+      }
       else{
         /* GET SERVER WAVE-ANIX */
         pb.data.stream_vurl = pb.data.stream_url.hard;
@@ -4505,7 +4988,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (!pb.cfg_data.html5player&&!__SD5){
+              if (!pb.cfg_data.html5player&&!__SD5&&!__SD6){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -4673,7 +5156,7 @@ const pb={
         if (sel_id>-1){
           var epd=pb.data.ep[sel_id];
           action_value=epd.url;
-          if (__SD3||__SD5){
+          if (__SD3||__SD5||__SD6){
             action_value='>'+epd.url;
           }
           pb.action_handler(action_value,';1');
@@ -5466,7 +5949,7 @@ const pb={
         var d=pb.data.ep[i];
         var adh='';
         var action_value=d.url;
-        if (__SD3||__SD5){
+        if (__SD3||__SD5||__SD6){
           action_value='>'+d.url;
         }
         var hl=$n('div',d.active?'playing':'',{action:action_value,arg:pb.tip_value+';1'},pb.pb_episodes.P,special(d.ep)+adh);
@@ -5792,7 +6275,7 @@ const pb={
       for (var i=0;i<pb.data.seasons.length;i++){
         var d=pb.data.seasons[i];
         var action_value=d.url;
-        if (__SD3||__SD5){
+        if (__SD3||__SD5||__SD6){
           action_value='>'+d.url;
         }
         var hl=$n('div',d.active?'playing':'',{action:action_value},pb.pb_seasons.P,'');
@@ -5819,7 +6302,7 @@ const pb={
           d.poster=$imgcdn(d.poster);
         }catch(e4){}
         var action_value=d.url;
-        if (__SD3||__SD5){
+        if (__SD3||__SD5||__SD6){
           action_value='>'+d.url;
         }
         var hl=$n('div','',{action:action_value,arg:(d.tip?d.tip:'')+';0'},pb.pb_related.P,'');
@@ -5843,7 +6326,7 @@ const pb={
           d.poster=$imgcdn(d.poster);
         }catch(e4){}
         var action_value=d.url;
-        if (__SD3||__SD5){
+        if (__SD3||__SD5||__SD6){
           action_value='>'+d.url;
         }
         var hl=$n('div','',{action:action_value,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs.P,'');
@@ -5966,7 +6449,7 @@ const pb={
       pb.url_value=uri;
       pb.startpos_val=(startpos!==undefined)?(startpos?parseInt(startpos):0):0;
       console.log("ATVLOG OPENPB => POS="+pb.startpos_val);
-      if (!noclean && (!__SD3) &&(!__SD5)){
+      if (!noclean && (!__SD3) &&(!__SD5) &&(!__SD6)){
         _API.getTooltip(ttid,pb.open_ttip, uri);
       }
       pb.reset(0,((__SD3||__SD5))?2:noclean);
@@ -6183,6 +6666,10 @@ const home={
       // Hi Anime
       rd=home.flix_parse(v);
     }
+    else if (__SD6){
+      // Kickass
+      rd=kaas.recentParse(v);
+    }
     else if (__SD==1){
       // wave
       var hd=$n('d','','',null,v);
@@ -6301,7 +6788,7 @@ const home={
           hl._ep=$n('span','info',null,hl,infotxt);
         }
       }
-      var PGSZ=(__SD3||__SD5)?60:30;
+      var PGSZ=(__SD3||__SD5||__SD6)?60:30;
       while (g.P.childElementCount>PGSZ){
         g._spre.push(g.P.firstElementChild.nextElementSibling);
         g.P.removeChild(g.P.firstElementChild.nextElementSibling);
@@ -6330,7 +6817,7 @@ const home={
     $a(g._ajaxurl+''+load_page,function(r){
       if (r.ok){
         try{
-          if (__SD3||__SD5){
+          if (__SD3||__SD5||__SD6){
             home.recent_parse(g,r.responseText);
           }
           else{
@@ -6412,42 +6899,6 @@ const home={
         hl._desc.innerHTML=special(d.synopsis);
       }
     }, url);
-    // $a(url,function(r){
-    //   if (r.ok){
-    //     try{
-    //       var d=$n('div','',0,0,r.responseText);
-    //       var w={
-    //         banner:null,
-    //         synopsis:''
-    //       };
-    //       if (__SD==1){
-    //         try{
-    //           w.banner=d.querySelector('#player').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
-    //         }catch(e){}
-    //         try{
-    //           w.synopsis=d.querySelector('#w-info .info .synopsis .content').textContent.trim();
-    //         }catch(e){}
-    //       }
-    //       else if (__SD==2){
-    //           w.banner=d.querySelector('#ani-player-section div.player-bg').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
-    //           w.synopsis=d.querySelector('#ani-detail-info .description .short div').textContent.trim();
-    //       }
-    //       if (w.banner){
-    //         hl._img.src=$img(w.banner);
-    //       }
-    //       else{
-    //         hl._img.src=$img(ddat.poster);
-    //       }
-    //       hl._desc.innerHTML=special(w.synopsis);
-    //       d.innerHTML='';
-    //       return;
-    //     }catch(e){
-    //       console.log('ttip err '+e);
-    //     }
-    //   }
-    //   hl._img.src=$img(ddat.poster);
-    //   hl._desc.innerHTML="...";
-    // });
   },
 
   home_parser:function(v){
@@ -6535,28 +6986,6 @@ const home={
       }
       else if (__SD==1){
         td=wave.parseHomeSlideshow(h);
-        // wave
-        // var tops=h.querySelector('section#top-anime').querySelector('div.tab-content[data-name=day]').querySelectorAll('a.item');
-        // for (var i=0;i<tops.length;i++){
-        //   var t=tops[i];
-        //   var d={};
-        //   var tt=t.querySelector('div.d-title');
-        //   d.title=tt.textContent.trim();
-        //   d.title_jp=tt.getAttribute('data-jp');
-        //   d.url=t.href;
-        //   d.tip=t.querySelector('div.poster').getAttribute('data-tip');
-        //   d.poster=t.querySelector('img').src;
-        //   d.adult=t.querySelector('div.adult')?true:false;
-        //   try{
-        //     d.ep=(t.querySelector('span.ep-status.sub').textContent+'').trim()
-        //   }catch(e){
-        //   }
-        //   try{
-        //     d.type=(t.querySelector('div.info .meta span.dot:not(.ep-wrap)').textContent+'').trim();
-        //   }catch(e){
-        //   }
-        //   td.push(d);
-        // }
       }
       else{
         // anix
@@ -6645,6 +7074,9 @@ const home={
   },
 
   home_load:function(){
+    if (__SD6){
+      return;
+    }
     home.home_onload=1;
     $a(__SD5?('/__proxy/'+__AFLIX.ns+'/airing'):'/home',function(r){
       if (r.ok){
@@ -6746,6 +7178,13 @@ const home={
       home.home_dub.setAttribute('list-title','❤️ Popular');
       home.home_random.setAttribute('list-title','🎥 Movie');
     }
+    else if (__SD6){
+      home.home_recent._ajaxurl='/api/show/recent?type=sub&page=';
+      home.home_dub._ajaxurl='/api/show/recent?type=dub&page=';
+      home.home_trending._ajaxurl='/api/show/trending?page=';
+      home.home_random._ajaxurl='/api/show/popular?page=';
+      home.home_random.setAttribute('list-title','❤️ Popular');
+    }
     else{
       // wave & anix
       home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
@@ -6793,7 +7232,12 @@ const home={
     if (pb.cfg_data.nonjapan && (!__SD3) && (!__SD5)){
       home.home_chinese.className='home_list pb_menu';
       home.home_chinese.style.display='';
-      home.home_chinese._ajaxurl='/ajax/home/widget/updated-china?page=';
+      if (__SD6){
+        home.home_chinese._ajaxurl='/api/show/recent?type=chinese&page=';
+      }
+      else{
+        home.home_chinese._ajaxurl='/ajax/home/widget/updated-china?page=';
+      }
       home.recent_init(home.home_chinese);
       home.menus.push(home.home_chinese);
     }
@@ -8634,7 +9078,7 @@ const _MAL={
         epsel=_MAL.pop.var.ep;
       }
 
-      openurl+=(__SD3||__SD5)?('#'+epsel):('/ep-'+epsel);
+      openurl+=(__SD3||__SD5||__SD6)?('#'+epsel):('/ep-'+epsel);
 
       console.log("MAL Open Anime = "+openurl);
       _MAL.popup_close();
@@ -8889,8 +9333,8 @@ const _MAL={
       rating:''
     };
     console.log("Popup = "+JSON.stringify([url, img, titl, ttid, ep, tcurr, tdur,arg,malid]));
-    if ((url_parse.length>=5)||__SD3||__SD5){
-      if((url_parse.length==6)&&(!__SD3)&&(!__SD5)){
+    if ((url_parse.length>=5)||__SD3||__SD5||__SD6){
+      if((url_parse.length==6)&&(!__SD3)&&(!__SD5)&&(!__SD6)){
         url_parse.pop();
         url=url_parse.join('/');
       }
