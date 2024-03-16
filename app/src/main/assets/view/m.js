@@ -244,6 +244,29 @@ var kaas={
     dtLoad();
   },
   view_cache:{},
+  selectServer:function(d){
+    d.stream_vurl = d.stream_url.hard;
+    d.stream_sname = d.stream_types.hard;
+    d.streamtype="sub";
+    var is_soft=false;
+    if (_API.currentStreamType==2){
+      if (d.stream_url.dub){
+        d.stream_vurl = d.stream_url.dub;
+        d.stream_sname = d.stream_types.dub;
+        d.streamtype="dub";
+      }
+      else if (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub'){
+        is_soft=true;
+      }
+    }
+    if (is_soft||_API.currentStreamType==1){
+      if (d.stream_url.soft){
+        d.stream_vurl = d.stream_url.soft;
+        d.stream_sname = d.stream_types.soft;
+        d.streamtype="softsub";
+      }
+    }
+  },
   getView:function(url,f){
     var uid=++_API.viewid;
     var view_data=null;
@@ -255,27 +278,6 @@ var kaas={
     }
 
     function callCb(d){
-      d.stream_vurl = d.stream_url.hard;
-      d.stream_sname = d.stream_types.hard;
-      d.streamtype="sub";
-      var is_soft=false;
-      if (_API.currentStreamType==2){
-        if (d.stream_url.dub){
-          d.stream_vurl = d.stream_url.dub;
-          d.stream_sname = d.stream_types.dub;
-          d.streamtype="dub";
-        }
-        else if (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub'){
-          is_soft=true;
-        }
-      }
-      if (is_soft||_API.currentStreamType==1){
-        if (d.stream_url.soft){
-          d.stream_vurl = d.stream_url.soft;
-          d.stream_sname = d.stream_types.soft;
-          d.streamtype="softsub";
-        }
-      }
       d.status=true;
       console.log(["KAAS callCb", d, uid]);
       f(JSON.parse(JSON.stringify(d)),uid);
@@ -294,7 +296,7 @@ var kaas={
             return di;
           }
         }
-        else{
+        else if (di.name=='BirdStream'){
           return di;
         }
       }
@@ -4767,6 +4769,7 @@ const pb={
         });
       }
       else if (__SD6){
+        kaas.selectServer(pb.data);
         kaas.streamGet(
           pb.data.stream_vurl, 
           pb.data.stream_sname, function(b){
