@@ -448,7 +448,7 @@ var kaas={
           vep.push(view_eps[i]);
         }
         vep.sort(function(a, b) {
-          return Number(a.ep) - Number(a.ep);
+          return Number(a.ep) - Number(b.ep);
         });
         kaas.view_cache[uri]=view_data;
         loadServer();
@@ -459,8 +459,6 @@ var kaas={
         console.log(["KAAS getView Tooltip",k]);
         view_data=k;
         view_load_en_num=2;
-        ep_loaded(k.kaasep_data,false);
-        ep_loaded(k.kaasepdub_data,true);
         for (var i=1;i<k.kaasep_data.pages.length;i++){
           var u='/api/show/'+uri+'/episodes?ep=1&lang=ja-JP&page='+
             (k.kaasep_data.pages[i].number);
@@ -485,6 +483,8 @@ var kaas={
               ep_loaded(d,true);
             });
         }
+        ep_loaded(k.kaasep_data,false);
+        ep_loaded(k.kaasepdub_data,true);
         delete k.kaasep_data;
         delete k.kaasepdub_data;
       }
@@ -3361,6 +3361,11 @@ const vtt={
           }catch(ee){}
         }
         if (!s&&p>=0){
+          if (__SD6){
+            if (ln.indexOf('kickassanimes.info')>0){
+              ln='';
+            }
+          }
           t[p].tx+='\n'+ln;
           t[p].tx=t[p].tx.trim();
         }
