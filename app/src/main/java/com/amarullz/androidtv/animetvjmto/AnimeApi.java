@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Cache;
+import okhttp3.CacheControl;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -533,6 +534,8 @@ public class AnimeApi extends WebViewClient {
     private Response res=null;
     public ByteArrayOutputStream body=null;
     public String[] ctype=null;
+
+    public boolean nocache=false;
     public Http(String url){
       if (Conf.HTTP_CLIENT>0){
         // Generic HttpURLConnection
@@ -571,6 +574,13 @@ public class AnimeApi extends WebViewClient {
       if (name.equalsIgnoreCase("X-Requested-With")){
         if (!val.equalsIgnoreCase("XMLHttpRequest")){
           return;
+        }
+      }
+
+      if (name.equalsIgnoreCase("Pragma")){
+        if (val.equalsIgnoreCase("no-cache")){
+          nocache=true;
+          Log.d(_TAG,"HTTP-Request no cache");
         }
       }
 
@@ -617,6 +627,9 @@ public class AnimeApi extends WebViewClient {
             httpClient = bootstrapClient.newBuilder().build();
           }
         }
+        if (nocache){
+          req.cacheControl(CacheControl.FORCE_NETWORK);
+        }
         res = httpClient.newCall(req.build()).execute();
         body = new ByteArrayOutputStream();
         if (res.body() != null) {
@@ -625,6 +638,9 @@ public class AnimeApi extends WebViewClient {
         ctype = parseContentType(res.header("Content-Type"));
       }
       else if (http!=null){
+        if (nocache){
+          http.setUseCaches(false);
+        }
         ctype=parseContentType(http.getContentType());
         body = new ByteArrayOutputStream();
         InputStream is=http.getInputStream();
@@ -647,28 +663,6 @@ public class AnimeApi extends WebViewClient {
     String url = uri.toString();
     try {
       Http http=new Http(url);
-//      String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
-//      String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
-//      for (Map.Entry<String, String> entry :
-//          request.getRequestHeaders().entrySet()) {
-//        String k=entry.getKey();
-//        boolean sent=false;
-//        if (k.equalsIgnoreCase("origin") && proxyOrigin!=null){
-//          http.addHeader("Origin", proxyOrigin);
-//          sent=true;
-//        }
-//        else if (k.equalsIgnoreCase("referer") && proxyReferer!=null){
-//          http.addHeader("Referer", proxyReferer);
-//          sent=true;
-//        }
-//        else if (k.equalsIgnoreCase("X-Org-Prox")||k.equalsIgnoreCase("X-Ref-Prox")){
-//          sent=true;
-//        }
-//        if (!sent&&!k.equals("Post-Body")&&!k.equals(
-//            "Referer")) {
-//          http.addHeader(k, entry.getValue());
-//        }
-//      }
 
       for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {

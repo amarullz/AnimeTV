@@ -1295,6 +1295,101 @@ const wave={
     });
 
     return uid;
+  },
+
+
+  vidplayKeys:function(cb){
+    $ap("https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/keys.json?"+$tick(),
+    function(r){
+      if (r.ok){
+        try{
+          var d=JSON.parse(r.responseText);
+          cb(d);
+          return;
+        }catch(e){}
+      }
+      cb(null);
+    },{
+      'Pragma':'no-cache',
+      'Cache-Control':'no-cache'
+    });
+  },
+  vidplayFuToken:function(host,embedurl,data,cb){
+    $ap("https://"+host+"/futoken", //?"+$tick(),
+      function(r){
+        if (r.ok){
+          try{
+            var d=r.responseText;
+            var su=d.substring(d.indexOf('function(v)'));
+            su="("+su.substring(0,su.indexOf('+location')).replace('jQuery.ajax','')+')})';
+            var param=eval(su+"('"+data+"')");
+            cb(param);
+            return;
+          }catch(e){}
+        }
+        cb(null);
+      },
+      {
+        "X-Org-Prox":"https://"+host+"/",
+        "X-Ref-Prox":embedurl,
+        'Pragma':'no-cache',
+        'Cache-Control':'no-cache'
+      });
+  },
+  vidplayGetMedia:function(u, cb){
+    var vidLoc=u.substring(0,u.indexOf("?"));
+    var vidSearch=u.substring(u.indexOf("?"));
+    var vidHost=vidLoc.split('/')[2];
+    var vidId=vidLoc.substring(vidLoc.lastIndexOf("/")+1);
+    wave.vidplayKeys(function(k){
+      if (k){
+        var dataId=_JSAPI.vidEncode(vidId,k[0],k[1]);
+        console.warn([dataId,vidId,k[0],k[1]]);
+        if (dataId){
+          wave.vidplayFuToken(vidHost,u,dataId,function(slug){
+            if (slug){
+              var mediaUrl=
+                'https://'+
+                vidHost+
+                '/'+
+                slug+
+                vidSearch;
+              cb(mediaUrl);
+              return;
+            }
+            cb(null);
+          });
+          return;
+        }
+      }
+      cb(null);
+    });
+  },
+  vidplayGetData:function(u,cb){
+    var vidHost=u.split('/')[2];
+    wave.vidplayGetMedia(u,function(url){
+      if (url){
+        $ap(url,function(r){
+          if (r.ok){
+            try{
+              var d=JSON.parse(r.responseText);
+              cb(d);
+              return;
+            }catch(e){}
+          }
+          cb(null);
+        },
+        {
+          "X-Org-Prox":"https://"+vidHost+"/",
+          "X-Ref-Prox":u,
+          'X-Requested-With':'XMLHttpRequest',
+          'Accept':'application/json, text/javascript, */*; q=0.01'
+        }
+        );
+        return;
+      }
+      cb(null);
+    });
   }
   
 };
@@ -4568,6 +4663,74 @@ const pb={
     }
   },
 
+  mediainfo_callback:function(d){
+    try{
+      pb.pb_track_pos.innerHTML='PREPARE VIDEO';
+      _API.setVizPageCb(null);
+
+      var urivid="";
+      try{
+        if (d.data.media.sources){
+          urivid=(d.data.media.sources.length>1)?d.data.media.sources[1].file:d.data.media.sources[0].file;
+        }
+      }catch(e){}
+      if (!urivid){
+        try{
+          if (d.result.sources){
+            urivid=(d.result.sources.length>1)?d.result.sources[1].file:d.result.sources[0].file;
+          }
+        }catch(e){}
+      }
+
+      if (!__SD3){
+        pb.subtitles=[];
+        window.__subtitle=pb.subtitles;
+        vtt.clear();
+        try{
+          if (d.result.tracks){
+            var n=d.result.tracks.length;
+            for (var i=0;i<n;i++){
+              var tk=d.result.tracks[i];
+              if (tk.kind=='captions'){
+                pb.subtitles.push({
+                  u:tk.file,
+                  d:tk.default?1:0,
+                  l:(tk.label+'').toLowerCase().trim()
+                });
+              }
+            }
+            vtt.init(pb.subtitles);
+          }
+        }catch(e){}
+      }
+// https://vidplay.online/mediainfo/VXBSragY557PqIM_WL1oPDHBJvgXlQxMZ7E=,163,183,152,152,179,163,191,142,107,159,133,180,193,194,159,208?t=4xjRCf0gDFQLyg%3D%3D
+// https://vidplay.online/mediainfo/VXBSragY557PqIM_WL1oPDHBJvgXlQxDa7E=,191,194,180,162,179,203,212,186,163,150,142,200,199,149,194,149?t=4xjRCf0gDFQLyg%3D%3D
+// VXBSragY557PqIM_WL1oPDHBJvgXlQxMZ7E=
+// VXBSragY557PqIM_WL1oPDHBJvgXlQxDa7E=
+// 
+      if ((urivid && !pb.cfg_data.html5player) || (__SD3)){
+        pb.data.vizm3u8=urivid;
+        console.log("ATVLOG Got VizCB = "+urivid);
+        if (pb.cfg('server')==0){
+          pb.pb_vid.innerHTML='';
+          pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
+          _API.setMessage(null);
+          pb.startpos_val=pb.video_tmp_start_pos;
+          pb.init_video_mp4upload(urivid);
+        }
+      }
+      else{
+        pb.pb_track_pos.innerHTML='STREAMING VIDEO';
+      }
+      return true;
+    }catch(e){
+      pb.pb_track_pos.innerHTML='VIDEO ERROR: '+e;
+    }
+    return false;
+  },
+
+  video_tmp_start_pos:0,
+
   init_video_vidcloud:function(){
     if ((pb.cfg('server')==1)&&(pb.data.vizm3u8)){
       console.log("ATVLOG VIZCLOUD-M3U8 GOT_DATA => "+pb.startpos_val);
@@ -4576,7 +4739,7 @@ const pb={
     }
 
     console.log("ATVLOG VIDEO VIDCLOUD = "+pb.data.stream_vurl);
-    var _tmp_start_pos=pb.startpos_val;
+    pb.video_tmp_start_pos=pb.startpos_val;
     pb.data.vizm3u8=null;
     
     _API.setMessage(function(e){
@@ -4647,65 +4810,7 @@ const pb={
       }
     });
 
-    _API.setVizCb(function(d){
-      try{
-        pb.pb_track_pos.innerHTML='PREPARE VIDEO';
-        _API.setVizPageCb(null);
-
-        var urivid="";
-        try{
-          if (d.data.media.sources){
-            urivid=(d.data.media.sources.length>1)?d.data.media.sources[1].file:d.data.media.sources[0].file;
-          }
-        }catch(e){}
-        if (!urivid){
-          try{
-            if (d.result.sources){
-              urivid=(d.result.sources.length>1)?d.result.sources[1].file:d.result.sources[0].file;
-            }
-          }catch(e){}
-        }
-
-        if (!__SD3){
-          pb.subtitles=[];
-          window.__subtitle=pb.subtitles;
-          vtt.clear();
-          try{
-            if (d.result.tracks){
-              var n=d.result.tracks.length;
-              for (var i=0;i<n;i++){
-                var tk=d.result.tracks[i];
-                if (tk.kind=='captions'){
-                  pb.subtitles.push({
-                    u:tk.file,
-                    d:tk.default?1:0,
-                    l:(tk.label+'').toLowerCase().trim()
-                  });
-                }
-              }
-              vtt.init(pb.subtitles);
-            }
-          }catch(e){}
-        }
-
-        if ((urivid && !pb.cfg_data.html5player) || (__SD3)){
-          pb.data.vizm3u8=urivid;
-          console.log("ATVLOG Got VizCB = "+urivid);
-          if (pb.cfg('server')==0){
-            pb.pb_vid.innerHTML='';
-            pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
-            _API.setMessage(null);
-            pb.startpos_val=_tmp_start_pos;
-            pb.init_video_mp4upload(urivid);
-          }
-        }
-        else{
-          pb.pb_track_pos.innerHTML='STREAMING VIDEO';
-        }
-      }catch(e){
-        pb.pb_track_pos.innerHTML='VIDEO ERROR: '+e;
-      }
-    });
+    _API.setVizCb(pb.mediainfo_callback);
 
     pb.pb_vid.innerHTML='';
     (function(){
@@ -4829,7 +4934,18 @@ const pb={
           }
         }
         pb.updateStreamTypeInfo();
-        pb.init_video_vidcloud();
+
+        wave.vidplayGetData(pb.data.stream_vurl,function(r){
+          console.warn(["vidplayGetData initvideo",r]);
+          if (r && r.result && r.result.sources){
+            console.warn("vidplayGetData initvideo Result OK");
+            if (pb.mediainfo_callback(r)){
+              console.warn("vidplayGetData initvideo Result mediainfo OK");
+              return;
+            }
+          }
+          pb.init_video_vidcloud();
+        });
       }
     });
   },
@@ -5000,7 +5116,8 @@ const pb={
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
-                _API.setVizCb(function(d2){
+
+                function preloadVidCb(d2){
                   _API.setVizCb(null);
                   pb.preload_episode_video={
                     'u':epd.url,
@@ -5011,7 +5128,22 @@ const pb={
                   setTimeout(function(){
                     pb.preload_video_started=0;
                   },500);
-                });
+                }
+                
+                if (__SD==1 || __SD==2){
+                  wave.vidplayGetData(pb.data.stream_vurl,function(r){
+                    if (r && r.result && r.result.sources){
+                      if (preloadVidCb(r)){
+                        return;
+                      }
+                    }
+                    _API.setVizCb(preloadVidCb);
+                  });
+                }
+                else{
+                  _API.setVizCb(preloadVidCb);
+                }
+
                 pb.pb_vid.innerHTML='';
                 if (__SD3){
                   pb.hiLoadVideo(d, false, function(){
