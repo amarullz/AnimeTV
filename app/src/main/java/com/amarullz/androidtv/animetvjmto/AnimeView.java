@@ -42,9 +42,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.datasource.TransferListener;
+import androidx.media3.exoplayer.dash.DashMediaSource;
+import androidx.media3.exoplayer.source.MediaSource;
 
 import com.devbrackets.android.exomedia.core.source.data.DataSourceFactoryProvider;
 import com.devbrackets.android.exomedia.core.video.scale.MatrixManager;
@@ -76,7 +80,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class AnimeView extends WebViewClient {
+@UnstableApi public class AnimeView extends WebViewClient {
   private static final String _TAG="ATVLOG-VIEW";
   private final Activity activity;
   public final WebView webView;
@@ -280,52 +284,52 @@ public class AnimeView extends WebViewClient {
   }
   public SurfaceEnvelope videoViewEnvelope;
   public PlayerConfig videoPlayerConfig;
+  public DataSourceFactoryProvider videoDataSourceFactory=null;
+
+  @SuppressLint("UnsafeOptInUsageError")
+  @NonNull
   public void initVideoView(){
     if (videoView!=null){
       videoLayout.removeAllViews();
       videoView=null;
     }
-    videoPlayerConfig=
-        new PlayerConfigBuilder(activity).setDataSourceFactoryProvider(new DataSourceFactoryProvider() {
-          @SuppressLint("UnsafeOptInUsageError")
-          @NonNull
-          @Override
-          public DataSource.Factory provide(@NonNull String s, @Nullable TransferListener transferListener) {
-            Map<String, String> settings = new HashMap();
-            if (Conf.SOURCE_DOMAIN==5) {
-              settings.put("Origin", "https://" + Conf.SOURCE_DOMAIN5_API);
-            }
-            else{
-              try {
-                URL vurl=new URL(videoStatCurrentUrl);
-                String host=vurl.getHost();
-                if (host.contains(Conf.STREAM_DOMAIN1)){
-                  settings.put("Origin", "https://" + Conf.STREAM_DOMAIN1);
-                }
-                else if (host.contains(Conf.STREAM_DOMAIN2)){
-                  settings.put("Origin", "https://" + Conf.STREAM_DOMAIN2);
-                  settings.put("Referer", "https://" + Conf.STREAM_DOMAIN2+"/");
-                }
-                else if (host.contains(Conf.STREAM_DOMAIN)){
-                  settings.put("Origin", "https://" + Conf.STREAM_DOMAIN);
-                }
-                else if (host.contains(Conf.STREAM_DOMAIN3)){
-                  settings.put("Origin", "https://" + Conf.STREAM_DOMAIN3);
-                }
-                else{
-                  String[] h=host.split("\\.");
-                  String h2=h[h.length-2]+"."+h[h.length-1];
-                  settings.put("Origin", "https://" +h2);
-                }
-              } catch (MalformedURLException ignored) {}
-            }
-            Log.d(_TAG,"VIDEO-DATA-SOURCE : "+videoStatCurrentUrl+" / ORIGIN : "+settings.get("Origin"));
-            return new DefaultHttpDataSource.Factory()
-                .setUserAgent(Conf.USER_AGENT)
-                .setDefaultRequestProperties(settings)
-                .setAllowCrossProtocolRedirects(true);
+    videoDataSourceFactory= (s, transferListener) -> {
+      Map<String, String> settings = new HashMap();
+      if (Conf.SOURCE_DOMAIN==5) {
+        settings.put("Origin", "https://" + Conf.SOURCE_DOMAIN5_API);
+      }
+      else{
+        try {
+          URL vurl=new URL(videoStatCurrentUrl);
+          String host=vurl.getHost();
+          if (host.contains(Conf.STREAM_DOMAIN1)){
+            settings.put("Origin", "https://" + Conf.STREAM_DOMAIN1);
           }
-        }).build();
+          else if (host.contains(Conf.STREAM_DOMAIN2)){
+            settings.put("Origin", "https://" + Conf.STREAM_DOMAIN2);
+            settings.put("Referer", "https://" + Conf.STREAM_DOMAIN2+"/");
+          }
+          else if (host.contains(Conf.STREAM_DOMAIN)){
+            settings.put("Origin", "https://" + Conf.STREAM_DOMAIN);
+          }
+          else if (host.contains(Conf.STREAM_DOMAIN3)){
+            settings.put("Origin", "https://" + Conf.STREAM_DOMAIN3);
+          }
+          else{
+            String[] h=host.split("\\.");
+            String h2=h[h.length-2]+"."+h[h.length-1];
+            settings.put("Origin", "https://" +h2);
+          }
+        } catch (MalformedURLException ignored) {}
+      }
+      Log.d(_TAG,"VIDEO-DATA-SOURCE : "+videoStatCurrentUrl+" / ORIGIN : "+settings.get("Origin"));
+      return new DefaultHttpDataSource.Factory()
+          .setUserAgent(Conf.USER_AGENT)
+          .setDefaultRequestProperties(settings)
+          .setAllowCrossProtocolRedirects(true);
+    };
+    videoPlayerConfig=
+        new PlayerConfigBuilder(activity).setDataSourceFactoryProvider(videoDataSourceFactory).build();
 
     videoView=new SurfaceView(activity);
     videoViewEnvelope=new SurfaceViewSurfaceEnvelope(videoView,new MatrixManager());
@@ -341,6 +345,27 @@ public class AnimeView extends WebViewClient {
     videoPlayer.setSurface(videoView.getHolder().getSurface());
     videoPlayer.setVideoSizeListener(videoSize -> videoViewEnvelope.setVideoSize(videoSize.width, videoSize.height,
         videoSize.pixelWidthHeightRatio));
+  }
+
+  public void videoSetSource(String url){
+    try {
+      if (url.equals("")) {
+        videoPlayer.setMediaUri((Uri) null);
+      } else {
+        if (url.endsWith("#dash")) {
+          Log.d(_TAG,"VIDEO-SET-SOURCE (DASH) : "+url);
+          MediaSource mediaSource =
+              new DashMediaSource.Factory(videoDataSourceFactory.provide(""
+                  , null))
+                  .createMediaSource(MediaItem.fromUri(url));
+          videoPlayer.setMediaSource(mediaSource);
+        }
+        else {
+          Log.d(_TAG,"VIDEO-SET-SOURCE (HLS) : "+url);
+          videoPlayer.setMediaUri(Uri.parse(url));
+        }
+      }
+    }catch(Exception ignored){}
   }
 
   public void videoPlayerPlay(){
@@ -657,7 +682,7 @@ public class AnimeView extends WebViewClient {
     }
   }
 
-  public class JSViewApi{
+  @UnstableApi public class JSViewApi{
     private String lastResultText="";
     private String lastResultUrl="";
     @JavascriptInterface
@@ -787,9 +812,9 @@ public class AnimeView extends WebViewClient {
         try {
           if (url.equals("")) {
             videoPlayerStop();
-            videoPlayer.setMediaUri((Uri) null);
+            videoSetSource("");
           } else {
-            videoPlayer.setMediaUri(Uri.parse(url));
+            videoSetSource(url);
             videoPlayerPlay();
           }
         }catch(Exception ignored){}
@@ -1175,7 +1200,7 @@ public class AnimeView extends WebViewClient {
       initVideoView();
       videoViewSetScale(videoStatScaleType);
       if (!videoStatCurrentUrl.equals("")){
-        videoPlayer.setMediaUri(Uri.parse(videoStatCurrentUrl));
+        videoSetSource(videoStatCurrentUrl);
         if (videoStatCurrentPosition>0) {
           videoPlayer.seekTo(videoStatCurrentPosition);
           if (videoStatIsPlaying)
