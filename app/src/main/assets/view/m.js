@@ -288,19 +288,28 @@ var kaas={
         return null;
       }
       var ismirror= pb.cfg_data.mirrorserver;
-      var od=d[i];
+      var od=d[0];
+      var vs=null;
+      var bs=null;
       for (var i=0;i<d.length;i++){
         var di=d[i];
         if (di.name=='VidStreaming'){
-          if (!ismirror){
-            return di;
-          }
+          vs=di;
         }
         else if (di.name=='BirdStream'){
-          return di;
+          bs=di;
         }
       }
-      return od;
+      if (bs){
+        od=bs;
+      }
+      else if (vs){
+        od=vs;
+      }
+      if (ismirror){
+        return vs?vs:od;
+      }
+      return bs?bs:od;
     }
 
     function loadServer(){
@@ -4703,11 +4712,6 @@ const pb={
           }
         }catch(e){}
       }
-// https://vidplay.online/mediainfo/VXBSragY557PqIM_WL1oPDHBJvgXlQxMZ7E=,163,183,152,152,179,163,191,142,107,159,133,180,193,194,159,208?t=4xjRCf0gDFQLyg%3D%3D
-// https://vidplay.online/mediainfo/VXBSragY557PqIM_WL1oPDHBJvgXlQxDa7E=,191,194,180,162,179,203,212,186,163,150,142,200,199,149,194,149?t=4xjRCf0gDFQLyg%3D%3D
-// VXBSragY557PqIM_WL1oPDHBJvgXlQxMZ7E=
-// VXBSragY557PqIM_WL1oPDHBJvgXlQxDa7E=
-// 
       if ((urivid && !pb.cfg_data.html5player) || (__SD3)){
         pb.data.vizm3u8=urivid;
         console.log("ATVLOG Got VizCB = "+urivid);
@@ -4898,8 +4902,13 @@ const pb={
                 var n=b.subtitles.length;
                 for (var i=0;i<n;i++){
                   var tk=b.subtitles[i];
+                  var tksrc=tk.src;
+                  if (tksrc.indexOf("//")!=0){
+                    var vurl=new URL(pb.data.stream_vurl);
+                    tksrc="//"+vurl.host+tksrc;
+                  }
                   pb.subtitles.push({
-                    u:'https:'+tk.src,
+                    u:'https:'+tksrc,
                     d:(i==0)?1:0,
                     l:(tk.name+'').toLowerCase().trim(),
                     i:(tk.language+'').toLowerCase().trim()
@@ -4909,8 +4918,33 @@ const pb={
               }
             }catch(e){}
 
+            if (b.cues){
+              pb.data.skip=[];
+              if (b.cues.intro){
+                pb.data.skip.push([b.cues.intro.start_ms/1000.0,b.cues.intro.end_ms/1000.0]);
+              }
+              else{
+                pb.data.skip.push([0,0]);
+              }
+              if (b.cues.ending){
+                pb.data.skip.push([b.cues.ending.start_ms/1000.0,b.cues.ending.end_ms/1000.0]);
+              }
+              else{
+                pb.data.skip.push([0,0]);
+              }
+              console.warn(["KAAS Intro Skip",pb.data.skip]);
+            }
+
             /* Load Videos */
-            pb.init_video_mp4upload('https:'+b.hls);
+            if (b.dash){
+              pb.sel_quality="AUTO";
+              pb.init_video_player_url('https:'+b.dash+'#dash');
+              pb.cfg_update_el("quality");
+              console.warn(["DASH VIDEO",b]);
+            }
+            else{
+              pb.init_video_player_url('https:'+b.hls);
+            }
           });
       }
       else{
@@ -5415,7 +5449,7 @@ const pb={
         pb.cfg_update_el(key);
       }
       else if (key=="quality"){
-        if (pb.state==2){
+        if (pb.state){
           var chval=_API.listPrompt(
             "Stream Quality",
             pb.cfgquality_name,
@@ -6164,11 +6198,11 @@ const pb={
 
     
     pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
-    if (!pb.cfg_data.html5player){
+    if (!pb.cfg_data.html5player&&!__SD6){
       pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
     }
 
-    if (!__SD3&&!__SD5){
+    if (!__SD3&&!__SD5&&!__SD6){
       pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARDSUB');
       if (pb.data.stream_url.soft){
         pb.pb_settings._s_softsub=$n('div','',{action:'*softsub'},pb.pb_settings.P,'<c>clear</c> SOFTSUB');
