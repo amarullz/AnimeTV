@@ -1,4 +1,7 @@
 # Changelogs
+- **2.9.9 🪁**
+  - Add new-slideshow to Source-1
+  - Add new Gojo Satoru wallpaper
 - **2.9.8 🍕**
   - Fix unsupported unary syntax for old webview
   - Fix mirror streaming playback for source 1 & 2

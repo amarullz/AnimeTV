@@ -1327,7 +1327,7 @@ const wave={
     return uid;
   },
 
-
+  /* Streaming Video */
   vidplayKeys:function(cb){
     $ap("https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/keys.json?"+$tick(),
     function(r){
@@ -1344,18 +1344,12 @@ const wave={
       'Cache-Control':'no-cache'
     });
   },
-  vidplayFuToken:function(host,embedurl,data,cb){
-    $ap("https://"+host+"/futoken", //?"+$tick(),
+  vidplayFuToken:function(host,embedurl,cb){
+    $ap("https://"+host+"/futoken?"+$tick(),
       function(r){
         if (r.ok){
-          try{
-            var d=r.responseText;
-            var su=d.substring(d.indexOf('function(v)'));
-            su="("+su.substring(0,su.indexOf('+location')).replace('jQuery.ajax','')+')})';
-            var param=eval(su+"('"+data+"')");
-            cb(param);
-            return;
-          }catch(e){}
+          cb(r.responseText);
+          return;
         }
         cb(null);
       },
@@ -1371,26 +1365,43 @@ const wave={
     var vidSearch=u.substring(u.indexOf("?"));
     var vidHost=vidLoc.split('/')[2];
     var vidId=vidLoc.substring(vidLoc.lastIndexOf("/")+1);
+    var vidDataId=null;
+    var vidFutoken=null;
+    function vidplayMediaCallback(){
+      if (!vidDataId) return;
+      if (!vidFutoken) return;
+      try{
+        var su=vidFutoken.substring(vidFutoken.indexOf('function(v)'));
+        su="("+su.substring(0,su.indexOf('+location')).replace('jQuery.ajax','')+')})';
+        var slug=eval(su+"('"+vidDataId+"')");
+        var mediaUrl=
+          'https://'+
+          vidHost+
+          '/'+
+          slug+
+          vidSearch;
+        cb(mediaUrl);
+        return;
+      }catch(e){}
+      cb(null);
+    }
+    /* Request Keys */
     wave.vidplayKeys(function(k){
       if (k){
-        var dataId=_JSAPI.vidEncode(vidId,k[0],k[1]);
-        console.warn([dataId,vidId,k[0],k[1]]);
-        if (dataId){
-          wave.vidplayFuToken(vidHost,u,dataId,function(slug){
-            if (slug){
-              var mediaUrl=
-                'https://'+
-                vidHost+
-                '/'+
-                slug+
-                vidSearch;
-              cb(mediaUrl);
-              return;
-            }
-            cb(null);
-          });
+        vidDataId=_JSAPI.vidEncode(vidId,k[0],k[1]);
+        if (vidDataId){
+          vidplayMediaCallback();
           return;
         }
+      }
+      cb(null);
+    });
+    /* Request Futoken */
+    wave.vidplayFuToken(vidHost,u,function(r){
+      if (r){
+        vidFutoken=r;
+        vidplayMediaCallback();
+        return;
       }
       cb(null);
     });
@@ -4593,6 +4604,15 @@ const pb={
         u:src
       }
     ];
+
+    /* Auto Quality */
+    if (pb.cfg_data.quality==0){
+      console.log("NO-PARSE AUTO M3u8 QUALITY="+pb.cfg_data.quality);
+      pb.init_video_player_url(src);
+      pb.cfg_update_el("quality");
+      return;
+    }
+
     console.log("PARSED-M3u8 QUALITY="+pb.cfg_data.quality);
     function getm3u8cb(r){
       if (r.ok){
@@ -4970,6 +4990,16 @@ const pb={
       }
       else{
         /* GET SERVER WAVE-ANIX */
+        if (pb.preload_episode_video!=null){
+          if (pb.preload_episode_video.u==pb.url_value){
+            console.log("preload_episode_video cb -> "+pb.url_value);
+            pb.mediainfo_callback(pb.preload_episode_video.d);
+            pb.preload_episode_video=null;
+            return;
+          }
+        }
+        pb.preload_episode_video=null;
+
         pb.data.stream_vurl = pb.data.stream_url.hard;
         pb.data.streamtype="sub";
         var is_soft=false;
@@ -4989,13 +5019,9 @@ const pb={
           }
         }
         pb.updateStreamTypeInfo();
-
         wave.vidplayGetData(pb.data.stream_vurl,function(r){
-          console.warn(["vidplayGetData initvideo",r]);
           if (r && r.result && r.result.sources){
-            console.warn("vidplayGetData initvideo Result OK");
             if (pb.mediainfo_callback(r)){
-              console.warn("vidplayGetData initvideo Result mediainfo OK");
               return;
             }
           }
@@ -5173,18 +5199,23 @@ const pb={
                 _API.setMessage(null);
 
                 function preloadVidCb(d2){
-                  _API.setVizCb(null);
-                  pb.preload_episode_video={
-                    'u':epd.url,
-                    'd':d2
-                  };
-                  console.log('Next EP Video Preloaded = '+JSON.stringify(d2));
-                  pb.pb_vid.innerHTML='';
-                  setTimeout(function(){
-                    pb.preload_video_started=0;
-                  },500);
+                  try{
+                    _API.setVizCb(null);
+                    pb.preload_episode_video={
+                      'u':epd.url,
+                      'd':d2
+                    };
+                    console.log('Next EP Video Preloaded = '+JSON.stringify(d2));
+                    pb.pb_vid.innerHTML='';
+                    setTimeout(function(){
+                      pb.preload_video_started=0;
+                    },500);
+                    return true;
+                  }catch(ee){}
+                  return false;
                 }
                 
+                pb.pb_vid.innerHTML='';
                 if (__SD==1 || __SD==2){
                   wave.vidplayGetData(pb.data.stream_vurl,function(r){
                     if (r && r.result && r.result.sources){
@@ -5193,20 +5224,14 @@ const pb={
                       }
                     }
                     _API.setVizCb(preloadVidCb);
+                    $n('iframe','',{src:d.stream_vurl+(__SD5?"":"#NOPLAY"),frameborder:'0'},pb.pb_vid,'');
                   });
                 }
-                else{
+                else if (__SD3){
                   _API.setVizCb(preloadVidCb);
-                }
-
-                pb.pb_vid.innerHTML='';
-                if (__SD3){
                   pb.hiLoadVideo(d, false, function(){
                     $n('iframe','',{src:d.stream_vurl,frameborder:'0'},pb.pb_vid,'');
                   });
-                }
-                else{
-                  $n('iframe','',{src:d.stream_vurl+(__SD5?"":"#NOPLAY"),frameborder:'0'},pb.pb_vid,'');
                 }
               }
             }

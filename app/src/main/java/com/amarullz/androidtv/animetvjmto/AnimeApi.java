@@ -628,7 +628,9 @@ public class AnimeApi extends WebViewClient {
           }
         }
         if (nocache){
-          req.cacheControl(CacheControl.FORCE_NETWORK);
+          CacheControl cc=new CacheControl.Builder()
+              .noCache().noStore().noTransform().immutable().build();
+          req.cacheControl(cc);
         }
         res = httpClient.newCall(req.build()).execute();
         body = new ByteArrayOutputStream();

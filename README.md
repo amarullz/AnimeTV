@@ -6,14 +6,18 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 > Take a look at source code for more info
 
 ## Donation & More Information
-<img src="app/src/main/assets/view/paypal.png" width="200">
+
+| License | Release | Size | Support |
+|-------|---------|---------|---------|
+| ![GitHub License](https://img.shields.io/github/license/amarullz/AnimeTV) | [![GitHub Release](https://img.shields.io/github/v/release/amarullz/AnimeTV?logo=github&label=Release)](https://github.com/amarullz/AnimeTV/releases) | ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/amarullz/AnimeTV?logo=github&label=Code+Size) | [![Discord](https://img.shields.io/discord/1199444562670792714?style=flat&labelColor=7289da&color=2c2f33&label=Discord&logo=discord&logoColor=ffffff)](https://discord.gg/VGtGtRedGR) |
+
 
 - **Donate Project :** [Paypal Link - https://paypal.me/amarullz](https://paypal.me/amarullz)
 - **Developer Website :** [https://amarullz.com/](https://amarullz.com/)
 - **Nightly Release :** [https://amarullz.com/animetv-nightly/](https://amarullz.com/animetv-nightly/)
 - **Development Discussion :** [https://amarullz.com/animetv-discord/](https://amarullz.com/animetv-discord/)
 - **More Detail Information :** [https://amarullz.com/animetv/](https://amarullz.com/animetv/)
-- **Join Discussion on Discord :** [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
+- **Join Discussion on Discord :**  [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
 
 ## Features
 - **NEW** - MAL & AniList Integration
