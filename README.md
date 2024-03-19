@@ -9,7 +9,7 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 
 | License | Stable Release | Nightly Release | Support |
 |-------|---------|---------|---------|
-| [![GitHub License](https://img.shields.io/github/license/amarullz/AnimeTV)](/LICENSE) | [![GitHub Release](https://img.shields.io/github/v/release/amarullz/AnimeTV?logo=github&label=Release)](https://github.com/amarullz/AnimeTV/releases) | [![Nightly](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fanimetv.amarullz.com%2Flast-nightly&query=%24%5B0%5D.name&style=flat&logo=flood&logoColor=fff&label=Nightly&labelColor=600&color=494)](https://amarullz.com/animetv-nightly/) | [![Discord](https://img.shields.io/discord/1199444562670792714?style=flat&labelColor=7289da&color=2c2f33&label=Discord&logo=discord&logoColor=ffffff)](https://discord.gg/VGtGtRedGR) |
+| [![GitHub License](https://img.shields.io/github/license/amarullz/AnimeTV)](/LICENSE) | [![GitHub Release](https://img.shields.io/github/v/release/amarullz/AnimeTV?logo=github&label=Release)](https://github.com/amarullz/AnimeTV/releases) | [![Nightly](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fanimetv.amarullz.com%2Flast-nightly&query=%24%5B0%5D.name&style=flat&logo=amp&logoColor=fff&label=Nightly&color=800)](https://amarullz.com/animetv-nightly/) | [![Discord](https://img.shields.io/discord/1199444562670792714?style=flat&labelColor=7289da&color=2c2f33&label=Discord&logo=discord&logoColor=ffffff)](https://discord.gg/VGtGtRedGR) |
 
 
 - **Donate Project :** [Paypal Link - https://paypal.me/amarullz](https://paypal.me/amarullz)
