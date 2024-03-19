@@ -293,11 +293,13 @@ var kaas={
       var bs=null;
       for (var i=0;i<d.length;i++){
         var di=d[i];
-        if (di.name=='VidStreaming'){
-          vs=di;
-        }
-        else if (di.name=='BirdStream'){
-          bs=di;
+        if (di.name){
+          if (di.name=='VidStreaming'){
+            vs=di;
+          }
+          else if (di.name=='BirdStream'){
+            bs=di;
+          }
         }
       }
       if (bs){
@@ -307,9 +309,26 @@ var kaas={
         od=vs;
       }
       if (ismirror){
-        return vs?vs:od;
+        od=vs?vs:od;
       }
-      return bs?bs:od;
+      else{
+        od=bs?bs:od;
+      }
+      if (!od.name){
+        var vd=od;
+        odname="VidStreaming";
+        if (vd.indexOf("/pink-bird")>0){
+          odname="BirdStream";
+        }
+        else if (vd.indexOf("-duck")>0){
+          odname="DuckStream";
+        }
+        od={
+          name:odname,
+          src:vd
+        }
+      }
+      return od;
     }
 
     function loadServer(){
@@ -575,6 +594,8 @@ var kaas={
               vidKey,
               encData[1]
             ));
+            data.server_type=type;
+            data.server_url=url;
             cb(data);
             return;
           }catch(e){}
