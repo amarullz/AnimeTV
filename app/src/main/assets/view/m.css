@@ -171,6 +171,15 @@ ttl{
   --dimm-1: #234;
 }
 
+:root.theme_dark {
+  --primary-bg: #040404;
+  --primary-1: #181416;
+  --primary-2: #282426;
+  --primary-3: #484446;
+  --accent-1: #c5f;
+  --dimm-1: #222;
+}
+
 :root.ani_quick {
   --tim-10s: .5s;
   --tim-1s: .05s;
@@ -464,6 +473,19 @@ c.loader {
 #pb_loading.active {
   opacity: 1;
   visibility: visible;
+}
+#pb_loading.buffering{
+  transition: all var(--tim-2s) var(--interpolation);
+}
+#pb_loading.buffering #pb_load {
+  display: none;
+}
+#pb_loading.buffering .z-loader{
+  opacity: .7;
+}
+#pb_loading.buffering .z-loader:after,
+#pb_loading.buffering .z-loader:before{
+  border-color: #333;
 }
 
 /**** META ****/
@@ -1150,6 +1172,11 @@ c.loader {
   background:var(--primary-bg);
   opacity:.6;
 }
+#pb_track #pb_track_buffer.pb_track_skip{
+  opacity: .5;
+  background:var(--accent-1);
+  transition: width var(--tim-2s) var(--interpolation);
+}
 
 #pb_tracks.active {
   opacity: 1;
@@ -1792,6 +1819,16 @@ c.loader {
 }
 #animebg.bg9 {
   background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/9.webp);
+}
+
+.theme_dark #animebg:not(.bg0)::before{
+  content:'';
+  position: absolute;
+  left: 0;
+  top:0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(180deg, rgba(0, 0, 0, .6), #000 100%);
 }
 
 #animebg.bg0 {

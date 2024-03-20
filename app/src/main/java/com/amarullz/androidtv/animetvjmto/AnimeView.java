@@ -361,6 +361,7 @@ import javax.crypto.spec.SecretKeySpec;
     videoPlayer.setSurface(videoView.getHolder().getSurface());
     videoPlayer.setVideoSizeListener(videoSize -> videoViewEnvelope.setVideoSize(videoSize.width, videoSize.height,
         videoSize.pixelWidthHeightRatio));
+    // videoPlayer.getAvailableTracks();
   }
 
   public void videoSetSource(String url){
@@ -846,6 +847,21 @@ import javax.crypto.spec.SecretKeySpec;
           }
         }catch(Exception ignored){}
       });
+    }
+
+    public int videoLastBufferPercent=0;
+    @JavascriptInterface
+    public int videoBufferPercent() {
+      if (videoStatCurrentUrl.equals("")){
+        videoLastBufferPercent=0;
+        return -1;
+      }
+      activity.runOnUiThread(()-> {
+        try {
+          videoLastBufferPercent=videoPlayer.getBufferedPercent();
+        }catch(Exception ignored){}
+      });
+      return videoLastBufferPercent;
     }
 
     @JavascriptInterface
