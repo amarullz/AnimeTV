@@ -10,16 +10,24 @@
 <body class="view-informative">
 <div id="animebg">&nbsp;</div>
 <div id="home">
-    <div id="home_header" class="home_header">
-        <c id="home_search">search</c>
-        <c id="home_settings">settings</c>
-        <h1>AnimeTV<c>pets</c></h1>
+    <div id="home_header">
+        <div id="home_header_banner">
+            <div id="home_time"></div>
+            <div id="home_settings"><c>settings</c></div>
+            <div id="home_profile"><c>person</c></div>
+            <div id="home_logo">AnimeTV</div>
+            <div id="home_search"><c>search</c> Search</div>
+            <div id="home_homepage">Home</div>
+            <div id="home_mylist">MyList</div>
+        </div>
         <div id="home_discord_info"><div id="home_discord_info_value"></div></div>
-        &nbsp;
     </div>
     <div id="home_scroll_mask">
         <div id="home_scroll">
-            <div id="home_slide" list-title="👑 Top Anime" class="home_list pb_menu"></div>
+            <div id="home_slide_holder">
+                <div id="home_slide" list-title="👑 Top Anime" class="home_slideshow"></div>
+                <div id="home_slide_pager"></div>
+            </div>
             <div id="home_recent" list-title="🎉 Recently Updated" class="home_list pb_menu"></div>
             <div id="home_mal" list-title="🎫 MyAnimeList Currently Watching" style="display: none;"></div>
             <div id="home_anilist" list-title="🎫 AniList Currently Watching" style="display: none;"></div>

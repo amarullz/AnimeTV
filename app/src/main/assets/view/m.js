@@ -3934,14 +3934,23 @@ const vtt={
         }
       }
     },
+    buffering_set:function(start){
+      if (vtt.playback.btntv){
+        clearInterval(vtt.playback.btntv);
+        vtt.playback.btntv=null;
+        pb.pb_track_buffer._curr=-1;
+      }
+      if (start){
+        vtt.playback.btntv=setInterval(vtt.playback.buffer_track,200);
+      }
+    },
     play:function(){
       vtt.playback.intv=setInterval(vtt.playback.monitor,50);
-      vtt.playback.btntv=setInterval(vtt.playback.buffer_track,200);
+      
     },
     pause:function(){
       vtt.playback.show=false;
       clearInterval(vtt.playback.intv);
-      clearInterval(vtt.playback.btntv);
     }
   }
 };
@@ -4554,6 +4563,7 @@ const pb={
 
   /* reset */
   reset:function(close, noclean){
+    vtt.playback.buffering_set(false);
     pb.state=0;
     pb.vid=null;
     pb.vid_reset_stat();
@@ -4650,6 +4660,7 @@ const pb={
       }catch(e){}
       pb.menu_show(1);
       pb.next_ep(0);
+      vtt.playback.buffering_set(false);
     }
     else if (c=='ready'){
       pb.state=2;
@@ -4662,6 +4673,7 @@ const pb={
       if (pb.cfg_data.html5player){
         pb.vid_cmd('scale',pb.cfg_data.scale);
       }
+      vtt.playback.buffering_set(true);
     }
     else if (c=='play'){
       pb.vid_stat.play=true;
@@ -5953,28 +5965,42 @@ const pb={
       if (!g._midx) g._midx=2;
       if (!g.__update){
         g.__update=function(){
-          if (g._sel)
+          if (g._sel){
             g._sel.classList.remove('active');
+            if (g._sel._n_pager){
+              g._sel._n_pager.classList.remove('active');
+            }
+          }
           var n = g._target_n;
-          
-
-          var iw=window.innerWidth/g._midx;
-          var ow=(g._itemwidth)?g._itemwidth():n.offsetWidth;
-          var xpos=n.offsetLeft+(ow/2);
-
+          if (n._n_pager){
+            n._n_pager.classList.add('active');
+          }
           n.classList.add('active');
-          if (xpos>iw){
-            g._margin=xpos-iw;
-            g.classList.add('maskleft');
+          if (g._midx>0){
+            var iw=0;
+            iw=window.innerWidth/g._midx;
+            var ow=(g._itemwidth)?g._itemwidth():n.offsetWidth;
+            var xpos=n.offsetLeft+(ow/2);
+            if (xpos>iw){
+              g._margin=xpos-iw;
+              g.classList.add('maskleft');
+            }
+            else{
+              g._margin=0;
+              g.classList.remove('maskleft');
+            }
+            if (g._margin)
+              g.P.style.transform='translateX(-'+g._margin+'px)';
+            else
+              g.P.style.transform='translateX(0)';
           }
           else{
-            g._margin=0;
-            g.classList.remove('maskleft');
+            g._margin=n.offsetLeft;
+            if (g._margin)
+              g.P.style.transform='translateX(-'+g._margin+'px)';
+            else
+              g.P.style.transform='translateX(0)';
           }
-          if (g._margin)
-            g.P.style.transform='translateX(-'+g._margin+'px)';
-          else
-            g.P.style.transform='translateX(0)';
           g._sel=n;
         };
       }
@@ -6980,8 +7006,6 @@ const home={
   home_fav:$('home_fav'),
 
   home_header:$('home_header'),
-  home_search:$('home_search'),
-  home_settings:$('home_settings'),
   bgimg:null,
 
   hi_tipurl:function(u){
@@ -7363,7 +7387,9 @@ const home={
     var h=$n('div','','',null,v);
     var td=[];
     try{
-      home.home_slide._midx=(__SD==2)?2:2.5;
+      home.home_slide._midx=-1;
+
+      // home.home_slide._midx=(__SD==2)?2:2.5;
       if (__SD3){
         // hianime
         var tops=h.querySelectorAll('#slider .swiper-wrapper .swiper-slide');
@@ -7493,14 +7519,11 @@ const home={
         };
 
         var hl=$n('div',(__SD!=2)?'fullimg':'',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
-        hl._img=$n('img','',{loading:'lazy' ,src:$img(d.banner?d.banner:d.poster)},hl,'');
-        hl._img.onload=function(){
-          this.classList.add('loaded');
-        };
+        home.home_add_pager(hl);
+        hl._img=$n('img','',{src:$img(d.banner?d.banner:d.poster)},hl,'');
         hl._viewbox=$n('span','infobox',null,hl,'');
         hl._view=$n('span','infovalue',null,hl._viewbox,'');
         hl._title=$n('h4','',{jp:d.title_jp?d.title_jp:d.title},hl._view,tspecial(d.title));
-
         if (__SD!=2){
           hl._desc=$n('span','desc',null,hl._view,special(d.synopsis));
         }
@@ -7508,7 +7531,6 @@ const home={
           hl._desc=$n('span','desc',null,hl._view,'');
           home.ttip_desc(hl, d.tip, d.url, d);
         }
-        
         var infotxt='';
         if (d.adult){
           infotxt+='<span class="info_adult">18+</span>';
@@ -7523,12 +7545,18 @@ const home={
           infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
         }
         if (infotxt){
-          hl._ep=$n('span','info',null,hl,infotxt);
+          hl._ep=$n('span','info',null,hl._view,infotxt);
         }
+
         }catch(ee){}
       }
       pb.menu_select(home.home_slide,home.home_slide.P.firstElementChild);
     }
+  },
+
+  home_pager:$('home_slide_pager'),
+  home_add_pager:function(g){
+    g._n_pager=$n('div','',{},home.home_pager,'');
   },
 
   home_anilist_parse:function(g,v){
@@ -7539,6 +7567,7 @@ const home={
           var malid="anilistmedia_"+d.id;
 
           var hl=$n('div','fullimg',{action:"#"+malid,arg:''},g.P,'');
+          home.home_add_pager(hl);
           hl._img=$n('img','',{loading:'lazy' ,src:$img(d.bannerImage?d.bannerImage:d.coverImage.large)},hl,'');
           hl._img.onload=function(){
             this.classList.add('loaded');
@@ -7547,7 +7576,10 @@ const home={
           hl._view=$n('span','infovalue',null,hl._viewbox,'');
           hl._title=$n('h4','',{jp:d.title.romaji},hl._view,tspecial(d.title.english));
           hl._desc=$n('span','desc',null,hl._view,(d.description));
-          hl._desc.innerHTML=nlbr(special(hl._desc.textContent.trim()));
+
+          var descval=hl._desc.textContent.trim();
+          descval=descval.replace(/\n\n/g,'\n').replace(/\n\n/g,'\n').replace(/\n\n/g,'\n');
+          hl._desc.innerHTML=nlbr(special(descval));
 
           var vep=0;
           if (d.nextAiringEpisode){
@@ -7580,10 +7612,8 @@ const home={
             d.ep=sumep;
           }
           
-          
-
           if (infotxt){
-            hl._ep=$n('span','info',null,hl,infotxt);
+            hl._ep=$n('span','info',null,hl._view,infotxt);
           }
           _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
         }catch(ee){}
@@ -7719,10 +7749,28 @@ const home={
     home.list_init_name(list.fav,home.home_fav);
     home.list_init_name(list.history,home.home_history);
   },
+  header_items_selected:0,
+  header_items:[
+    $('home_search'),
+    $('home_homepage'),
+    $('home_mylist'),
+    $('home_profile'),
+    $('home_settings'),
+  ],
+  home_time:$('home_time'),
+  header_timeupdate:function(){
+    var xs=new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    if (home.home_time._time!=xs){
+      home.home_time._time=xs;
+      home.home_time.innerHTML=xs;
+    }
+    setTimeout(home.header_timeupdate,2000);
+  },
   init:function(){
     pb.cfg_load();
     _API.setUri("/home");
     list.load();
+    home.header_timeupdate();
 
     if (__SD3){
       // hianime
@@ -7822,14 +7870,16 @@ const home={
 
     pb.menu_clear(home.home_slide);
 
-    home.home_slide._itemwidth=function(){
-      return (window.innerWidth * 0.3);
-    };
+    // home.home_slide._itemwidth=function(){
+    //   return (window.innerWidth * 0.3);
+    // };
+    
     pb.menu_init(home.home_slide);
     home.menus[home.menu_sel].classList.add('active');
 
     home.home_header._keycb=home.header_keycb;
-    home.home_search.classList.add('active');
+    
+    home.header_items[0].classList.add('active');
 
     home.init_discord_message();
   },
@@ -8780,27 +8830,25 @@ const home={
   },
 
   header_keycb:function(g,c){
-    var ca=home.home_search.classList.contains('active');
     if (c==KLEFT||c==KRIGHT){
-      if (ca){
-        home.home_settings.classList.add('active');
-        home.home_search.classList.remove('active');
+      home.header_items[home.header_items_selected].classList.remove('active');
+      if (c==KRIGHT) home.header_items_selected++;
+      else if (c==KLEFT) home.header_items_selected--;
+      if (home.header_items_selected>=home.header_items.length){
+        home.header_items_selected=0;
       }
-      else{
-        home.home_settings.classList.remove('active');
-        home.home_search.classList.add('active');
+      else if (home.header_items_selected<0){
+        home.header_items_selected=home.header_items.length-1;
       }
+      home.header_items[home.header_items_selected].classList.add('active');
     }
     else if (c==KENTER){
-      if (ca){
-        home.search.open({
-          // genre:'romance'
-        });
+      var sel=home.header_items_selected;
+      if (sel==0){
+        home.search.open({});
       }
-      else{
-        // OPEN SETTINGS
+      else if (sel==4){
         home.settings.open(0);
-        // _API.theme_next();
       }
     }
   },
