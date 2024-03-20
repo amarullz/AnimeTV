@@ -8926,14 +8926,10 @@ const home={
       if (pr>1){
         var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.innerHeight + (window.innerWidth*0.06));
         if (ty<0) ty=0;
-        requestAnimationFrame(function(){
-          home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
-        });
+        home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
       }
       else{
-        requestAnimationFrame(function(){
-          home.home_scroll.style.transform="translateY(0)";
-        });
+        home.home_scroll.style.transform="";
       }
       requestAnimationFrame(function(){
         if (pr>1)
@@ -8943,6 +8939,7 @@ const home={
       });
     }
   },
+
 };
 
 
