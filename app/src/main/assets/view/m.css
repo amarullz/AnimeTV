@@ -1920,7 +1920,10 @@ c.loader {
   margin-right: .12vw;
   font-weight: bold;
 }
-
+.home_list p div span.info span.info_score{
+  background-color: #069;
+  font-weight: bold;
+}
 .home_list p div span.info span.info_adult{
   background-color: #800;
   font-weight: bold;
