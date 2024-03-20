@@ -2274,14 +2274,14 @@ const _API={
               var ctxt=
                 "Filename: "+d.filename+" ("+d.filesize+")\n\n"+
                 d.content.trim()+
-                (n.nightly?"\n\n**CAUTION: __NIGHTLY BUILD MAY UNSTABLE !!!__**\n\n":"\n\n")+
-                (n.nightly?"**ARE YOU SURE YOU WANT TO INSTALL NIGHTLY BUILD?**":"**Install this stable build?**");
+                (d.nightly?"\n\n**CAUTION: __NIGHTLY BUILD MAY UNSTABLE !!!__**\n\n":"\n\n")+
+                (d.nightly?"**ARE YOU SURE YOU WANT TO INSTALL NIGHTLY BUILD?**":"**Install this stable build?**");
               ctxt=md2html(ctxt,true);
-              if (_API.confirmDialog((n.nightly?"Nightly ":"Release ")+d.name,ctxt,true)){
+              if (_API.confirmDialog((d.nightly?"Nightly ":"Release ")+d.name,ctxt,true)){
                 _API.showToast(
-                  n.nightly?"Downloading Nightly Build...":"Downloading Stable Build..."
+                  d.nightly?"Downloading Nightly Build...":"Downloading Stable Build..."
                 );
-                _JSAPI.installApk(d.url,n.nightly);
+                _JSAPI.installApk(d.url,d.nightly);
                 setTimeout(reCheckForOnUpdate,500);
                 return;
               }
@@ -5212,8 +5212,8 @@ const pb={
           d.innerHTML='';
           return false;
         }
-        var iscript = srcscript.innerText.split('};').shift()+'};';
-
+        var iscript = srcscript.innerText;
+        
         // Load Subtitles:
         (function(){
           if (loadss){
@@ -5237,12 +5237,27 @@ const pb={
 
         // Get M3U8 URL
         (function(){
-          console.log("RUN SCRIPT\n"+iscript);
+          // console.log("RUN SCRIPT\n"+iscript);
           try{
+            window.Hls=function(c){
+              this.loadSource=function(x){
+                play_data.url=x;
+                console.warn("GOT PLAY DATA = "+x);
+              };
+              this.on=function(a,b){};
+              this.attachMedia=function(x){};
+            }
+            Hls.isSupported=function(){return true};
+            Hls.Events={
+              MANIFEST_PARSED:1,
+              LEVEL_SWITCHED:2,
+              ERROR:3
+            };
             eval(iscript+`
-            play_data.url=source;
             play_data.pos[0]=[starttime,endtime];
             `);
+            delete window.Hls;
+            delete window.hls;
           }catch(e){
             console.log("Error Eval : "+e);
           }
