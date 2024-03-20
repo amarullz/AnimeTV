@@ -89,7 +89,7 @@ import javax.crypto.spec.SecretKeySpec;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -345,8 +345,9 @@ import javax.crypto.spec.SecretKeySpec;
           .setAllowCrossProtocolRedirects(true);
     };
     videoPlayerConfig=
-        new PlayerConfigBuilder(activity).setDataSourceFactoryProvider(videoDataSourceFactory).build();
-
+        new PlayerConfigBuilder(activity)
+            .setDataSourceFactoryProvider(videoDataSourceFactory)
+            .build();
     videoView=new SurfaceView(activity);
     videoViewEnvelope=new SurfaceViewSurfaceEnvelope(videoView,new MatrixManager());
     videoView.setLayoutParams(
@@ -361,7 +362,6 @@ import javax.crypto.spec.SecretKeySpec;
     videoPlayer.setSurface(videoView.getHolder().getSurface());
     videoPlayer.setVideoSizeListener(videoSize -> videoViewEnvelope.setVideoSize(videoSize.width, videoSize.height,
         videoSize.pixelWidthHeightRatio));
-    // videoPlayer.getAvailableTracks();
   }
 
   public void videoSetSource(String url){
@@ -442,6 +442,7 @@ import javax.crypto.spec.SecretKeySpec;
                       request.getRequestHeaders().entrySet()) {
                 http.addHeader(entry.getKey(), entry.getValue());
               }
+              http.nocache=true;
               http.execute();
               InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
               return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
@@ -862,6 +863,11 @@ import javax.crypto.spec.SecretKeySpec;
         }catch(Exception ignored){}
       });
       return videoLastBufferPercent;
+    }
+
+    @JavascriptInterface
+    public void videoTracks() {
+      Log.d(_TAG,"Tracks = "+videoPlayer.getAvailableTracks());
     }
 
     @JavascriptInterface

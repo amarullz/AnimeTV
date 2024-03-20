@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android' version '1.9.20' apply false
 }
 
 android {
@@ -12,7 +11,7 @@ android {
         minSdk 22
         targetSdk 33
         versionCode 299
-        versionName "2.9.9"
+        versionName "3.2.5-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
@@ -52,4 +51,5 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-cronet:18.0.1'
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20"
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0"
 }
