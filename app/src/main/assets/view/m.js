@@ -7623,7 +7623,7 @@ const home={
   },
   home_anilist_load:function(){
     home.home_onload=1;
-    home.home_slide.setAttribute('list-title','⭐ AniList Trending');
+    home.home_slide.setAttribute('list-title','AniList Trending');
     _MAL.alreq(`query ($page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -7688,8 +7688,9 @@ const home={
     },__SD5?__AFLIX.origin:null);
   },
   
-  menus:[],
-  menu_sel:0,
+  menus:[[],[]],
+  // menu_sel:0,
+  // mymenu_sel:0,
   list_init_name:function(o, h){
     pb.menu_clear(h);
     if (o.list.length>0){
@@ -7778,9 +7779,8 @@ const home={
       home.home_dub._ajaxurl='/dubbed-anime?page=';
       home.home_trending._ajaxurl='/top-airing?page=';
       home.home_random._ajaxurl='/movie?page=';
-
-      home.home_trending.setAttribute('list-title','🏆 Top Airing');
-      home.home_random.setAttribute('list-title','🎥 Movie');
+      home.home_trending.setAttribute('list-title','Top Airing');
+      home.home_random.setAttribute('list-title','Movie');
     }
     else if (__SD5){
       // hianime
@@ -7788,18 +7788,17 @@ const home={
       home.home_dub._ajaxurl='/__proxy/'+__AFLIX.ns+'/popular?page=';
       home.home_trending._ajaxurl='/__proxy/'+__AFLIX.ns+'/trending?page=';
       home.home_random._ajaxurl='/__proxy/'+__AFLIX.ns+'/movies?page=';
-      
-      home.home_slide.setAttribute('list-title','🛰️ Airing');
-      home.home_trending.setAttribute('list-title','⭐ Trending');
-      home.home_dub.setAttribute('list-title','❤️ Popular');
-      home.home_random.setAttribute('list-title','🎥 Movie');
+      home.home_slide.setAttribute('list-title','Airing');
+      home.home_trending.setAttribute('list-title','Trending');
+      home.home_dub.setAttribute('list-title','Popular');
+      home.home_random.setAttribute('list-title','Movie');
     }
     else if (__SD6){
       home.home_recent._ajaxurl='/api/show/recent?type=sub&page=';
       home.home_dub._ajaxurl='/api/show/recent?type=dub&page=';
       home.home_trending._ajaxurl='/api/show/trending?page=';
       home.home_random._ajaxurl='/api/show/popular?page=';
-      home.home_random.setAttribute('list-title','❤️ Popular');
+      home.home_random.setAttribute('list-title','Popular');
     }
     else{
       // wave & anix
@@ -7817,33 +7816,35 @@ const home={
 
     _API.setKey(home.keycb);
 
-    home.menus=[
-      home.home_header,
+    home.menus[0]=[
+      // home.home_header,
       home.home_slide,
       home.home_recent
     ];
+
+    home.menus[1]=[];
 
     if (_MAL.islogin()){
       home.home_mal.className='home_list pb_menu';
       home.home_mal.style.display=''; 
       home.recent_init(home.home_mal, _MAL.home_loader);
-      home.menus.push(home.home_mal);
-      home.home_mal.setAttribute("list-title","🟦 MAL "+special(_MAL.auth.user));
+      home.menus[1].push(home.home_mal);
+      home.home_mal.setAttribute("list-title","MAL "+special(_MAL.auth.user));
     }
 
     if (_MAL.islogin(true)){
       home.home_anilist.className='home_list pb_menu';
       home.home_anilist.style.display=''; 
       home.recent_init(home.home_anilist, _MAL.alhome_loader);
-      home.menus.push(home.home_anilist);
-      home.home_anilist.setAttribute("list-title","🅰️ AniList "+special(_MAL.alauth.user));
+      home.menus[1].push(home.home_anilist);
+      home.home_anilist.setAttribute("list-title","AniList "+special(_MAL.alauth.user));
     }
 
     
 
-    home.menus.push(home.home_dub);
-    home.menus.push(home.home_trending);
-    home.menus.push(home.home_random);
+    home.menus[0].push(home.home_dub);
+    home.menus[0].push(home.home_trending);
+    home.menus[0].push(home.home_random);
 
     if (pb.cfg_data.nonjapan && (!__SD3) && (!__SD5)){
       home.home_chinese.className='home_list pb_menu';
@@ -7855,7 +7856,7 @@ const home={
         home.home_chinese._ajaxurl='/ajax/home/widget/updated-china?page=';
       }
       home.recent_init(home.home_chinese);
-      home.menus.push(home.home_chinese);
+      home.menus[0].push(home.home_chinese);
     }
     else{
       home.home_chinese.style.display='none !important';
@@ -7863,23 +7864,21 @@ const home={
       home.home_chinese.className='';
     }
 
-    home.menus.push(home.home_fav);
-    home.menus.push(home.home_history);
+    home.menus[1].push(home.home_fav);
+    home.menus[1].push(home.home_history);
+
+    home.col_selected=0;
+    home.row_selected=0;
 
     home.list_init();
-
     pb.menu_clear(home.home_slide);
-
-    // home.home_slide._itemwidth=function(){
-    //   return (window.innerWidth * 0.3);
-    // };
-    
     pb.menu_init(home.home_slide);
-    home.menus[home.menu_sel].classList.add('active');
 
     home.home_header._keycb=home.header_keycb;
-    
+    home.home_header.classList.add('active');
     home.header_items[0].classList.add('active');
+
+    home.update_homepages(0);
 
     home.init_discord_message();
   },
@@ -8829,18 +8828,39 @@ const home={
     }
   },
 
+  homepages:[
+    $('home_page'),
+    $('home_pagelist')
+  ],
+
+  update_homepages:function(n){
+    home.homepages[home.col_selected].classList.remove('active');
+    home.col_selected=n;
+    home.homepages[n].classList.add('active');
+    home.header_items[n?1:2].classList.remove('selected');
+    home.header_items[n?2:1].classList.add('selected');
+  },
+
   header_keycb:function(g,c){
     if (c==KLEFT||c==KRIGHT){
-      home.header_items[home.header_items_selected].classList.remove('active');
-      if (c==KRIGHT) home.header_items_selected++;
-      else if (c==KLEFT) home.header_items_selected--;
-      if (home.header_items_selected>=home.header_items.length){
-        home.header_items_selected=0;
+      var hsel=home.header_items_selected;
+      home.header_items[hsel].classList.remove('active');
+      if (c==KRIGHT) hsel++;
+      else if (c==KLEFT) hsel--;
+      if (hsel>=home.header_items.length){
+        hsel=0;
       }
-      else if (home.header_items_selected<0){
-        home.header_items_selected=home.header_items.length-1;
+      else if (hsel<0){
+        hsel=home.header_items.length-1;
       }
-      home.header_items[home.header_items_selected].classList.add('active');
+      home.header_items[hsel].classList.add('active');
+      if (hsel==1){
+        home.update_homepages(0);
+      }
+      else if (hsel==2){
+        home.update_homepages(1);
+      }
+      home.header_items_selected=hsel;
     }
     else if (c==KENTER){
       var sel=home.header_items_selected;
@@ -8853,7 +8873,16 @@ const home={
     }
   },
 
+  col_selected:0,
+  row_selected:0,
+
   /* Root Key Callback */
+  list_select:function(col, row){
+    if (row>0){
+      return home.menus[col][row-1];
+    }
+    return home.home_header;
+  },
   keycb:function(c){
     if (home.onsearch){
       return home.search_keycb(c);
@@ -8864,35 +8893,38 @@ const home={
     if (_MAL.onpopup){
       return _MAL.pop_keycb(c);
     }
-    var pc=home.menu_sel;
+    var pc=home.col_selected;
+    var pr=home.row_selected;
+
     if (c==KBACK){
-      if (home.menu_sel==0){
+      if (pr==0){
         _JSAPI.appQuit();
       }
       else{
-        pc=0;
+        pr=0;
       }
     }
     else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
-      home.menus[home.menu_sel]._keycb(home.menus[home.menu_sel],c);
+      var el=home.list_select(pc,pr);
+      el._keycb(el,c);
     }
     else if (c==KUP){
-      if (--pc<0) pc=0;
+      if (--pr<0) pr=0;
     }
     else if (c==KDOWN){
-      if (++pc>=home.menus.length) pc=home.menus.length-1;
+      if (++pr>home.menus[pc].length) pr=home.menus[pc].length;
     }
 
-    if (home.menu_sel!=pc){
-      var ac=home.menu_sel;
-      var nc=pc;
-      home.menu_sel=pc;
+    if (home.row_selected!=pr){
+      var ac=home.row_selected;
+      var nc=pr;
+      home.row_selected=pr;
       requestAnimationFrame(function(){
-        home.menus[ac].classList.remove('active');
-        home.menus[nc].classList.add('active');
+        home.list_select(pc,ac).classList.remove('active');
+        home.list_select(pc,nc).classList.add('active');
       });
-      if (home.menu_sel>1){
-        var ty=(home.menus[2].offsetTop+(home.menus[2].offsetHeight*(home.menu_sel))) - (window.innerHeight + (window.innerWidth*0.06));
+      if (pr>1){
+        var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.innerHeight + (window.innerWidth*0.06));
         if (ty<0) ty=0;
         requestAnimationFrame(function(){
           home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
@@ -8904,7 +8936,7 @@ const home={
         });
       }
       requestAnimationFrame(function(){
-        if (home.menu_sel>1)
+        if (pr>1)
           home.home_header.classList.add('scrolled');
         else
           home.home_header.classList.remove('scrolled');
