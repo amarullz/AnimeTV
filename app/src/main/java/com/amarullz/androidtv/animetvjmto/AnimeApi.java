@@ -11,7 +11,6 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -187,7 +186,15 @@ public class AnimeApi extends WebViewClient {
     intentApp.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
     activity.startActivity(intentApp);
   }
-  private void startUpdateApk(String url){
+  public boolean updateIsInProgress=false;
+  public boolean startUpdateApk(String url, boolean isNightly){
+    if (updateIsInProgress){
+      Toast.makeText(activity,
+          (isNightly?"Nightly":"Update")+" already on progress",
+          Toast.LENGTH_SHORT).show();
+      return false;
+    }
+    updateIsInProgress=true;
     AsyncTask.execute(() -> {
       try {
         Log.d(_TAG,"DOWNLOADING APK = "+url);
@@ -198,7 +205,7 @@ public class AnimeApi extends WebViewClient {
         Log.d(_TAG,"DOWNLOADED APK = "+http.body.size());
         activity.runOnUiThread(() ->
           Toast.makeText(activity,
-              "Update has been downloaded ("+((http.body.size()/1024)/1024)+"MB)",
+              (isNightly?"Nightly":"Update")+" has been downloaded ("+((http.body.size()/1024)/1024)+"MB)",
               Toast.LENGTH_SHORT).show()
         );
         String apkpath=apkTempFile();
@@ -206,14 +213,17 @@ public class AnimeApi extends WebViewClient {
         http.body.writeTo(fos);
         File fp=new File(apkpath);
         installApk(fp);
+        updateIsInProgress=false;
       }catch(Exception er){
         activity.runOnUiThread(() ->
-          Toast.makeText(activity,"Download Update Failed: "+er,
+          Toast.makeText(activity,
+              "Download "+(isNightly?"Nightly ":"")+"Update Failed: "+er,
               Toast.LENGTH_SHORT).show()
         );
         Log.d(_TAG,"DOWNLOAD ERR = "+er);
       }
     });
+    return true;
   }
 
   private void showUpdateDialog(String url, String ver, String changelog,
@@ -235,7 +245,7 @@ public class AnimeApi extends WebViewClient {
         .setPositiveButton("Update Now", (dialog, which) -> {
           Toast.makeText(activity,"Downloading Update...",
               Toast.LENGTH_SHORT).show();
-          startUpdateApk(url);
+          startUpdateApk(url,false);
         }).show();
   }
 

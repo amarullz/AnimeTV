@@ -1610,13 +1610,13 @@ function sec2ts(s,nohour){
   return o;
 }
 
-function md2html(text){
+function md2html(text,safe_code){
   return nlbr(special(text))
-    .replace(/(?:\*\*)([^*<\n]+)(?:\*\*)/g, "<strong>$1</strong>")
+    .replace(/(?:\*\*)([^*<\n]+)(?:\*\*)/g, safe_code?"<b>$1</b>":"<strong>$1</strong>")
     .replace(/(?:__)([^_<\n]+)(?:__)/g, "<u>$1</u>")
     .replace(/(?:\*)([^*<\n]+)(?:\*)/g, "<i>$1</i>")
     .replace(/(?:_)([^_<\n]+)(?:_)/g, "<i>$1</i>")
-    .replace(/(?:`)([^`<\n]+)(?:`)/g, "<t>$1</t>")
+    .replace(/(?:`)([^`<\n]+)(?:`)/g, safe_code?"<b>$1</b>":"<t>$1</t>")
 }
 
 /**************************** ANIMEFLIX ***************************/
@@ -1865,6 +1865,17 @@ const _API={
       d.sel=sel;
     }
     return prompt(JSON.stringify(d));
+  },
+
+  confirmDialog:function(title,text,ishtml){
+    var d={
+      "title":title,
+      "message":text
+    };
+    if (ishtml){
+      d.html=true;
+    }
+    return confirm(JSON.stringify(d));
   },
 
   animeId:function(url){
@@ -2145,7 +2156,81 @@ const _API={
   },
   
   checkUpdate(){
-    _JSAPI.checkUpdate();
+    if (!_JSAPI.isOnUpdate()){
+      _JSAPI.checkUpdate();
+    }
+  },
+
+  nightly_oncheck:false,
+  checkNightly(){
+    if (_API.nightly_oncheck || _JSAPI.isOnUpdate()){
+      return;
+    }
+    pb.cfg_setactive(home.settings.tools._s_checknightly,false);
+    _API.nightly_oncheck=true;
+    function reCheckForOnUpdate(){
+      if (_JSAPI.isOnUpdate()){
+        setTimeout(reCheckForOnUpdate,500);
+      }
+      else{
+        _API.nightly_oncheck=false;
+        pb.cfg_setactive(home.settings.tools._s_checknightly,true);
+      }
+    }
+    $ap('https://animetv.amarullz.com/last-nightly',function(r){
+      if (r.ok){
+        try{
+          var nb=JSON.parse(r.responseText);
+          var nl=[];
+          var np=[];
+          var bv=Number(_JSAPI.getVersion(2));
+          for (var i=0;i<nb.length;i++){
+            var n=nb[i];
+            if(n.vnum>=bv){
+              n.nightly=false;
+              if (n.name.toLowerCase().indexOf("-nightly")>-1){
+                n.nightly=true;
+              }
+              nl.push(n.name+(n.nightly?'':' - STABLE')+' ('+n.filesize+')');
+              np.push(n);
+            }
+          }
+          if (nl.length>0){
+            var chval=_API.listPrompt(
+              "Nightly and Release",
+              nl
+            );
+            if (chval!=null){
+              var d=np[chval];
+              var ctxt=
+                "Filename: "+d.filename+" ("+d.filesize+")\n\n"+
+                d.content.trim()+
+                (n.nightly?"\n\n**CAUTION: __NIGHTLY BUILD MAY UNSTABLE !!!__**\n\n":"\n\n")+
+                (n.nightly?"**ARE YOU SURE YOU WANT TO INSTALL NIGHTLY BUILD?**":"**Install this stable build?**");
+              ctxt=md2html(ctxt,true);
+              if (_API.confirmDialog((n.nightly?"Nightly ":"Release ")+d.name,ctxt,true)){
+                _API.showToast(
+                  n.nightly?"Downloading Nightly Build...":"Downloading Stable Build..."
+                );
+                _JSAPI.installApk(d.url,n.nightly);
+                setTimeout(reCheckForOnUpdate,500);
+                return;
+              }
+            }
+          }
+          else{
+            _API.showToast("There is no new compatible nightly build...");
+          }
+        }catch(e){
+          _API.showToast("Nightly data corrupt...");  
+        }
+      }
+      else{
+        _API.showToast("Checking nightly build failed...");
+      }
+      _API.nightly_oncheck=false;
+      pb.cfg_setactive(home.settings.tools._s_checknightly,true);
+    });
   },
 
   /*** JSAPI CALLBACKS ***/
@@ -5443,7 +5528,7 @@ const pb={
       }
       else if (key=='theme'){
         var chval=_API.listPrompt(
-          "Interface Coloe",
+          "Interface Color",
           pb.cfgtheme_name,
           _API.theme_sel
         );
@@ -5470,6 +5555,11 @@ const pb={
       else if (key=='checkupdate'){
         if (home.onsettings){
           _API.checkUpdate();
+        }
+      }
+      else if (key=='checknightly'){
+        if (home.onsettings){
+          _API.checkNightly();
         }
       }
       else if (key=="hardsub" || key=="softsub"|| key=="dub"){
@@ -5644,10 +5734,12 @@ const pb={
         );
         if (chval!=null){
           chval=toInt(chval)+1;
-          if (confirm("You are about to change the source server.\n"+
-            "SOURCE SERVER TARGET : "+chval+". "+(__SOURCE_NAME[chval-1])+"\n\n"+
-            "NOTE: Watchlist & history contents will be changed...\n\n"+
-            "Are you sure??")){
+          if (_API.confirmDialog("Change Source",
+            "<b>You are about to change the source server.</b><br><br>"+
+            "SOURCE SERVER TARGET : <b>"+chval+". "+(__SOURCE_NAME[chval-1])+"</b><br><br>"+
+            "<b>NOTE:</b> <u>Watchlist & history contents will be changed...</u><br>"+
+            "Change Source Server Now ?",
+            true)){
             _JSAPI.setSd(chval);
             if (pb.status){
               pb.reset(1,0);
@@ -7789,6 +7881,13 @@ const home={
           },
           home.settings.about.P,
           "<c>sports_esports</c> Discord Server"
+        );
+        home.settings.tools._s_checknightly=$n(
+          'div','',{
+            action:'*checknightly'
+          },
+          home.settings.about.P,
+          "<c>partly_cloudy_night</c> Check for Nightly Build"
         );
         home.settings.tools._s_checkupdate=$n(
           'div','',{

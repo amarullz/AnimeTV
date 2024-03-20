@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.Html;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -41,12 +42,9 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
-import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.source.MediaSource;
 
@@ -67,13 +65,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.crypto.Cipher;
@@ -170,9 +165,29 @@ import javax.crypto.spec.SecretKeySpec;
 
       @Override
       public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+        CharSequence msg=message;
+        String title="AnimeTV";
+        try{
+          JSONObject jo=new JSONObject(message);
+          if (jo.has("title")){
+            title=jo.getString("title");
+          }
+          boolean isHtml=false;
+          if (jo.has("html")){
+            isHtml=true;
+          }
+          if (jo.has("message")){
+            if (isHtml){
+              msg= Html.fromHtml(jo.getString("message"));
+            }
+            else {
+              msg = jo.getString("message");
+            }
+          }
+        }catch(Exception ignored){}
         new AlertDialog.Builder(activity)
-            .setTitle("AnimeTV")
-            .setMessage(message)
+            .setTitle(title)
+            .setMessage(msg)
             .setPositiveButton("Yes",
                 (dialog, which) -> result.confirm())
             .setNegativeButton("No",
@@ -915,6 +930,15 @@ import javax.crypto.spec.SecretKeySpec;
       AnimeApi.initHttpEngine(activity);
     }
 
+    // startUpdateApk(String url, boolean isNightly)
+    @JavascriptInterface
+    public void installApk(String url, boolean isNightly){
+      aApi.startUpdateApk(url, isNightly);
+    }
+    @JavascriptInterface
+    public boolean isOnUpdate(){
+      return aApi.updateIsInProgress;
+    }
     @JavascriptInterface
     public boolean videoIsPlaying(){
       runOnUiThreadWait(()->{
@@ -1014,6 +1038,8 @@ import javax.crypto.spec.SecretKeySpec;
     public String getVersion(int type){
       if (type==0)
         return APP_VERSION;
+      else if (type==2)
+        return BuildConfig.VERSION_CODE+"";
       return BUILD_VERSION;
     }
 
