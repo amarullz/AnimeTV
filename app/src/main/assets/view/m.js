@@ -18,60 +18,31 @@ function $(i){
   return document.getElementById(i);
 }
 
-// "VidStreaming" -> "e13d38099bf562e8b9851a652d2043d3"
-// "DuckStream" -> "4504447b74641ad972980a6b8ffd7631"
-// "BirdStream" -> "4b14d0ff625163e3c9c7a47926484bf2"
-
-// kzLk6Q9JavBLGTvYqwZbQ9BGZo0SE2apU9tq9ifAmmclwKpGaG/arl09zQSfwopfPvVIeMXg50oV1CbmTecmk3kr1Q9wCX3Rd/A+sPFYBsLX/Ht+b+8m7XR+VSQVV2gu0kJid+mNB7sbwCJv95AQwWDrgDlHQmaXwqikq8dvA3c4KoJ3iej9yG2hQ/J/NpUKdAr7W1a1tJNiz+PhgIyG83/CwNDAtogXLU2qX38sfYkZ/SvEm8m/3wqGr7n/6vfWUlLn8wm2URJjSZNUW/GzgWpSaF/lsccwTu+c3WFqa4gadE7gCZaCpXUOFh0zDyMe6InavJOMORqXSqPNIV3RuVi5QXq+TkrgOCRdgwDyraAFKMR94D+fmWjfYI6teVn5YqH5cmYaD8dqFD6S9fIqI0cMxh7ffb60kC6v8W+yXqq9vEGMdCG4JS3/bD6UcKGIu/4+oq4ZKQQfEZDb2lmQLYg7PTYFcU+mtH8+nDg69C/We2h40acNw5zuJGjIwUnWL8VXkVzVRO0Oyf1m9QthgjL8NOER7pQx0Fp1WJW3hOjRe7PYj0PqZaDBRXnAjOxiTUce5Q6wsPFiiQ50mpqNvKewhQisVl6A2g/amoFES/BQLsb198bp9Ye/OkPeTDMqqHfs1lrYOqCRY+CIeNf2djJ2fOphvxjT+LzoQnWmJcBeGHC12+CNATSQ8s+089CL00htFcfstHn/rRbjfYPyWtEM5J08nfGfO9aXObnAS1FK5VJC2vND64HSjtxnRn4TCicRPBPezvLNCkkATBU1FqcpcOdPBu1QHOVRbZRvZIKbRwZmTbpOg8bVDysDOswfJ4jS9rCss/Tes86oq7OpktH7XIdbgcqN9ut0dwLGU+cTgbnqeFQz8auox+FRSVY8RMazxkspQ/3PVcB/bJygQ4+mInYhBkJpW8o78orKqzMbOxLHFugXMdCoU9Xu7raSeEo04Lzuw7Lx39IxslPgq+EFd2qn/xh7ir5ms56FEbVhkErOo5JvIpWacaui1cQUqfylzsHRHb/AbZDbOln4vEoyB0AhLT8luA9v3jRKVkSEvXuI5j5Sh6+l/LfCNJSBoWHMeQgi9C/2vuareh7IupHxrmkEBtDJE57Y2WQXNxNrhy2xz3NoXsDrsSIf3Pgz50qh12UyW2PpBqLP/QCe5cUtmXuKs4lAq2k+bCgQlUUV1heqAQtZIp5V6A1tC5Yx/bt5g0wA8UKQJz4pPD5F5fbbyVinitw74bbxpclc+C7xCCf79kOFJq/1kc3oxQTm51tUPXd0oB5xqBFeItr9/Fm3aLNu6rtRWIq9eiGS6yJAqXXp6dm8Vxq0fNrUgU/Jv4V9C0PauYDtJoJ139BvWOvy9131aF5UcRKuyH/X3ozaJpEnmyQVaqFrfInEoBiXb84SOqZXKKbLKHZc7OXlNzNjX8gCrVx3lnXlXMs1f4fOdpdtd+HDPm5God76pc94
-// baa7d8a875a7722cf5f9a0ba1b4530b3
-
-// KdR5L4vJVe5OLJL8hd8GtuiFEigy6dQuAwspZVWDU05838AczX4Gc7naG1//zk8BfbH53SZ1a3CdMorMFNQBJeiOWM+5dTPXqnq6FGsl8Il9PFS/yoiWwvAa2KYsuwm/cO1FJJpd2eG47M1ye4LDuI5AwSoXWIreWfOplPUeDTFr+jksj8Eiv4EufsxN/IGb5kteRoiY9mJq4BiANqyXz7VS1pUh4iFbiB2q+P1Jrfs+zPOotYnWoHtqnOdDwz+YdRRCZia99ZYkW0rTL4ANwP1ZTuA6JPG42V9v7forGxcjXiiqCcGEbryc1qwsY8ZX0zMX0BuPYZ3KMZhy+3e6tm2/Nb9dfsviW28KLqWlnBu4lGfn7G0ngr0gtuctpESoZXo3PB+6S3ea7JrhoOx1cLx+nA4cRmri7o2YXzh1ZJLKdl3a8ECyqcFbzkoHZ4UiEjBSB7HqiqRh67KG/Gn3X0edjDNAxy7x+QJCdeLm5adVD/vt66vNN1X73nnTJAsM0AQLMLDZQxvY2tYrLhONmHsBPHtHBeMNvtcjxTHb51N2PL5NfvHMigB9+z4GhXRoqUJvxKjMVP/eS3h1db5uUsdsyJG5KcA+JLZ15qY0HsELj6InaNAGNETjjkJXLlAWYFOKKuLCE7t4mm+xRa7jAWlnH0hsz5ZUKRS0sN1r9wu9pMxCQ2rJb6Y4D7Og6NmURQOQH+bdRjqqbFjVB6CFpKDSEEpG67n5/izZXoJVIZX03dVL8m+feaEjKGreXVnvfrOHpYbeAUGXzDSygRSHBZ9TSB9a9X94seyHBgxPwADAMKVQ21J+DTegl60kiyaP8A39bnucL6IctGetRnjcFyEk1LoX30Y+9aeH+Jj/Ui9vCb2nVeASDcK7nH/6/38XgMIaFwes24wles8gZzuCDKgDFkWZqAEE+IWBYB7NgAZbZ9FXVguSA8CsEE4WvOyykAmeD7OjjoiScYxaAir/KkuA3MbAcrSCISFSskqOHkIZFw7mS4GLRRUloLbXwyAP989s0KE88pFAFPB2MTFnaXwZdTQTfSaQOHY46sDwtL6wIA0mSv5+BlvKhHZ5Rr6UOQAoc2l+dbmuFzHq6IZotVQ6iRAaKQx3Im+3+uo+oM1tgDeAbXbDX/tlBxUgYQt0cnCUOtimmAIM3k/sslqVpdRfAy9i2RYdnHqyfAhWs8CL9QnwgajUGS2NPh1+bY1CPDst89wpAdKfxcj1OEzcbP9vij1W/tAF5Na9otfMK1OG/Hfdb0d1Q/a8OTBJj4h/zLzIet+2laorvXk7BtprwP7P1opNMNo5Z6C+mwUXquaMjFncNuI5mQqsmhtCAkS4Y9pJLNLF5UAz4gJVvuPAWv4NpldrN6AF6S6M+bMr1K8yiCKKBY6Y+C/0jz3C/nrp5BlEUmPuaARSiOr5VR1Ihij1PCx+rdKZvsSN1k4v3SO/cxZNWIxSFR2DA9Y1MHTdXQ63SRh5c2fiz0EzbRuuO02YEo1q+8Wu+raiITu0zDu7MHJs3+5cYVoKD/zpTJ4u
-// 5bb7d561d616070aec300b54d2300397
-//
-// var k= _JSAPI.aesDec(
-//   'KdR5L4vJVe5OLJL8hd8GtuiFEigy6dQuAwspZVWDU05838AczX4Gc7naG1//zk8BfbH53SZ1a3CdMorMFNQBJeiOWM+5dTPXqnq6FGsl8Il9PFS/yoiWwvAa2KYsuwm/cO1FJJpd2eG47M1ye4LDuI5AwSoXWIreWfOplPUeDTFr+jksj8Eiv4EufsxN/IGb5kteRoiY9mJq4BiANqyXz7VS1pUh4iFbiB2q+P1Jrfs+zPOotYnWoHtqnOdDwz+YdRRCZia99ZYkW0rTL4ANwP1ZTuA6JPG42V9v7forGxcjXiiqCcGEbryc1qwsY8ZX0zMX0BuPYZ3KMZhy+3e6tm2/Nb9dfsviW28KLqWlnBu4lGfn7G0ngr0gtuctpESoZXo3PB+6S3ea7JrhoOx1cLx+nA4cRmri7o2YXzh1ZJLKdl3a8ECyqcFbzkoHZ4UiEjBSB7HqiqRh67KG/Gn3X0edjDNAxy7x+QJCdeLm5adVD/vt66vNN1X73nnTJAsM0AQLMLDZQxvY2tYrLhONmHsBPHtHBeMNvtcjxTHb51N2PL5NfvHMigB9+z4GhXRoqUJvxKjMVP/eS3h1db5uUsdsyJG5KcA+JLZ15qY0HsELj6InaNAGNETjjkJXLlAWYFOKKuLCE7t4mm+xRa7jAWlnH0hsz5ZUKRS0sN1r9wu9pMxCQ2rJb6Y4D7Og6NmURQOQH+bdRjqqbFjVB6CFpKDSEEpG67n5/izZXoJVIZX03dVL8m+feaEjKGreXVnvfrOHpYbeAUGXzDSygRSHBZ9TSB9a9X94seyHBgxPwADAMKVQ21J+DTegl60kiyaP8A39bnucL6IctGetRnjcFyEk1LoX30Y+9aeH+Jj/Ui9vCb2nVeASDcK7nH/6/38XgMIaFwes24wles8gZzuCDKgDFkWZqAEE+IWBYB7NgAZbZ9FXVguSA8CsEE4WvOyykAmeD7OjjoiScYxaAir/KkuA3MbAcrSCISFSskqOHkIZFw7mS4GLRRUloLbXwyAP989s0KE88pFAFPB2MTFnaXwZdTQTfSaQOHY46sDwtL6wIA0mSv5+BlvKhHZ5Rr6UOQAoc2l+dbmuFzHq6IZotVQ6iRAaKQx3Im+3+uo+oM1tgDeAbXbDX/tlBxUgYQt0cnCUOtimmAIM3k/sslqVpdRfAy9i2RYdnHqyfAhWs8CL9QnwgajUGS2NPh1+bY1CPDst89wpAdKfxcj1OEzcbP9vij1W/tAF5Na9otfMK1OG/Hfdb0d1Q/a8OTBJj4h/zLzIet+2laorvXk7BtprwP7P1opNMNo5Z6C+mwUXquaMjFncNuI5mQqsmhtCAkS4Y9pJLNLF5UAz4gJVvuPAWv4NpldrN6AF6S6M+bMr1K8yiCKKBY6Y+C/0jz3C/nrp5BlEUmPuaARSiOr5VR1Ihij1PCx+rdKZvsSN1k4v3SO/cxZNWIxSFR2DA9Y1MHTdXQ63SRh5c2fiz0EzbRuuO02YEo1q+8Wu+raiITu0zDu7MHJs3+5cYVoKD/zpTJ4u',
-//   'e13d38099bf562e8b9851a652d2043d3',
-//   '5bb7d561d616070aec300b54d2300397'
-// );
-// JSON.parse(k);
-//
-// ["de5y3vCJ2LcsXpB4","qeTyrL6NB0XVAyFT"]
-
-
-//
-// https://vidplay.online/e/0RYXD41N8PNV?t=4xjRCfcjDVwMzQ%3D%3D&autostart=true
-// https://vidplay.online/mediainfo/VXJUraga5p7Mr5ojXboaTTfHJ_oamgJCbg==,205,191,182,203,233,207,189,178,174,221,153,189,169,131,199,196?t=4xjRCfcjDVwMzQ%3D%3D&autostart=true
-//
-// vidId=0RYXD41N8PNV
-// keyList=["de5y3vCJ2LcsXpB4","qeTyrL6NB0XVAyFT"]
-// _JSAPI.vidEncode('0RYXD41N8PNV',"de5y3vCJ2LcsXpB4","qeTyrL6NB0XVAyFT");
-// wglvwnVQymbp7NXZ
-//
-// mediainfo/VXJUraga5p7PpponUcprSzHGJf4elAxN,205,191,182,203,233,207,189,178,174,221,153,192,167,190,199,200?t=4xjRCfcjDVwMzQ%3D%3D&autostart=true
-// function qqr(k,v) {
-//   var a=[k];
-//   for(var i=0;i<v.length;i++){
-//     a.push(k.charCodeAt(i%k.length)+v.charCodeAt(i));
-//   }
-//   return 'mediainfo/'+a.join(',');
-// }
-//
-// https://vidco.pro/vidstreaming/source.php?id=65f327f5b97399e0e1031e80&e=1710501295&s=00445b97e001f8add0f34a75564da5d1356c3684
-// 78a0d85b2b3f232db0e5673fcd51d0acbaed1543
-// 00445b97e001f8add0f34a75564da5d1356c3684
-
-// https://vidplay.online/mediainfo/VXJUraga5p7PqJogXboaTTfHJ_oWkw9MbQ==,168,171,148,195,216,198,153,192,138,212,122,136,179,193,179,225?t=4xjRCfcvBFEAzw%3D%3D&autostart=true
-// https://vidplay.online/mediainfo/VXJUraga5p7MrJojXboaTTfHJ_oWkw9DbQ==,168,171,148,195,216,198,153,192,138,212,122,133,180,193,179,228?t=4xjRCfcvBFEAzw%3D%3D&autostart=true
-// https://vidplay.online/mediainfo/VXJUraga5p7MrJojXboaTTfHJ_oWkwNHZw==,168,171,148,195,216,198,153,192,138,212,122,133,180,193,179,228?t=4xjRCfcvBFEAzw%3D%3D&autostart=true
-
-
-//
-// https://vidplay.online/e/83P784EK7JLE?t=4xjRCfchAF0Lzw%3D%3D&autostart=true
-//                                      ?t=4xjRCfchAF0Lzw%3D%3D&autostart=true
-// https://vidplay.online/mediainfo/VXJUraga5p7PqJogXboaTTfHJ_oYlwNHbQ==,157,131,193,152,232,197,212,211,133,191,142,151,185,146,186,209?t=4xjRCfchAF0Lzw%3D%3D&autostart=true
-
 /* KICAKASSANIME SOURCE */
 var kaas={
+  genres:{
+    "_tv":"tv","_movie":"movie",
+    "_ova":"ova","_ona":"ona",
+    "_special":"special",
+
+    "Action":"Action","Adult Cast":"Adult Cast","Adventure":"Adventure","Anthropomorphic":"Anthropomorphic",
+    "Avant Garde":"Avant Garde","Award Winning":"Award Winning","Boys Love":"Boys Love","CGDCT":"CGDCT",
+    "Childcare":"Childcare","Combat Sports":"Combat Sports","Comedy":"Comedy","Crossdressing":"Crossdressing",
+    "Delinquents":"Delinquents","Detective":"Detective","Drama":"Drama","Ecchi":"Ecchi","Educational":"Educational",
+    "Erotica":"Erotica","Fantasy":"Fantasy","Gag Humor":"Gag Humor","Girls Love":"Girls Love","Gore":"Gore",
+    "Gourmet":"Gourmet","Harem":"Harem","High Stakes Game":"High Stakes Game","Historical":"Historical",
+    "Horror":"Horror","Idols (Female)":"Idols (Female)","Idols (Male)":"Idols (Male)","Isekai":"Isekai",
+    "Iyashikei":"Iyashikei","Josei":"Josei","Kids":"Kids","Love Polygon":"Love Polygon","Magical Sex Shift":
+    "Magical Sex Shift","Mahou Shoujo":"Mahou Shoujo","Martial Arts":"Martial Arts","Mecha":"Mecha","Medical":
+    "Medical","Military":"Military","Music":"Music","Mystery":"Mystery","Mythology":"Mythology","Organized Crime":
+    "Organized Crime","Otaku Culture":"Otaku Culture","Parody":"Parody","Performing Arts":"Performing Arts","Pets":"Pets",
+    "Psychological":"Psychological","Racing":"Racing","Reincarnation":"Reincarnation","Reverse Harem":"Reverse Harem",
+    "Romance":"Romance","Romantic Subtext":"Romantic Subtext","Samurai":"Samurai","School":"School","Sci-Fi":"Sci-Fi",
+    "Seinen":"Seinen","Shoujo":"Shoujo","Shounen":"Shounen","Showbiz":"Showbiz","Slice of Life":"Slice of Life","Space":"Space",
+    "Sports":"Sports","Strategy Game":"Strategy Game","Super Power":"Super Power","Supernatural":"Supernatural",
+    "Survival":"Survival","Suspense":"Suspense","Team Sports":"Team Sports","Time Travel":"Time Travel",
+    "Vampire":"Vampire","Video Game":"Video Game","Visual Arts":"Visual Arts","Workplace":"Workplace"
+  },
   stream_keys:{
     vidstreaming:'e13d38099bf562e8b9851a652d2043d3',
     duckstream:'4504447b74641ad972980a6b8ffd7631',
@@ -104,8 +75,79 @@ var kaas={
     var ux=url.split('#');
     return ux[0];
   },
+  filterIsPost:false,
+  getFilterOrigin:function(){
+    var orgn={
+      "X-Org-Prox":"https://"+__DNS,
+      "X-Ref-Prox":"https://"+__DNS+"/",
+      'X-Requested-With':'XMLHttpRequest',
+      'Pragma':'no-cache',
+      'Cache-Control':'no-cache'
+    };
+    if (kaas.filterIsPost){
+      orgn["X-Post-Prox"]="application/json";
+    }
+    return orgn;
+  },
   getFilterUrl:function(q,genres,sort,page,ses,year){
-    return "";
+    var nq=q.toLowerCase()
+      .replace(/  /g, "  ")
+      .replace(/  /g, " ")
+      .replace(/  /g, " ")
+      .replace(/  /g, " ")
+      .replace(/ /g, ' ').trim();
+    nq=utfascii(nq);
+    if (!nq){
+      kaas.filterIsPost=false;
+    }
+    else{
+      kaas.filterIsPost=true;
+    }
+
+    var d={
+      "query":nq,
+      "page":page?page:1
+    };
+    var f={};
+    var has_filter=false;
+
+    if (!ses){
+      if (genres){
+        for (var i=0;i<genres.length;i++){
+          var vl=genres[i];
+          if (vl.charAt(0)=='_'){
+            f.type=kaas.genres[vl];
+            has_filter=true;
+          }
+          else{
+            if (!f.genres){
+              f.genres=[];
+            }
+            f.genres.push(kaas.genres[vl]);
+            has_filter=true;
+          }
+        }
+      }
+    }
+    if (has_filter){
+      d.filters=btoa(JSON.stringify(f));
+    }
+    var jsv='';
+    var jpath='';
+    if (kaas.filterIsPost){
+      jpath='/api/fsearch?';
+      jsv=enc(JSON.stringify(d));
+    }
+    else{
+      jpath='/api/anime?';
+      jsv='page='+enc(page);
+      if (has_filter){
+        jsv+='&filters='+enc(d.filters);
+      }
+    }
+    var furi="/__proxy/https://"+__DNS+jpath+jsv;
+    console.warn("KAAS FILTER = "+furi);
+    return furi;
   },
   ttip_cache:{},
   getTooltip:function(id, cb, url, isview){
@@ -1528,6 +1570,17 @@ function tspecial(str){
     return '<ttl>'+special(str)+'</ttl>';
 }
 
+function utfascii(nq){
+  try{
+    nq = nq.replace(/\u201C|\u201D|\u201e|\u2033/g, '"');
+    nq = nq.replace(/\u2013|\u2014|\u2015/g, '-');
+    nq = nq.replace(/\u2017/g, '_');
+    nq = nq.replace(/\u201a/g, ',');
+    nq = nq.replace(/\u2018|\u2019|\u201b|\u2032/g, "'");
+  }catch(e){}
+  return nq;
+}
+
 /* trim */
 function trim(s){
   return (s+"").trim();
@@ -1941,6 +1994,14 @@ const _API={
     "action":"Action","adventure":"Adventure","comedy":"Comedy","drama":"Drama","ecchi":"Ecchi","fantasy":"Fantasy",
     "horror":"Horror","mecha":"Mecha","mystery":"Mystery","psychological":"Psychological","romance":"Romance",
     "sci_fi":"Sci-Fi","sports":"Sports","supernatural":"Supernatural","thriller":"Thriller"
+  },
+
+  filterorigin:function(){
+    if (__SD5)
+      return __AFLIX.origin;
+    else if (__SD6)
+      return kaas.getFilterOrigin();
+    return null;
   },
 
   filterurl:function(q,genres,sort,page,ses,year){
@@ -8145,6 +8206,11 @@ const home={
       else if (__SD5){
         rd=home.flix_parse(v);
       }
+      else if (__SD6){
+        console.log(["KAAS SEARCH",v]);
+        rd=kaas.recentParse(v);
+        console.log(["KAAS SEARCH RES",rd]);
+      }
       else if (__SD==1){
         var h=$n('div','','',null,v);
         // wave
@@ -8325,7 +8391,7 @@ const home={
             }
             home.search.res.classList.remove('searching');
             home.search.res._onload=0;
-          },__SD5?__AFLIX.origin:null);
+          },_API.filterorigin());
         }
       }
     },
@@ -8446,6 +8512,9 @@ const home={
       var genrelist=_API.genres;
       if (__SD3){
         genrelist=_API.genres_hi;
+      }
+      else if (__SD6){
+        genrelist=kaas.genres;
       }
       else if (__SD5){
         genrelist=_API.genres_flix;
@@ -9133,6 +9202,8 @@ const _MAL={
     }
     var uri='';
     var id='';
+    var kw='';
+    var kw2='';
     if (isanilist){
       id=d.id;
 
@@ -9149,9 +9220,13 @@ const _MAL={
         return;
       }
       
-      var kw=d.media.title.romaji;
-      if (__SD3){
+      kw=d.media.title.romaji;
+      if (__SD3||__SD6){
+        kw2=kw;
         kw=d.media.title.english;
+        if (!kw){
+          kw=d.media.title.romaji;
+        }
       }
       var ses=d.media.season;
       var y=d.media.seasonYear;
@@ -9160,11 +9235,15 @@ const _MAL={
     }
     else{
       id=d.node.id;
-      var kw=d.node.title;
-      if (__SD3){
+      kw=d.node.title;
+      if (__SD3||__SD6){
+        kw2=kw;
         try{
           kw=d.node.alternative_titles.en;
         }catch(ee){}
+        if (!kw){
+          kw=d.node.title;
+        }
       }
       var ses=d.node.start_season.season;
       var y=d.node.start_season.year;
@@ -9177,6 +9256,9 @@ const _MAL={
     }
     if (cnt<1){
       year=y;
+    }
+    if (cnt>0 && __SD6){
+      kw=kw2;
     }
     uri=_API.filterurl(
       kw,null,1,0,season,year
@@ -9218,6 +9300,9 @@ const _MAL={
           return;
         }
         else if (cnt<2){
+          if (__SD6){
+            cnt++;
+          }
           console.log('ANIMESRC RETRY ['+id+'] = '+cnt);
           _MAL.srcanime(d,cb,isanilist,cnt+1);
           return;
@@ -9225,7 +9310,7 @@ const _MAL={
       }
       d.srcanime=[];
       cb(d.srcanime);
-    },__SD5?__AFLIX.origin:null);
+    },_API.filterorigin());
   },
   action_handler:function(id){
     try{

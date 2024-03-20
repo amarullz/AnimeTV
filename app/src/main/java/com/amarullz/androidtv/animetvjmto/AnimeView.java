@@ -65,6 +65,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.Date;
@@ -456,11 +457,19 @@ import javax.crypto.spec.SecretKeySpec;
           String method=request.getMethod();
           boolean isPost=method.equals("POST")||method.equals("PUT");
           boolean isPostBody=false;
+          boolean isPostType=false;
           String queryData=request.getUrl().getQuery();
           if (queryData==null){
             queryData="";
           }
           String bodyData = request.getRequestHeaders().get("Post-Body");
+          String postType = request.getRequestHeaders().get("X-Post-Prox");
+
+          if (postType!=null){
+            isPost=true;
+            isPostType=true;
+            method="POST";
+          }
 
           if (isPost){
             if (bodyData!=null) {
@@ -469,13 +478,13 @@ import javax.crypto.spec.SecretKeySpec;
               isPostBody=true;
             }
             else {
-              int queryLength = queryData.length();
-              if (queryLength > 0) {
-                proxy_url = proxy_url.substring(0,
-                        proxy_url.length() - (queryLength + 1)
-                );
+              if (proxy_url.indexOf("?")>-1) {
+                proxy_url = proxy_url.substring(0, proxy_url.indexOf("?"));
               }
-              Log.d(_TAG, "PROXY-" + method + " = " +
+              if (isPostType){
+                queryData= URLDecoder.decode(queryData,"UTF-8");
+              }
+              Log.d(_TAG, "PROXY-" + method +
                       proxy_url + " >> " + queryData);
             }
           }
@@ -508,7 +517,9 @@ import javax.crypto.spec.SecretKeySpec;
               } else if (k.equalsIgnoreCase("referer") && proxyReferer != null) {
                 http.addHeader("Referer", proxyReferer);
                 sent = true;
-              } else if (k.equalsIgnoreCase("X-Org-Prox") || k.equalsIgnoreCase("X-Ref-Prox")) {
+              } else if (k.equalsIgnoreCase("X-Org-Prox")
+                  || k.equalsIgnoreCase("X-Ref-Prox")
+                  || k.equalsIgnoreCase("X-Post-Prox")) {
                 sent = true;
               }
               if (!sent && !k.equals("Post-Body") && !k.equals(
@@ -523,7 +534,8 @@ import javax.crypto.spec.SecretKeySpec;
                   "Content-Type"));
             }
             else {
-              http.setMethod(method,queryData,"application/x-www-form-urlencoded");
+              http.setMethod(method,queryData,
+                  isPostType?postType:"application/x-www-form-urlencoded");
             }
           }
           http.execute();
