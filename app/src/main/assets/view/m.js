@@ -7525,17 +7525,17 @@ const home={
           home.ttip_desc(hl, d.tip, d.url, d);
         }
         var infotxt='';
+        if (d.type){
+          infotxt+='<span class="info_type">'+special(d.type)+'</span>';
+        }
         if (d.adult){
           infotxt+='<span class="info_adult">18+</span>';
         }
         if (d.duration){
           infotxt+='<span class="info_duration">'+special((d.duration+"").toUpperCase())+'</span>';
         }
-        if (d.type){
-          infotxt+='<span class="info_type">'+special(d.type)+'</span>';
-        }
         if (d.ep){
-          infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+          infotxt+='<span class="info_ep">'+special(d.ep)+' Episodes</span>';
         }
         if (infotxt){
           hl._ep=$n('span','info',null,hl._view,infotxt);
@@ -7544,7 +7544,25 @@ const home={
         }catch(ee){}
       }
       pb.menu_select(home.home_slide,home.home_slide.P.firstElementChild);
+      home.home_list_autoslide();
     }
+  },
+
+  home_list_autoslide:function(){
+    var g=home.home_slide;
+    if (g._slide_interval){
+      clearInterval(g._slide_interval);
+    }
+    g._slide_interval=setInterval(function(){
+      if (!g.classList.contains('active')){
+        var curr = g._target_n;
+        var next = null;
+        if (!curr || !(next=curr.nextElementSibling)){
+          next=g.P.firstElementChild;
+        }
+        pb.menu_select(g,next);
+      }
+    }, 10000);
   },
 
   home_pager:$('home_slide_pager'),
@@ -7588,7 +7606,7 @@ const home={
             mtp='TV';
           }
           var infotxt='';
-          infotxt+='<span class="info_score">⭐'+special(d.averageScore+"")+'%</span>';
+          infotxt+='<span class="info_score"><u><b style="width:'+d.averageScore+'%">⭐⭐⭐⭐⭐</b><b>⭐⭐⭐⭐⭐</b></u></span>';
 
           if (d.isAdult){
             infotxt+='<span class="info_adult">18+</span>';
@@ -7597,11 +7615,11 @@ const home={
             infotxt+='<span class="info_type">'+special(mtp)+'</span>';
           }
           if (vep){
-            infotxt+='<span class="info_sumep">'+special(vep+"")+'</span>';
+            infotxt+='<span class="info_ep">'+special(vep+"")+' Episodes</span>';
             d.ep=vep;
           }
           else if (sumep){
-            infotxt+='<span class="info_sumep">'+special(sumep+"")+'</span>';
+            infotxt+='<span class="info_ep">'+special(sumep+"")+' Episodes</span>';
             d.ep=sumep;
           }
           
@@ -7612,6 +7630,7 @@ const home={
         }catch(ee){}
       }
       pb.menu_select(g,g.P.firstElementChild);
+      home.home_list_autoslide();
     }
   },
   home_anilist_load:function(){
