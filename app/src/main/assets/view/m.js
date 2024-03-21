@@ -7575,6 +7575,9 @@ const home={
       for (var i=0;i<v.data.Page.media.length;i++){
         try{
           var d=v.data.Page.media[i];
+          if (!d.bannerImage){
+            continue;
+          }
           var malid="anilistmedia_"+d.id;
 
           var hl=$n('div','fullimg',{action:"#"+malid,arg:''},g.P,'');
@@ -7612,7 +7615,14 @@ const home={
             infotxt+='<span class="info_adult">18+</span>';
           }
           if (mtp&&(mtp!='unknown')){
-            infotxt+='<span class="info_type">'+special(mtp)+'</span>';
+            mtp+=" &middot; "+d.seasonYear;
+          }
+          else{
+            mtp=d.seasonYear;
+          }
+          infotxt+='<span class="info_type">'+(mtp)+'</span>';
+          if (d.duration){
+            infotxt+='<span class="info_duration">'+(d.duration)+' min</span>';
           }
           if (vep){
             infotxt+='<span class="info_ep">'+special(vep+"")+' Episodes</span>';
@@ -7654,6 +7664,7 @@ const home={
             color
           }
           status
+          duration
           format
           seasonYear
           season
@@ -7683,7 +7694,7 @@ const home={
   },
 
   home_load:function(){
-    if (__SD6||pb.cfg_data.alisthomess){
+    if (__SD6||pb.cfg_data.alisthomess||(__SD==2)){
       home.home_anilist_load();
       return;
     }
