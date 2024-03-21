@@ -491,9 +491,6 @@ c.loader {
 #home_header.active #home_header_banner div.active c{
   text-shadow: none !important;
 }
-/* #home_discord_info{
-  display: none;
-} */
 .home_slideshow{
   padding:0;
   width:100vw;
@@ -593,6 +590,12 @@ c.loader {
   box-sizing: border-box;
   padding:0;
   display: block;
+  transition: transform var(--tim-4s) var(--interpolation);
+  transform-origin: center left;
+  transform: scale(.95);
+}
+.home_slideshow.active p div span.infobox span.infovalue{
+  transform: scale(1);
 }
 .home_slideshow p div span.infobox span.infovalue h4{
   margin:0;
@@ -648,11 +651,15 @@ c.loader {
   line-height: 1.1;
   font-size: var(--fs-13vw);
   vertical-align: middle;
+  text-shadow: .1vw .1vw .2vw rgba(0,0,0,.8);
 }
 .home_slideshow p div span.infobox span.infovalue span.info span:not(:first-child){
   border-left: .1vw solid rgba(255,255,255,.3);
 }
 .home_slideshow p div span.info_ep{
+  color:rgba(255,255,255,.9);
+}
+.home_slideshow p div span.info_type{
   color:rgba(255,255,255,.7);
 }
 .home_slideshow p div span.info_adult{
@@ -686,7 +693,7 @@ c.loader {
   line-height: 1.5;
 }
 .home_slideshow p div span.infobox span.infovalue span.info:before{
-  content:'Watch Anime ▶';
+  content:'Watch Now ▶';
   font-weight: bold;
   padding: .2vw 1.4vw .2vw 1.4vw;
   transition: background-color var(--tim-3s) var(--interpolation);
@@ -718,7 +725,7 @@ c.loader {
   border-radius: 1vw;
   margin: 0 .2vw 0 .2vw;
   display: inline-block;
-  transition: width var(--tim-3s) var(--interpolation), opacity var(--tim-5s) var(--interpolation);
+  transition: width var(--tim-3s) var(--interpolation), opacity var(--tim-3s) var(--interpolation);
   vertical-align: middle;
   opacity:.5;
 }
