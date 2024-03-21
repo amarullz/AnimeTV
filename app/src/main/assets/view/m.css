@@ -521,7 +521,7 @@ c.loader {
   z-index: 10;
 }
 .home_slideshow p{
-  transition: transform var(--tim-7s) var(--interpolation);
+  transition: none;
   position: absolute;
   padding: 0;
   margin: 0;
@@ -529,15 +529,24 @@ c.loader {
   left:0;
   white-space: nowrap;
   display: block;
-  will-change: transform;
 }
 .home_slideshow p div{
   width:100vw;
   height:40vw;
-  display: inline-block;
-  position: relative;
+  display: block;
   background-color: var(--primary-bg);
   overflow: hidden;
+  transition: opacity var(--tim-3s) var(--interpolation);
+  position: absolute;
+  top:0;
+  left:0;
+  opacity: 0;
+  z-index: 1;
+  will-change: opacity;
+}
+.home_slideshow p div.active{
+  opacity:1;
+  z-index: 4;
 }
 .home_slideshow p div:before{
   content: '';
@@ -595,7 +604,7 @@ c.loader {
   -webkit-box-orient: vertical;
   overflow: hidden;
   color:rgba(255,255,255,.75);
-  transition: color var(--tim-7s) var(--interpolation);
+  transition: color var(--tim-3s) var(--interpolation);
 }
 .home_slideshow p div span.infobox span.infovalue h4 *{
   text-shadow: 0 .2vw .2vw #000 !important;
@@ -613,7 +622,7 @@ c.loader {
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   text-shadow: 0 .1vw .2vw #000 !important;
-  transition: color var(--tim-7s) var(--interpolation);
+  transition: color var(--tim-3s) var(--interpolation);
 }
 .home_slideshow.active p div.active span.infobox span.infovalue h4{
   color:#fff;
@@ -672,7 +681,7 @@ c.loader {
   border-radius: 1vw;
   margin: 0 .2vw 0 .2vw;
   display: inline-block;
-  transition: width var(--tim-7s) var(--interpolation), opacity var(--tim-5s) var(--interpolation);
+  transition: width var(--tim-3s) var(--interpolation), opacity var(--tim-5s) var(--interpolation);
   vertical-align: middle;
   opacity:.5;
 }
@@ -691,7 +700,7 @@ c.loader {
 }
 
 #home_pagelist{
-  padding-top:10vw;
+  padding-top:8vw;
   transform: translateX(3vw);
 }
 #home_page{

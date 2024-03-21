@@ -5994,13 +5994,6 @@ const pb={
             else
               g.P.style.transform='translateX(0)';
           }
-          else{
-            g._margin=n.offsetLeft;
-            if (g._margin)
-              g.P.style.transform='translateX(-'+g._margin+'px)';
-            else
-              g.P.style.transform='translateX(0)';
-          }
           g._sel=n;
         };
       }
