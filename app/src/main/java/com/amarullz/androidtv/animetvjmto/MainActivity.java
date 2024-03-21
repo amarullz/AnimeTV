@@ -14,11 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.media3.common.util.UnstableApi;
 
 import java.io.File;
 import java.io.IOException;
 
-/*
+@UnstableApi /*
  * Main Activity class that loads {@link MainFragment}.
  */
 public class MainActivity extends FragmentActivity {
@@ -64,7 +65,8 @@ public class MainActivity extends FragmentActivity {
             "/animetv-logcat.txt";
         Log.d("DEBUG-LOGCAT", fn);
         File filename = new File(fn);
-        boolean ignoredNewFile = filename.createNewFile();
+        //noinspection ResultOfMethodCallIgnored
+        filename.createNewFile();
         String cmd = "logcat -f " + filename.getAbsolutePath();
         Runtime.getRuntime().exec(cmd);
       } catch (IOException e) {
@@ -94,8 +96,9 @@ public class MainActivity extends FragmentActivity {
     }
     return super.onKeyDown(keyCode, event);
   }
-  private boolean sendKeyEvent(int code, boolean send){
+  private boolean sendKeyEvent(int code, int evtype){
     int c=0;
+    boolean send = (evtype == KeyEvent.ACTION_DOWN);
 //    RED = 183
 //    GREEN = 184
 //    YELLOW = 185
@@ -115,7 +118,10 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_DPAD_LEFT: c=37; break;
       case KeyEvent.KEYCODE_DPAD_RIGHT: c=39; break;
       case KeyEvent.KEYCODE_ENTER:
-      case KeyEvent.KEYCODE_DPAD_CENTER: c=13; break;
+      case KeyEvent.KEYCODE_DPAD_CENTER:
+        c=send?13:1013;
+        send=true;
+        break;
       case 166: /* PROG UP */
       case KeyEvent.KEYCODE_PAGE_UP: c=33; break;
       case 167: /* PROG DOWN */
@@ -133,7 +139,9 @@ public class MainActivity extends FragmentActivity {
 //    Log.d("KEYEV","Code = "+code);
     if (c>0&&aView.webViewReady) {
       if (send) {
-        aView.webView.evaluateJavascript("_KEYEV(" + c + ")", null);
+        aView.webView.evaluateJavascript(
+            "try{ window._KEYEV(" + c + ");}catch(e){}", null
+        );
       }
       return true;
     }
@@ -143,7 +151,7 @@ public class MainActivity extends FragmentActivity {
   @SuppressLint("RestrictedApi")
   @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
-    if (sendKeyEvent(event.getKeyCode(),event.getAction() == KeyEvent.ACTION_DOWN)){
+    if (sendKeyEvent(event.getKeyCode(),event.getAction())){
       return false;
     }
     return super.dispatchKeyEvent(event);

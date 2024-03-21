@@ -1485,18 +1485,18 @@ function $a(uri, cb, hdr, pd){
     xhttp.args=pd;
   }
   xhttp.onload = function() {
-    if (!__SD3){
-      if (xhttp.status==403){
-        if (((uri.indexOf("https://")==-1)||(uri.indexOf("https://"+__DNS)==0)) 
-          && (uri.indexOf("/__proxy/")!=0)){
-          _JSAPI.cfCheck();
-          setTimeout(function(){
-            $a(uri, cb);
-          },2500);
-          return;
-        }
-      }
-    }
+    // if (!__SD3){
+    //   if (xhttp.status==403){
+    //     if (((uri.indexOf("https://")==-1)||(uri.indexOf("https://"+__DNS)==0)) 
+    //       && (uri.indexOf("/__proxy/")!=0)){
+    //       _JSAPI.cfCheck();
+    //       setTimeout(function(){
+    //         $a(uri, cb);
+    //       },2500);
+    //       return;
+    //     }
+    //   }
+    // }
     xhttp.ok=true;
     cb(xhttp);
   };
@@ -1837,10 +1837,10 @@ window.addEventListener('message',function(e) {
 });
 
 /* JSAPI getview callback handler */
-window.__GETVIEWCB=function(d,u){
-  if(_API.viewcb)
-    _API.viewcb(d,u);
-};
+// window.__GETVIEWCB=function(d,u){
+//   if(_API.viewcb)
+//     _API.viewcb(d,u);
+// };
 
 window.__M3U8CB=function(d){
   if(_API.m3u8cb)
@@ -1852,10 +1852,10 @@ window.__VIDPAGELOADCB=function(d){
 }
 
 /* mp4upload url callback */
-window.__MP4CB=function(d){
-  if(_API.mp4cb) 
-  _API.mp4cb(d);
-};
+// window.__MP4CB=function(d){
+//   if(_API.mp4cb) 
+//   _API.mp4cb(d);
+// };
 
 /* Number of bgimage */
 const BGIMG_NUM=9;
@@ -1867,6 +1867,7 @@ const KLEFT=37;
 const KRIGHT=39;
 const KBACK=27;
 const KENTER=13;
+const KENTER_UP=1013;
 const KPGUP=33;
 const KPGDOWN=34;
 const KPLAY=402;
@@ -2306,8 +2307,8 @@ const _API={
   /*** JSAPI CALLBACKS ***/
   keycb:null,
   messagecb:null,
-  mp4cb:null,
-  viewcb:null,
+  // mp4cb:null,
+  // viewcb:null,
   m3u8cb:null,
   vidpageload:null,
   viewid:0,
@@ -2317,8 +2318,8 @@ const _API={
   clearCb:function(){
     _API.keycb=null;
     _API.messagecb=null;
-    _API.mp4cb=null;
-    _API.viewcb=null;
+    // _API.mp4cb=null;
+    // _API.viewcb=null;
     _API.m3u8cb=null;
     _API.vidpageload=null;
   },
@@ -2357,10 +2358,10 @@ const _API={
     else if (__SD==1||__SD==2){
       return wave.getView(url,f);
     }
-    _API.viewcb=f;
-    var uid=++_API.viewid;
-    if (_JSAPI.getview(url,uid))
-      return uid;
+    // _API.viewcb=f;
+    // var uid=++_API.viewid;
+    // if (_JSAPI.getview(url,uid))
+    //   return uid;
     return false;
   },
 
@@ -2801,10 +2802,10 @@ const _API={
   },
 
   /* get mp4upload mp4-video url */
-  getMp4:function(url, f){
-    _API.mp4cb=f;
-    _JSAPI.getmp4vid(url);
-  },
+  // getMp4:function(url, f){
+  //   _API.mp4cb=f;
+  //   _JSAPI.getmp4vid(url);
+  // },
 
   currentStreamType:0,
   currentStreamTypeValue:0,
@@ -5395,7 +5396,6 @@ const pb={
           var epd=pb.data.ep[sel_id];
           console.log('Preloading Episode = '+sel_id+' -> '+epd.url);
           var uid=_API.getView(epd.url,function(d,u){
-            _API.viewcb=null;
             if (uid==u && d.status){
               pb.preload_episode_video=null;
               pb.preload_episode={

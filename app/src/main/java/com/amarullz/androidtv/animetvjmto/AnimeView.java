@@ -13,13 +13,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.text.Html;
 import android.util.Base64;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,11 +34,9 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DefaultHttpDataSource;
@@ -67,6 +62,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Date;
 import java.util.HashMap;
@@ -80,16 +76,16 @@ import javax.crypto.spec.SecretKeySpec;
   private static final String _TAG="ATVLOG-VIEW";
   private final Activity activity;
   public final WebView webView;
-  public final WebView webView2;
+//  public final WebView webView2;
   public SurfaceView videoView=null;
   public ExoMediaPlayerImpl videoPlayer=null;
-  public LinearLayout cfProgress;
+//  public LinearLayout cfProgress;
   public final ImageView splash;
   public final FrameLayout videoLayout;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=true;
+  public static boolean USE_WEB_VIEW_ASSETS=false;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -116,9 +112,6 @@ import javax.crypto.spec.SecretKeySpec;
     webSettings.setJavaScriptEnabled(true);
     webSettings.setMediaPlaybackRequiresUserGesture(false);
     webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//      webSettings.setSafeBrowsingEnabled(true);
-//    }
     webSettings.setSupportMultipleWindows(false);
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);
@@ -146,15 +139,15 @@ import javax.crypto.spec.SecretKeySpec;
     setFullscreen();
     VERSION_INIT();
 
-    cfProgress=activity.findViewById(R.id.cfprogress);
+//    cfProgress=activity.findViewById(R.id.cfprogress);
     splash=activity.findViewById(R.id.splash);
     videoLayout= activity.findViewById(R.id.video_layout);
-    webView2 = activity.findViewById(R.id.webview2);
+//    webView2 = activity.findViewById(R.id.webview2);
     webView = activity.findViewById(R.id.webview);
     webView.requestFocus();
     webView.setBackgroundColor(Color.TRANSPARENT);
     webviewInitConfig(webView);
-    webviewInitConfig(webView2);
+//    webviewInitConfig(webView2);
 
     webView.setWebChromeClient(new WebChromeClient() {
       @Override public Bitmap getDefaultVideoPoster() {
@@ -173,10 +166,7 @@ import javax.crypto.spec.SecretKeySpec;
           if (jo.has("title")){
             title=jo.getString("title");
           }
-          boolean isHtml=false;
-          if (jo.has("html")){
-            isHtml=true;
-          }
+          boolean isHtml= jo.has("html");
           if (jo.has("message")){
             if (isHtml){
               msg= Html.fromHtml(jo.getString("message"));
@@ -259,24 +249,13 @@ import javax.crypto.spec.SecretKeySpec;
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
     webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
-//    webView2.loadUrl("https://"+Conf.getDomain()+"/");
-//    webView2.setVisibility(View.VISIBLE);
-//    webView.setBackgroundColor(Color.WHITE);
-//    webView.loadUrl("https://"+Conf.getDomain()+"/");
-
-//    webView.loadUrl("https://www.reddit.com/");
-//    splash.setVisibility(View.GONE);
-//    videoLayout.setVisibility(View.VISIBLE);
-//    webView.setVisibility(View.VISIBLE);
-    //
-    // https://aniwave.to/ajax/home/widget/updated-sub?page=1
 
     // Init Channel Provider
     AnimeProvider.executeJob(activity);
   }
 
   public void reloadView(){
-    aApi.cleanWebView();
+//    aApi.cleanWebView();
     webView.clearCache(true);
     webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
   }
@@ -303,7 +282,6 @@ import javax.crypto.spec.SecretKeySpec;
   public DataSourceFactoryProvider videoDataSourceFactory=null;
 
   @SuppressLint("UnsafeOptInUsageError")
-  @NonNull
   public void initVideoView(){
     if (videoView!=null){
       videoLayout.removeAllViews();
@@ -367,7 +345,7 @@ import javax.crypto.spec.SecretKeySpec;
   public void videoSetSource(String url){
     try {
       if (url.equals("")) {
-        videoPlayer.setMediaUri((Uri) null);
+        videoPlayer.setMediaUri(null);
       } else {
         if (url.endsWith("#dash")) {
           Log.d(_TAG,"VIDEO-SET-SOURCE (DASH) : "+url);
@@ -402,8 +380,7 @@ import javax.crypto.spec.SecretKeySpec;
   public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
     String url = request.getUrl().toString();
     return (
-        !url.startsWith("https://"+Conf.SOURCE_DOMAINS[1]+"/")&&
-            !url.startsWith("https://"+Conf.SOURCE_DOMAINS[2]+"/")
+        !url.startsWith("https://"+Conf.getDomain()+"/")
     );
   }
 
@@ -480,7 +457,7 @@ import javax.crypto.spec.SecretKeySpec;
               isPostBody=true;
             }
             else {
-              if (proxy_url.indexOf("?")>-1) {
+              if (proxy_url.contains("?")) {
                 proxy_url = proxy_url.substring(0, proxy_url.indexOf("?"));
               }
               if (isPostType){
@@ -546,9 +523,6 @@ import javax.crypto.spec.SecretKeySpec;
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
-//      if (Conf.HTTP_CLIENT==1 && Conf.SOURCE_DOMAIN<3) {
-//        return super.shouldInterceptRequest(view, request);
-//      }
       WebResourceResponse wr=aApi.defaultRequest(view,request);
       if (wr!=null){
         return wr;
@@ -560,7 +534,6 @@ import javax.crypto.spec.SecretKeySpec;
         return aApi.badRequest;
       }
       return aApi.defaultRequest(view,request);
-//      return super.shouldInterceptRequest(view, request);
     }
     else if (host.equals(Conf.SOURCE_DOMAIN5_API)){
       try {
@@ -570,13 +543,10 @@ import javax.crypto.spec.SecretKeySpec;
         for (Map.Entry<String, String> entry :
             request.getRequestHeaders().entrySet()) {
           String k=entry.getKey();
-          boolean sent=false;
-          if (k.equalsIgnoreCase("origin")||
-              k.equalsIgnoreCase("referer")||
-              k.equalsIgnoreCase("X-Org-Prox")||
-              k.equalsIgnoreCase("X-Ref-Prox")){
-            sent=true;
-          }
+          boolean sent= k.equalsIgnoreCase("origin") ||
+              k.equalsIgnoreCase("referer") ||
+              k.equalsIgnoreCase("X-Org-Prox") ||
+              k.equalsIgnoreCase("X-Ref-Prox");
           if (!sent) {
             http.addHeader(k, entry.getValue());
           }
@@ -671,9 +641,9 @@ import javax.crypto.spec.SecretKeySpec;
     return aApi.defaultRequest(view,request);
   }
 
-  public void getViewCallback(int u){
-    webView.evaluateJavascript("__GETVIEWCB(JSON.parse(_JSAPI.lastResult()),"+u+");",null);
-  }
+//  public void getViewCallback(int u){
+//    webView.evaluateJavascript("__GETVIEWCB(JSON.parse(_JSAPI.lastResult()),"+u+");",null);
+//  }
 
   public void sendM3U8Req(String data){
     AsyncTask.execute(() ->activity.runOnUiThread(() ->
@@ -712,46 +682,46 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   @UnstableApi public class JSViewApi{
-    private String lastResultText="";
-    private String lastResultUrl="";
-    @JavascriptInterface
-    public boolean getViewAvailable(){
-      return aApi.resData.status != 1;
-    }
-    @JavascriptInterface
-    public boolean getview(String url, int zid) {
-      if (aApi.resData.status==1) return false;
-      if (lastResultUrl.equals(url)){
-        AsyncTask.execute(() ->activity.runOnUiThread(() ->getViewCallback(zid)));
-        return true;
-      }
-      AsyncTask.execute(() -> activity.runOnUiThread(() -> aApi.getData(url, result -> {
-        lastResultUrl=url;
-        lastResultText=result.Text;
-        getViewCallback(zid);
-      })));
-      return true;
-    }
+//    private String lastResultText="";
+//    private String lastResultUrl="";
+//    @JavascriptInterface
+//    public boolean getViewAvailable(){
+//      return aApi.resData.status != 1;
+//    }
+//    @JavascriptInterface
+//    public boolean getview(String url, int zid) {
+//      if (aApi.resData.status==1) return false;
+//      if (lastResultUrl.equals(url)){
+//        AsyncTask.execute(() ->activity.runOnUiThread(() ->getViewCallback(zid)));
+//        return true;
+//      }
+//      AsyncTask.execute(() -> activity.runOnUiThread(() -> aApi.getData(url, result -> {
+//        lastResultUrl=url;
+//        lastResultText=result.Text;
+//        getViewCallback(zid);
+//      })));
+//      return true;
+//    }
 
-    @JavascriptInterface
-    public String lastResult() {
-      return lastResultText;
-    }
+//    @JavascriptInterface
+//    public String lastResult() {
+//      return lastResultText;
+//    }
 
-    @JavascriptInterface
-    public void clearView() {
-      aApi.cleanWebView();
-    }
+//    @JavascriptInterface
+//    public void clearView() {
+//      aApi.cleanWebView();
+//    }
 
-    @JavascriptInterface
-    public void tapEmulate(float x, float y) {
-      AsyncTask.execute(() -> simulateClick(x,y,false));
-    }
+//    @JavascriptInterface
+//    public void tapEmulate(float x, float y) {
+//      AsyncTask.execute(() -> simulateClick(x,y,false));
+//    }
 
-    @JavascriptInterface
-    public void tapEmulateFix(float x, float y) {
-      AsyncTask.execute(() -> simulateClick(x,y,true));
-    }
+//    @JavascriptInterface
+//    public void tapEmulateFix(float x, float y) {
+//      AsyncTask.execute(() -> simulateClick(x,y,true));
+//    }
 
     @JavascriptInterface
     public void appQuit() {
@@ -803,20 +773,19 @@ import javax.crypto.spec.SecretKeySpec;
       aApi.updateServerVar(true);
     }
 
-    @JavascriptInterface
-    public void getmp4vid(String url) {
-      AsyncTask.execute(() -> {
-        final String out=aApi.getMp4Video(url);
-        activity.runOnUiThread(() -> webView.evaluateJavascript("__MP4CB("+out+");",null));
-      });
-    }
+//    @JavascriptInterface
+//    public void getmp4vid(String url) {
+//      AsyncTask.execute(() -> {
+//        final String out=aApi.getMp4Video(url);
+//        activity.runOnUiThread(() -> webView.evaluateJavascript("__MP4CB("+out+");",null));
+//      });
+//    }
 
     @JavascriptInterface
     public void reloadHome() {
       runOnUiThreadWait(()->
           webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html")
       );
-//      AsyncTask.execute(AnimeView.this::reloadView);
     }
 
     @JavascriptInterface
@@ -896,20 +865,20 @@ import javax.crypto.spec.SecretKeySpec;
     @JavascriptInterface
     public void setStreamType(int type, int clean){
       Log.d(_TAG,"[X] setStreamType = "+type+" / clean="+clean);
-      if (clean==1) {
-        lastResultUrl = "";
-        aApi.cleanWebView();
-      }
+//      if (clean==1) {
+//        lastResultUrl = "";
+//        aApi.cleanWebView();
+//      }
       Conf.STREAM_TYPE=type;
     }
 
     @JavascriptInterface
     public void setStreamServer(int mirror, int clean){
       Log.d(_TAG,"[X] setStreamServer = "+mirror+" / clean="+clean);
-      if (clean==1) {
-        lastResultUrl = "";
-        aApi.cleanWebView();
-      }
+//      if (clean==1) {
+//        lastResultUrl = "";
+//        aApi.cleanWebView();
+//      }
       Conf.STREAM_SERVER=mirror;
     }
 
@@ -964,10 +933,9 @@ import javax.crypto.spec.SecretKeySpec;
       AnimeApi.initHttpEngine(activity);
     }
 
-    // startUpdateApk(String url, boolean isNightly)
     @JavascriptInterface
-    public void installApk(String url, boolean isNightly){
-      aApi.startUpdateApk(url, isNightly);
+    public boolean installApk(String url, boolean isNightly){
+      return aApi.startUpdateApk(url, isNightly);
     }
     @JavascriptInterface
     public boolean isOnUpdate(){
@@ -1077,31 +1045,30 @@ import javax.crypto.spec.SecretKeySpec;
       return BUILD_VERSION;
     }
 
-    @JavascriptInterface
-    public void rayOk() {
-      if (cfOnCheck) {
-        cfOnCheck=false;
-        runOnUiThreadWait(() -> {
-          webView2.loadData(
-              "<html><body>Finish</body></html>","text/html",
-              null
-          );
-          webView.evaluateJavascript(
-              "__CFRAYOK()", null);
-          webView2.setVisibility(View.GONE);
-          Toast.makeText(activity,"Validation successful...",
-              Toast.LENGTH_SHORT).show();
-          cfProgress.setVisibility(View.INVISIBLE);
-          webView.requestFocus();
-        });
-      }
-    }
+//    @JavascriptInterface
+//    public void rayOk() {
+//      if (cfOnCheck) {
+//        cfOnCheck=false;
+//        runOnUiThreadWait(() -> {
+//          webView2.loadData(
+//              "<html><body>Finish</body></html>","text/html",
+//              null
+//          );
+//          webView.evaluateJavascript(
+//              "__CFRAYOK()", null);
+//          webView2.setVisibility(View.GONE);
+//          Toast.makeText(activity,"Validation successful...",
+//              Toast.LENGTH_SHORT).show();
+//          cfProgress.setVisibility(View.INVISIBLE);
+//          webView.requestFocus();
+//        });
+//      }
+//    }
 
-    @JavascriptInterface
-    public void cfCheck() {
-      cfRayCheck();
-    }
-
+//    @JavascriptInterface
+//    public void cfCheck() {
+//      cfRayCheck();
+//    }
 
     @JavascriptInterface
     public String sha1sum(String value) {
@@ -1133,48 +1100,48 @@ import javax.crypto.spec.SecretKeySpec;
     }
   }
 
-  public boolean cfOnCheck=false;
+//  public boolean cfOnCheck=false;
 
-  public void cfRayCheck(){
-    if (cfOnCheck) return;
-    runOnUiThreadWait(()-> {
-      cfProgress.setVisibility(View.VISIBLE);
-      cfOnCheck=true;
-      webView2.loadUrl("https://"+Conf.getDomain()+"/");
-      webView2.reload();
-    });
-  }
+//  public void cfRayCheck(){
+//    if (cfOnCheck) return;
+//    runOnUiThreadWait(()-> {
+//      cfProgress.setVisibility(View.VISIBLE);
+//      cfOnCheck=true;
+//      webView2.loadUrl("https://"+Conf.getDomain()+"/");
+//      webView2.reload();
+//    });
+//  }
 
   @Override
   public void onPageFinished(WebView view, String url) {
     Log.d(_TAG,"ATVLOG-API --> "+url);
-    if (!url.contains("/__view/")){
-      if (cfOnCheck) {
-        webView2.setVisibility(View.VISIBLE);
-        view.evaluateJavascript(
-            "if (document.getElementById('i-wrapper')||document.querySelector('a.btn[href=home]')){ " +
-                "setTimeout(function(){_JSAPI.rayOk();},1000);" +
-                " }", null);
-        String ijs=
-            "function t1(){" +
-                "var a=document.querySelector('div#turnstile-wrapper');" +
-                "if (a){" +
-                "var h2=Math.floor(a.offsetHeight/2.5);"+
-                "var x=a.offsetLeft+h2;"+
-                "var y=a.offsetTop+h2;"+
-                "setTimeout(function(){_JSAPI.tapEmulateFix(x,y);" +
-                "setTimeout(t1,1000);},1000);" +
-                "}" +
-                "else " +
-                "setTimeout(t1,500);}" +
-                "t1();";
-        view.evaluateJavascript(ijs,null);
-      }
-    }
+//    if (!url.contains("/__view/")){
+//      if (cfOnCheck) {
+//        webView2.setVisibility(View.VISIBLE);
+//        view.evaluateJavascript(
+//            "if (document.getElementById('i-wrapper')||document.querySelector('a.btn[href=home]')){ " +
+//                "setTimeout(function(){_JSAPI.rayOk();},1000);" +
+//                " }", null);
+//        String ijs=
+//            "function t1(){" +
+//                "var a=document.querySelector('div#turnstile-wrapper');" +
+//                "if (a){" +
+//                "var h2=Math.floor(a.offsetHeight/2.5);"+
+//                "var x=a.offsetLeft+h2;"+
+//                "var y=a.offsetTop+h2;"+
+//                "setTimeout(function(){_JSAPI.tapEmulateFix(x,y);" +
+//                "setTimeout(t1,1000);},1000);" +
+//                "}" +
+//                "else " +
+//                "setTimeout(t1,500);}" +
+//                "t1();";
+//        view.evaluateJavascript(ijs,null);
+//      }
+//    }
 
-    if (view.equals(webView2)){
-      return;
-    }
+//    if (view.equals(webView2)){
+//      return;
+//    }
 
     splash.setVisibility(View.GONE);
     videoLayout.setVisibility(View.VISIBLE);
@@ -1184,40 +1151,40 @@ import javax.crypto.spec.SecretKeySpec;
     // i-wrapper
   }
 
-  public float convertDpToPixel(float dp){
-    return dp * ((float) activity.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-  }
+//  public float convertDpToPixel(float dp){
+//    return dp * ((float) activity.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+//  }
 
-  private void simulateClick(float xx, float yy, boolean fixed) {
-    int x=(int) ((webView.getMeasuredWidth()*xx)/100.0);
-    int y=(int) ((webView.getMeasuredHeight()*yy)/100.0);
-    if (fixed){
-      x=(int) convertDpToPixel(xx);
-      y=(int) convertDpToPixel(yy);
-    }
-    Log.d(_TAG,"TAP: ("+x+", "+y+") -> "+xx+"%, "+yy+"%");
-    long downTime = SystemClock.uptimeMillis();
-    long eventTime = SystemClock.uptimeMillis() + 245;
-    int metaState = 0;
-    MotionEvent me = MotionEvent.obtain(
-        downTime,
-        eventTime,
-        MotionEvent.ACTION_DOWN,
-        x,
-        y,
-        metaState
-    );
-    webView2.dispatchTouchEvent(me);
-    me = MotionEvent.obtain(
-        downTime,
-        eventTime,
-        MotionEvent.ACTION_UP,
-        x+1,
-        y-2,
-        metaState
-    );
-    webView2.dispatchTouchEvent(me);
-  }
+//  private void simulateClick(float xx, float yy, boolean fixed) {
+//    int x=(int) ((webView.getMeasuredWidth()*xx)/100.0);
+//    int y=(int) ((webView.getMeasuredHeight()*yy)/100.0);
+//    if (fixed){
+//      x=(int) convertDpToPixel(xx);
+//      y=(int) convertDpToPixel(yy);
+//    }
+//    Log.d(_TAG,"TAP: ("+x+", "+y+") -> "+xx+"%, "+yy+"%");
+//    long downTime = SystemClock.uptimeMillis();
+//    long eventTime = SystemClock.uptimeMillis() + 245;
+//    int metaState = 0;
+//    MotionEvent me = MotionEvent.obtain(
+//        downTime,
+//        eventTime,
+//        MotionEvent.ACTION_DOWN,
+//        x,
+//        y,
+//        metaState
+//    );
+//    webView2.dispatchTouchEvent(me);
+//    me = MotionEvent.obtain(
+//        downTime,
+//        eventTime,
+//        MotionEvent.ACTION_UP,
+//        x+1,
+//        y-2,
+//        metaState
+//    );
+//    webView2.dispatchTouchEvent(me);
+//  }
 
   public void updateArgs(){
     activity.runOnUiThread(() -> webView.evaluateJavascript("__ARGUPDATE();",null));
@@ -1285,7 +1252,7 @@ import javax.crypto.spec.SecretKeySpec;
   {
     if (isSave){
       webView.saveState(bundle);
-      aApi.webView.saveState(bundle);
+//      aApi.webView.saveState(bundle);
       if (videoPlayer.getDuration()>0)
         bundle.putInt("VIDEO_CURRPOS", (int) videoPlayer.getCurrentPosition());
       else
@@ -1296,7 +1263,7 @@ import javax.crypto.spec.SecretKeySpec;
     }
     else{
       webView.restoreState(bundle);
-      aApi.webView.restoreState(bundle);
+//      aApi.webView.restoreState(bundle);
       int savedPos=bundle.getInt("VIDEO_CURRPOS",0);
       videoStatScaleType=bundle.getInt("VIDEO_SCALETYPE",0);
       String saveUrl=bundle.getString("VIDEO_CURR_URL");
@@ -1433,7 +1400,7 @@ import javax.crypto.spec.SecretKeySpec;
     encoded = cipher1.doFinal(encoded);
     encoded = cipher2.doFinal(encoded);
     encoded = Base64.encode(encoded, Base64.DEFAULT);
-    return new String(encoded, "UTF-8").replace("/", "_").trim();
+    return new String(encoded, StandardCharsets.UTF_8).replace("/", "_").trim();
   }
 
 }

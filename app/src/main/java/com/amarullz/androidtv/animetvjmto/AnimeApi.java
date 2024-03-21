@@ -11,14 +11,10 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -57,39 +53,39 @@ import okhttp3.dnsoverhttps.DnsOverHttps;
 public class AnimeApi extends WebViewClient {
   private static final String _TAG="ATVLOG-API";
 
-  public static class Result{
-    public String Text;
-    public int status;
-    public String url;
-  }
-  public interface Callback {
-    void onFinish(Result result);
-  }
+//  public static class Result{
+//    public String Text;
+//    public int status;
+//    public String url;
+//  }
+//  public interface Callback {
+//    void onFinish(Result result);
+//  }
   private final Activity activity;
-  public final WebView webView;
+//  public final WebView webView;
 
   public WebResourceResponse badRequest;
 
-  public boolean paused=false;
+//  public boolean paused=false;
 
-  public Callback callback;
+//  public Callback callback;
 
-  public Result resData=new Result();
+//  public Result resData=new Result();
 
-  Handler handler = new Handler(Looper.getMainLooper());
-  Runnable timeoutRunnable = new Runnable() {
-    @Override
-    public void run() {
-      if (resData.status==1) {
-        resData.status = 3;
-        resData.Text = "{\"status\":false}";
-        activity.runOnUiThread(() -> {
-          if (callback!=null)
-            callback.onFinish(resData);
-        });
-      }
-    }
-  };
+//  Handler handler = new Handler(Looper.getMainLooper());
+//  Runnable timeoutRunnable = new Runnable() {
+//    @Override
+//    public void run() {
+//      if (resData.status==1) {
+//        resData.status = 3;
+//        resData.Text = "{\"status\":false}";
+//        activity.runOnUiThread(() -> {
+//          if (callback!=null)
+//            callback.onFinish(resData);
+//        });
+//      }
+//    }
+//  };
 
   public void updateServerVar(boolean showMessage){
     AsyncTask.execute(() -> {
@@ -293,7 +289,7 @@ public class AnimeApi extends WebViewClient {
     initHttpEngine(activity);
     updateServerVar(false);
 
-    webView = new WebView(activity);
+//    webView = new WebView(activity);
 //    webView = activity.findViewById(R.id.webview);
 
     pref = activity.getSharedPreferences("SERVER", Context.MODE_PRIVATE );
@@ -307,45 +303,42 @@ public class AnimeApi extends WebViewClient {
 
 
     /* Init Webview */
-    webView.setBackgroundColor(0xffffffff);
-    WebSettings webSettings = webView.getSettings();
-    webSettings.setJavaScriptEnabled(true);
-    webSettings.setMediaPlaybackRequiresUserGesture(false);
-    webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//      webSettings.setSafeBrowsingEnabled(true);
-//    }
-    webSettings.setSupportMultipleWindows(false);
-    webSettings.setBlockNetworkImage(true);
-    webView.addJavascriptInterface(new JSApi(), "_JSAPI");
-    webView.setWebViewClient(this);
-
-    webSettings.setUserAgentString(Conf.USER_AGENT);
-    webView.loadData(
-          "<html><body>Finish</body></html>","text/html",
-          null
-      );
+//    webView.setBackgroundColor(0xffffffff);
+//    WebSettings webSettings = webView.getSettings();
+//    webSettings.setJavaScriptEnabled(true);
+//    webSettings.setMediaPlaybackRequiresUserGesture(false);
+//    webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
+//    webSettings.setSupportMultipleWindows(false);
+//    webSettings.setBlockNetworkImage(true);
+//    webView.addJavascriptInterface(new JSApi(), "_JSAPI");
+//    webView.setWebViewClient(this);
+//
+//    webSettings.setUserAgentString(Conf.USER_AGENT);
+//    webView.loadData(
+//          "<html><body>Finish</body></html>","text/html",
+//          null
+//      );
   }
 
-  public void getData(String url, Callback cb, long timeout){
-    if (resData.status==1) return;
-    callback=cb;
-    pauseView(false);
-    resData.url=url;
-    resData.status=1;
-    handler.postDelayed(timeoutRunnable, timeout);
-    webView.evaluateJavascript("(window.__EPGET&&window.__EPGET('"+url+"'))" +
-            "?1:0",
-        s -> {
-          Log.d(_TAG,"JAVASCRIPT VAL ["+s+"]");
-          if (s.equals("0")){
-            webView.loadUrl(url);
-          }
-        });
-  }
-  public void getData(String url, Callback cb){
-    getData(url,cb,20000);
-  }
+//  public void getData(String url, Callback cb, long timeout){
+//    if (resData.status==1) return;
+//    callback=cb;
+//    pauseView(false);
+//    resData.url=url;
+//    resData.status=1;
+//    handler.postDelayed(timeoutRunnable, timeout);
+//    webView.evaluateJavascript("(window.__EPGET&&window.__EPGET('"+url+"'))" +
+//            "?1:0",
+//        s -> {
+//          Log.d(_TAG,"JAVASCRIPT VAL ["+s+"]");
+//          if (s.equals("0")){
+//            webView.loadUrl(url);
+//          }
+//        });
+//  }
+//  public void getData(String url, Callback cb){
+//    getData(url,cb,20000);
+//  }
 
   public void injectString(ByteArrayOutputStream buffer, String inject){
     byte[] injectByte = inject.getBytes();
@@ -426,63 +419,63 @@ public class AnimeApi extends WebViewClient {
     handler.proceed();
   }
 
-  @Override
-  public void onPageFinished(WebView view, String url) {
-    // Make sure inject.js is attached
-    String ijs="(function(){var a=document.createElement('script');a" +
-        ".setAttribute('src','/__inject.js');document.body.appendChild(a);})" +
-        "();";
-    webView.evaluateJavascript(ijs,null);
-  }
+//  @Override
+//  public void onPageFinished(WebView view, String url) {
+//    // Make sure inject.js is attached
+//    String ijs="(function(){var a=document.createElement('script');a" +
+//        ".setAttribute('src','/__inject.js');document.body.appendChild(a);})" +
+//        "();";
+//    webView.evaluateJavascript(ijs,null);
+//  }
 
-  @Override
-  public WebResourceResponse shouldInterceptRequest(final WebView view,
-                                                    WebResourceRequest request) {
-    Uri uri = request.getUrl();
-    String url = uri.toString();
-    String host = uri.getHost();
-    String accept = request.getRequestHeaders().get("Accept");
-    if (accept==null) return badRequest;
-    if (host==null) return badRequest;
-    if (url.startsWith("data:")) {
-      return super.shouldInterceptRequest(view, request);
-    }
-    else if (accept.startsWith("image/")) return badRequest;
-    else if (host.equals(Conf.SOURCE_DOMAINS[1])) {
-      if (Objects.equals(uri.getPath(), "/__inject.js")){
-        Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
-        return assetsRequest("inject/9anime_inject.js");
-      }
-      if (Conf.HTTP_CLIENT==1) {
-        return super.shouldInterceptRequest(view,request);
-      }
-      return defaultRequest(view, request, "/__inject.js", "text/html");
-    }
-    else if (host.equals(Conf.SOURCE_DOMAINS[2])) {
-      if (Objects.equals(uri.getPath(), "/__inject.js")) {
-        Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
-        return assetsRequest("inject/anix_inject.js");
-      }
-      if (Conf.HTTP_CLIENT==1) {
-        return super.shouldInterceptRequest(view,request);
-      }
-      return defaultRequest(view, request, "/__inject.js", "text/html");
-    }
-    else if (host.equals(Conf.STREAM_DOMAIN)||host.equals(Conf.STREAM_DOMAIN2)){
-      return assetsRequest("inject/9anime_player.html");
-    }
-    else if (host.contains("cloudflare.com")||
-        host.contains("bunnycdn.ru")) {
-      if (!url.endsWith(".woff2")&&!accept.startsWith("text/css")) {
-        Log.d(_TAG, "CDN=>" + url + " - " + accept);
-        if (Conf.PROGRESSIVE_CACHE){
-          return super.shouldInterceptRequest(view,request);
-        }
-        return defaultRequest(view, request);
-      }
-    }
-    return badRequest;
-  }
+//  @Override
+//  public WebResourceResponse shouldInterceptRequest(final WebView view,
+//                                                    WebResourceRequest request) {
+//    Uri uri = request.getUrl();
+//    String url = uri.toString();
+//    String host = uri.getHost();
+//    String accept = request.getRequestHeaders().get("Accept");
+//    if (accept==null) return badRequest;
+//    if (host==null) return badRequest;
+//    if (url.startsWith("data:")) {
+//      return super.shouldInterceptRequest(view, request);
+//    }
+//    else if (accept.startsWith("image/")) return badRequest;
+//    else if (host.equals(Conf.SOURCE_DOMAINS[1])) {
+//      if (Objects.equals(uri.getPath(), "/__inject.js")){
+//        Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
+//        return assetsRequest("inject/9anime_inject.js");
+//      }
+//      if (Conf.HTTP_CLIENT==1) {
+//        return super.shouldInterceptRequest(view,request);
+//      }
+//      return defaultRequest(view, request, "/__inject.js", "text/html");
+//    }
+//    else if (host.equals(Conf.SOURCE_DOMAINS[2])) {
+//      if (Objects.equals(uri.getPath(), "/__inject.js")) {
+//        Log.d(_TAG, "WEB-REQ-ASSETS=" + url);
+//        return assetsRequest("inject/anix_inject.js");
+//      }
+//      if (Conf.HTTP_CLIENT==1) {
+//        return super.shouldInterceptRequest(view,request);
+//      }
+//      return defaultRequest(view, request, "/__inject.js", "text/html");
+//    }
+//    else if (host.equals(Conf.STREAM_DOMAIN)||host.equals(Conf.STREAM_DOMAIN2)){
+//      return assetsRequest("inject/9anime_player.html");
+//    }
+//    else if (host.contains("cloudflare.com")||
+//        host.contains("bunnycdn.ru")) {
+//      if (!url.endsWith(".woff2")&&!accept.startsWith("text/css")) {
+//        Log.d(_TAG, "CDN=>" + url + " - " + accept);
+//        if (Conf.PROGRESSIVE_CACHE){
+//          return super.shouldInterceptRequest(view,request);
+//        }
+//        return defaultRequest(view, request);
+//      }
+//    }
+//    return badRequest;
+//  }
 
   public static DnsOverHttps dohClient;
   public static OkHttpClient bootstrapClient;
@@ -504,6 +497,7 @@ public class AnimeApi extends WebViewClient {
     if (Conf.HTTP_CLIENT==2) {
       try {
         File ccache=new File((okCacheDir!=null)?okCacheDir:"cacheDir","cronet");
+        //noinspection ResultOfMethodCallIgnored
         ccache.mkdir();
         CronetEngine.Builder myBuilder =
             new CronetEngine.Builder(c)
@@ -517,8 +511,8 @@ public class AnimeApi extends WebViewClient {
                 .addQuicHint(Conf.SOURCE_DOMAINS[1], 443, 443)
                 .addQuicHint(Conf.STREAM_DOMAIN2, 443, 443);
         cronetClient=myBuilder.build();
-      }catch (Exception ignored){
-        Log.e(_TAG,"Cronet Init Error",ignored);
+      }catch (Exception cronetException){
+        Log.e(_TAG,"Cronet Init Error",cronetException);
         cronetClient=null;
       }
     }
@@ -705,90 +699,90 @@ public class AnimeApi extends WebViewClient {
     return defaultRequest(view,request,null,null);
   }
 
-  public String getMp4Video(String url){
-    String srcjson = "null";
-    try {
-      Http http = new Http(url);
-      http.execute();
-      String mp4src = http.body.toString();
-      int psrcpos = mp4src.indexOf("player.src(");
-      if (psrcpos > 0) {
-        srcjson = mp4src.substring(psrcpos + 11);
-        srcjson = srcjson.substring(0, srcjson.indexOf(");"));
-      }
-    }catch(Exception ignored){}
-    return srcjson;
-  }
+//  public String getMp4Video(String url){
+//    String srcjson = "null";
+//    try {
+//      Http http = new Http(url);
+//      http.execute();
+//      String mp4src = http.body.toString();
+//      int psrcpos = mp4src.indexOf("player.src(");
+//      if (psrcpos > 0) {
+//        srcjson = mp4src.substring(psrcpos + 11);
+//        srcjson = srcjson.substring(0, srcjson.indexOf(");"));
+//      }
+//    }catch(Exception ignored){}
+//    return srcjson;
+//  }
 
-  @Override
-  public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
-    String url = request.getUrl().toString();
-    return (!url.startsWith("https://"+Conf.SOURCE_DOMAINS[1]+"/")&&!url.startsWith(
-        "https://"+Conf.SOURCE_DOMAINS[2]+"/"));
-  }
+//  @Override
+//  public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
+//    String url = request.getUrl().toString();
+//    return (!url.startsWith("https://"+Conf.SOURCE_DOMAINS[1]+"/")&&!url.startsWith(
+//        "https://"+Conf.SOURCE_DOMAINS[2]+"/"));
+//  }
 
-  public void pauseView(boolean pause){
-    activity.runOnUiThread(() -> {
-      if (pause) {
-        if (!paused) {
-          paused= true;
-          webView.onPause();
-        }
-      }
-      else if (paused) {
-        paused= false;
-        webView.onResume();
-      }
-    });
-  }
+//  public void pauseView(boolean pause){
+//    activity.runOnUiThread(() -> {
+//      if (pause) {
+//        if (!paused) {
+//          paused= true;
+//          webView.onPause();
+//        }
+//      }
+//      else if (paused) {
+//        paused= false;
+//        webView.onResume();
+//      }
+//    });
+//  }
 
-  public void cleanWebView(){
-    callback=null;
-    handler.removeCallbacks(timeoutRunnable);
-    resData.status = 2;
-    activity.runOnUiThread(() -> {
-      pauseView(false);
-      webView.loadData(
-          "<html><body>Finish</body></html>","text/html",
-          null
-      );
-      pauseView(true);
-    });
-  }
+//  public void cleanWebView(){
+//    callback=null;
+//    handler.removeCallbacks(timeoutRunnable);
+//    resData.status = 2;
+//    activity.runOnUiThread(() -> {
+//      pauseView(false);
+//      webView.loadData(
+//          "<html><body>Finish</body></html>","text/html",
+//          null
+//      );
+//      pauseView(true);
+//    });
+//  }
 
-  public class JSApi{
-    @JavascriptInterface
-    public void result(String res) {
-      if (resData.status==1) {
-        handler.removeCallbacks(timeoutRunnable);
-        resData.status = 2;
-        resData.Text = res;
-        Log.d(_TAG,"GETVIEW: "+res);
-        activity.runOnUiThread(() -> {
-          if (callback!=null)
-            callback.onFinish(resData);
-        });
-        pauseView(true);
-      }
-    }
-
-    @JavascriptInterface
-    public int streamType(){
-      return Conf.STREAM_TYPE;
-    }
-
-    @JavascriptInterface
-    public int streamServer(){
-      return Conf.STREAM_SERVER;
-    }
-    @JavascriptInterface
-    public String dns(){
-      return Conf.getDomain();
-    }
-
-    @JavascriptInterface
-    public String dnsver(){
-      return Conf.SERVER_VER;
-    }
-  }
+//  public class JSApi{
+//    @JavascriptInterface
+//    public void result(String res) {
+//      if (resData.status==1) {
+//        handler.removeCallbacks(timeoutRunnable);
+//        resData.status = 2;
+//        resData.Text = res;
+//        Log.d(_TAG,"GETVIEW: "+res);
+//        activity.runOnUiThread(() -> {
+//          if (callback!=null)
+//            callback.onFinish(resData);
+//        });
+//        pauseView(true);
+//      }
+//    }
+//
+//    @JavascriptInterface
+//    public int streamType(){
+//      return Conf.STREAM_TYPE;
+//    }
+//
+//    @JavascriptInterface
+//    public int streamServer(){
+//      return Conf.STREAM_SERVER;
+//    }
+//    @JavascriptInterface
+//    public String dns(){
+//      return Conf.getDomain();
+//    }
+//
+//    @JavascriptInterface
+//    public String dnsver(){
+//      return Conf.SERVER_VER;
+//    }
+//  }
 }

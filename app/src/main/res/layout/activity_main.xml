@@ -22,21 +22,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </FrameLayout>
-    <WebView
+    <!-- WebView
         android:visibility="invisible"
         android:layout_width="500dp"
         android:layout_height="400dp"
         android:layout_gravity="center"
         android:id="@+id/webview2"
         android:alpha="0.0001"
-        />
+        / -->
     <WebView
         android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/webview"
         />
-    <LinearLayout
+    <!-- LinearLayout
         android:visibility="invisible"
         android:id="@+id/cfprogress"
         android:layout_width="wrap_content"
@@ -63,5 +63,5 @@
             android:layout_height="wrap_content"
             android:text="Working with CF-RAY\nMake sure to select Generic HTTPClient"
             />
-    </LinearLayout>
+    </LinearLayout -->
 </FrameLayout>

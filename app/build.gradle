@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 33
         versionCode 299
-        versionName "3.2.5-Nightly"
+        versionName "3.2.7-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
@@ -23,6 +23,9 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
+        }
+        debug {
+            minifyEnabled false
         }
     }
 
