@@ -7613,7 +7613,7 @@ const home={
   yt_init:function(ytid){
     var yturl='https://www.youtube.com/embed/'+ytid+'?';
     yturl+='autoplay=1';
-    if (pb.cfg_data.trailer>1){
+    if (pb.cfg_data.trailer<2){
       yturl+='&mute=1';
     }
     yturl+='&controls=0&disablekb=1';
