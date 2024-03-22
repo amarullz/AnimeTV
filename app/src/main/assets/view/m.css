@@ -745,10 +745,10 @@ c.loader {
 
 #home_pagelist{
   padding-top:8vw;
-  transform: translateX(3vw);
+  transform: translateX(5vw);
 }
 #home_page{
-  transform: translateX(-3vw);
+  transform: translateX(-10vw);
 }
 #home_pagelist,
 #home_page{
@@ -756,15 +756,16 @@ c.loader {
   position: absolute;
   left:0;
   right:0;
-  /* visibility: hidden; */
+  top:0;
   opacity: 0;
-  transition: all var(--tim-4s) var(--interpolation);
+  transition: 
+    opacity var(--tim-3s) var(--interpolation), 
+    transform var(--tim-3s) var(--interpolation);
   z-index: 1;
 }
 #home_pagelist.active,
 #home_page.active{
   position: relative;
-  /* visibility: visible; */
   opacity: 1;
   transform: translateX(0);
   z-index: 6;

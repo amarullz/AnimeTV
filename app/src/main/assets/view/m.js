@@ -7690,7 +7690,7 @@ const home={
         }catch(e){}
         home.home_onload=0;
       }
-    });
+    }, true);
   },
 
   home_load:function(){
@@ -8292,9 +8292,7 @@ const home={
       home.settings.initmore();
       home.settings.update(0,0);
       pb.pb.classList.add('onsettings');
-      requestAnimationFrame(function(){
-        home.settings.settings.classList.add('active');
-      });
+      home.settings.settings.classList.add('active');
     },
     close:function(){
       if (home.settings.needreload){
@@ -8857,11 +8855,11 @@ const home={
   ],
 
   update_homepages:function(n){
+    home.header_items[n?1:2].classList.remove('selected');
+    home.header_items[n?2:1].classList.add('selected');
     home.homepages[home.col_selected].classList.remove('active');
     home.col_selected=n;
     home.homepages[n].classList.add('active');
-    home.header_items[n?1:2].classList.remove('selected');
-    home.header_items[n?2:1].classList.add('selected');
   },
 
   header_keycb:function(g,c){
@@ -8942,10 +8940,8 @@ const home={
       var ac=home.row_selected;
       var nc=pr;
       home.row_selected=pr;
-      requestAnimationFrame(function(){
-        home.list_select(pc,ac).classList.remove('active');
-        home.list_select(pc,nc).classList.add('active');
-      });
+      home.list_select(pc,ac).classList.remove('active');
+      home.list_select(pc,nc).classList.add('active');
       if (pr>1){
         var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.innerHeight + (window.innerWidth*0.06));
         if (ty<0) ty=0;
@@ -8954,12 +8950,10 @@ const home={
       else{
         home.home_scroll.style.transform="";
       }
-      requestAnimationFrame(function(){
-        if (pr>1)
-          home.home_header.classList.add('scrolled');
-        else
-          home.home_header.classList.remove('scrolled');
-      });
+      if (pr>1)
+        home.home_header.classList.add('scrolled');
+      else
+        home.home_header.classList.remove('scrolled');
     }
   },
 
@@ -9059,11 +9053,11 @@ const _MAL={
     xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.token);
     xhttp.send();
   },
-  alreq:function(q, v, cb){
-    if (!_MAL.altoken){
-      cb({ok:false,responseText:''});
-      return;
-    }
+  alreq:function(q, v, cb, notoken){
+    // if (!_MAL.altoken && !notoken){
+    //   cb({ok:false,responseText:''});
+    //   return;
+    // }
     var xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
         xhttp.ok=true;
@@ -9076,7 +9070,9 @@ const _MAL={
     xhttp.open("POST", "/__proxy/https://graphql.anilist.co", true);
     xhttp.setRequestHeader('Accept', 'application/json' );
     xhttp.setRequestHeader('Content-Type', 'application/json' );
-    xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.altoken);
+    if (!notoken && _MAL.altoken){
+      xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.altoken);
+    }
     xhttp.setRequestHeader("Post-Body", JSON.stringify({
       query: q,
       variables: v
@@ -9092,6 +9088,78 @@ const _MAL={
       id:animeid,
       progress:ep
     },cb);
+  },
+  allist_search:function(q,cb,page,perpage){
+    _MAL.alreq(`query ($search: String, $page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        pageInfo {
+          perPage
+          hasNextPage
+          currentPage
+        }
+        media(type: ANIME, search: $search){
+          id
+          title{
+            romaji
+            english
+          }
+          coverImage{
+            large
+            color
+          }
+          status
+          duration
+          format
+          seasonYear
+          season
+          isAdult
+          nextAiringEpisode {
+            episode
+          }
+          averageScore
+          episodes
+          description
+          bannerImage
+          averageScore
+          mediaListEntry{
+            id,
+            progress
+          }
+        }
+      }
+    }`,{
+      "page":page?page:0,
+      "perPage":perpage?perpage:10,
+      "search":q
+    },function(r){
+      if (r.ok){
+        try{
+          var v=JSON.parse(r.responseText);
+          if (v.data.Page.media){
+            var slugQ=slugString(q);
+            for (var i=0;i<v.data.Page.media.length;i++){
+              var med=v.data.Page.media[i];
+              var s1=med.title.english;
+              var s2=med.title.romaji;
+              var ms=med.status;
+              if (ms=="FINISHED" || ms=="RELEASING" || ms=="HIATUS"){
+                if (s1 && (slugString(s1)==slugQ)){
+                  v.match=JSON.parse(JSON.stringify(med));
+                  break;
+                }
+                else if (s2 && (slugString(s2)==slugQ)){
+                  v.match=JSON.parse(JSON.stringify(med));
+                  break;
+                }
+              }
+            }
+          }
+          cb(v);
+          return;
+        }catch(e){}
+      }
+      cb(null);
+    });
   },
   allist:function(page,cb){
     _MAL.alreq(`query ($user: String, $page: Int, $perPage: Int) {
