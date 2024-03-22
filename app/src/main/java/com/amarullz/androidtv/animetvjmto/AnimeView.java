@@ -124,6 +124,13 @@ import javax.crypto.spec.SecretKeySpec;
     //noinspection deprecation
     webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
     webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      webSettings.setOffscreenPreRaster(true);
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      webSettings.setAlgorithmicDarkeningAllowed(false);
+    }
+    webSettings.setGeolocationEnabled(false);
 
     wv.addJavascriptInterface(new JSViewApi(), "_JSAPI");
     wv.setWebViewClient(this);

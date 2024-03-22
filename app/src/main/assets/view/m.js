@@ -7788,6 +7788,7 @@ const home={
         }catch(ee){}
       }
       pb.menu_select(g,g.P.firstElementChild);
+      home.home_list_autoslide();
     }
     if (has_trailer){
       home.home_slide._activeCb=home.anilist_trailer_topcb;
