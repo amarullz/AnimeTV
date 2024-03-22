@@ -578,10 +578,11 @@ c.loader {
   min-height: 40vw;
   background-color: var(--primary-bg);
   object-fit: cover;
-  transition: transform 18s linear;
+  transition: transform 18s linear, opacity 5s linear;
 }
-.home_slideshow p div.yt-playing img{
+.home_slideshow p div.active.yt-playing img{
   opacity:0;
+  transform: scale(1);
 }
 .home_slideshow p div .iframe_holder{
   display: none;
@@ -595,18 +596,18 @@ c.loader {
   width: 80vw;
   height: 40vw;
   overflow: hidden;
+  opacity: 0;
+  transition: opacity 5s var(--interpolation);
+}
+.home_slideshow.active p div.active.yt-playing .iframe_holder{
+  opacity: 1;
 }
 .home_slideshow.active p div .iframe_holder iframe{
   display: block;
   width: 80vw !important;
   height: 40vw !important;
-  opacity: 0;
-  transition: opacity 4s var(--interpolation);
   position: relative;
   z-index: 0;
-}
-.home_slideshow.active p div.active.yt-playing .iframe_holder iframe{
-  opacity: 1;
 }
 .home_slideshow p div span.infobox{
   position: absolute;

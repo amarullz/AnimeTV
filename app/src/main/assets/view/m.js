@@ -4111,6 +4111,7 @@ const pb={
     usedoh:true,
     nonjapan:false,
     alisthomess:false,
+    trailer:1,
     server:0,
     scale:0,
     lang:'',
@@ -4170,6 +4171,12 @@ const pb={
 
         pb.cfg_data.bgimg=('bgimg' in j)?j.bgimg:BGIMG_NUM-1;
         _API.bgimg_update();
+
+        if ('trailer' in j){
+          var sv=parseInt(j.trailer);
+          if (sv&&sv>0&&sv<=2)
+            pb.cfg_data.quality=sv;
+        }
 
         if ('quality' in j){
           var sv=parseInt(j.quality);
@@ -4233,6 +4240,8 @@ const pb={
     pb.cfg_data.performance=true;
     pb.cfg_data.mirrorserver=false;
     
+    
+    pb.cfg_data.trailer=1;
     pb.cfg_data.server=0;
     pb.cfg_data.animation=0;
     pb.cfg_data.uifontsize=0;
@@ -4249,6 +4258,11 @@ const pb={
     'VIZCLOUD M3U8',
     'VIZCLOUD HTML5',
     'MP4UPLOAD'
+  ],
+  cfgtrailer_name:[
+    'No trailer',
+    'Trailer without sound',
+    'Trailer with sound'
   ],
   cfganimation_name:[
     'Normal',
@@ -4358,6 +4372,9 @@ const pb={
           el.lastElementChild.innerHTML=pb.sel_quality;
         }
       }
+      else if (key=='trailer'){
+        el.lastElementChild.innerHTML=pb.cfgtrailer_name[pb.cfg_data.trailer];
+      }
       else if (key=='sourcesvr'){
         el.lastElementChild.innerHTML="Source "+__SD_NAME;
       }
@@ -4459,6 +4476,8 @@ const pb={
       pb.cfg_update_el('nonjapan');
       pb.cfg_update_el('alisthomess');
       pb.cfg_update_el('sourcesvr');
+
+      pb.cfg_update_el('trailer');
       
       pb.cfg_update_el('performance');
       pb.cfg_update_el('mirrorserver');
@@ -5710,17 +5729,6 @@ const pb={
           _API.videoSpeed(_API.vidSpeed);
         }
         pb.cfg_update_el(key);
-
-        ab.sort(function(a,b){
-          var bb=aa=999999999;
-          if (a.media.nextAiringEpisode && a.media.nextAiringEpisode.timeUntilAiring){
-            aa=a.media.nextAiringEpisode.timeUntilAiring;
-          }
-          if (b.media.nextAiringEpisode && b.media.nextAiringEpisode.timeUntilAiring){
-            bb=b.media.nextAiringEpisode.timeUntilAiring;
-          }
-          return aa+bb;
-        });
       }
       else if (key=="quality"){
         var chval=_API.listPrompt(
@@ -5750,6 +5758,19 @@ const pb={
           pb.cfg_update_el(key);
           pb.cfg_save();
           pb.updateanimation();
+        }
+      }
+      else if (key=="trailer"){
+        pb.state=0;
+        var chval=_API.listPrompt(
+          "Play Trailer",
+          pb.cfgtrailer_name,
+          pb.cfg_data.trailer
+        );
+        if (chval!=null){
+          pb.cfg_data.trailer=toInt(chval);
+          pb.cfg_update_el(key);
+          pb.cfg_save();
         }
       }
       else if (key=="uifontsize"){
@@ -7591,7 +7612,10 @@ const home={
 
   yt_init:function(ytid){
     var yturl='https://www.youtube.com/embed/'+ytid+'?';
-    yturl+='autoplay=1&mute=1';
+    yturl+='autoplay=1';
+    if (pb.cfg_data.trailer>1){
+      yturl+='&mute=1';
+    }
     yturl+='&controls=0&disablekb=1';
     yturl+='&fs=0&iv_load_policy=3';
     yturl+='&loop=1';
@@ -7601,6 +7625,10 @@ const home={
   anilist_yt:{
     initialized:false,
     cleanup:function(){
+      if (home.anilist_trailer_to){
+        clearTimeout(home.anilist_trailer_to);
+        home.anilist_trailer_to=null;
+      }
       if (home.anilist_yt.activeg){
         home.anilist_yt.activeg.classList.remove('yt-playing');
         home.anilist_yt.activeg._iframe_holder.innerHTML='';
@@ -7614,7 +7642,6 @@ const home={
       }
       home.anilist_yt.initialized=true;
       window.addEventListener('message',function(e) {
-        console.log(["MessageYT",e]);
         if (home.anilist_yt.activeg){
           try{
             var pd=JSON.parse(e.data);
@@ -7634,39 +7661,47 @@ const home={
     },
     activeg:null
   },
-
+  anilist_trailer_to:null,
   anilist_trailer_cb:function(g,active){
-    if (!g._iframe_holder){
+    if (!g._iframe_holder || (pb.cfg_data.trailer<1)){
       return;
     }
-    home.anilist_yt.init();
-    home.anilist_yt.cleanup();
-    g._iframe_holder.innerHTML='';
-    g._ytiframe=null;
-    if (active){
-      if (home.home_slide.classList.contains('active')){
-        home.anilist_yt.activeg=g;
-        g._ytiframe=
-          $n('iframe','',{
-            src:home.yt_init(g._ytid),
-            frameborder:'0'},
-            g._iframe_holder,''
-          );
+    requestAnimationFrame(function(){
+      home.anilist_yt.init();
+      home.anilist_yt.cleanup();
+      g._iframe_holder.innerHTML='';
+      g._ytiframe=null;
+      if (active){
+        if (home.home_slide.classList.contains('active')){
+          home.anilist_yt.activeg=g;
+          home.anilist_trailer_to=setTimeout(function(){
+            if (home.anilist_yt.activeg==g){
+              g._ytiframe=
+                $n('iframe','',{
+                  src:home.yt_init(g._ytid),
+                  frameborder:'0'},
+                  g._iframe_holder,''
+                );
+            }
+          },800);
+        }
       }
-    }
+    });
   },
 
   anilist_trailer_topcb:function(g,active){
-    if (active){
-      if (g._sel){
-        if (g._sel._activeCb){
-          g._sel._activeCb(g._sel,true);
+    requestAnimationFrame(function(){
+      if (active){
+        if (g._sel){
+          if (g._sel._activeCb){
+            g._sel._activeCb(g._sel,true);
+          }
         }
       }
-    }
-    else{
-      home.anilist_yt.cleanup();
-    }
+      else{
+        home.anilist_yt.cleanup();
+      }
+    });
   },
 
   anilist_play_cb:function(g,s){
@@ -8246,6 +8281,15 @@ const home={
           },
           home.settings.more.P,
           '<c class="check">clear</c><c>playlist_add_check_circle</c> AniList Slideshow'
+        );
+
+        home.settings.tools._s_trailer=$n(
+          'div','',{
+            action:'*trailer',
+            s_desc:"Play trailer on AniList slideshow"
+          },
+          home.settings.more.P,
+          '<c>movie</c> Play Trailer<span class="value"></span>'
         );
 
         home.settings.tools._s_nonjapan=$n(
