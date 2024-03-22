@@ -409,24 +409,24 @@ import javax.crypto.spec.SecretKeySpec;
     String accept = request.getRequestHeaders().get("Accept");
 
     if (host==null||accept==null) return aApi.badRequest;
-    if (url.startsWith("https://www.youtube.com/embed/")){
+    // youtube-nocookie.com
+    if (url.startsWith("https://www.youtube.com/embed/")||url.startsWith("https://www.youtube-nocookie.com/embed/")){
       return aApi.defaultRequest(view,request,
           aApi.assetsString("inject/yt.html"),"inject-html"
       );
     }
-    else if (host.contains("youtube.com")||
-        host.contains("googlevideo.com")||
-        host.contains("googleapis.com")||
-        host.contains("www.google.com")){
+    else if (host.contains("youtube.com")||host.contains("youtube-nocookie.com")||
+        host.contains("googlevideo.com")){
       if (accept!=null && (accept.contains("text/css")||accept.contains(
           "image/"))){
         return aApi.badRequest;
       }
       if (url.endsWith("/endscreen.js")||
           url.endsWith("/captions.js")||
+          url.endsWith("/embed.js")||
           url.contains("/log_event?alt=json")||
-          url.contains("https://www.youtube.com/ptracking")||
-          url.contains("https://www.youtube.com/api/stats/qoe")){
+          url.contains(".com/ptracking")||
+          url.contains(".com/api/stats/")){
         return aApi.badRequest;
       }
       return super.shouldInterceptRequest(view, request);
@@ -644,7 +644,9 @@ import javax.crypto.spec.SecretKeySpec;
         host.contains("doubleclick.net")||
         host.contains("fonts.gstatic.com")||
         host.contains("ggpht.com")||
-        host.contains("play.google.com")
+        host.contains("play.google.com")||
+        host.contains("www.google.com")||
+        host.contains("googleapis.com")
     ){
       /* BLOCK DNS */
       return aApi.badRequest;

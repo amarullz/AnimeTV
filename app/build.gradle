@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace 'com.amarullz.androidtv.animetvjmto'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.amarullz.androidtv.animetvjmto"
         minSdk 22
-        targetSdk 33
+        targetSdk 34
         versionCode 299
-        versionName "3.2.7-Nightly"
+        versionName "3.2.9-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
@@ -51,6 +51,8 @@ dependencies {
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation('com.squareup.okhttp3:okhttp-dnsoverhttps:4.12.0')
+
+    implementation("androidx.webkit:webkit:1.10.0")
 
     implementation 'com.google.android.gms:play-services-cronet:18.0.1'
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20"

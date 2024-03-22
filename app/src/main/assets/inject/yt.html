@@ -7,6 +7,9 @@ video{
 .html5-endscreen{
   visibility: hidden !important;
 }
+#player .html5-video-player>*{
+  display: none !important;
+}
 #player .html5-video-player .html5-video-container{
   z-index: 999999 !important;
   position: fixed !important;
@@ -17,19 +20,18 @@ video{
   width: 100% !important;
   height: 100% !important;
   visibility: visible !important;
-  visibility: block !important;
+  display: block !important;
 }
 #player,
 #player .html5-video-player,
 body, html{
-  background:transparent !important;
+  background:#000 !important;
 }
 </style>
 <script>
 (function(){
   var vid=null;
   function $p(c,d){
-    console.log("ATVLOG PostMessage "+d);
     parent.postMessage(JSON.stringify({
       vcmd:c,
       val:d
@@ -37,15 +39,12 @@ body, html{
   }
   function init(){
     vid.addEventListener("play", function(){
-      console.warn("YT VIDEO: PLAY");
       $p('yt-play','');
     });
     vid.addEventListener("ended", function(){
-      console.warn("YT VIDEO: ENDED");
       $p('yt-end','');
     });
     vid.addEventListener("pause", function(){
-      console.warn("YT VIDEO: PAUSE");
       $p('yt-pause','');
     });
   }
@@ -55,7 +54,7 @@ body, html{
       init();
       return;
     }
-    setTimeout(findVid,100);
+    setTimeout(findVid,200);
   }
   findVid();
 })();

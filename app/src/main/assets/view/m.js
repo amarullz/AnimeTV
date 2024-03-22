@@ -7611,29 +7611,35 @@ const home={
   },
 
   yt_init:function(ytid){
-    var yturl='https://www.youtube.com/embed/'+ytid+'?';
+    // var yturl='https://www.youtube.com/embed/'+ytid+'?';
+    var yturl='https://www.youtube-nocookie.com/embed/'+ytid+'?';
     yturl+='autoplay=1';
+    yturl+='&rel=0&showinfo=0&modestbranding=1&playsinline=1&start=0&widgetid=1';
     if (pb.cfg_data.trailer<2){
       yturl+='&mute=1';
     }
     yturl+='&controls=0&disablekb=1';
-    yturl+='&fs=0&iv_load_policy=3';
-    yturl+='&loop=1';
+    yturl+='&fs=0';
+    yturl+='&origin='+enc('https://'+__DNS);
     return yturl;
   },
 
   anilist_yt:{
     initialized:false,
-    cleanup:function(){
+    cleanup:function(actvg){
+      if (!actvg){
+        actvg=home.anilist_yt.activeg;
+        home.anilist_yt.activeg=null;
+      }
       if (home.anilist_trailer_to){
         clearTimeout(home.anilist_trailer_to);
         home.anilist_trailer_to=null;
       }
-      if (home.anilist_yt.activeg){
-        home.anilist_yt.activeg.classList.remove('yt-playing');
-        home.anilist_yt.activeg._iframe_holder.innerHTML='';
-        home.anilist_yt.activeg._ytiframe=null;
-        home.anilist_yt.activeg=null;
+      if (actvg){
+        actvg.classList.remove('yt-playing');
+        actvg._iframe_holder.innerHTML='';
+        actvg._ytiframe=null;
+        actvg=null;
       }
     },
     init:function(){
@@ -7667,24 +7673,24 @@ const home={
       return;
     }
     home.anilist_yt.init();
-    home.anilist_yt.cleanup();
-    g._iframe_holder.innerHTML='';
-    g._ytiframe=null;
+    home.anilist_yt.cleanup(g);
     if (active){
       if (home.home_slide.classList.contains('active')){
         home.anilist_yt.activeg=g;
         home.anilist_trailer_to=setTimeout(function(){
-          if (home.anilist_yt.activeg==g){
-            g._ytiframe=
-              $n('iframe','',{
-                  src:home.yt_init(g._ytid),
-                  frameborder:'0',
-                  loading:'lazy'
-                },
-                g._iframe_holder,''
-              );
-          }
-        },800);
+          requestAnimationFrame(function(){
+            if (home.anilist_yt.activeg==g){
+              g._ytiframe=
+                $n('iframe','',{
+                    src:home.yt_init(g._ytid),
+                    frameborder:'0',
+                    loading:'lazy'
+                  },
+                  g._iframe_holder,''
+                );
+            }
+          });
+        },600);
       }
     }
   },
