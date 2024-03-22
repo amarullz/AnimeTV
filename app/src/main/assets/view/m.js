@@ -4175,7 +4175,7 @@ const pb={
         if ('trailer' in j){
           var sv=parseInt(j.trailer);
           if (sv&&sv>0&&sv<=2)
-            pb.cfg_data.quality=sv;
+            pb.cfg_data.trailer=sv;
         }
 
         if ('quality' in j){
@@ -7666,42 +7666,40 @@ const home={
     if (!g._iframe_holder || (pb.cfg_data.trailer<1)){
       return;
     }
-    requestAnimationFrame(function(){
-      home.anilist_yt.init();
-      home.anilist_yt.cleanup();
-      g._iframe_holder.innerHTML='';
-      g._ytiframe=null;
-      if (active){
-        if (home.home_slide.classList.contains('active')){
-          home.anilist_yt.activeg=g;
-          home.anilist_trailer_to=setTimeout(function(){
-            if (home.anilist_yt.activeg==g){
-              g._ytiframe=
-                $n('iframe','',{
+    home.anilist_yt.init();
+    home.anilist_yt.cleanup();
+    g._iframe_holder.innerHTML='';
+    g._ytiframe=null;
+    if (active){
+      if (home.home_slide.classList.contains('active')){
+        home.anilist_yt.activeg=g;
+        home.anilist_trailer_to=setTimeout(function(){
+          if (home.anilist_yt.activeg==g){
+            g._ytiframe=
+              $n('iframe','',{
                   src:home.yt_init(g._ytid),
-                  frameborder:'0'},
-                  g._iframe_holder,''
-                );
-            }
-          },800);
-        }
+                  frameborder:'0',
+                  loading:'lazy'
+                },
+                g._iframe_holder,''
+              );
+          }
+        },800);
       }
-    });
+    }
   },
 
   anilist_trailer_topcb:function(g,active){
-    requestAnimationFrame(function(){
-      if (active){
-        if (g._sel){
-          if (g._sel._activeCb){
-            g._sel._activeCb(g._sel,true);
-          }
+    if (active){
+      if (g._sel){
+        if (g._sel._activeCb){
+          g._sel._activeCb(g._sel,true);
         }
       }
-      else{
-        home.anilist_yt.cleanup();
-      }
-    });
+    }
+    else{
+      home.anilist_yt.cleanup();
+    }
   },
 
   anilist_play_cb:function(g,s){

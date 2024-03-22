@@ -402,7 +402,29 @@ import javax.crypto.spec.SecretKeySpec;
     String accept = request.getRequestHeaders().get("Accept");
 
     if (host==null||accept==null) return aApi.badRequest;
-    if (isSourceDomain(host)) {
+    if (url.startsWith("https://www.youtube.com/embed/")){
+      return aApi.defaultRequest(view,request,
+          aApi.assetsString("inject/yt.html"),"inject-html"
+      );
+    }
+    else if (host.contains("youtube.com")||
+        host.contains("googlevideo.com")||
+        host.contains("googleapis.com")||
+        host.contains("www.google.com")){
+      if (accept!=null && (accept.contains("text/css")||accept.contains(
+          "image/"))){
+        return aApi.badRequest;
+      }
+      if (url.endsWith("/endscreen.js")||
+          url.endsWith("/captions.js")||
+          url.contains("/log_event?alt=json")||
+          url.contains("https://www.youtube.com/ptracking")||
+          url.contains("https://www.youtube.com/api/stats/qoe")){
+        return aApi.badRequest;
+      }
+      return super.shouldInterceptRequest(view, request);
+    }
+    else if (isSourceDomain(host)) {
       String path=uri.getPath();
       if (path==null)
         path="/";
@@ -611,15 +633,14 @@ import javax.crypto.spec.SecretKeySpec;
       host.contains("amung.us")||
       host.contains("www.googletagmanager.com")||
         host.contains("megastatics.com")||
-      host.contains("ontosocietyweary.com")
+      host.contains("ontosocietyweary.com")||
+        host.contains("doubleclick.net")||
+        host.contains("fonts.gstatic.com")||
+        host.contains("ggpht.com")||
+        host.contains("play.google.com")
     ){
       /* BLOCK DNS */
       return aApi.badRequest;
-    }
-    else if (url.startsWith("https://www.youtube.com/embed/")){
-      return aApi.defaultRequest(view,request,
-          aApi.assetsString("inject/yt.html"),"inject-html"
-      );
     }
     else if (Conf.SOURCE_DOMAIN==3||Conf.SOURCE_DOMAIN==4){
       String path = uri.getPath();
