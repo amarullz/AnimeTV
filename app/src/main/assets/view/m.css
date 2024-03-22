@@ -460,7 +460,7 @@ c.loader {
   color:rgba(255,255,255,.6);
   font-weight: bold;
 }
-#home_header_banner #home_profile,
+#home_header_banner #home_schedule,
 #home_header_banner #home_settings{
   float: right;
   padding:0;
@@ -469,16 +469,41 @@ c.loader {
   text-align: center;
   margin-left: 1vw;
   margin-top:-1vw;
+  position: relative;
 }
 #home_header_banner #home_search c{
   width:var(--fs-13vw);
   overflow: hidden;
 }
-#home_header_banner #home_profile c,
+#home_header_banner #home_schedule c,
 #home_header_banner #home_settings c{
   font-size: var(--fs-22vw);
   line-height: 4vw;
 }
+#home_header #home_header_banner #home_schedule:after,
+#home_header #home_header_banner #home_settings:after{
+  font-size: var(--fs-11vw);
+  content: attr(title);
+  display: block;
+  position: absolute;
+  bottom:-3.5vw;
+  width:10vw;
+  left:-3.1vw;
+  color:#fff;
+  text-align: center;
+  opacity: 0;
+  transform: scale(.5);
+  visibility: hidden;
+  transition: all var(--tim-3s) var(--interpolation);
+  text-shadow: 0 .1vw .1vw #000 !important;
+}
+#home_header.active #home_header_banner #home_schedule.active:after,
+#home_header.active #home_header_banner #home_settings.active:after{
+  visibility: visible;
+  opacity: 1;
+  transform: scale(1);
+}
+
 #home_header_banner #home_time{
   float: right;
   padding-right:0;

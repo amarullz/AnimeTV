@@ -4110,7 +4110,7 @@ const pb={
     progcache:true,
     usedoh:true,
     nonjapan:false,
-    alisthomess:false,
+    alisthomess:true,
     trailer:1,
     server:0,
     scale:0,
@@ -4152,7 +4152,7 @@ const pb={
         
         pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
-        pb.cfg_data.alisthomess=('alisthomess' in j)?(j.alisthomess?true:false):false;
+        pb.cfg_data.alisthomess=('alisthomess' in j)?(j.alisthomess?true:false):true;
         
         pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):true;
         pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver?true:false):false;
@@ -4235,7 +4235,7 @@ const pb={
     pb.cfg_data.compactlist=false;
     
     pb.cfg_data.nonjapan=false;
-    pb.cfg_data.alisthomess=false;
+    pb.cfg_data.alisthomess=true;
     
     pb.cfg_data.performance=true;
     pb.cfg_data.mirrorserver=false;
@@ -7950,7 +7950,7 @@ const home={
     $('home_search'),
     $('home_homepage'),
     $('home_mylist'),
-    $('home_profile'),
+    $('home_schedule'),
     $('home_settings'),
   ],
   home_time:$('home_time'),
