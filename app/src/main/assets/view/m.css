@@ -24,6 +24,15 @@
   opacity: 1;
 }
 
+.notready #home{
+  visibility: hidden;
+  opacity: 0;
+}
+.notready,
+.notready #animebg{
+  background: #060606 !important;
+}
+
 .mainbgimage.nonactive {
   opacity: 0 !important;
 }
@@ -39,7 +48,7 @@ ttl{
 }
 
 :root {
-  --primary-bg: #203;
+  --primary-bg: #030004;
   --primary-1: #406;
   --primary-2: #608;
   --primary-3: #80a;
@@ -118,7 +127,7 @@ ttl{
 }
 
 :root.theme_green {
-  --primary-bg: #021;
+  --primary-bg: #000300;
   --primary-1: #040;
   --primary-2: #060;
   --primary-3: #080;
@@ -127,7 +136,7 @@ ttl{
 }
 
 :root.theme_teal {
-  --primary-bg: #022;
+  --primary-bg: #000404;
   --primary-1: #033;
   --primary-2: #055;
   --primary-3: #077;
@@ -136,7 +145,7 @@ ttl{
 }
 
 :root.theme_blue {
-  --primary-bg: #012;
+  --primary-bg: #000003;
   --primary-1: #014;
   --primary-2: #026;
   --primary-3: #248;
@@ -145,7 +154,7 @@ ttl{
 }
 
 :root.theme_brown {
-  --primary-bg: #210;
+  --primary-bg: #080400;
   --primary-1: #420;
   --primary-2: #640;
   --primary-3: #852;
@@ -154,7 +163,7 @@ ttl{
 }
 
 :root.theme_red {
-  --primary-bg: #200;
+  --primary-bg: #060000;
   --primary-1: #400;
   --primary-2: #600;
   --primary-3: #822;
@@ -163,11 +172,11 @@ ttl{
 }
 
 :root.theme_grey {
-  --primary-bg: #222;
-  --primary-1: #444;
-  --primary-2: #666;
+  --primary-bg: #080808;
+  --primary-1: #123;
+  --primary-2: #234;
   --primary-3: #358;
-  --accent-1: #37b;
+  --accent-1: #33bb7c;
   --dimm-1: #234;
 }
 
@@ -507,14 +516,14 @@ c.loader {
 #home_slide_holder{
   padding:0;
   width:100vw;
-  height:51vw;
-  margin-bottom: -17vw;
-  background: linear-gradient(180deg, var(--primary-bg) 90%, rgba(0, 0, 0, 0) 100%);
+  height:100vw;
+  margin-bottom: -67vw;
+  background: linear-gradient(180deg, var(--primary-bg) 46%, rgba(0, 0, 0, 0) 100%);
   overflow: hidden;
   position: relative;
   z-index: 1;
 }
-#home_recent{
+#home_page .home_list{
   z-index: 10;
 }
 .home_slideshow p{
@@ -1782,11 +1791,11 @@ c.loader {
   transition: width 0.15s var(--interpolation);
   transition: all var(--tim-2s) var(--interpolation);
   will-change: transform, width;
-  z-index:1;
+  z-index:2;
 }
 #pb_track .pb_track_skip{
   position:absolute;
-  z-index:2;
+  z-index:3;
   left:0;
   width:0;
   top:0;
@@ -1796,8 +1805,10 @@ c.loader {
 }
 #pb_track #pb_track_buffer.pb_track_skip{
   opacity: .5;
+  z-index:1;
   background:var(--accent-1);
   transition: width var(--tim-2s) var(--interpolation);
+  border-radius: .5vw;
 }
 
 #pb_tracks.active {

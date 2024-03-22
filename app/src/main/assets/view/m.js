@@ -4291,10 +4291,10 @@ const pb={
     'Stretch'
   ],
   cfgquality_name:[
-    "AUTO",
-    "HIGH",
-    "MEDIUM",
-    "LOW"
+    "Auto",
+    "High Quality",
+    "Medium",
+    "Low"
   ],
   cfgwallpaper_name:[
     "No Wallpaper",
@@ -4351,7 +4351,12 @@ const pb={
         el.lastElementChild.innerHTML=pb.cfgwallpaper_name[pb.cfg_data.bgimg];
       }
       else if (key=='quality'){
-        el.lastElementChild.innerHTML=pb.sel_quality;
+        if (root==key,pb.pb_settings){
+          el.lastElementChild.innerHTML=pb.cfgquality_name[pb.cfg_data.quality];
+        }
+        else{
+          el.lastElementChild.innerHTML=pb.sel_quality;
+        }
       }
       else if (key=='sourcesvr'){
         el.lastElementChild.innerHTML="Source "+__SD_NAME;
@@ -4391,9 +4396,6 @@ const pb={
         else if (key=='dubaudio'){
           pb.cfg_setactive(el,__SD3);
         }
-
-        
-
         /* Set Values */
         if (key=='server'){
           el.lastElementChild.innerHTML=pb.cfgserver_name[pb.cfg_data[key]];
@@ -5710,17 +5712,17 @@ const pb={
         pb.cfg_update_el(key);
       }
       else if (key=="quality"){
-        if (pb.state){
-          var chval=_API.listPrompt(
-            "Stream Quality",
-            pb.cfgquality_name,
-            pb.cfg_data.quality
-          );
-          if (chval!=null){
-            pb.cfg_data.quality=toInt(chval);
-            pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
-            pb.cfg_update_el(key);
-            pb.cfg_save();
+        var chval=_API.listPrompt(
+          "Video Quality",
+          pb.cfgquality_name,
+          pb.cfg_data.quality
+        );
+        if (chval!=null){
+          pb.cfg_data.quality=toInt(chval);
+          pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+          if (pb.state){
             pb.reinit_video_delay(1000);
           }
         }
@@ -8024,6 +8026,15 @@ const home={
           '<c>aspect_ratio</c> Video Scaling<span class="value">-</span>'
         );
 
+        home.settings.tools._s_quality=$n(
+          'div','',{
+            action:'*quality',
+            s_desc:'Select preferred streaming quality'
+          },
+          home.settings.video.P,
+          '<c>hd</c> Video Quality<span class="value">-</span>'
+        );
+
         home.settings.tools._s_preloadep=$n(
           'div','',{
             action:'*preloadep',
@@ -8340,7 +8351,11 @@ const home={
       var st=home.settings.sscroll.scrollTop;
       var sh=home.settings.sscroll.offsetHeight;
       var sb=st+sh;
-      if (ot<st){
+      var hdrHeight=Math.floor(window.innerWidth*0.05);
+      if (ot>hdrHeight){
+        ot-=hdrHeight;
+      }
+      if (ot<st){ 
         home.settings.sscroll.scrollTop=ot;
       }
       else if (ob>sb){
@@ -8403,21 +8418,19 @@ const home={
     if (c==KBACK){
       home.settings.close();
     }
-    else if (c==KENTER||c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
-      if (c==KENTER){
-        var gel=home.settings.menus[pc].P;
-        var el=gel.children[spc];
-        try{
-          if (el.classList.contains('disabled')){
-            return;
-          }
-          var action=el.getAttribute('action');
-          var arg=el.getAttribute('arg');
-          pb.action_handler(action,arg);
-        }catch(e){}
-        home.settings.update(pc,spc);
-        return;
-      }
+    else if (c==KENTER){
+      var gel=home.settings.menus[pc].P;
+      var el=gel.children[spc];
+      try{
+        if (el.classList.contains('disabled')){
+          return;
+        }
+        var action=el.getAttribute('action');
+        var arg=el.getAttribute('arg');
+        pb.action_handler(action,arg);
+      }catch(e){}
+      home.settings.update(pc,spc);
+      return;
     }
     else if (c==KUP){
       var doNext=true;
@@ -8438,6 +8451,22 @@ const home={
         }
         spc=0;
       }
+    }
+    else if (c==KLEFT||c==KPGUP){
+      if (--pc<0){
+        pc=home.settings.menus.length-1;
+      }
+      spc=-1;
+      home.settings.update(pc,spc);
+      spc=0;
+    }
+    else if (c==KRIGHT||c==KPGDOWN){
+      if (++pc>=home.settings.menus.length){
+        pc=0;
+      }
+      spc=-1;
+      home.settings.update(pc,spc);
+      spc=0;
     }
     if (home.settings.sel!=pc || home.settings.subsel!=spc){
       home.settings.update(pc,spc);
@@ -10176,6 +10205,7 @@ window.__ARGUPDATE();
 _MAL.init();
 home.init();
 _API.bgimg_update();
+body.classList.remove('notready');
 
 (function(){
   var xDown = null;
