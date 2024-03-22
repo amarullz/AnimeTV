@@ -678,11 +678,16 @@ public class AnimeApi extends WebViewClient {
 
       // Inject
       if (inject!=null) {
-        if (injectContentType==null){
-          injectContentType="text/html";
+        if (injectContentType=="inject-html"){
+          injectString(http.body, inject);
         }
-        if (http.ctype[0].startsWith(injectContentType)) {
-          injectJs(http.body, inject);
+        else {
+          if (injectContentType == null) {
+            injectContentType = "text/html";
+          }
+          if (http.ctype[0].startsWith(injectContentType)) {
+            injectJs(http.body, inject);
+          }
         }
       }
 

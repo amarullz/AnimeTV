@@ -616,6 +616,11 @@ import javax.crypto.spec.SecretKeySpec;
       /* BLOCK DNS */
       return aApi.badRequest;
     }
+    else if (url.startsWith("https://www.youtube.com/embed/")){
+      return aApi.defaultRequest(view,request,
+          aApi.assetsString("inject/yt.html"),"inject-html"
+      );
+    }
     else if (Conf.SOURCE_DOMAIN==3||Conf.SOURCE_DOMAIN==4){
       String path = uri.getPath();
       if (path.endsWith("/master.m3u8")) {

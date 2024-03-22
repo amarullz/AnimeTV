@@ -1,0 +1,62 @@
+<style>
+video{
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+.html5-endscreen{
+  visibility: hidden !important;
+}
+#player .html5-video-player .html5-video-container{
+  z-index: 999999 !important;
+  position: fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  visibility: visible !important;
+  visibility: block !important;
+}
+#player,
+#player .html5-video-player,
+body, html{
+  background:transparent !important;
+}
+</style>
+<script>
+(function(){
+  var vid=null;
+  function $p(c,d){
+    console.log("ATVLOG PostMessage "+d);
+    parent.postMessage(JSON.stringify({
+      vcmd:c,
+      val:d
+    }),'*');
+  }
+  function init(){
+    vid.addEventListener("play", function(){
+      console.warn("YT VIDEO: PLAY");
+      $p('yt-play','');
+    });
+    vid.addEventListener("ended", function(){
+      console.warn("YT VIDEO: ENDED");
+      $p('yt-end','');
+    });
+    vid.addEventListener("pause", function(){
+      console.warn("YT VIDEO: PAUSE");
+      $p('yt-pause','');
+    });
+  }
+  function findVid(){
+    vid=document.querySelector('.html5-video-container video');
+    if (vid){
+      init();
+      return;
+    }
+    setTimeout(findVid,100);
+  }
+  findVid();
+})();
+</script>

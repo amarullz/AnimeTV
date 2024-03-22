@@ -564,10 +564,11 @@ c.loader {
   bottom:-2px;
   position: absolute;
   width:100vw;
-  background: linear-gradient(80deg, var(--primary-bg) 25%, rgba(0, 0, 0, 0) 60%),
+  background: linear-gradient(80deg, var(--primary-bg) 28%, rgba(0, 0, 0, 0) 64%),
     linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 60%, var(--primary-bg) 98%);
   z-index: 8;
 }
+.home_slideshow p div .iframe_holder,
 .home_slideshow p div img{
   z-index: 1;
   position: absolute;
@@ -579,6 +580,34 @@ c.loader {
   object-fit: cover;
   transition: transform 18s linear;
 }
+.home_slideshow p div.yt-playing img{
+  opacity:0;
+}
+.home_slideshow p div .iframe_holder{
+  display: none;
+  background-color: transparent !important;
+}
+.home_slideshow.active p div.active .iframe_holder{
+  z-index: 2;
+  right: 0;
+  top:0;
+  display: block;
+  width: 80vw;
+  height: 40vw;
+  overflow: hidden;
+}
+.home_slideshow.active p div .iframe_holder iframe{
+  display: block;
+  width: 80vw !important;
+  height: 40vw !important;
+  opacity: 0;
+  transition: opacity 4s var(--interpolation);
+  position: relative;
+  z-index: 0;
+}
+.home_slideshow.active p div.active.yt-playing .iframe_holder iframe{
+  opacity: 1;
+}
 .home_slideshow p div span.infobox{
   position: absolute;
   z-index: 10;
@@ -586,7 +615,7 @@ c.loader {
   left:5vw;
   top:10vw;
   bottom:12vw;
-  width:60vw;
+  width:80vw;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -609,6 +638,7 @@ c.loader {
 .home_slideshow p div span.infobox span.infovalue h4{
   margin:0;
   padding:0;
+  width:55vw;
   font-size: var(--fs-30vw);
   margin-bottom: .5vw;
   line-height: 1.2;
@@ -629,6 +659,7 @@ c.loader {
   color:rgba(255,255,255,.7);
   line-height: 1.3;
   padding:0;
+  width:55vw;
   margin:0;
   padding-top:.8vw;
   overflow: hidden;
@@ -719,7 +750,7 @@ c.loader {
   position: absolute;
   z-index: 20;
   /* background-color: rgba(255,255,255,.3); */
-  bottom:18vw;
+  top:30vw;
   right: 5vw;
   white-space: nowrap;
   border-radius: 2vw;

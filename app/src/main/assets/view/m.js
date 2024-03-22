@@ -5710,6 +5710,17 @@ const pb={
           _API.videoSpeed(_API.vidSpeed);
         }
         pb.cfg_update_el(key);
+
+        ab.sort(function(a,b){
+          var bb=aa=999999999;
+          if (a.media.nextAiringEpisode && a.media.nextAiringEpisode.timeUntilAiring){
+            aa=a.media.nextAiringEpisode.timeUntilAiring;
+          }
+          if (b.media.nextAiringEpisode && b.media.nextAiringEpisode.timeUntilAiring){
+            bb=b.media.nextAiringEpisode.timeUntilAiring;
+          }
+          return aa+bb;
+        });
       }
       else if (key=="quality"){
         var chval=_API.listPrompt(
@@ -5969,6 +5980,9 @@ const pb={
         g.__update=function(){
           if (g._sel){
             g._sel.classList.remove('active');
+            if (g._sel._activeCb){
+              g._sel._activeCb(g._sel,false);
+            }
             if (g._sel._n_pager){
               g._sel._n_pager.classList.remove('active');
             }
@@ -5978,6 +5992,9 @@ const pb={
             n._n_pager.classList.add('active');
           }
           n.classList.add('active');
+          if (n._activeCb){
+            n._activeCb(n, true);
+          }
           if (g._midx>0){
             var iw=0;
             iw=window.innerWidth/g._midx;
@@ -7572,8 +7589,94 @@ const home={
     g._n_pager=$n('div','',{},home.home_pager,'');
   },
 
+  yt_init:function(ytid){
+    var yturl='https://www.youtube.com/embed/'+ytid+'?';
+    yturl+='autoplay=1&mute=1';
+    yturl+='&controls=0&disablekb=1';
+    yturl+='&fs=0&iv_load_policy=3';
+    yturl+='&loop=1';
+    return yturl;
+  },
+
+  anilist_yt:{
+    initialized:false,
+    cleanup:function(){
+      if (home.anilist_yt.activeg){
+        home.anilist_yt.activeg.classList.remove('yt-playing');
+        home.anilist_yt.activeg._iframe_holder.innerHTML='';
+        home.anilist_yt.activeg._ytiframe=null;
+        home.anilist_yt.activeg=null;
+      }
+    },
+    init:function(){
+      if (home.anilist_yt.initialized){
+        return;
+      }
+      home.anilist_yt.initialized=true;
+      window.addEventListener('message',function(e) {
+        console.log(["MessageYT",e]);
+        if (home.anilist_yt.activeg){
+          try{
+            var pd=JSON.parse(e.data);
+            if (pd){
+              if ('vcmd' in pd){
+                if (pd.vcmd=='yt-play'){
+                  home.anilist_yt.activeg.classList.add('yt-playing');
+                }
+                else if (pd.vcmd=='yt-pause' || pd.vcmd=='yt-end'){
+                  home.anilist_yt.cleanup();
+                }
+              }
+            }
+          }catch(x){}
+        }
+      });
+    },
+    activeg:null
+  },
+
+  anilist_trailer_cb:function(g,active){
+    if (!g._iframe_holder){
+      return;
+    }
+    home.anilist_yt.init();
+    home.anilist_yt.cleanup();
+    g._iframe_holder.innerHTML='';
+    g._ytiframe=null;
+    if (active){
+      if (home.home_slide.classList.contains('active')){
+        home.anilist_yt.activeg=g;
+        g._ytiframe=
+          $n('iframe','',{
+            src:home.yt_init(g._ytid),
+            frameborder:'0'},
+            g._iframe_holder,''
+          );
+      }
+    }
+  },
+
+  anilist_trailer_topcb:function(g,active){
+    if (active){
+      if (g._sel){
+        if (g._sel._activeCb){
+          g._sel._activeCb(g._sel,true);
+        }
+      }
+    }
+    else{
+      home.anilist_yt.cleanup();
+    }
+  },
+
+  anilist_play_cb:function(g,s){
+    home.anilist_yt.cleanup();
+    pb.action_handler_el(s);
+  },
+
   home_anilist_parse:function(g,v){
     if (v.data.Page.media.length>0){
+      var has_trailer=false;
       for (var i=0;i<v.data.Page.media.length;i++){
         try{
           var d=v.data.Page.media[i];
@@ -7588,6 +7691,16 @@ const home={
           hl._img.onload=function(){
             this.classList.add('loaded');
           };
+
+          if (d.trailer){
+            if (d.trailer.site=="youtube"){
+              hl._iframe_holder=$n('framediv','iframe_holder',null,hl,'');
+              hl._ytid=d.trailer.id;
+              hl._activeCb=home.anilist_trailer_cb;
+              has_trailer=true;
+            }
+          }
+
           hl._viewbox=$n('span','infobox',null,hl,'');
           hl._view=$n('span','infovalue',null,hl._viewbox,'');
           hl._title=$n('h4','',{jp:d.title.romaji},hl._view,tspecial(d.title.english));
@@ -7642,10 +7755,22 @@ const home={
         }catch(ee){}
       }
       pb.menu_select(g,g.P.firstElementChild);
-      home.home_list_autoslide();
+    }
+    if (has_trailer){
+      home.home_slide._activeCb=home.anilist_trailer_topcb;
+      home.home_slide._enter_cb=home.anilist_play_cb;
     }
   },
   home_anilist_load:function(){
+    /*
+    document.body.innerHTML='<iframe width="560" height="315" src="https://www.youtube.com/embed/MIi8I2dgzo0?si=JoKPmzDX22UOG_Xa&autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+
+    
+
+    pb.vid=$n('iframe','',{src:'https://www.youtube.com/embed/MIi8I2dgzo0?si=JoKPmzDX22UOG_Xa&autoplay=1&mute=1',frameborder:'0'},home.home_slide.P.firstElementChild,'');
+
+    '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/MIi8I2dgzo0?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+    */
     home.home_onload=1;
     home.home_slide.setAttribute('list-title','AniList Trending');
     _MAL.alreq(`query ($page: Int, $perPage: Int) {
@@ -7664,6 +7789,11 @@ const home={
           coverImage{
             large
             color
+          }
+          trailer {
+            id
+            site
+            thumbnail
           }
           status
           duration
@@ -7692,7 +7822,7 @@ const home={
         }catch(e){}
         home.home_onload=0;
       }
-    }, true);
+    },true);
   },
 
   home_load:function(){
@@ -8969,8 +9099,16 @@ const home={
       var ac=home.row_selected;
       var nc=pr;
       home.row_selected=pr;
-      home.list_select(pc,ac).classList.remove('active');
-      home.list_select(pc,nc).classList.add('active');
+      var inactiveItem=home.list_select(pc,ac);
+      inactiveItem.classList.remove('active');
+      if (inactiveItem._activeCb){
+        inactiveItem._activeCb(inactiveItem,true);
+      }
+      var activeItem=home.list_select(pc,nc);
+      activeItem.classList.add('active');
+      if (activeItem._activeCb){
+        activeItem._activeCb(activeItem,true);
+      }
       if (pr>1){
         var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.innerHeight + (window.innerWidth*0.06));
         if (ty<0) ty=0;
@@ -9102,6 +9240,8 @@ const _MAL={
     if (!notoken && _MAL.altoken){
       xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.altoken);
     }
+    xhttp.setRequestHeader("X-Org-Prox", "https://anilist.co");
+    xhttp.setRequestHeader("X-Ref-Prox", "https://anilist.co/");
     xhttp.setRequestHeader("Post-Body", JSON.stringify({
       query: q,
       variables: v
