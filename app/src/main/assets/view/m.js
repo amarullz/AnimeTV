@@ -9107,11 +9107,26 @@ const home={
       else if (sel==1){
         var chval=_API.listPrompt(
           "Home",
-          ["Refresh Home","Manage & Reorder", "Reload AnimeTV"]
+          ["Refresh Home","Customize Home", "Reload AnimeTV"]
         );
         if (chval!==null){
           if (chval==0){
             home.init_homepage();
+          }
+          else if (chval==1){
+            listOrder.show(
+              "Customize Home",
+              [
+                { title:"Recently Updated", id:"recent", active:true },
+                { title:"Latest Dub", id:"dub", active:true },
+                { title:"Trending Episodes", id:"trending", active:true },
+                { title:"Random Anime", id:"random", active:true },
+                { title:"Chinese Updated", id:"chinese", active:true },
+              ],
+              function(v){
+                console.log(v);
+              }
+            );
           }
           else if (chval==2){
             _API.reload();
@@ -9121,11 +9136,25 @@ const home={
       else if (sel==2){
         var chval=_API.listPrompt(
           "MyList",
-          ["Refresh MyList","Manage & Reorder"]
+          ["Refresh MyList","Customize MyList"]
         );
         if (chval!==null){
           if (chval==0){
             home.init_mylist();
+          }
+          else{
+            listOrder.show(
+              "Customize MyList",
+              [
+                { title:"MAL", id:"mal", active:true },
+                { title:"AniList", id:"anilist", active:true },
+                { title:"Watchlist", id:"watchlist", active:true },
+                { title:"History", id:"history", active:true }
+              ],
+              function(v){
+                console.log(v);
+              }
+            );
           }
         }
       }
@@ -9300,6 +9329,12 @@ const home={
     }
     if (_MAL.onpopup){
       return _MAL.pop_keycb(c);
+    }
+    if (_MAL.onpopup){
+      return _MAL.pop_keycb(c);
+    }
+    if (listOrder.onpopup){
+      return listOrder.keycb(c);
     }
     var pc=home.col_selected;
     var pr=home.row_selected;
@@ -10615,6 +10650,121 @@ const _MAL={
     }catch(e){
     }
   },
+};
+
+const listOrder={
+  onpopup:false,
+  holder:$('listorder'),
+  win:$('listorder_window'),
+  group:null,
+  cb:null,
+  changed:false,
+  show:function(winTitle,list,cb){
+    listOrder.cb=cb;
+    listOrder.onpopup=true;
+    listOrder.win.innerHTML='';
+    listOrder.changed=false;
+    $n('div','listorder_title',null,listOrder.win,special(winTitle));
+    listOrder.group=$n('div','settings_group active',null,listOrder.win,'');
+    $n('div','listorder_tips',null,listOrder.win,'Use left/right to move order');
+    
+    listOrder.group.P=$n('p','',null,listOrder.group,'');
+    for (var i=0;i<list.length;i++){
+      var li=list[i];
+      var tx =
+        '<c class="check'+(li.active?' checked':'')+'">check</c>'+
+        '<c>drag_indicator</c> '+
+        special(li.title);
+      var el=$n('div',(i==0?'active':''),null,listOrder.group.P,tx);
+      el._data={
+        id:li.id,
+        active:li.active,
+        title:li.title
+      };
+    }
+    listOrder.group._sel = listOrder.group.P.firstElementChild;
+    listOrder.group._sel.classList.add('active');
+    $('popupcontainer').className='active';
+    listOrder.holder.classList.add('active');
+  },
+  close:function(){
+    if (listOrder.cb){
+      if (listOrder.changed){
+        var data=[];
+        for (var i=0;i<listOrder.group.P.childElementCount;i++){
+          var c=listOrder.group.P.children[i];
+          data.push(
+            {
+              id:c._data.id,
+              active:c._data.active,
+              title:c._data.title
+            }
+          );
+        }
+        listOrder.cb(data);
+      }
+      else{
+        listOrder.cb(null);
+      }
+      listOrder.cb=null;
+    }
+    $('popupcontainer').className='';
+    listOrder.holder.classList.remove('active');
+    listOrder.onpopup=false;
+  },
+  keycb:function(c){
+    if (c==KBACK){
+      listOrder.close();
+      return;
+    }
+    if (c==KUP||c==KDOWN){
+      var next = null;
+      if (c==KDOWN){
+        next = listOrder.group._sel.nextElementSibling;
+      }
+      else if (c==KUP){
+        next = listOrder.group._sel.previousElementSibling;
+      }
+      if (next){
+        listOrder.group._sel.classList.remove('active');
+        listOrder.group._sel=next;
+        next.classList.add('active');
+      }
+    }
+    else if (c==KENTER){
+      listOrder.group._sel._data.active=!listOrder.group._sel._data.active;
+      if (listOrder.group._sel._data.active){
+        listOrder.group._sel.firstElementChild.classList.add('checked');
+      }
+      else{
+        listOrder.group._sel.firstElementChild.classList.remove('checked');
+      }
+      listOrder.changed=true;
+    }
+    else if (c==KLEFT||c==KRIGHT){
+      var before=null;
+      if (c==KLEFT){
+        before=listOrder.group._sel.previousElementSibling;
+      }
+      else{
+        before=listOrder.group._sel.nextElementSibling;
+      }
+      if (!before){
+        return;
+      }
+      if (c==KRIGHT){
+        before=before.nextElementSibling;
+      }
+      listOrder.group.P.removeChild(listOrder.group._sel);
+      if (before){
+        listOrder.group.P.insertBefore(listOrder.group._sel,before);
+      }
+      else{
+        listOrder.group.P.appendChild(listOrder.group._sel);
+      }
+      listOrder.changed=true;
+    }
+  }
 };
 
 window.__ARGUPDATE();

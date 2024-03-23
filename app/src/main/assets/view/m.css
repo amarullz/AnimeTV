@@ -968,189 +968,6 @@ c.loader {
 
 
 
-/*
-#home_header {
-  position: relative;
-  height: 11vw !important;
-  min-height: 11vw !important;
-  display: block;
-  z-index:1;
-}
-#home_header h1 {
-  position: absolute;
-  right: 5vw;
-  top: 2vw;
-  line-height: 7vw;
-  font-size: var(--fs-60vw);
-  text-shadow: .2vw .2vw .2vw #000;
-  margin: 0;
-  padding: 0;
-  transition: all var(--tim-2s) var(--interpolation);
-  will-change: transform;
-}
-@keyframes logopaw_ani {
-  0% {
-    transform: rotate(5deg)
-  }
-
-  100% {
-    transform: rotate(25deg)
-  }
-}
-#home_header h1 c{
-  font-size:var(--fs-40vw);
-  position:relative;
-  top:-2vw;
-  margin-left:.8vw;
-  transform: rotate(6deg);
-  animation: logopaw_ani .5s linear infinite alternate;
-  transition: all var(--tim-2s) var(--interpolation);
-  will-change: transform;
-}
-.ui_performance #home_header h1 c{
-  animation: none;
-}
-#home_header.scrolled h1 c{
-  font-size:var(--fs-20vw);
-  top:-1vw;
-}
-
-
-#home_header.scrolled #home_discord_info{
-  transform: scale(.8);
-  opacity: 0;
-  visibility: hidden;
-}
-#home_header.active #home_settings.active,
-#home_header.active #home_search.active {
-  transform: scale(1);
-  background: var(--primary-3);
-  box-shadow: 0 .14vw .28vw rgba(0, 0, 0, 0.25), 0 1vw 1vw rgba(0, 0, 0, 0.22);
-}
-
-#home_header.scrolled h1 {
-  opacity:0;
-}
-#home_header.scrolled #home_settings {
-  opacity:0;
-}
-#home_header.scrolled #home_search {
-  opacity:0;
-}
-#home_search {
-  position: absolute;
-  left: 6vw;
-  top: 2vw;
-  width: 7vw;
-  height: 7vw;
-  line-height: 7vw;
-  font-size: var(--fs-40vw);
-  text-align: center;
-  border-radius: 10vw;
-  background: var(--primary-1);
-  transition: all 0.3s var(--interpolation);
-  transform: scale(.8);
-  will-change: transform, opacity;
-  overflow: hidden;
-}
-#home_discord_info{
-  position: absolute;
-  top:2vw;
-  width:48vw;
-  height:7vw;
-  left:19vw;
-  font-size:var(--fs-12vw);
-  
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-shadow: 0 0 .1vw #000;
-
-  transition: all 0.3s var(--interpolation);
-  visibility: visible;
-  opacity: 1;
-  transform: scale(1);
-  will-change: transform, opacity;
-}
-
-#home_discord_info #home_discord_info_value:empty{
-  display: none;
-}
-#home_discord_info #home_discord_info_value{
-  box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
-  background-color: var(--primary-bg);
-  border: .1vw solid var(--primary-1);
-  width:100%;
-  padding:.5vw;
-  border-radius: .5vw;
-  overflow: hidden;
-}
-@keyframes discord_message_keyframe {
-  0% {
-    opacity: 0;
-    transform: translateY(-1vw);
-  }
-  3% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  97% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(1vw);
-  }
-}
-#home_discord_info #home_discord_info_value div{
-  position: relative;
-  top:0;
-  display:none;
-}
-#home_discord_info #home_discord_info_value div.active{
-  display: block;
-  animation: discord_message_keyframe 10s linear;
-}
-#home_discord_info #home_discord_info_value span{
-  color: var(--accent-1);
-  font-size:var(--fs-10vw);
-  float: right;
-  display: block;
-  padding-left:1vw;
-}
-#home_discord_info #home_discord_info_value p{
-  margin:0;
-  padding:0;
-}
-#home_discord_info #home_discord_info_value p t{
-  color: var(--accent-1);
-}
-#home_settings {
-  position: absolute;
-  left: 13.5vw;
-  top: 4vw;
-  width: 3vw;
-  height: 3vw;
-  line-height: 3vw;
-  font-size: var(--fs-20vw);
-  padding-left: .5vw;
-  padding-right: .5vw;
-  text-align: center;
-  border-radius: 1vw;
-  background: var(--primary-1);
-  transition: all 0.3s var(--interpolation);
-  will-change: transform;
-  transform: scale(.8);
-  overflow: hidden;
-}
-*/
-
-
-
-
-
-
 
 
 /****************************** PLAYBACK ******************************/
@@ -2511,6 +2328,9 @@ c.loader {
   background-color: var(--primary-bg);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
 }
+.home_list p div span.info_airtime.schedule_aired{
+  background-color: var(--primary-1);
+}
 .home_list p div span.info_airtime::before{
   font-size: var(--fs-7vw);
   padding-right: .4vw;
@@ -2702,11 +2522,12 @@ c.loader {
   color: #aaa;
   font-weight: normal;
 }
-#settings .settings_group p{
+
+.settings_group p{
   display: block;
   padding: 0;
 }
-#settings .settings_group p div{
+.settings_group p div{
   display: block;
   position: relative;
   /* border-bottom: .1vw solid #333; */
@@ -2714,10 +2535,10 @@ c.loader {
   line-height: 1.2;
   padding:1.2vw 5vw 1.2vw 6vw;
 }
-#settings .settings_group.active p div.active{
+.settings_group.active p div.active{
   background-color: #444;
 }
-#settings .settings_group p div c.check{
+.settings_group p div c.check{
   float:right;
   margin-right: -4vw;
   border-radius: 3vw;
@@ -2730,7 +2551,7 @@ c.loader {
   position: relative;
   padding: 0;
 }
-#settings .settings_group p div c.check:after{
+.settings_group p div c.check:after{
   display: block;
   position: absolute;
   width:1.6vw;
@@ -2762,32 +2583,32 @@ c.loader {
   padding: 0;
   color: var(--primary-1);
 }
-#settings .settings_group p div c.check.checked{
+.settings_group p div c.check.checked{
   background: var(--primary-3);
 }
-#settings .settings_group p div.disabled{
+.settings_group p div.disabled{
   opacity:.3;
 }
-#settings .settings_group p div.disabled c.check.checked{
+.settings_group p div.disabled c.check.checked{
   background: var(--dimm-1) !important;
 }
 
-#settings .settings_group p div c.check.checked:after{
+.settings_group p div c.check.checked:after{
   left:2.1vw;
   background: #fff;
   content: 'check';
 }
-#settings .settings_group p div>c:not(.check){
+.settings_group p div>c:not(.check){
   float:left;
   margin-left: -4vw;
   font-size: var(--fs-20vw);
 }
-#settings .settings_group p div span.value{
+.settings_group p div span.value{
   display: block;
   color:var(--accent-1);
   font-size: var(--fs-12vw);
 }
-#settings .settings_group p div span.value l{
+.settings_group p div span.value l{
   display: inline-block;
   background-color: var(--primary-bg);
   color: #fff;
@@ -2798,7 +2619,7 @@ c.loader {
   line-height: 1.2;
   vertical-align: middle;
 }
-#settings .settings_group p div[s_desc]::after{
+.settings_group p div[s_desc]::after{
   display: block;
   font-size: var(--fs-10vw);
   color: #aaa;
@@ -3214,4 +3035,63 @@ c.loader {
 }
 .view-bigfont #pb_desc {
   -webkit-line-clamp: 8;
+}
+
+
+/******************************** REORDER ***********************/
+#listorder{
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top:0;
+  left:0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--tim-3s) var(--interpolation);
+  z-index: 2999;
+}
+#listorder.active{
+  opacity: 1;
+  visibility: visible;
+}
+#listorder #listorder_window{
+  position: relative;
+  padding:0;
+  box-sizing: border-box;
+  background: #222;
+  color:#fff;
+
+  overflow: hidden;
+  
+  pointer-events: none;
+  box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22) !important;
+  border-radius: .5vw;
+  
+  width:40vw;
+}
+#listorder #listorder_window p{
+  padding:0;
+  margin:0;
+}
+#listorder .listorder_title,
+#listorder .listorder_tips{
+  display: block;
+  padding:.6vw;
+  text-align: center;
+  
+}
+#listorder .listorder_tips{
+  background-color: #1e1e1e;
+  color: #888;
+  font-size: var(--fs-8vw);
+  border-top: .1vw solid #282828;
+}
+#listorder .listorder_title{
+  background-color: #181818;
+  font-size: var(--fs-12vw);
+  border-bottom: .1vw solid #121212;
+  color: #ddd;
 }
