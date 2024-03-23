@@ -438,6 +438,7 @@ c.loader {
   padding:3vw 5vw 0 5vw;
 }
 #home_header_banner div{
+  position: relative;
   display: inline-block;
   padding:0 1vw 0 1vw;
   margin-right: .4vw;
@@ -513,9 +514,22 @@ c.loader {
   font-weight: bold;
   font-size: var(--fs-20vw);
 }
-#home_header_banner div.selected{
+#home_header_banner div.selected:before{
+  content: '';
+  width:60%;
+  position: absolute;
+  bottom:-.5vw;
+  left:20%;
   border-bottom: .25vw solid #fff;
+  opacity: 1;
+  transform: scaleX(1);
+  transition: all var(--tim-3s) var(--interpolation);
 }
+#home_header.active #home_header_banner div.active.selected:before{
+  opacity: 0;
+  transform: scaleX(0);
+}
+
 #home_header.active #home_header_banner div.active{
   background:#fff;
   color:var(--primary-1);
@@ -604,6 +618,7 @@ c.loader {
   background-color: var(--primary-bg);
   object-fit: cover;
   transition: transform 18s linear, opacity 5s linear;
+  transform-origin: center 80%;
 }
 .home_slideshow p div.active.yt-playing img{
   opacity:0;
@@ -821,6 +836,33 @@ c.loader {
   }
 }
 
+#home_pageschedule{
+  padding-top:8vw;
+  transform: translateX(-10vw);
+  min-height:100vh;
+}
+#home_pageschedule .home_list p:empty::after {
+  content: 'No Data';
+}
+
+.home_list_loader{
+  text-align: center;
+  position: relative;
+  font-size:var(--fs-20vw);
+  color:#888;
+  display: block;
+}
+.home_list_loader b{
+  display: block;
+  padding-top: 2vw;
+  text-align: center;
+}
+#home_pageschedule .home_list_loader{
+  top:calc(50vh - 10vw);
+}
+#home_slide .home_list_loader{
+  top:15vw;
+}
 #home_pagelist{
   padding-top:8vw;
   transform: translateX(5vw);
@@ -828,6 +870,7 @@ c.loader {
 #home_page{
   transform: translateX(-10vw);
 }
+#home_pageschedule,
 #home_pagelist,
 #home_page{
   display: block;
@@ -841,6 +884,7 @@ c.loader {
     transform var(--tim-3s) var(--interpolation);
   z-index: 1;
 }
+#home_pageschedule.active,
 #home_pagelist.active,
 #home_page.active{
   position: relative;
@@ -2040,8 +2084,17 @@ c.loader {
   font-size: var(--fs-15vw);
 }
 
+@keyframes loading_text_ani {
+  0% {
+    color:rgba(255,255,255,.4);
+  }
+
+  100% {
+    color:rgba(255,255,255,.8);
+  }
+}
 .home_list p:empty::after {
-  content: 'LOADING...';
+  content: 'Loading data...';
   position: absolute;
   left: 5vw;
   top: 0;
@@ -2049,16 +2102,17 @@ c.loader {
   line-height: 16vw;
   text-align: center;
   color: rgba(255, 255, 255, .5);
-  font-size: var(--fs-30vw);
+  font-size: var(--fs-20vw);
+  animation: loading_text_ani .8s ease infinite alternate;
 }
 
 #home_fav.home_list p:empty::after {
-  content: 'WATCHLIST IS EMPTY' !important;
+  content: 'Watchlist is empty' !important;
   font-size: var(--fs-20vw);
 }
 
 #home_history.home_list p:empty::after {
-  content: 'WATCH HISTORY IS EMPTY' !important;
+  content: 'Watch history is empty' !important;
   font-size: var(--fs-20vw);
 }
 
@@ -2440,6 +2494,30 @@ c.loader {
   background-color: var(--primary-bg);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
   will-change: box-shadow;
+}
+
+.home_list p div span.info_airtime{
+  display: block;
+  position: absolute;
+  z-index: 300;
+  bottom: 4.3vw;
+  left: .3vw;
+  font-size: var(--fs-10vw);
+  line-height: 1.4;
+  outline:.12vw solid #000;
+  border-radius: .25vw;
+  overflow: hidden;
+  padding:0 .4vw 0 .4vw;
+  background-color: var(--primary-bg);
+  box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
+}
+.home_list p div span.info_airtime::before{
+  font-size: var(--fs-7vw);
+  padding-right: .4vw;
+  content: '🕙';
+}
+.home_list p div span.info_airtime.schedule_aired::before{
+  content: '🎬';
 }
 
 .home_list.active p div.active span.info {
@@ -3074,7 +3152,7 @@ c.loader {
   min-height: 20vw;
 } */
 .view-informative .home_list {
-  min-height: calc(var(--fs-20vw) + 18.5vw);
+  min-height: calc(var(--fs-20vw) + 20.7vw);
 }
 .view-informative .home_list:not(#home_slide) div {
   height: calc(var(--fs-20vw) + 18.5vw);

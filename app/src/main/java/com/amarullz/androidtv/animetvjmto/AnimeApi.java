@@ -601,10 +601,14 @@ public class AnimeApi extends WebViewClient {
       }
       else if (http!=null){
         try {
+          http.setRequestMethod(method);
           http.setRequestProperty("Content-Type", cType);
+          byte[] bodyByte=body.getBytes();
+          http.setRequestProperty("Content-Length", bodyByte.length+"");
           http.setDoOutput(true);
+//          Log.d(_TAG,"setMethod = "+method+" / "+cType+" >> "+body);
           OutputStream os = http.getOutputStream();
-          os.write(body.getBytes());
+          os.write(bodyByte);
           os.flush();
           os.close();
         }catch (Exception ignored){}

@@ -492,7 +492,7 @@ import javax.crypto.spec.SecretKeySpec;
               if (isPostType){
                 queryData= URLDecoder.decode(queryData,"UTF-8");
               }
-              Log.d(_TAG, "PROXY-" + method +
+              Log.d(_TAG, "PROXY-" + method +": "+
                       proxy_url + " >> " + queryData);
             }
           }
@@ -519,7 +519,10 @@ import javax.crypto.spec.SecretKeySpec;
                     request.getRequestHeaders().entrySet()) {
               String k = entry.getKey();
               boolean sent = false;
-              if (k.equalsIgnoreCase("origin") && proxyOrigin != null) {
+              if (isPostType && k.equalsIgnoreCase("content-type")){
+                sent=true;
+              }
+              else if (k.equalsIgnoreCase("origin") && proxyOrigin != null) {
                 http.addHeader("Origin", proxyOrigin);
                 sent = true;
               } else if (k.equalsIgnoreCase("referer") && proxyReferer != null) {
