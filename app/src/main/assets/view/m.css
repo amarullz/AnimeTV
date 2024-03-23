@@ -675,7 +675,7 @@ c.loader {
   -webkit-box-orient: vertical;
   overflow: hidden;
   color:rgba(255,255,255,.85);
-  transition: color var(--tim-3s) var(--interpolation);
+  transition: color var(--tim-3s) var(--interpolation), transform 1s var(--interpolation);
 }
 .home_slideshow p div span.infobox span.infovalue h4 *{
   text-shadow: 0 .2vw .2vw #000 !important;
@@ -694,7 +694,19 @@ c.loader {
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   text-shadow: 0 .1vw .2vw #000 !important;
-  transition: color var(--tim-3s) var(--interpolation);
+  transition: color var(--tim-3s) var(--interpolation), transform var(--tim-5s) var(--interpolation);
+}
+.home_slideshow p div span.infobox span.infovalue span.desc{
+  transform-origin: top left;
+  transform: scale(1);
+}
+.home_slideshow p div span.infobox span.infovalue h4{
+  transform-origin: bottom left;
+  transform: scale(1);
+}
+.home_slideshow.active p div.active.yt-playing span.infobox span.infovalue span.desc,
+.home_slideshow.active p div.active.yt-playing span.infobox span.infovalue h4{
+  transform: scale(.9);
 }
 .home_slideshow.active p div.active span.infobox span.infovalue h4{
   color:#fff;
