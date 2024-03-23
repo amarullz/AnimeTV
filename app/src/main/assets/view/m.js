@@ -7329,7 +7329,6 @@ const home={
         load_page='';
       }
     }
-    // console.log('RECENT LOAD = '+g._ajaxurl+''+load_page);
     $a(g._ajaxurl+''+load_page,function(r){
       if (r.ok){
         try{
@@ -7343,8 +7342,6 @@ const home={
         }catch(e){}
         g._onload=0;
       }
-      else
-        setTimeout(function(){home.recent_load(g)},2000);
     },__SD5?__AFLIX.origin:null);
   },
   recent_init:function(rc, loader){
@@ -7895,8 +7892,6 @@ const home={
         }catch(e){}
         home.home_onload=0;
       }
-      else
-        setTimeout(home.home_load,2000);
     },__SD5?__AFLIX.origin:null);
   },
   
@@ -9114,7 +9109,7 @@ const home={
       else if (sel==1){
         var chval=_API.listPrompt(
           "Home",
-          ["Reload Home","Manage & Reorder", "Refresh AnimeTV"]
+          ["Refresh Home","Manage & Reorder", "Reload AnimeTV"]
         );
         if (chval!==null){
           if (chval==0){
@@ -9128,7 +9123,7 @@ const home={
       else if (sel==2){
         var chval=_API.listPrompt(
           "MyList",
-          ["Reload MyList","Manage & Reorder"]
+          ["Refresh MyList","Manage & Reorder"]
         );
         if (chval!==null){
           if (chval==0){
