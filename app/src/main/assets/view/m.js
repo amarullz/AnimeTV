@@ -9811,7 +9811,6 @@ const _MAL={
     var load_page=(g._page-1)*_MAL.limit;
     _MAL.list(load_page, function(r){
       if (r.ok){
-        // console.log("MAL-LIST: "+r.responseText);
         try{
           var v=JSON.parse(r.responseText);
           _MAL.list_parse(g,v);
@@ -9819,26 +9818,17 @@ const _MAL={
         }
         g._onload=0;
       }
-      else{
-        setTimeout(function(){_MAL.home_loader(g)},10000);
-        // console.log("MAL-LIST: ERROR");
-      }
     });
   },
   alhome_loader:function(g){
     g._onload=1;
     _MAL.allist(g._page,function(r){
       if (r.ok){
-        // console.log("ANILIST-LIST: "+r.responseText);
         try{
           var v=JSON.parse(r.responseText);
           _MAL.allist_parse(g,v);
         }catch(e){}
         g._onload=0;
-      }
-      else{
-        setTimeout(function(){_MAL.alhome_loader(g)},10000);
-        // console.log("ANILIST-LIST: ERROR -> "+r.responseText);
       }
     });
   },
