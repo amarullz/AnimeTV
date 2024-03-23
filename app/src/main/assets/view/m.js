@@ -7859,15 +7859,13 @@ const home={
     }`,{
       page:0,
       perPage:15
-    },function(r){
-      if (r.ok){
+    },function(v){
+      if (v){
         try{
-          var v=JSON.parse(r.responseText);
           home.home_anilist_parse(home.home_slide,v);
           return;
         }catch(e){}
         home.home_onload=0;
-        setTimeout(home.home_anilist_load,2000);
       }
     },true);
   },
@@ -9211,7 +9209,7 @@ const home={
         if (d.nextAiringEpisode){
           rvep=vep=d.nextAiringEpisode.episode;
           rvep--;
-          if (!isAired){
+          if (isAired){
             vep--;
           }
           if (rvep<1){
@@ -9226,9 +9224,11 @@ const home={
           infotxt+='<span class="info_sumep">'+special(vep+"")+'</span>';
           d.ep=rvep;
         }
-        else if (sumep){
-          infotxt+='<span class="info_sumep">'+special(sumep+"")+'</span>';
-          d.ep=sumep;
+        if (sumep){
+          infotxt+='<span class="info_ep">'+special(sumep+"")+'</span>';
+          if (!d.ep){
+            d.ep=sumep;
+          }
         }
         hl._ep=$n('span','info',null,hl,infotxt);
         if (isToday && !isAired && unairToday==null){
@@ -9448,19 +9448,35 @@ const _MAL={
     xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.token);
     xhttp.send();
   },
-  alreq:function(q, v, cb, notoken){
-    // if (!_MAL.altoken && !notoken){
-    //   cb({ok:false,responseText:''});
-    //   return;
-    // }
+  alreq:function(q, v, cb, notoken, retry){
+    if (!retry){
+      retry=0;
+    }
     var xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
         xhttp.ok=true;
-        cb(xhttp);
+        try{
+          var v=JSON.parse(xhttp.responseText);
+          if (v.error && v.error.status==500){
+            // retry
+            if (retry<4){
+              setTimeout(function(){
+                _MAL.alreq(q,v,cb,notoken,retry+1);
+              },50);
+            }
+            else{
+              cb(null);
+            }
+            return;
+          }
+          cb(v);
+          return;
+        }catch(e){}
+        cb(null);
     };
     xhttp.onerror = function() {
         xhttp.ok=false;
-        cb(xhttp);
+        cb(null);
     };
     xhttp.open("POST", "/__proxy/https://graphql.anilist.co", true);
     xhttp.setRequestHeader('Accept', 'application/json' );
@@ -9528,10 +9544,9 @@ const _MAL={
       "page":page?page:1,
       "perPage":perpage?perpage:10,
       "search":q
-    },function(r){
-      if (r.ok){
+    },function(v){
+      if (v){
         try{
-          var v=JSON.parse(r.responseText);
           if (v.data.Page.media){
             var slugQ=slugString(q);
             for (var i=0;i<v.data.Page.media.length;i++){
@@ -9592,10 +9607,9 @@ const _MAL={
     }`,{
       "page":page?page:1,
       "perPage":50
-    },function(r){
-      if (r.ok){
+    },function(v){
+      if (v){
         try{
-          var v=JSON.parse(r.responseText);
           cb(v);
           return;
         }catch(e){}
@@ -9822,10 +9836,9 @@ const _MAL={
   },
   alhome_loader:function(g){
     g._onload=1;
-    _MAL.allist(g._page,function(r){
-      if (r.ok){
+    _MAL.allist(g._page,function(v){
+      if (v){
         try{
-          var v=JSON.parse(r.responseText);
           _MAL.allist_parse(g,v);
         }catch(e){}
         g._onload=0;
@@ -9850,7 +9863,7 @@ const _MAL={
       }
       d.progress=cep;
       _MAL.alset_ep(d.id,cep,function(r){
-        console.log("AniList #Update-Resp: "+r.responseText);
+        console.log("AniList #Update-Resp: "+JSON.stringify(r));
       });
       isanilist=true;
     }
