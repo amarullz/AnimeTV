@@ -8011,6 +8011,7 @@ const home={
       [
         "fav",
         function(el){
+          el.classList.add('home_fav');
           home.list_init_name(list.fav,el);
         },
         "Watchlist",
@@ -8021,6 +8022,7 @@ const home={
       [
         "history",
         function(el){
+          el.classList.add('home_history');
           home.list_init_name(list.history,el);
         },
         "History",
