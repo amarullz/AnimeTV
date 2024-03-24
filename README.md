@@ -19,12 +19,17 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 - **More Detail Information :** [https://amarullz.com/animetv/](https://amarullz.com/animetv/)
 - **Join Discussion on Discord :**  [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
 
+- **3.4.0 Release Information:** [https://amarullz.com/2024/03/25/animetv-version-3-4-0-has-been-released/](https://amarullz.com/2024/03/25/animetv-version-3-4-0-has-been-released/)
+
 ## Features
+- **NEW** - UI Interface with Trailer Video
+- **NEW** - 6 Different sources
+- **NEW** - List reorder / management
+- **NEW** - Auto Update App and in app nightly build installation
+- **NEW** - Airing Schedule
 - **NEW** - MAL & AniList Integration
 - **NEW** - DNS over HTTPS and Multiple HTTP Client selection
-- **NEW** - Multiple Source
 - **NEW** - Mirror Stream Server
-- **NEW** - Auto Update App
 - **NEW** - Soft-subtitle & Auto Translate to **134 Languages** (Only for supported contents)
 - **NEW** - Settings panel
 - **NEW** - Change Theme Color & Animation performance
@@ -68,9 +73,15 @@ But the good news is **AnimeTV** will block any analytics and ads domain (dns) w
 More screenshot is available in my website: https://amarullz.com/animetv/
 Here only a couple screenshot:
 
-![Main Home Screen](https://cdn.discordapp.com/attachments/1214548946521821254/1214940773334786078/image.png?ex=65faf0c4&is=65e87bc4&hm=0a6e18f6ce46829b06d5fc391c1939606f08cc149b32b4d5d45a912a2d8342ea&)
+![Main Home Screen](https://cdn.discordapp.com/attachments/1221532077699108994/1221532534488301609/1-animetv-home.jpg?ex=6612ebd3&is=660076d3&hm=010c36ea9812b97a81ba2930e7f9eb1c26769a32528bf7314516cbcdc8a6a195&)
 
-![Anime Popup](https://cdn.discordapp.com/attachments/1214548946521821254/1214941019896938516/image.png?ex=65faf0ff&is=65e87bff&hm=3f0c936bba98b85f6d4595f49d1a22d222ecd1640e82d5cbdd20d1a96a452b55&)
+![MyList](https://cdn.discordapp.com/attachments/1221532077699108994/1221532534916255955/2-animetv-mylist.jpg?ex=6612ebd3&is=660076d3&hm=32f30579203d346b84d12c06cee214021270e7f1db05e654b42ce01ead35f692&)
+
+![Airing Schedule](https://cdn.discordapp.com/attachments/1221532077699108994/1221532535251664897/3-animetv-schedule.jpg?ex=6612ebd3&is=660076d3&hm=73cf79d25d7386544337721e1cf68147aa2c6f1ffcb19e941cc0f41dc01048c1&)
+
+![Settings](https://cdn.discordapp.com/attachments/1221532077699108994/1221532535880945755/4-animetv-settings.jpg?ex=6612ebd3&is=660076d3&hm=eebdb348f9aaa4fe56293ae7e38a7fe92f8360871ee088c1692fe37d6f8f61ad&)
+
+![Popup](https://cdn.discordapp.com/attachments/1221532077699108994/1221532536413491370/5-animetv-popup.jpg?ex=6612ebd3&is=660076d3&hm=a0522ca71fab612ad5de4b6604ac8ec203ebdba20647e4424ac1c69bae6fc717&)
 
 ![Play Info](https://cdn.discordapp.com/attachments/1214548946521821254/1214941469815607326/image.png?ex=65faf16a&is=65e87c6a&hm=95d783e49fd17d4f2f2c7f77783cdfbefc12b315c90f2549f79392a02f93fc09&)
 
