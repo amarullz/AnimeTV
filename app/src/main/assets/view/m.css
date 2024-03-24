@@ -3048,13 +3048,10 @@ c.loader {
   left:0;
   right: 0;
   bottom: 0;
-  opacity: 0;
   visibility: hidden;
-  transition: all var(--tim-3s) var(--interpolation);
   z-index: 2999;
 }
 #listorder.active{
-  opacity: 1;
   visibility: visible;
 }
 #listorder #listorder_window{
@@ -3063,13 +3060,10 @@ c.loader {
   box-sizing: border-box;
   background: #222;
   color:#fff;
-
   overflow: hidden;
-  
   pointer-events: none;
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22) !important;
   border-radius: .5vw;
-  
   width:40vw;
 }
 #listorder #listorder_window p{

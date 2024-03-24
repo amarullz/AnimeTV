@@ -7028,16 +7028,19 @@ const home={
   home_scroll_mask:$('home_scroll_mask'),
   home_scroll:$('home_scroll'),
   home_slide:$('home_slide'),
-  home_recent:$('home_recent'),
-  home_mal:$('home_mal'),
-  home_anilist:$('home_anilist'),
-  home_dub:$('home_dub'),
-  home_trending:$('home_trending'),
-  home_random:$('home_random'),
-  home_chinese:$('home_chinese'),
 
-  home_history:$('home_history'),
-  home_fav:$('home_fav'),
+
+  // home_recent:$('home_recent'),
+  // home_dub:$('home_dub'),
+  // home_trending:$('home_trending'),
+  // home_random:$('home_random'),
+  // home_chinese:$('home_chinese'),
+
+
+  // home_mal:$('home_mal'),
+  // home_anilist:$('home_anilist'),
+  // home_history:$('home_history'),
+  // home_fav:$('home_fav'),
 
   home_header:$('home_header'),
   bgimg:null,
@@ -7269,7 +7272,7 @@ const home={
     if (rd&&rd.length){
       for (var i=0;i<rd.length;i++){
         var d=rd[i];
-        if (g==home.home_dub && !__SD5){
+        if (g._lid=='dub') /*==home.home_dub && !__SD5) */ {
           if (d.epdub){
             d.ep=d.epdub;
           }
@@ -7894,9 +7897,10 @@ const home={
   },
   
   menus:[[],[],[]],
-  // menu_sel:0,
-  // mymenu_sel:0,
   list_init_name:function(o, h){
+    if (!h){
+      return;
+    }
     pb.menu_clear(h);
     if (o.list.length>0){
       for (var i=0;i<o.list.length;i++){
@@ -7928,7 +7932,6 @@ const home={
             infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
             arg.ep=toInt(d.ep);
           }
-          // var hl=$n('div','',{action:d.url,arg:(d.tip?d.tip:'')+';0'+addarg},h.P,'');
           var hl=$n('div','',{action:"$"+JSON.stringify(arg),arg:""},h.P,'');
           hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
           hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
@@ -7946,14 +7949,15 @@ const home={
       }
       pb.menu_select(h,h.P.firstElementChild);
     }
-    // h._keycb=pb.menu_keycb;
     pb.menu_init(h);
   },
   list_init:function(){
-    // console.log(home);
-    // console.log(home.home_history);
-    home.list_init_name(list.fav,home.home_fav);
-    home.list_init_name(list.history,home.home_history);
+    if (home.mylist_el.fav){
+      home.list_init_name(list.fav,home.mylist_el.fav);
+    }
+    if (home.mylist_el.history){
+      home.list_init_name(list.history,home.mylist_el.history);
+    }
   },
   header_items_selected:0,
   header_items:[
@@ -7972,93 +7976,199 @@ const home={
     }
     setTimeout(home.header_timeupdate,2000);
   },
+  listOrder:{
+    home:[],
+    mylist:[]
+  },
+  mylist_el:{},
   init_mylist:function(){
-    home.menus[1]=[];
+    var mylist=[];
     if (_MAL.islogin()){
-      home.home_mal.className='home_list pb_menu';
-      home.home_mal.style.display=''; 
-      home.recent_init(home.home_mal, _MAL.home_loader);
-      home.menus[1].push(home.home_mal);
-      home.home_mal.setAttribute("list-title","MAL "+special(_MAL.auth.user));
+      mylist.push(
+        [
+          "mal",
+          function(el){
+            home.recent_init(el, _MAL.home_loader);
+          },
+          "MAL "+_MAL.auth.user,
+          true
+        ]
+      );
     }
     if (_MAL.islogin(true)){
-      home.home_anilist.className='home_list pb_menu';
-      home.home_anilist.style.display=''; 
-      home.recent_init(home.home_anilist, _MAL.alhome_loader);
-      home.menus[1].push(home.home_anilist);
-      home.home_anilist.setAttribute("list-title","AniList "+special(_MAL.alauth.user));
+      mylist.push(
+        [
+          "anilist",
+          function(el){
+            home.recent_init(el, _MAL.alhome_loader);
+          },
+          "AniList "+_MAL.alauth.user,
+          true
+        ]
+      );
     }
-    home.menus[1].push(home.home_fav);
-    home.menus[1].push(home.home_history);
-    home.list_init();
+    mylist.push(
+      [
+        "fav",
+        function(el){
+          home.list_init_name(list.fav,el);
+        },
+        "Watchlist",
+        true
+      ]
+    );
+    mylist.push(
+      [
+        "history",
+        function(el){
+          home.list_init_name(list.history,el);
+        },
+        "History",
+        true
+      ]
+    );
+
+    var listSaved = listOrder.store.load("mylist",true);
+    var list_order=[];
+    var list_ids={};
+    for (var i=0;i<mylist.length;i++){
+      mylist[i][4]=false;
+      list_ids[mylist[i][0]]=mylist[i];
+    }
+    if (listSaved!=null){
+      for (var i=0;i<listSaved.length;i++){
+        var hs=listSaved[i];
+        if (hs[0] in list_ids){
+          list_ids[hs[0]][4]=true;
+          list_order.push([hs[0],hs[1]]);
+        }
+      }
+    }
+    for (var i=0;i<mylist.length;i++){
+      var hs=mylist[i];
+      if (!hs[4]){
+        hs[4]=true;
+        list_order.push([hs[0],hs[3]]);
+      }
+    }
+
+    home.menus[1]=[];
+    home.mylist_el={};
+    var lholder=$('home_pagelist');
+    lholder.innerHTML='';
+
+    home.listOrder.mylist=[];
+    for (var i=0;i<list_order.length;i++){
+      var ho=list_order[i];
+      var hd=list_ids[ho[0]];
+      if (hd){
+        if (ho[1]){
+          var h=$n('div','home_list pb_menu', {"list-title":hd[2]}, lholder, '');
+          h._lid=ho[0];
+          home.mylist_el[hd[0]]=h;
+          hd[1](h);
+          home.menus[1].push(h);
+        }
+        home.listOrder.mylist.push(
+          {
+            id:hd[0],
+            active:ho[1],
+            title:hd[2]
+          }
+        );
+      }
+    }
   },
   init_homepage:function(){
+    var homepage=[];
     if (__SD3){
       // hianime
-      home.home_recent._ajaxurl='/recently-updated?page=';
-      home.home_dub._ajaxurl='/dubbed-anime?page=';
-      home.home_trending._ajaxurl='/top-airing?page=';
-      home.home_random._ajaxurl='/movie?page=';
-      home.home_trending.setAttribute('list-title','Top Airing');
-      home.home_random.setAttribute('list-title','Movie');
+      homepage=[
+        ["recent","/recently-updated?page=", "Recently Updated", true],
+        ["dub","/dubbed-anime?page=", "Latest Dub", true],
+        ["top","/top-airing?page=", "Top Airing", true],
+        ["movies","/movie?page=", "Movies", false]
+      ];
     }
     else if (__SD5){
       // hianime
-      home.home_recent._ajaxurl='/__proxy/'+__AFLIX.ns+'/schedule';
-      home.home_dub._ajaxurl='/__proxy/'+__AFLIX.ns+'/popular?page=';
-      home.home_trending._ajaxurl='/__proxy/'+__AFLIX.ns+'/trending?page=';
-      home.home_random._ajaxurl='/__proxy/'+__AFLIX.ns+'/movies?page=';
-      home.home_slide.setAttribute('list-title','Airing');
-      home.home_trending.setAttribute('list-title','Trending');
-      home.home_dub.setAttribute('list-title','Popular');
-      home.home_random.setAttribute('list-title','Movie');
+      homepage=[
+        ["airing",'/__proxy/'+__AFLIX.ns+'/schedule', "Airing", true],
+        ["popular",'/__proxy/'+__AFLIX.ns+'/popular?page=', "Popular", false],
+        ["trending",'/__proxy/'+__AFLIX.ns+'/trending?page=', "Trending", true],
+        ["movies",'/__proxy/'+__AFLIX.ns+'/movies?page=', "Movies", true]
+      ];
     }
     else if (__SD6){
-      home.home_recent._ajaxurl='/api/show/recent?type=sub&page=';
-      home.home_dub._ajaxurl='/api/show/recent?type=dub&page=';
-      home.home_trending._ajaxurl='/api/show/trending?page=';
-      home.home_random._ajaxurl='/api/show/popular?page=';
-      home.home_random.setAttribute('list-title','Popular');
+      // kickass
+      homepage=[
+        ["recent",'/api/show/recent?type=sub&page=', "Recently Updated", true],
+        ["dub",'/api/show/recent?type=dub&page=', "Latest Dub", true],
+        ["trending",'/api/show/trending?page=', "Trending", true],
+        ["popular",'/api/show/popular?page=', "Popular", false],
+        ["chinese",'/api/show/recent?type=chinese&page=', "Chinese Update", false]
+      ];
     }
     else{
       // wave & anix
-      home.home_recent._ajaxurl='/ajax/home/widget/updated-sub?page=';
-      home.home_dub._ajaxurl='/ajax/home/widget/updated-dub?page=';
-      home.home_trending._ajaxurl='/ajax/home/widget/trending?page=';
-      home.home_random._ajaxurl='/ajax/home/widget/random?page=';
+      homepage=[
+        ["recent",'/ajax/home/widget/updated-sub?page=', "Recently Updated", true],
+        ["dub",'/ajax/home/widget/updated-dub?page=', "Latest Dub", true],
+        ["trending",'/ajax/home/widget/trending?page=', "Trending", false],
+        ["random",'/ajax/home/widget/random?page=', "Random Anime", true],
+        ["chinese",'/ajax/home/widget/updated-china?page=', "Chinese Update", false]
+      ];
     }
 
-    home.recent_init(home.home_recent);
-    home.recent_init(home.home_dub);
-    home.recent_init(home.home_trending);
-    home.recent_init(home.home_random);
+    var homeSaved = listOrder.store.load("home",false);
+    var homepage_order=[];
+    var homepage_ids={};
+    for (var i=0;i<homepage.length;i++){
+      homepage[i][4]=false;
+      homepage_ids[homepage[i][0]]=homepage[i];
+    }
+    if (homeSaved!=null){
+      for (var i=0;i<homeSaved.length;i++){
+        var hs=homeSaved[i];
+        if (hs[0] in homepage_ids){
+          homepage_ids[hs[0]][4]=true;
+          homepage_order.push([hs[0],hs[1]]);
+        }
+      }
+    }
+    for (var i=0;i<homepage.length;i++){
+      var hs=homepage[i];
+      if (!hs[4]){
+        hs[4]=true;
+        homepage_order.push([hs[0],hs[3]]);
+      }
+    }
+    home.menus[0]=[home.home_slide];
+    var lholder=$('home_lists');
+    lholder.innerHTML='';
+    
+    home.listOrder.home=[];
+    for (var i=0;i<homepage_order.length;i++){
+      var ho=homepage_order[i];
+      var hd=homepage_ids[ho[0]];
+      if (hd){
+        if (ho[1]){
+          var h=$n('div','home_list pb_menu', {"list-title":hd[2]}, lholder, '');
+          h._lid=ho[0];
+          h._ajaxurl=hd[1];
+          home.recent_init(h);
+          home.menus[0].push(h);
+        }
+        home.listOrder.home.push(
+          {
+            id:hd[0],
+            active:ho[1],
+            title:hd[2]
+          }
+        );
+      }
+    }
     home.home_load();
-
-    home.menus[0]=[
-      home.home_slide,
-      home.home_recent
-    ];
-    home.menus[0].push(home.home_dub);
-    home.menus[0].push(home.home_trending);
-    home.menus[0].push(home.home_random);
-
-    if (pb.cfg_data.nonjapan && (!__SD3) && (!__SD5)){
-      home.home_chinese.className='home_list pb_menu';
-      home.home_chinese.style.display='';
-      if (__SD6){
-        home.home_chinese._ajaxurl='/api/show/recent?type=chinese&page=';
-      }
-      else{
-        home.home_chinese._ajaxurl='/ajax/home/widget/updated-china?page=';
-      }
-      home.recent_init(home.home_chinese);
-      home.menus[0].push(home.home_chinese);
-    }
-    else{
-      home.home_chinese.style.display='none !important';
-      home.home_chinese.innerHTML='';
-      home.home_chinese.className='';
-    }
   },
   init:function(){
     pb.cfg_load();
@@ -9116,15 +9226,16 @@ const home={
           else if (chval==1){
             listOrder.show(
               "Customize Home",
-              [
-                { title:"Recently Updated", id:"recent", active:true },
-                { title:"Latest Dub", id:"dub", active:true },
-                { title:"Trending Episodes", id:"trending", active:true },
-                { title:"Random Anime", id:"random", active:true },
-                { title:"Chinese Updated", id:"chinese", active:true },
-              ],
+              home.listOrder.home,
               function(v){
-                console.log(v);
+                if (v!=null){
+                  var homeSaved = [];
+                  for (var i=0;i<v.length;i++){
+                    homeSaved.push([v[i].id,v[i].active]);
+                  }
+                  listOrder.store.save("home",homeSaved,false);
+                  home.init_homepage();
+                }
               }
             );
           }
@@ -9145,14 +9256,16 @@ const home={
           else{
             listOrder.show(
               "Customize MyList",
-              [
-                { title:"MAL", id:"mal", active:true },
-                { title:"AniList", id:"anilist", active:true },
-                { title:"Watchlist", id:"watchlist", active:true },
-                { title:"History", id:"history", active:true }
-              ],
+              home.listOrder.mylist,
               function(v){
-                console.log(v);
+                if (v!=null){
+                  var listSaved = [];
+                  for (var i=0;i<v.length;i++){
+                    listSaved.push([v[i].id,v[i].active]);
+                  }
+                  listOrder.store.save("mylist",listSaved,true);
+                  home.init_mylist();
+                }
               }
             );
           }
@@ -10323,7 +10436,7 @@ const _MAL={
           _MAL.pop.menusel=_MAL.pop.menu.length-1;
         }
         _MAL.popup_update();
-        home.list_init_name(list.fav,home.home_fav);
+        home.list_init_name(list.fav,home.mylist_el.fav);
         return;
       }
       else if (el==_MAL.pop.history){
@@ -10336,7 +10449,7 @@ const _MAL={
           _MAL.pop.menusel=_MAL.pop.menu.length-1;
         }
         _MAL.popup_update();
-        home.list_init_name(list.history,home.home_history);
+        home.list_init_name(list.history,home.mylist_el.history);
         return;
       }
 
@@ -10653,6 +10766,35 @@ const _MAL={
 };
 
 const listOrder={
+  store:{
+    name:function(name){
+      return _API.user_prefix+"_listorder_"+name;
+    },
+    load:function(name,isglobal){
+      var itm="";
+      if (isglobal){
+        itm=_JSAPI.storeGet(listOrder.store.name(name),"")
+      }
+      else{
+        itm=localStorage.getItem(listOrder.store.name(name));
+      }
+      if (itm){
+        try{
+          var j=JSON.parse(itm);
+          return j;
+        }catch(e){}
+      }
+      return null;
+    },
+    save:function(name,val,isglobal){
+      if (isglobal){
+        _JSAPI.storeSet(listOrder.store.name(name),JSON.stringify(val));
+      }
+      else{
+        localStorage.setItem(listOrder.store.name(name),JSON.stringify(val));
+      }
+    }
+  },
   onpopup:false,
   holder:$('listorder'),
   win:$('listorder_window'),
@@ -10710,6 +10852,7 @@ const listOrder={
     }
     $('popupcontainer').className='';
     listOrder.holder.classList.remove('active');
+    listOrder.win.innerHTML='';
     listOrder.onpopup=false;
   },
   keycb:function(c){
