@@ -673,7 +673,7 @@ import javax.crypto.spec.SecretKeySpec;
         return aApi.badRequest;
       }
     }
-    if (Conf.PROGRESSIVE_CACHE) {
+    if (Conf.PROGRESSIVE_CACHE || request.getMethod().equalsIgnoreCase("POST")) {
       return super.shouldInterceptRequest(view, request);
     }
     return aApi.defaultRequest(view,request);

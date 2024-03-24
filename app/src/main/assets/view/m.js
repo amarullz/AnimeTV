@@ -76,6 +76,7 @@ var kaas={
     return ux[0];
   },
   filterIsPost:false,
+  filterData:'',
   getFilterOrigin:function(){
     var orgn={
       "X-Org-Prox":"https://"+__DNS,
@@ -85,8 +86,19 @@ var kaas={
       'Cache-Control':'no-cache'
     };
     if (kaas.filterIsPost){
-      orgn["X-Post-Prox"]="application/json";
-      orgn["Accept"]="application/json, text/plain, */*";
+      if (kaas.filterData){
+        orgn={
+          'post':kaas.filterData+'',
+          'X-Requested-With':'XMLHttpRequest',
+          'Pragma':'no-cache',
+          'Cache-Control':'no-cache',
+          'Content-Type':"application/json"
+        };
+      }
+      else{
+        orgn["X-Post-Prox"]="application/json";
+        orgn["Accept"]="application/json, text/plain, */*";
+      }
     }
     return orgn;
   },
@@ -136,18 +148,26 @@ var kaas={
     var jsv='';
     var jpath='';
     if (kaas.filterIsPost){
-      jpath='/api/fsearch?';
-      jsv=enc(JSON.stringify(d));
+      jpath='/api/fsearch';
+      jsv=JSON.stringify(d);
     }
     else{
-      jpath='/api/anime?';
+      jpath='/api/anime';
       jsv='page='+enc(page);
       if (has_filter){
         jsv+='&filters='+enc(d.filters);
       }
     }
-    var furi="/__proxy/https://"+__DNS+jpath+jsv;
-    console.warn("KAAS FILTER = "+furi);
+    var furi=null;
+    if ((pb.cfg_data.httpclient==1) && kaas.filterIsPost){
+      furi=jpath;
+      kaas.filterData=jsv;
+    }
+    else{
+      kaas.filterData=null;
+      furi="/__proxy/https://"+__DNS+jpath+"?"+enc(jsv);
+    }
+    console.warn("KAAS FILTER = "+furi+" / "+kaas.filterData);
     return furi;
   },
   ttip_cache:{},
@@ -1486,18 +1506,6 @@ function $a(uri, cb, hdr, pd){
     xhttp.args=pd;
   }
   xhttp.onload = function() {
-    // if (!__SD3){
-    //   if (xhttp.status==403){
-    //     if (((uri.indexOf("https://")==-1)||(uri.indexOf("https://"+__DNS)==0)) 
-    //       && (uri.indexOf("/__proxy/")!=0)){
-    //       _JSAPI.cfCheck();
-    //       setTimeout(function(){
-    //         $a(uri, cb);
-    //       },2500);
-    //       return;
-    //     }
-    //   }
-    // }
     xhttp.ok=true;
     cb(xhttp);
   };
@@ -1505,7 +1513,21 @@ function $a(uri, cb, hdr, pd){
       xhttp.ok=false;
       cb(xhttp);
   };
-  xhttp.open("GET", uri, true);
+  
+  /* Post Request */
+  var ispost=false;
+  var postdata='';
+  try{
+    if (hdr && hdr!==1){
+      if ('post' in hdr){
+        ispost=true;
+        postdata=hdr.post+'';
+        delete hdr.post;
+      }
+    }
+  }catch(e){}
+
+  xhttp.open(ispost?"POST":"GET", uri, true);
   if (hdr){
     if (hdr===1){
       if (__SD3){
@@ -1514,11 +1536,18 @@ function $a(uri, cb, hdr, pd){
     }
     else{
       for (var k in hdr){
-        xhttp.setRequestHeader(k, hdr[k]);
+        if (k!='post'){
+          xhttp.setRequestHeader(k, hdr[k]);
+        }
       }
     }
   }
-  xhttp.send();
+  if (ispost){
+    xhttp.send(postdata);
+  }
+  else{
+    xhttp.send();
+  }
 }
 
 /* proxy ajax */
