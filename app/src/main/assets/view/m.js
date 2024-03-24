@@ -342,7 +342,7 @@ var kaas={
 
     function callCb(d){
       d.status=true;
-      console.log(["KAAS callCb", d, uid]);
+      // console.log(["KAAS callCb", d, uid]);
       f(JSON.parse(JSON.stringify(d)),uid);
     }
 
@@ -4673,6 +4673,13 @@ const pb={
     }
   },
 
+  playback_error:function(txt, msg){
+    pb.pb_track_pos.innerHTML=txt;
+    pb.pb_track_ctl.innerHTML='warning';
+    pb.pb_track_ctl.className='';
+    _API.showToast(msg);
+  },
+
   /* videos */
   vid:null,
   vid_stat:{
@@ -5175,11 +5182,17 @@ const pb={
         kaas.streamGet(
           pb.data.stream_vurl, 
           pb.data.stream_sname, function(b){
-            console.log(['STREAMLOAD SD6',b]);
-            
             pb.pb_vid.innerHTML='';
             pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
             _API.setMessage(null);
+
+            if (!b){
+              pb.playback_error(
+                'PLAYBACK ERROR',
+                "Loading video from source failed.\nTry changing mirror or check source server."
+              );
+              return;
+            }
             
             /* Load Subtitle */
             vtt.clear();
@@ -5375,6 +5388,10 @@ const pb={
           return true;
         }
       }
+      pb.playback_error(
+        'PLAYBACK ERROR',
+        "Loading video from source failed.\tTry to restart it."
+      );
       return false;
     }
     function reqPlayer(nc){
@@ -5613,7 +5630,12 @@ const pb={
         });
       }
       cb();
+      return;
     }
+    pb.playback_error(
+      'PLAYBACK ERROR',
+      "Loading video from source failed.\tTry changing mirror or check source server."
+    );
   },
 
   /* next ep */
@@ -5662,7 +5684,7 @@ const pb={
       }
       pb.open(url, args[0], parseInt(args[1]), startpos);
       return true;
-    } 
+    }
     else if (action.startsWith("!")){
       var src=action.substring(1);
       home.search.open({
@@ -5998,6 +6020,20 @@ const pb={
           pb.cfg_save();
         }
       }
+    }
+    else{
+      /* Default */
+      var args=[0,0,0];
+      if (arg){
+        args=arg.split(';');
+      }
+      var startpos=0;
+      if (args.length>=3){
+        startpos=parseInt(args[2]);
+      }
+      var url=action;
+      pb.open(url, args[0], parseInt(args[1]), startpos);
+      return true;
     }
   },
 
@@ -9256,7 +9292,7 @@ const home={
           }
           else if (chval==1){
             listOrder.show(
-              "Customize Home",
+              "Customize Home - Source "+__SD_NAME,
               home.listOrder.home,
               function(v){
                 if (v!=null){
