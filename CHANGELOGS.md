@@ -1,4 +1,29 @@
 # Changelogs
+- **3.4.0 🪇**
+  - **New UI Design**
+  - **Add Source 6 from Kickassanime**
+  - **Add Check for Nightly Build & Install nightly via app**
+  - **Add trailer video for slideshow (Configurable at settings)**
+  - **Add airing schedule**
+  - **Add managing & reordering home and mylist**
+  - Add buffering indicator
+  - Add AniList trending now home slideshow settings
+  - Add dark theme color
+  - New Paging list: Home and MyList
+  - Add Time/Clock at home
+  - Add Select Video Quality on global settings
+  - Add Left/Right key to jump category on settings
+  - Cleanup and Remove unused java functions
+  - Add support for DASH streaming on exomedia for source 6 bird-stream
+  - Add source 1/2 of vidplay/mcloud video scrapper without iframe usage
+  - Optimize requests & paralleling requests for faster loading times
+  - Fix html5 player autostart
+  - Disable quality selection on unsupported sources
+  - Update Http client no-cache settings
+  - Fix AnimeFlix Video Streaming
+  - Block unused, analytic & ads Youtube requests
+  - Add loading animation for lists
+  - Add anilist retry on error 500
 - **2.9.9 🪁**
   - Add new-slideshow to Source-1
   - Add new Gojo Satoru wallpaper

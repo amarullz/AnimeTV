@@ -8,10 +8,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240314",
 
-  "appnum": 299,
-  "appver": "2.9.9",
+  "appnum": 340,
+  "appver": "3.4.0",
   "appsize": "10.1 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/2.9.9/animetv-2.9.9.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/3.4.0/animetv-3.4.0.apk",
   "appnote": 
-    "- New top anime slideshow for source 1\n- Fix unsupported unary syntax for old webview\n- Fix mirror streaming playback for source 1 and 2\n- Fix episode bug\n- Update video streaming domain\n- New playback data loader for Source 1/2\n- Add dub indicator on episodes\n- Update intro skip time priority"
+    "- Brand new UI with trailer video\n- New Source 6 from Kickassanime\n- Add new airing schedule\n- Add managing & reordering home"
 }
