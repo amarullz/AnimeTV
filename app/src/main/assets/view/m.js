@@ -9450,7 +9450,9 @@ const home={
           pb.menu_select(schedules.days_el[i],unairToday);
         }
         else{
-          pb.menu_select(schedules.days_el[i],schedules.days_el[i].P.firstElementChild);
+          if (schedules.days_el[i].P.firstElementChild){
+            pb.menu_select(schedules.days_el[i],schedules.days_el[i].P.firstElementChild);
+          }
         }
       }
       page._oninit=false;

@@ -1922,16 +1922,20 @@ c.loader {
   font-size: var(--fs-20vw);
   animation: loading_text_ani .8s ease infinite alternate;
 }
-
+.view-informative .home_list p:empty::after{
+  line-height: 21vw !important;
+}
+#home_pageschedule .home_list p:empty::after {
+  content: 'No schedule' !important;
+  animation: none !important;
+}
 .home_fav.home_list p:empty::after {
   content: 'Watchlist is empty' !important;
-  font-size: var(--fs-20vw);
   animation: none !important;
 }
 
 .home_history.home_list p:empty::after {
   content: 'Watch history is empty' !important;
-  font-size: var(--fs-20vw);
   animation: none !important;
 }
 
