@@ -5,6 +5,8 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 > Source data is from *one anime streaming website* and I don't have any affiliation with it, and it may break on site updates.
 > Take a look at source code for more info
 
+[![AnimeTV](/tools/logo-design/animetv-logo/animetv-logo.svg)](https://amarullz.com/)
+
 ## Donation & More Information
 
 | License | Stable Release | Nightly Release | Support |
