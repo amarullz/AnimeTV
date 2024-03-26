@@ -6738,6 +6738,9 @@ const pb={
     }
   },
 
+  MAL:{
+    set:false
+  },
   init:function(){
     pb.preload_started=0;
     pb.preload_video_started=0;
@@ -6760,6 +6763,50 @@ const pb={
     pb.ep_title='';
     pb.pb_title.innerHTML=tspecial(pb.data.title);
     pb.pb_title.setAttribute('jp',pb.data.title_jp?pb.data.title_jp:dpb.data.title);
+
+    /* Find Playback Meta */
+    if (!pb.MAL.set){
+      console.log("Searching AniList Match: "+pb.data.title);
+      _MAL.allist_search(pb.data.title,function(v){
+        pb.MAL.set=true;
+        if (v.match){
+          pb.MAL.anilist=JSON.parse(JSON.stringify(v.match));
+          if (v.match.idMal){
+            _MAL.mal_detail(v.match.idMal,function(r){
+              if (r.ok){
+                try{
+                  var ms=JSON.parse(r.responseText);
+                  pb.MAL.mal=ms;
+                  if (ms.my_list_status){
+                    var vid = 'mal_'+ms.id;
+                    pb.MAL.mymal={
+                      id:ms.id,
+                      vid:vid,
+                      progress:ms.my_list_status.num_episodes_watched
+                    };
+                    if (vid in _MAL.data){
+                      pb.MAL.mymal.data=_MAL.data[vid];
+                    }
+                  }
+                  console.warn(pb.MAL);
+                }catch(e){}
+              }
+            });
+          }
+        }
+        if (v.match.mediaListEntry){
+          var vid = 'anilist_'+v.match.mediaListEntry.id;
+          pb.MAL.myanilist={
+            id:v.match.mediaListEntry.id,
+            vid:vid,
+            progress:v.match.mediaListEntry.progress
+          };
+          if (vid in _MAL.aldata){
+            pb.MAL.myanilist.data=_MAL.aldata[vid];
+          }
+        }
+      },1,10);
+    }
 
     var addb='';
     try{
@@ -7019,6 +7066,9 @@ const pb={
       pb.pb_meta.classList.add('active');
     }
     else{
+      pb.MAL={
+        set:false
+      };
       pb.pb.style.backgroundImage='';
       pb.pb_meta.classList.remove('active');
     }
@@ -9767,6 +9817,7 @@ const _MAL={
         }
         media(sort: SEARCH_MATCH, type: ANIME, search: $search){
           id
+          idMal
           title{
             romaji
             english
@@ -9803,20 +9854,29 @@ const _MAL={
       if (v){
         try{
           if (v.data.Page.media){
-            var slugQ=slugString(q);
-            for (var i=0;i<v.data.Page.media.length;i++){
-              var med=v.data.Page.media[i];
-              var s1=med.title.english;
-              var s2=med.title.romaji;
-              var ms=med.status;
-              if (ms=="FINISHED" || ms=="RELEASING" || ms=="HIATUS"){
-                if (s1 && (slugString(s1)==slugQ)){
-                  v.match=JSON.parse(JSON.stringify(med));
-                  break;
-                }
-                else if (s2 && (slugString(s2)==slugQ)){
-                  v.match=JSON.parse(JSON.stringify(med));
-                  break;
+            var srcq=[
+              utfascii(q),
+              slugString(q)
+            ];
+            var srcf=[
+              utfascii,
+              slugString
+            ];
+            for (var j=0;j<2 && !v.match;j++){
+              for (var i=0;i<v.data.Page.media.length;i++){
+                var med=v.data.Page.media[i];
+                var s1=med.title.english;
+                var s2=med.title.romaji;
+                var ms=med.status;
+                if (ms=="FINISHED" || ms=="RELEASING" || ms=="HIATUS"){
+                  if (s1 && (srcf[j](s1)==srcq[j])){
+                    v.match=JSON.parse(JSON.stringify(med));
+                    break;
+                  }
+                  else if (s2 && (srcf[j](s2)==srcq[j])){
+                    v.match=JSON.parse(JSON.stringify(med));
+                    break;
+                  }
                 }
               }
             }
@@ -9911,6 +9971,13 @@ const _MAL={
       page:page,
       perPage:_MAL.limit
     },cb);
+  },
+  mal_detail:function(id,cb){
+    // 56731
+    var uri='/v2/anime/'+id+'?nsfw=true&'+
+      'fields=my_list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
+      'limit=10';
+    _MAL.req(uri,"GET",cb);
   },
   list:function(offset,cb){
     var uri='/v2/users/@me/animelist?nsfw=true&'+
