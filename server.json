@@ -8,10 +8,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240314",
 
-  "appnum": 340,
-  "appver": "3.4.0",
+  "appnum": 346,
+  "appver": "3.4.6",
   "appsize": "10.1 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/3.4.0/animetv-3.4.0.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/3.4.6/animetv-3.4.6.apk",
   "appnote": 
-    "- Brand new UI with trailer video\n- New Source 6 from Kickassanime\n- Add new airing schedule\n- Add managing & reordering home"
+    "- Update Source 1 & 2 Encryption\n- Brand new UI with trailer video\n- New Source 6 from Kickassanime\n- Add new airing schedule\n- Add managing & reordering home"
 }
