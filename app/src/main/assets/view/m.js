@@ -789,8 +789,38 @@ const wave={
     }
     return o.join('');
   },
-  vrfEncrypt:function(input) {
-    var vrf = wave.rc4("ysJhV6U27FVIjjuk", input);
+  vrfEncrypt:function (t) {
+    t = encodeURIComponent("".concat(t));
+    t = wave.rc4("XObq4uXPsPJLP36z", t);
+    t = wave.safeBtoa(t);
+    t = wave.safeBtoa(t.split("").reverse().join(""));
+    var r = 9;
+    var s = "";
+    for (var h = 0; h < t.length; h++) {
+      var u = t.charCodeAt(h);
+      if (h % r == 3 || h % r == 6) {
+        u -= 4;
+      } else if (h % r == 4) {
+        u -= 3;
+      } else if (h % r == 0) {
+        u += 2;
+      } else if (h % r == 7) {
+        u -= 3;
+      } else if (h % r == 1) {
+        u += 6;
+      } else if (h % r == 5) {
+        u += 2;
+      } else if (h % r == 8) {
+        u += 3;
+      } else if (h % r == 2) {
+        u += 2;
+      }
+      s += String.fromCharCode(u);
+    }
+    return s;
+  },
+  vrfEncrypt_old:function(input) {
+    var vrf = wave.rc4("XObq4uXPsPJLP36z" /*"ysJhV6U27FVIjjuk"*/, input);
     vrf=wave.safeBtoa(vrf);
     vrf=btoa(vrf);
     vrf=wave.vrfShift(vrf);
@@ -800,8 +830,16 @@ const wave={
   },
   vrfDecrypt:function(input){
     var vrf = wave.safeAtob(input);
-    vrf = wave.rc4("hlPeNwkncH0fq9so",vrf);
+    vrf = wave.rc4("LUyDrL4qIxtIxOGs" /*"hlPeNwkncH0fq9so"*/,vrf);
     return decodeURIComponent(vrf);
+  },
+  vrfUuid:function () {
+    var n = new Date().getTime();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (t) {
+      var i = (n + 16 * Math.random()) % 16 | 0;
+      n = Math.floor(n / 16);
+      return ("x" === t ? i : 3 & i | 8).toString(16);
+    });
   },
 
   /* PARSE HOME SLIDESHOW */
