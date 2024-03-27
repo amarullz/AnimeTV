@@ -92,7 +92,7 @@ if (!wave.vidplayGetDataDo){
     }
     var uu=s.join('/');
     if (pb.data.stream_vurl==u){
-      pb.data.stream_vurl=u;
+      pb.data.stream_vurl=uu;
     }
     return wave.vidplayGetDataDo(uu,cb);
   }
