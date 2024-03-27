@@ -7103,6 +7103,12 @@ const home={
 
         d.type=t.querySelector('.fd-infor .fdi-item').textContent;
         d.duration=t.querySelector('.fd-infor .fdi-item.fdi-duration').textContent+'in';
+        if (d.duration){
+          d.duration=d.duration.replace('min','').trim();
+          if (d.duration){
+            d.duration+=' min';
+          }
+        }
 
         rd.push(d);
       }catch(e){
@@ -7245,10 +7251,11 @@ const home={
             d.title_jp=at.getAttribute('data-jp');
           }catch(ee){}
 
+          d.type=t.querySelector('div.abs-info span.type').textContent.trim();
+
           try{
             d.epdub=t.querySelector('div.sub-dub-total span.dub').textContent.trim();
           }catch(e2){}
-          d.type=t.querySelector('div.abs-info span.type').textContent.trim();
           try{
             d.epsub=d.ep=t.querySelector('div.sub-dub-total span.sub').textContent.trim();
           }catch(e){
@@ -8842,44 +8849,32 @@ const home={
         if (ls){
           var it=ls.querySelectorAll('div.item');
           for (var i=0;i<it.length;i++){
-            var im=it[i];
-            var d={};
-            var tt=im.querySelector('a.d-title');
-            d.url=tt.href;
-            d.title=tt.textContent.trim();
+            var t=it[i];
             try{
-              d.title_jp=tt.getAttribute('data-jp');
-            }catch(ex){}
-            d.poster=im.querySelector('img').src;
-            d.tip=im.querySelector('div.poster.tip').getAttribute('data-tip');
-            var epel=im.querySelector('span.ep-status.sub');
-            if (!epel){
-              epel=im.querySelector('span.ep-status.total');
-              d.epavail=0;
-            }
-            else{
-              d.epavail=toInt((epel.textContent+'').trim());
-            }
-            if (epel){
-              d.ep=(epel.textContent+'').trim();
-            }
-            epel=im.querySelector('span.ep-status.total');
-            if (epel){
-              d.eptotal=toInt((epel.textContent+'').trim());
-            }
-            else{
-              d.eptotal=0;
-            }
-
-            d.adult=false;
-            try{
-              d.adult=im.querySelector('div.adult')?true:false;
+              var d={};
+              var at=t.querySelector('a.d-title');
+              d.url=at.href;
+              d.poster=t.querySelector('img').src;
+              d.title=at.textContent.trim();
+              try{
+                d.title_jp=at.getAttribute('data-jp');
+              }catch(ee){}
+              d.type=t.querySelector('div.right').textContent;
+              
+              try{
+                d.epdub=t.querySelector('span.ep-status.dub').textContent.trim();
+              }catch(ee){}
+              try{
+                d.epsub=d.ep=t.querySelector('span.ep-status.sub').textContent.trim();
+              }catch(ee){}
+              try{
+                d.eptotal=t.querySelector('span.ep-status.total').textContent.trim();
+              }catch(ee){}
+              d.tip=t.firstElementChild.getAttribute('data-tip');
+              d.adult=t.querySelector('div.adult')?true:false;
+              d.epavail=toInt(d.ep?d.ep:d.eptotal);
+              rd.push(d);
             }catch(e){}
-
-            try{
-              d.type=im.querySelector('div.right').textContent.trim();
-            }catch(e){}
-            rd.push(d);
           }
         }
         h.innerHTML='';
@@ -8904,17 +8899,17 @@ const home={
   
             d.type=t.querySelector('div.abs-info span.type').textContent.trim();
             try{
-              d.ep=t.querySelector('div.sub-dub-total span.sub').textContent.trim();
+              d.epdub=t.querySelector('div.sub-dub-total span.dub').textContent.trim();
+            }catch(e2){}
+            try{
+              d.epsub=d.ep=t.querySelector('div.sub-dub-total span.sub').textContent.trim();
             }catch(e){
-              try{
-                d.ep=t.querySelector('div.sub-dub-total span.dub').textContent.trim();
-              }catch(e2){}
+              d.ep=d.epdub;
             }
             try{
-              d.eptotal=toInt(t.querySelector('div.sub-dub-total span.total').textContent.trim());
-            }catch(e4){
-              d.eptotal=0;
-            }
+              d.eptotal=t.querySelector('div.sub-dub-total span.total').textContent.trim();
+            }catch(e2){}
+
             d.epavail=toInt(d.ep?d.ep:d.eptotal);
             try{
               d.adult=false;
@@ -8958,17 +8953,41 @@ const home={
           hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
           hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
           var infotxt='';
+          var binfotxt='';
           if (d.adult){
-            infotxt+='<span class="info_adult">18+</span>';
+            binfotxt+='<span class="info_adult">18+</span>';
+          }
+          if (d.duration){
+            binfotxt+='<span class="info_duration">'+special((d.duration+"").toLowerCase())+'</span>';
           }
           if (d.type){
             infotxt+='<span class="info_type">'+special(d.type)+'</span>';
           }
-          if (d.ep){
-            infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+          if (d.eptotal||d.epdub||d.epsub){
+            var haveep=0;
+            if (d.epsub){
+              infotxt+='<span class="info_ep info_epsub"><c>closed_caption</c>'+special(d.epsub)+'</span>';
+              haveep++;
+            }
+            if (d.epdub){
+              infotxt+='<span class="info_ep info_epdub"><c>mic</c>'+special(d.epdub)+'</span>';
+              haveep++;
+            }
+            if (!haveep && d.ep){
+              infotxt+='<span class="info_ep"><c>movie</c>'+special(d.ep)+'</span>';
+            }
+            if (d.eptotal && (haveep<2)){
+              infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(d.eptotal)+'</span>';
+            }
+          }
+          else if (d.ep){
+            infotxt+='<span class="info_ep"><c>movie</c>'+special(d.ep)+'</span>';
           }
           if (infotxt){
             hl._ep=$n('span','info',null,hl,infotxt);
+          }
+          if (binfotxt){
+            hl._ep=$n('span','info info_bottom',null,hl,binfotxt);
           }
         }
         while (g.P.childElementCount>60){

@@ -85,7 +85,7 @@ import javax.crypto.spec.SecretKeySpec;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -116,6 +116,7 @@ import javax.crypto.spec.SecretKeySpec;
     webSettings.setAllowFileAccess(true);
     webSettings.setAllowContentAccess(true);
     webSettings.setDomStorageEnabled(true);
+    webSettings.setUseWideViewPort(false);
 
     /* UAG */
     webSettings.setUserAgentString(Conf.USER_AGENT);
