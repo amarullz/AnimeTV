@@ -3909,9 +3909,12 @@ const vtt={
     buffering_set:function(start){
       if (vtt.playback.btntv){
         clearInterval(vtt.playback.btntv);
-        vtt.playback.btntv=null;
-        pb.pb_track_buffer._curr=-1;
       }
+      vtt.playback.btntv=null;
+      pb.pb_track_buffer._curr=-1;
+      pb.pb_track_buffer.style.width="";
+      pb.pb_loading.classList.remove('buffering');
+      pb.pb_loading.classList.remove('active');
       if (start){
         vtt.playback.btntv=setInterval(vtt.playback.buffer_track,200);
       }
@@ -4653,14 +4656,14 @@ const pb={
   },
   vid_event:function(c,v){
     if (c=='complete'){
+      vtt.playback.buffering_set(false);
       pb.vid_stat.play=false;
       pb.pb_track_ctl.innerHTML='replay';
+      pb.menu_show(1);
+      pb.next_ep(0);
       try{
         _JSAPI.playNextClear();
       }catch(e){}
-      pb.menu_show(1);
-      pb.next_ep(0);
-      vtt.playback.buffering_set(false);
     }
     else if (c=='ready'){
       pb.state=2;
@@ -6327,7 +6330,7 @@ const pb={
                 pb.pb_loading.classList.add('buffering');
                 pb.pb_loading.classList.add('active');
               }
-            },500);
+            },2000);
           }
         }
         else if (pb.pb_track_buffer._isbuffering){
@@ -6602,42 +6605,24 @@ const pb={
     pb.pb_action_streamtype.classList.add('active');
   },
 
-  need_malist_update:false,
-
   update_malist_ep:function(dr){
-    if (!pb.need_malist_update){
+    if (dr<((pb.cfg_data.listprog * 23)+1)){
       return;
     }
-
-    if (dr<(pb.cfg_data.listprog * 24)){
-      return;
-    }
-
-
-    /* MAL Update Watched Episode */
-    if (pb.malidsave && (pb.malidanime==pb.data.animeid)){
-      console.log("MAL-PLAY #"+pb.malidsave+" / animeid="+pb.data.animeid);
-      var isanilist=false;
-      var malid="mal_"+pb.malidsave;
+    if (pb.MAL.set){
       var cep=toInt(pb.ep_val);
-
-      if ((pb.malidsave+'').startsWith("L")){
-        malid='anilist_'+pb.malidsave.substring(1);
-        isanilist=true;
+      if (pb.MAL.myanilist){
+        if (pb.MAL.myanilist.progress<cep){
+          pb.MAL.myanilist.progress=cep;
+          _MAL.update_epel(pb.MAL.myanilist.id,pb.MAL.myanilist.vid,cep,true);
+        }
       }
-      if (!isanilist && (malid in _MAL.data)){
-        _MAL.update_epel(_MAL.data[malid],cep);
+      if (pb.MAL.mymal){
+        if (pb.MAL.mymal.progress<cep){
+          pb.MAL.mymal.progress=cep;
+          _MAL.update_epel(pb.MAL.mymal.id,pb.MAL.mymal.vid,cep,false);
+        }
       }
-      else if (isanilist && (malid in _MAL.aldata)){
-        _MAL.update_epel(_MAL.aldata[malid],cep);
-      }
-      else{
-        pb.malidanime=null;
-        pb.malidsave=null;  
-        console.log("MAL-PLAY #RESET-NOTFOUND");
-      }
-
-      pb.need_malist_update=false;
     }
   },
 
@@ -6645,6 +6630,7 @@ const pb={
     set:false
   },
   init:function(){
+    pb.pb_loading.classList.remove('buffering');
     pb.preload_started=0;
     pb.preload_video_started=0;
 
@@ -6668,7 +6654,7 @@ const pb={
     pb.pb_title.setAttribute('jp',pb.data.title_jp?pb.data.title_jp:dpb.data.title);
 
     /* Find Playback Meta */
-    if (!pb.MAL.set && false){
+    if (!pb.MAL.set){
       console.log("Searching AniList Match: "+pb.data.title);
       _MAL.allist_search(pb.data.title,function(v){
         pb.MAL.set=true;
@@ -6687,14 +6673,10 @@ const pb={
                       vid:vid,
                       progress:ms.my_list_status.num_episodes_watched
                     };
-                    if (vid in _MAL.data){
-                      pb.MAL.mymal.data=_MAL.data[vid];
-                    }
                   }
-                  console.warn(pb.MAL);
                 }catch(e){}
               }
-            });
+            }, true);
           }
         }
         if (v.match.mediaListEntry){
@@ -6704,11 +6686,8 @@ const pb={
             vid:vid,
             progress:v.match.mediaListEntry.progress
           };
-          if (vid in _MAL.aldata){
-            pb.MAL.myanilist.data=_MAL.aldata[vid];
-          }
         }
-      },1,10);
+      },1,10,true);
     }
 
     var addb='';
@@ -6813,27 +6792,6 @@ const pb={
       }
     }
 
-    /* MAL Init */
-    if (pb.malidreq){
-      if (pb.data.animeid){
-        pb.malidanime=pb.data.animeid;
-        pb.malidsave=pb.malidreq;
-      }
-      pb.malidreq=null;
-    }
-
-    if (pb.malidsave && (pb.malidanime==pb.data.animeid)){
-      pb.need_malist_update=true;
-    }
-    else{
-      if (pb.malidsave){
-        console.log("MAL-PLAY #RESET");
-      }
-      pb.need_malist_update=false;
-      pb.malidanime=null;
-      pb.malidsave=null;
-    }
-
     /* settings */
     pb.init_settings();
     // console.log(pb.data);
@@ -6927,12 +6885,6 @@ const pb={
 
     /* ACTIONS */
     pb.pb_genres._midx=4;
-    // pb.pb_settings._keycb=
-    // pb.pb_genres._keycb=
-    // pb.pb_episodes._keycb=
-    // pb.pb_seasons._keycb=
-    // pb.pb_related._keycb=
-    // pb.pb_recs._keycb=pb.menu_keycb;
 
     pb.menu_init(pb.pb_settings);
     pb.menu_init(pb.pb_genres);
@@ -6952,18 +6904,12 @@ const pb={
       _API.setKey(pb.keycb);
     });
   },
-
-  malidreq:null,
-  malidsave:null,
-  malidanime:null,
   load_open_stat:0,
-
-  open:function(uri, ttid, noclean, startpos, malid){
+  open:function(uri, ttid, noclean, startpos){
     console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos+" -> "+uri);
     pb.pb_action_streamtype.classList.remove('active');
     pb.load_open_stat=0;
     _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
-    pb.malidreq=malid?(malid+''):null;
 
     if (noclean){
       pb.pb_meta.classList.add('active');
@@ -7142,11 +7088,12 @@ const home={
           epl=epld;
         }
         if (epl){
-          d.epavail=d.ep=epl.textContent.trim()
+          d.epsub=d.epavail=d.ep=epl.textContent.trim()
         }
         if (epld){
           d.epdub=epld.textContent.trim()
         }
+        d.eptotal=0;
 
         // Rate
         d.adult=false;
@@ -7155,7 +7102,7 @@ const home={
         }
 
         d.type=t.querySelector('.fd-infor .fdi-item').textContent;
-        d.duration=t.querySelector('.fd-infor .fdi-item.fdi-duration').textContent+'IN';
+        d.duration=t.querySelector('.fd-infor .fdi-item.fdi-duration').textContent+'in';
 
         rd.push(d);
       }catch(e){
@@ -7217,7 +7164,7 @@ const home={
           }
           d.type=u.type;
           if (u.duration){
-            d.duration=u.duration+'MIN';
+            d.duration=u.duration+' min';
           }
           if (u.status!='NOT_YET_RELEASED'){
             rd.push(d);
@@ -7266,7 +7213,10 @@ const home={
             d.epdub=t.querySelector('span.ep-status.dub').textContent.trim();
           }catch(ee){}
           try{
-            d.ep=t.querySelector('span.ep-status').textContent.trim();
+            d.epsub=d.ep=t.querySelector('span.ep-status.sub').textContent.trim();
+          }catch(ee){}
+          try{
+            d.eptotal=t.querySelector('span.ep-status.total').textContent.trim();
           }catch(ee){}
           d.tip=t.firstElementChild.getAttribute('data-tip');
           d.adult=t.querySelector('div.adult')?true:false;
@@ -7298,13 +7248,15 @@ const home={
           try{
             d.epdub=t.querySelector('div.sub-dub-total span.dub').textContent.trim();
           }catch(e2){}
-
           d.type=t.querySelector('div.abs-info span.type').textContent.trim();
           try{
-            d.ep=t.querySelector('div.sub-dub-total span.sub').textContent.trim();
+            d.epsub=d.ep=t.querySelector('div.sub-dub-total span.sub').textContent.trim();
           }catch(e){
             d.ep=d.epdub;
           }
+          try{
+            d.eptotal=t.querySelector('div.sub-dub-total span.total').textContent.trim();
+          }catch(e2){}
 
           try{
             d.adult=false;
@@ -7328,7 +7280,7 @@ const home={
     if (rd&&rd.length){
       for (var i=0;i<rd.length;i++){
         var d=rd[i];
-        if (g._lid=='dub') /*==home.home_dub && !__SD5) */ {
+        if (g._lid=='dub') {
           if (d.epdub){
             d.ep=d.epdub;
           }
@@ -7347,20 +7299,41 @@ const home={
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
         var infotxt='';
+        var binfotxt='';
         if (d.adult){
-          infotxt+='<span class="info_adult">18+</span>';
+          binfotxt+='<span class="info_adult">18+</span>';
         }
         if (d.duration){
-          infotxt+='<span class="info_duration">'+special((d.duration+"").toUpperCase())+'</span>';
+          binfotxt+='<span class="info_duration">'+special((d.duration+"").toLowerCase())+'</span>';
         }
         if (d.type){
           infotxt+='<span class="info_type">'+special(d.type)+'</span>';
         }
-        if (d.ep){
-          infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+        if (d.eptotal||d.epdub||d.epsub){
+          var haveep=0;
+          if (d.epsub){
+            infotxt+='<span class="info_ep info_epsub"><c>closed_caption</c>'+special(d.epsub)+'</span>';
+            haveep++;
+          }
+          if (d.epdub){
+            infotxt+='<span class="info_ep info_epdub"><c>mic</c>'+special(d.epdub)+'</span>';
+            haveep++;
+          }
+          if (!haveep && d.ep){
+            infotxt+='<span class="info_ep"><c>movie</c>'+special(d.ep)+'</span>';
+          }
+          if (d.eptotal && (haveep<2)){
+            infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(d.eptotal)+'</span>';
+          }
+        }
+        else if (d.ep){
+          infotxt+='<span class="info_ep"><c>movie</c>'+special(d.ep)+'</span>';
         }
         if (infotxt){
           hl._ep=$n('span','info',null,hl,infotxt);
+        }
+        if (binfotxt){
+          hl._ep=$n('span','info info_bottom',null,hl,binfotxt);
         }
       }
       var PGSZ=(__SD3||__SD5||__SD6)?60:30;
@@ -7985,7 +7958,7 @@ const home={
             infotxt+='<span class="info_type">'+special(d.type)+'</span>';
           }
           if (d.ep){
-            infotxt+='<span class="info_ep">'+special(d.ep)+'</span>';
+            infotxt+='<span class="info_ep"><c>avg_pace</c>'+special(d.ep)+'</span>';
             arg.ep=toInt(d.ep);
           }
           var hl=$n('div','',{action:"$"+JSON.stringify(arg),arg:""},h.P,'');
@@ -9421,11 +9394,11 @@ const home={
         }
         var sumep=d.episodes;
         if (vep){
-          infotxt+='<span class="info_sumep">'+special(vep+"")+'</span>';
+          infotxt+='<span class="info_ep"><c>movie</c>'+special(vep+"")+'</span>';
           d.ep=rvep;
         }
         if (sumep){
-          infotxt+='<span class="info_ep">'+special(sumep+"")+'</span>';
+          infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(sumep+"")+'</span>';
           if (!d.ep){
             d.ep=sumep;
           }
@@ -9710,8 +9683,31 @@ const _MAL={
       progress:ep
     },cb);
   },
-  allist_search:function(q,cb,page,perpage){
-    _MAL.alreq(`query ($search: String, $page: Int, $perPage: Int) {
+  allist_search:function(q,cb,page,perpage,minimal){
+    _MAL.alreq((minimal?`query ($search: String, $page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        pageInfo {
+          perPage
+          hasNextPage
+          currentPage
+        }
+        media(sort: SEARCH_MATCH, type: ANIME, search: $search){
+          id
+          idMal
+          status
+          title{
+            romaji
+            english
+          }
+          episodes
+          mediaListEntry{
+            id,
+            progress
+          }
+        }
+      }
+    }`:
+    `query ($search: String, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
         pageInfo {
           perPage
@@ -9738,7 +9734,6 @@ const _MAL={
           nextAiringEpisode {
             episode
           }
-          averageScore
           episodes
           description
           bannerImage
@@ -9749,7 +9744,7 @@ const _MAL={
           }
         }
       }
-    }`,{
+    }`),{
       "page":page?page:1,
       "perPage":perpage?perpage:10,
       "search":q
@@ -9875,10 +9870,12 @@ const _MAL={
       perPage:_MAL.limit
     },cb);
   },
-  mal_detail:function(id,cb){
+  mal_detail:function(id,cb,minimal){
     // 56731
     var uri='/v2/anime/'+id+'?nsfw=true&'+
-      'fields=my_list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
+      (minimal?
+        'fields=my_list_status,num_episodes,alternative_titles&':
+        'fields=my_list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&')+
       'limit=10';
     _MAL.req(uri,"GET",cb);
   },
@@ -10070,57 +10067,57 @@ const _MAL={
       }
     });
   },
-  update_epel:function(d,cep){
-    var isanilist=false;
-    if ('list_status' in d){
-      if (d.list_status.num_episodes_watched>=cep){
-        return;
-      }
-      d.list_status.num_episodes_watched=cep;
-      _MAL.set_ep(d.node.id,cep,function(r){
-        console.log("MAL #Update-Resp: "+r.responseText);
-      });
-    }
-    else{
-      console.log("AniList #Update-Episode: "+d.id);
-      if (d.progress>=cep){
-        return;
-      }
-      d.progress=cep;
-      _MAL.alset_ep(d.id,cep,function(r){
+  update_epel:function(id,vid,cep,isanilist){
+    var d=null;
+    if (isanilist){
+      _MAL.alset_ep(id,cep,function(r){
         console.log("AniList #Update-Resp: "+JSON.stringify(r));
       });
-      isanilist=true;
+      if (vid in _MAL.aldata){
+        d=_MAL.aldata[vid];
+        d.progress=cep;
+      }
     }
-    try{
-      if (d._elm && d._elm._ep){
-        var sp=d._elm._ep.querySelector("span.info_ep");
-        if (!sp){
-          d._elm._ep.innerHTML+='<span class="info_ep">'+special(cep+"")+'</span>';
-        }
-        else{
-          sp.innerHTML=special(cep+"");
-        }
+    else{
+      _MAL.set_ep(id,cep,function(r){
+        console.log("MAL #Update-Resp: "+r.responseText);
+      });
+      if (vid in _MAL.data){
+        d=_MAL.data[vid];
+        d.list_status.num_episodes_watched=cep;
+      }
+    }
 
-        if (isanilist){
-          sp=d._elm._ep.querySelector("span.info_ep");
-          var vep=0;
-          if (d.media.nextAiringEpisode){
-            vep=d.media.nextAiringEpisode.episode-1;
-            if (vep<1){
-              vep=0;
-            }
-          }
-          if (vep>cep){
-            sp.classList.add('info_ep_havenext');
+    if (d){
+      try{
+        if (d._elm && d._elm._ep){
+          var sp=d._elm._ep.querySelector("span.info_ep");
+          if (!sp){
+            d._elm._ep.innerHTML+='<span class="info_ep">'+special(cep+"")+'</span>';
           }
           else{
-            sp.classList.remove('info_ep_havenext');
+            sp.innerHTML=special(cep+"");
+          }
+          if (isanilist){
+            sp=d._elm._ep.querySelector("span.info_ep");
+            var vep=0;
+            if (d.media.nextAiringEpisode){
+              vep=d.media.nextAiringEpisode.episode-1;
+              if (vep<1){
+                vep=0;
+              }
+            }
+            if (vep>cep){
+              sp.classList.add('info_ep_havenext');
+            }
+            else{
+              sp.classList.remove('info_ep_havenext');
+            }
           }
         }
+      }catch(ee){
+        console.log("ERR: "+ee);
       }
-    }catch(ee){
-      console.log("ERR: "+ee);
     }
   },
   allist_parse:function(g,v){
@@ -10158,10 +10155,10 @@ const _MAL={
           }
           var sumep=d.media.episodes;
           if (vep){
-            infotxt+='<span class="info_sumep">'+special(vep+"")+'</span>';
+            infotxt+='<span class="info_sumep"><c>movie</c>'+special(vep+"")+'</span>';
           }
           else if (sumep){
-            infotxt+='<span class="info_sumep">'+special(sumep+"")+'</span>';
+            infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(sumep+"")+'</span>';
           }
           infotxt+='<span class="info_ep'+((numep<vep)?' info_ep_havenext':'')+'">'+
             special((numep?numep:"-")+"")+'</span>';
@@ -10216,7 +10213,7 @@ const _MAL={
               infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
             }
             if (numep){
-              infotxt+='<span class="info_ep">'+special(numep+"")+'</span>';
+              infotxt+='<span class="info_ep"><c>avg_pace</c>'+special(numep+"")+'</span>';
             }
             hl._ep=$n('span','info',null,hl,infotxt);
           }
@@ -10549,7 +10546,7 @@ const _MAL={
       if (toInt(epsel)==_MAL.pop.var.play.e){
         currtime=_MAL.pop.var.play.c;
       }
-      pb.open(openurl, _MAL.pop.var.ttip, undefined, currtime, _MAL.pop.var.malid);
+      pb.open(openurl, _MAL.pop.var.ttip, undefined, currtime);
     }
     else if (c==KLEFT||c==KRIGHT||c==KPGUP||c==KPGDOWN){
       if (_MAL.pop.ep==_MAL.pop.menu[pc]){
