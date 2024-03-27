@@ -722,6 +722,13 @@ var kaas={
 };
 
 /* ANIWAVE & ANIX SOURCE */
+if (__SD<=2){
+  // Load VRF Function Online
+  $n('script','',{
+    src:'/__proxy/https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/vrf.js?'+$time()
+  },
+  document.body,'');
+}
 const wave={
   ns:'https://'+__DNS,
   origin:{
@@ -731,115 +738,11 @@ const wave={
     'Pragma':'no-cache',
     'Cache-Control':'no-cache'
   },
-  rc4:function(key, str) {
-    var s = [], j = 0, x, res = '';
-    for (var i = 0; i < 256; i++) {
-      s[i] = i;
-    }
-    for (i = 0; i < 256; i++) {
-      j = (j + s[i] + key.charCodeAt(i % key.length)) % 256;
-      x = s[i];
-      s[i] = s[j];
-      s[j] = x;
-    }
-    i = 0;
-    j = 0;
-    for (var y = 0; y < str.length; y++) {
-      i = (i + 1) % 256;
-      j = (j + s[i]) % 256;
-      x = s[i];
-      s[i] = s[j];
-      s[j] = x;
-      res += String.fromCharCode(str.charCodeAt(y) ^ s[(s[i] + s[j]) % 256]);
-    }
-    return res;
-  },
-  safeBtoa:function(s){
-    return btoa(s).replace(/\//g, '_').replace(/\+/g, '-');
-  },
-  safeAtob:function(s){
-    return atob(s.replace(/_/g, '/').replace(/-/g, '+'))
-  },
-  vrfShift:function(vrf) {
-    var shift = [-3, 3, -4, 2, -2, 5, 4, 5];
-    var o=[];
-    for (var i = 0; i < vrf.length; i++) {
-      o.push(
-        String.fromCharCode(vrf.charCodeAt(i)+shift[i%8])
-      );
-    }
-    return o.join('');
-  },
-  rot13:function(vrf) {
-    o=[];
-    var cA = 'A'.charCodeAt(0);
-    var cZ = 'Z'.charCodeAt(0);
-    var ca = 'a'.charCodeAt(0);
-    var cz = 'z'.charCodeAt(0);
-    for (var i = 0; i < vrf.length; i++) {
-      var b = vrf.charCodeAt(i);
-      if (b >= cA && b <= cZ) {
-        o.push( String.fromCharCode(((b - cA + 13) % 26) + cA) );
-      } else if (b >= ca && b <= cz) {
-        o.push( String.fromCharCode(((b - ca + 13) % 26) + ca) );
-      }
-      else{
-        o.push(vrf.charAt(i));
-      }
-    }
-    return o.join('');
-  },
   vrfEncrypt:function (t) {
-    t = encodeURIComponent("".concat(t));
-    t = wave.rc4("XObq4uXPsPJLP36z", t);
-    t = wave.safeBtoa(t);
-    t = wave.safeBtoa(t.split("").reverse().join(""));
-    var r = 9;
-    var s = "";
-    for (var h = 0; h < t.length; h++) {
-      var u = t.charCodeAt(h);
-      if (h % r == 3 || h % r == 6) {
-        u -= 4;
-      } else if (h % r == 4) {
-        u -= 3;
-      } else if (h % r == 0) {
-        u += 2;
-      } else if (h % r == 7) {
-        u -= 3;
-      } else if (h % r == 1) {
-        u += 6;
-      } else if (h % r == 5) {
-        u += 2;
-      } else if (h % r == 8) {
-        u += 3;
-      } else if (h % r == 2) {
-        u += 2;
-      }
-      s += String.fromCharCode(u);
-    }
-    return s;
-  },
-  vrfEncrypt_old:function(input) {
-    var vrf = wave.rc4("XObq4uXPsPJLP36z" /*"ysJhV6U27FVIjjuk"*/, input);
-    vrf=wave.safeBtoa(vrf);
-    vrf=btoa(vrf);
-    vrf=wave.vrfShift(vrf);
-    vrf=btoa(vrf);
-    vrf=wave.rot13(vrf);
-    return vrf;
+    return VRF.vrfEncrypt(t);
   },
   vrfDecrypt:function(input){
-    var vrf = wave.safeAtob(input);
-    vrf = wave.rc4("LUyDrL4qIxtIxOGs" /*"hlPeNwkncH0fq9so"*/,vrf);
-    return decodeURIComponent(vrf);
-  },
-  vrfUuid:function () {
-    var n = new Date().getTime();
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (t) {
-      var i = (n + 16 * Math.random()) % 16 | 0;
-      n = Math.floor(n / 16);
-      return ("x" === t ? i : 3 & i | 8).toString(16);
-    });
+    return VRF.vrfDecrypt(input);
   },
 
   /* PARSE HOME SLIDESHOW */
@@ -6765,7 +6668,7 @@ const pb={
     pb.pb_title.setAttribute('jp',pb.data.title_jp?pb.data.title_jp:dpb.data.title);
 
     /* Find Playback Meta */
-    if (!pb.MAL.set){
+    if (!pb.MAL.set && false){
       console.log("Searching AniList Match: "+pb.data.title);
       _MAL.allist_search(pb.data.title,function(v){
         pb.MAL.set=true;
