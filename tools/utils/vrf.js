@@ -81,3 +81,19 @@ const VRF={
     });
   }
 }
+
+// Update Server 1 Domain
+if (!wave.vidplayGetDataDo){
+  wave.vidplayGetDataDo=wave.vidplayGetData;
+  wave.vidplayGetData=function(u, cb){
+    var s=u.split('/');
+    if (s[2].indexOf('mcloud')<1){
+      s[2]='vidplay.online';
+    }
+    var uu=s.join('/');
+    if (pb.data.stream_vurl==u){
+      pb.data.stream_vurl=u;
+    }
+    return wave.vidplayGetDataDo(uu,cb);
+  }
+}
