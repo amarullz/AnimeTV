@@ -5436,7 +5436,7 @@ const pb={
                 
                 pb.pb_vid.innerHTML='';
                 if (__SD==1 || __SD==2){
-                  wave.vidplayGetData(pb.data.stream_vurl,function(r){
+                  wave.vidplayGetData(d.stream_vurl,function(r){
                     if (r && r.result && r.result.sources){
                       if (preloadVidCb(r)){
                         return;
