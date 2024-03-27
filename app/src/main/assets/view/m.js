@@ -6606,7 +6606,7 @@ const pb={
   },
 
   update_malist_ep:function(dr){
-    if (dr<((pb.cfg_data.listprog * 23)+1)){
+    if (dr<((pb.cfg_data.listprog * 24)+1)){
       return;
     }
     if (pb.MAL.set){
@@ -10093,10 +10093,10 @@ const _MAL={
         if (d._elm && d._elm._ep){
           var sp=d._elm._ep.querySelector("span.info_ep");
           if (!sp){
-            d._elm._ep.innerHTML+='<span class="info_ep">'+special(cep+"")+'</span>';
+            d._elm._ep.innerHTML+='<span class="info_ep"><c>avg_pace</c>'+special(cep+"")+'</span>';
           }
           else{
-            sp.innerHTML=special(cep+"");
+            sp.innerHTML='<c>avg_pace</c>'+special(cep+"");
           }
           if (isanilist){
             sp=d._elm._ep.querySelector("span.info_ep");
@@ -10160,7 +10160,7 @@ const _MAL={
           else if (sumep){
             infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(sumep+"")+'</span>';
           }
-          infotxt+='<span class="info_ep'+((numep<vep)?' info_ep_havenext':'')+'">'+
+          infotxt+='<span class="info_ep'+((numep<vep)?' info_ep_havenext':'')+'"><c>avg_pace</c>'+
             special((numep?numep:"-")+"")+'</span>';
           hl._ep=$n('span','info',null,hl,infotxt);
         }
