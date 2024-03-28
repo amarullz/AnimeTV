@@ -430,9 +430,9 @@ var kaas={
               return;
             }
             view_data.stream_mirror={
-              'hard':[],
-              'soft':[],
-              'dub':[]
+              'hard':null,
+              'soft':null,
+              'dub':null
             };
             view_data.stream_url={
               'hard':'',
