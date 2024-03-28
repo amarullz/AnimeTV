@@ -310,10 +310,12 @@ var kaas={
   selectServer:function(d){
     d.stream_vurl = d.stream_url.hard;
     d.stream_sname = d.stream_types.hard;
+    d.stream_mirror_data = d.stream_mirror.hard;
     d.streamtype="sub";
     var is_soft=false;
     if (_API.currentStreamType==2){
       if (d.stream_url.dub){
+        d.stream_mirror_data = d.stream_mirror.dub;
         d.stream_vurl = d.stream_url.dub;
         d.stream_sname = d.stream_types.dub;
         d.streamtype="dub";
@@ -324,6 +326,7 @@ var kaas={
     }
     if (is_soft||_API.currentStreamType==1){
       if (d.stream_url.soft){
+        d.stream_mirror_data = d.stream_mirror.soft;
         d.stream_vurl = d.stream_url.soft;
         d.stream_sname = d.stream_types.soft;
         d.streamtype="softsub";
@@ -352,6 +355,7 @@ var kaas={
       }
       var ismirror= pb.cfg_data.mirrorserver;
       var od=d[0];
+      var md=d[0];
       var vs=null;
       var bs=null;
       for (var i=0;i<d.length;i++){
@@ -367,15 +371,33 @@ var kaas={
       }
       if (bs){
         od=bs;
+        md=vs?vs:bs;
       }
       else if (vs){
         od=vs;
+        md=bs?bs:vs;
       }
       if (ismirror){
         od=vs?vs:od;
+        md=bs?bs:md;
       }
       else{
         od=bs?bs:od;
+        md=vs?vs:md;
+      }
+      if (!md.name){
+        var vd=md;
+        odname="VidStreaming";
+        if (vd.indexOf("/pink-bird")>0){
+          odname="BirdStream";
+        }
+        else if (vd.indexOf("-duck")>0){
+          odname="DuckStream";
+        }
+        md={
+          name:odname,
+          src:vd
+        }
       }
       if (!od.name){
         var vd=od;
@@ -391,6 +413,7 @@ var kaas={
           src:vd
         }
       }
+      od.mirror=JSON.parse(JSON.stringify(md));
       return od;
     }
 
@@ -406,6 +429,11 @@ var kaas={
             if (--sv_num>0){
               return;
             }
+            view_data.stream_mirror={
+              'hard':[],
+              'soft':[],
+              'dub':[]
+            };
             view_data.stream_url={
               'hard':'',
               'soft':'',
@@ -420,6 +448,9 @@ var kaas={
             if (d.sub_data){
               var sv=selectServer(d.sub_data);
               if (sv){
+                sv.mirror.name=(sv.mirror.name+'').toLowerCase();
+                view_data.stream_mirror.hard=
+                view_data.stream_mirror.soft=sv.mirror;
                 view_data.stream_url.hard=
                 view_data.stream_url.soft=sv.src;
                 view_data.stream_types.hard=
@@ -429,6 +460,8 @@ var kaas={
             if (d.dub_data){
               var sv=selectServer(d.dub_data);
               if (sv){
+                sv.mirror.name=(sv.mirror.name+'').toLowerCase();
+                view_data.stream_mirror.dub=sv.mirror;
                 view_data.stream_url.dub=sv.src;
                 view_data.stream_types.dub=sv.name.toLowerCase();
               }
@@ -659,7 +692,11 @@ var kaas={
             ));
             data.server_type=type;
             data.server_url=url;
-            cb(data);
+            try{
+              cb(data);
+            }catch(ee){
+              console.warn("Err streamGet cb: "+ee);
+            }
             return;
           }catch(e){}
         }
@@ -706,7 +743,9 @@ var kaas={
           var ku=k.substring(k.indexOf('=')+1).trim();
           var playerConfig=JSON.parse(eval("JSON.stringify("+ku+")"));
           var sourceUrl=generateSourceUrl(playerConfig);
-          streamLoadSource(sourceUrl);
+          try{
+            streamLoadSource(sourceUrl);
+          }catch(ee){}
           return;
         }catch(e){
           console.warn(e);
@@ -5123,13 +5162,46 @@ const pb={
       }
       else if (__SD6){
         kaas.selectServer(pb.data);
+        function kaasLoadSkipInfo(b){
+          if (b&&b.cues){
+            if (pb.data.skip.length==0){
+              pb.data.skip=[[0,0],[0,0]]
+            }
+            if (b.cues.intro){
+              pb.data.skip[0]=[b.cues.intro.start_ms/1000.0,b.cues.intro.end_ms/1000.0];
+            }
+            if (b.cues.ending){
+              pb.data.skip[1]=[b.cues.ending.start_ms/1000.0,b.cues.ending.end_ms/1000.0];
+            }
+          }
+        }
+        function kaasLoadSubtitle(b){
+          try{
+            if (b && b.subtitles){
+              var n=b.subtitles.length;
+              for (var i=0;i<n;i++){
+                var tk=b.subtitles[i];
+                var tksrc=tk.src;
+                if (tksrc.indexOf("//")!=0){
+                  var vurl=new URL(pb.data.stream_vurl);
+                  tksrc="//"+vurl.host+tksrc;
+                }
+                pb.subtitles.push({
+                  u:'https:'+tksrc,
+                  d:(i==0)?1:0,
+                  l:(tk.name+'').toLowerCase().trim(),
+                  i:(tk.language+'').toLowerCase().trim()
+                });
+              }
+            }
+          }catch(e){}
+        }
         kaas.streamGet(
           pb.data.stream_vurl, 
           pb.data.stream_sname, function(b){
             pb.pb_vid.innerHTML='';
             pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
             _API.setMessage(null);
-
             if (!b){
               pb.playback_error(
                 'PLAYBACK ERROR',
@@ -5141,43 +5213,29 @@ const pb={
             /* Load Subtitle */
             vtt.clear();
             pb.subtitles=[];
+            pb.data.skip=[];
             window.__subtitle=pb.subtitles;
-            try{
-              if (b.subtitles){
-                var n=b.subtitles.length;
-                for (var i=0;i<n;i++){
-                  var tk=b.subtitles[i];
-                  var tksrc=tk.src;
-                  if (tksrc.indexOf("//")!=0){
-                    var vurl=new URL(pb.data.stream_vurl);
-                    tksrc="//"+vurl.host+tksrc;
+            kaasLoadSubtitle(b);
+            kaasLoadSkipInfo(b);
+            var subLoaded=false;
+            if (pb.data.stream_mirror_data){
+              if (pb.data.stream_mirror_data.src!=pb.data.stream_vurl){
+                kaas.streamGet(
+                  pb.data.stream_mirror_data.src, 
+                  pb.data.stream_mirror_data.name, function(b2){
+                    console.log(["Second Load", b2]);
+                    if (b2){
+                      kaasLoadSubtitle(b2);
+                      vtt.init(pb.subtitles);
+                      kaasLoadSkipInfo(b2);
+                    }
                   }
-                  pb.subtitles.push({
-                    u:'https:'+tksrc,
-                    d:(i==0)?1:0,
-                    l:(tk.name+'').toLowerCase().trim(),
-                    i:(tk.language+'').toLowerCase().trim()
-                  });
-                }
-                vtt.init(pb.subtitles);
+                );
+                subLoaded=true;
               }
-            }catch(e){}
-
-            if (b.cues){
-              pb.data.skip=[];
-              if (b.cues.intro){
-                pb.data.skip.push([b.cues.intro.start_ms/1000.0,b.cues.intro.end_ms/1000.0]);
-              }
-              else{
-                pb.data.skip.push([0,0]);
-              }
-              if (b.cues.ending){
-                pb.data.skip.push([b.cues.ending.start_ms/1000.0,b.cues.ending.end_ms/1000.0]);
-              }
-              else{
-                pb.data.skip.push([0,0]);
-              }
-              console.warn(["KAAS Intro Skip",pb.data.skip]);
+            }
+            if (!subLoaded){
+              vtt.init(pb.subtitles);
             }
 
             /* Load Videos */
