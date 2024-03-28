@@ -7601,7 +7601,8 @@ const home={
 
         var hl=$n('div',(__SD!=2)?'fullimg':'',{action:"$"+JSON.stringify(argv),arg:"ep"},home.home_slide.P,'');
         home.home_add_pager(hl);
-        hl._img=$n('img','',{loading:'lazy',src:$img(d.banner?d.banner:d.poster)},hl,'');
+        hl._imgh=$n('content','img_holder',null,hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:$img(d.banner?d.banner:d.poster)},hl._imgh,'');
         hl._viewbox=$n('span','infobox',null,hl,'');
         hl._view=$n('span','infovalue',null,hl._viewbox,'');
         hl._title=$n('h4','',{jp:d.title_jp?d.title_jp:d.title},hl._view,tspecial(d.title));
@@ -7779,7 +7780,8 @@ const home={
 
           var hl=$n('div','fullimg',{action:"#"+malid,arg:''},g.P,'');
           home.home_add_pager(hl);
-          hl._img=$n('img','',{loading:'lazy',src:$img(d.bannerImage?d.bannerImage:d.coverImage.large)},hl,'');
+          hl._imgh=$n('content','img_holder',null,hl,'');
+          hl._img=$n('img','',{loading:'lazy',src:$img(d.bannerImage?d.bannerImage:d.coverImage.large)},hl._imgh,'');
           hl._img.onload=function(){
             this.classList.add('loaded');
           };
@@ -7857,6 +7859,10 @@ const home={
   home_anilist_load:function(){
     home.home_onload=1;
     home.home_slide.setAttribute('list-title','AniList Trending');
+    var addj=' countryOfOrigin: "JP",';
+    if (pb.cfg_data.nonjapan){
+      addj='';
+    }
     _MAL.alreq(`query ($page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -7864,7 +7870,7 @@ const home={
           hasNextPage
           currentPage
         }
-        media(sort:TRENDING_DESC, status:RELEASING, type: ANIME, countryOfOrigin: "JP"){
+        media(sort:TRENDING_DESC, status:RELEASING,`+addj+` type: ANIME){
           id
           title{
             romaji
@@ -8158,6 +8164,26 @@ const home={
       ];
     }
 
+    homepage.push(
+      ["altop",function(el){
+        el._alsort='top';
+        home.recent_init(el, _MAL.allist_list_loader);
+      }, "Top Anime - AniList", false]
+    );
+
+    homepage.push(
+      ["alpopular",function(el){
+        el._alsort='popular';
+        home.recent_init(el, _MAL.allist_list_loader);
+      }, "All Time Popular - AniList", false]
+    );
+    homepage.push(
+      ["alyear",function(el){
+        el._alsort='year';
+        home.recent_init(el, _MAL.allist_list_loader);
+      }, "Top "+_MAL.allist_year()+" - AniList", false]
+    );
+
     var homeSaved = listOrder.store.load("home",false);
     var homepage_order=[];
     var homepage_ids={};
@@ -8193,8 +8219,13 @@ const home={
         if (ho[1]){
           var h=$n('div','home_list pb_menu', {"list-title":hd[2]}, lholder, '');
           h._lid=ho[0];
-          h._ajaxurl=hd[1];
-          home.recent_init(h);
+          if (typeof hd[1] === "function"){
+            hd[1](h);
+          }
+          else{
+            h._ajaxurl=hd[1];
+            home.recent_init(h);
+          }
           home.menus[0].push(h);
         }
         home.listOrder.home.push(
@@ -9806,6 +9837,10 @@ const _MAL={
     });
   },
   allist_schedule:function(page,cb){
+    var addj=' countryOfOrigin: "JP",';
+    if (pb.cfg_data.nonjapan){
+      addj='';
+    }
     _MAL.alreq(`query ($page: Int, $perPage: Int){
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -9813,7 +9848,7 @@ const _MAL={
           hasNextPage
           currentPage
         }
-        media(status:RELEASING, type: ANIME, format:TV, countryOfOrigin: "JP") {
+        media(status:RELEASING, type: ANIME,`+addj+` format:TV) {
           id
           title{
             romaji
@@ -9839,6 +9874,159 @@ const _MAL={
     }`,{
       "page":page?page:1,
       "perPage":50
+    },function(v){
+      if (v){
+        try{
+          cb(v);
+          return;
+        }catch(e){}
+      }
+      cb(null);
+    }, true);
+  },
+  allist_list_parser:function(g,v){
+    try{
+      if (!v.data.Page.pageInfo.hasNextPage){
+        g._page=100;
+      }
+      if (v.data.Page.media.length>0){
+        for (var i=0;i<v.data.Page.media.length;i++){
+          var d=v.data.Page.media[i];
+          var malid="anilistmedia_"+d.id;
+          _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
+          var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
+          
+          hl._img=$n('img','',{loading:'lazy',src:$img(d.coverImage.large)},hl,'');
+          hl._title=$n('b','',{
+              jp:d.title.romaji?d.title.romaji:d.title.english
+            },hl,tspecial(
+              d.title.english?d.title.english:d.title.romaji
+            ));
+
+          var infotxt='';
+          var binfotxt='';
+          if (d.averageScore){
+            binfotxt+='<span class="info_score"><c>star</c>'+d.averageScore+'</span>';
+          }
+          if (d.isAdult){
+            binfotxt+='<span class="info_adult">18+</span>';
+          }
+          if (d.seasonYear){
+            binfotxt+='<span class="info_year">'+special(d.seasonYear)+'</span>';
+          }
+          if (d.duration){
+            binfotxt+='<span class="info_duration">'+special((d.duration+"").toLowerCase())+' min</span>';
+          }
+          
+
+          var mtp=d.format;
+          if (mtp=='TV_SHORT'){
+            mtp='TV';
+          }
+          if (mtp){
+            infotxt+='<span class="info_type">'+special(mtp)+'</span>';
+          }
+          var vep=0;
+          if (d.nextAiringEpisode){
+            vep=d.nextAiringEpisode.episode-1;
+            if (vep<1){
+              vep=0;
+            }
+          }
+          var sumep=d.episodes;
+          d.eptotal=sumep;
+          d.ep=vep;
+
+          if (d.eptotal){
+            if (d.ep){
+              infotxt+='<span class="info_ep"><c>movie</c>'+special(d.ep)+'</span>';
+            }
+            infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(d.eptotal)+'</span>';
+          }
+          else if (d.ep){
+            infotxt+='<span class="info_ep"><c>movie</c>'+special(d.ep)+'</span>';
+          }
+          if (infotxt){
+            hl._ep=$n('span','info',null,hl,infotxt);
+          }
+          if (binfotxt){
+            hl._ep=$n('span','info info_bottom',null,hl,binfotxt);
+          }
+        }
+        while (g.P.childElementCount>30){
+          g._spre.push(g.P.firstElementChild.nextElementSibling);
+          g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+        }
+        g.__update_pre();
+        if (!g._sel)
+          pb.menu_select(g,g.P.firstElementChild);
+        else
+          pb.menu_select(g,g._sel);
+      }
+    }catch(e){
+      console.log("ANILIST - LIST_PARSER : "+e);
+    }
+  },
+  allist_list_loader:function(g){
+    g._onload=1;
+    _MAL.allist_list(g._alsort,g._page,12,function(v){
+      if (v){
+        try{
+          _MAL.allist_list_parser(g,v);
+        }catch(e){}
+        g._onload=0;
+      }
+    });
+  },
+  allist_year:function(){
+    return (new Date(new Date().getTime()-2592000000)).getFullYear();
+  },
+  allist_list:function(sort,page,perpage,cb){
+    var sr='POPULARITY_DESC';
+    if (sort=='top'){
+      sr='SCORE_DESC';
+    }
+    else if (sort=='year'){
+      sr='SCORE_DESC, seasonYear: '+(_MAL.allist_year());
+    }
+    var addj=' countryOfOrigin: "JP",';
+    if (pb.cfg_data.nonjapan){
+      addj='';
+    }
+    _MAL.alreq(`query ($page: Int, $perPage: Int){
+      Page(page: $page, perPage: $perPage) {
+        pageInfo {
+          perPage
+          hasNextPage
+          currentPage
+        }
+        media(sort:`+sr+`,isAdult:false, type: ANIME,`+addj+` status_not_in:[HIATUS,CANCELLED,NOT_YET_RELEASED]) {
+          id
+          title{
+            romaji
+            english
+          }
+          coverImage{
+            large
+          }
+          status
+          duration
+          format
+          seasonYear
+          season
+          isAdult
+          averageScore
+          nextAiringEpisode {
+            episode
+            airingAt
+            timeUntilAiring
+          }
+          episodes
+        }
+      }
+    }`,{
+      "page":page?page:1,
+      "perPage":perpage
     },function(v){
       if (v){
         try{
