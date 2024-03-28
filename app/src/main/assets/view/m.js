@@ -5239,6 +5239,7 @@ const pb={
             }
 
             /* Load Videos */
+            console.warn(["kaas.streamGet",b]);
             if (b.dash){
               pb.sel_quality="AUTO";
               pb.init_video_player_url('https:'+b.dash+'#dash');
@@ -6716,6 +6717,9 @@ const pb={
       console.log("Searching AniList Match: "+pb.data.title);
       _MAL.allist_search(pb.data.title,function(v){
         pb.MAL.set=true;
+        if (!v){
+          return;
+        }
         if (v.match){
           pb.MAL.anilist=JSON.parse(JSON.stringify(v.match));
           if (v.match.idMal){
@@ -6745,7 +6749,7 @@ const pb={
             progress:v.match.mediaListEntry.progress
           };
         }
-      },1,10,true);
+      },1,10,true, true);
     }
 
     var addb='';
@@ -9791,7 +9795,7 @@ const _MAL={
       progress:ep
     },cb);
   },
-  allist_search:function(q,cb,page,perpage,minimal){
+  allist_search:function(q,cb,page,perpage,minimal,mywatch){
     _MAL.alreq((minimal?`query ($search: String, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -9874,7 +9878,7 @@ const _MAL={
                 var s1=med.title.english;
                 var s2=med.title.romaji;
                 var ms=med.status;
-                if (ms=="FINISHED" || ms=="RELEASING" || ms=="HIATUS"){
+                if (ms=="FINISHED" || ms=="RELEASING" || ms=="HIATUS" || (mywatch&&(ms=="NOT_YET_RELEASED")) ){
                   if (s1 && (srcf[j](s1)==srcq[j])){
                     v.match=JSON.parse(JSON.stringify(med));
                     break;
