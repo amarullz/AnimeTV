@@ -4220,8 +4220,12 @@ const pb={
 
         if ('uifontsize' in j){
           var sv=parseInt(j.uifontsize);
+          pb.cfg_data.uifontsize=0;
           if (sv&&sv>0&&sv<=3)
             pb.cfg_data.uifontsize=sv;
+        }
+        else{
+          pb.cfg_data.uifontsize=2;
         }
 
         if ('httpclient' in j){
