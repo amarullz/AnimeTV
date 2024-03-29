@@ -10985,6 +10985,7 @@ const _MAL={
       }
     }
     else if (c==KENTER){
+      var pp=_MAL.pop.detail_holder;
       if (!pp._el._ytfpaused){
         pp._el._ytfpaused=true;
         _MAL.pop_detail_youtube_send('pause');
