@@ -126,6 +126,26 @@ ttl{
   --fs-100vw: 10vw;
 }
 
+:root.view-bigfont.view-biggest {
+  /* big font size */
+  --fs-7vw: 1.2vw;
+  --fs-8vw: 1.3vw;
+  --fs-10vw: 1.5vw;
+  --fs-11vw: 1.6vw;
+  --fs-12vw: 1.7vw;
+  --fs-13vw: 1.8vw;
+  --fs-14vw: 1.9vw;
+  --fs-15vw: 2vw;
+  --fs-17vw: 2.1vw;
+  --fs-20vw: 2.5vw;
+  --fs-22vw: 2.7vw;
+  --fs-25vw: 3vw;
+  --fs-30vw: 3.5vw;
+  --fs-40vw: 4.5vw;
+  --fs-60vw: 6.5vw;
+  --fs-100vw: 10vw;
+}
+
 :root.theme_green {
   --primary-bg: #000300;
   --primary-1: #040;
@@ -2802,18 +2822,59 @@ c.loader {
   left:0;
   right: 0;
   bottom: 0;
-  /* background-color: #222; */
-  padding:1.5vw;
-  overflow-y: auto;
-  overflow-x: hidden;
   font-size: var(--fs-14vw);
-
-  /* background: linear-gradient(180deg, #222 0, #1e1e1e 100%); */
-  /* background-color: #121212; */
 }
 
 
 /* AniList Detail Style */
+#anilist_detail .alsd_button{
+  display: inline-block;
+  padding:0 1.5vw 0 1vw;
+  font-size: var(--fs-13vw);
+  line-height: 1.6;
+  color:#fff;
+  margin-right: .5vw;
+  border-radius: .5vw;
+  text-align: center;
+}
+#anilist_detail .alsd_button c{
+  position: relative;
+  top:-.15vw;
+  margin-right: .4vw;
+  width:var(--fs-14vw);
+  overflow: hidden;
+  text-align: center;
+}
+#anilist_detail .alsd_button.alsd_button_full{
+  background-color: rgba(40,40,40,.4);
+  display: block;
+  margin: 0 0 1vw 0;
+}
+#anilist_detail .alsd_button.alsd_button_right{
+  float: right;
+}
+#anilist_detail .alsd_button.active{
+  background-color: var(--primary-3) !important;
+}
+#anilist_detail .alsd_container{
+  position: absolute;
+  top:0;
+  left:0;
+  right: 0;
+  bottom: calc(var(--fs-14vw) * 2.2);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: rgba(8,8,8,.4);
+  border-bottom:.1vw solid rgba(255,255,255,.1);
+  padding:1.5vw;
+}
+#anilist_detail .alsd_tools{
+  position: absolute;
+  left:0;
+  right: 0;
+  bottom: 0;
+  padding:.6vw;
+}
 #anilist_detail h4{
   color: var(--accent-1);
   font-size: var(--fs-22vw);
@@ -2856,38 +2917,50 @@ c.loader {
 #anilist_detail .alsd_left_container{
   width:16vw;
   height:22vw;
-  float:left;
-  padding-right:2vw;
+  display: block;
+  position: absolute;
 }
 #anilist_detail img.alsd_poster{
   background-color: #000;
   border-radius: .8vw;
-  margin-right: 1.5vw;
-  margin-bottom: 1.5vw;
+  margin:0;
+  margin-bottom: 1vw;
   width:16vw;
   height:22vw;
 }
 
-#anilist_detail .alsd_youtube{
+#anilist_detail .alsd_youtube,
+#anilist_detail .alsd_banner{
   width:42vw;
   height:22vw;
   border-radius: .8vw;
   margin-bottom: 1vw;
-  background-color: #000;
   visibility: visible;
   position: relative;
+  overflow: hidden;
+}
+#anilist_detail .alsd_banner{
+  background-color: #000;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  
 }
 .view-bigfont #anilist_detail .alsd_youtube{
   width:50vw;
+  height:28vw;
+}
+.view-bigfont #anilist_detail .alsd_banner{
+  width:50vw;
   height:22vw;
 }
-#anilist_detail .alsd_youtube.hide{
+#anilist_detail .alsd_banner.hide{
   visibility: hidden;
   position: absolute;
 }
 #anilist_detail .alsd_content{
   padding-left: 18vw;
-  min-height: 23vw;
+  /* min-height: 23vw; */
 }
 #anilist_detail .alsd_infobox{
   padding: .5vw 0 1.5vw 0;
@@ -2908,6 +2981,7 @@ c.loader {
 #anilist_detail .alsd_desc{
   font-size: var(--fs-13vw);
   line-height: 1.2;
+  min-height:5vw;
 }
 #anilist_detail .alsd_clear{
   clear: both;
@@ -2920,7 +2994,6 @@ c.loader {
 }
 #anilist_detail .alsd_keyval.alsd_keyval_def{
   display: block;
-  clear: both;
   margin-top:2vw;
   margin-bottom:2vw;
   border-radius: .6vw;
@@ -2969,19 +3042,33 @@ c.loader {
   bottom:auto;
   padding:.4vw;
   background-color: #333;
-  border-radius: .3vw;
+  border-radius: 4vw;
   font-size:var(--fs-15vw);
   line-height:1;
   white-space: nowrap;
+  transition: all var(--tim-2s) var(--interpolation);
+  width:var(--fs-17vw);
+  overflow: hidden;
 }
 .view-bigfont #malview #malview_info_detail_button{
   right:20.8vw;
 }
 #malview #malview_info_detail_button.active{
   background-color: var(--primary-1);
+  width:calc(var(--fs-15vw) * 4.3);
+  /* border-radius: .3vw; */
+}
+#malview #malview_info_detail_button.active:after{
+  content:'More Info';
+  font-size:var(--fs-10vw);
+  display: inline-block;
+  margin-left: .5vw;
+  vertical-align: middle;
 }
 #malview_info_detail_button c{
-  width: var(--fs-15vw);
+  width: var(--fs-17vw);
+  text-align: center;
+  margin-top:-.1vw;
 }
 #malview #malview_loading{
   position: absolute;
