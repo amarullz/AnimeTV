@@ -11122,11 +11122,19 @@ const _MAL={
         hl._playtrailer.innerHTML='<c>pause</c> Pause Trailer';
       }
     }
-    else if (vcmd=='yt-pause' || pd.vcmd=='yt-end'){
+    else if (vcmd=='yt-pause' || vcmd=='yt-end'){
       if (hl && hl._trailer){
         console.warn("Pause YT");
         hl._ytfpaused=false;
         hl._playtrailer.innerHTML='<c>play_arrow</c> Play Trailer';
+      }
+    }
+    else if (vcmd=='yt-error'){
+      if (hl && hl._trailer){
+        console.warn("Error YT");
+        hl._ytfpaused=true;
+        hl._ytferror=true;
+        hl._playtrailer.innerHTML='<c>close</c> Close Trailer';
       }
     }
   },
@@ -11183,8 +11191,19 @@ const _MAL={
     }
     else if (c==KENTER){
       if (hl._btn[hl._btn_sel]==hl._playtrailer){
-        hl._initTrailer();
-        _MAL.pop_detail_youtube_send('toggle');
+        if (hl._ytferror){
+          hl._ytferror=false;
+          if (hl._banner){
+            hl._banner.classList.remove('hide');
+          }
+          hl._content.removeChild(hl._trailer);
+          hl._trailer=null;
+          hl._playtrailer.innerHTML='<c>play_arrow</c> Play Trailer';
+        }
+        else{
+          hl._initTrailer();
+          _MAL.pop_detail_youtube_send('toggle');
+        }
       }
       else if (hl._btn[hl._btn_sel]==hl._addal){
         if (!_MAL.altoken){

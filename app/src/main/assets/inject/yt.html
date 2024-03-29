@@ -10,6 +10,7 @@ video{
 #player .html5-video-player>*{
   display: none !important;
 }
+#yterror_msg,
 #player .html5-video-player .html5-video-container{
   z-index: 999999 !important;
   position: fixed !important;
@@ -20,7 +21,23 @@ video{
   width: 100% !important;
   height: 100% !important;
   visibility: visible !important;
+}
+#player .html5-video-player .html5-video-container{
   display: block !important;
+}
+#yterror_msg{
+  z-index: 9999999 !important;
+  display: none;
+}
+#yterror_msg.active{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#yterror_msg div{
+  color:#aaa;
+  font-size:3vw;
+  text-align: center;
 }
 #player,
 #player .html5-video-player,
@@ -77,10 +94,26 @@ body, html{
       vid.loop = true;
     }
   }
+  var _errorMsgElm=null;
+  function checkVid(){
+    if (!vid.src){
+      if (!_errorMsgElm){
+        _errorMsgElm=document.createElement('div');
+        _errorMsgElm.setAttribute('id','yterror_msg');
+        _errorMsgElm.innerHTML='<div>Trailer video is unavailable<br>or regionally blocked</div>';
+        document.body.appendChild(_errorMsgElm);
+      }
+      _errorMsgElm.classList.add('active');
+      $p('yt-error','');
+    }else if(_errorMsgElm){
+      _errorMsgElm.classList.remove('active');
+    }
+  }
   function findVid(){
     vid=document.querySelector('.html5-video-container video');
     if (vid){
       init();
+      setTimeout(checkVid,1000);
       return;
     }
     setTimeout(findVid,200);
