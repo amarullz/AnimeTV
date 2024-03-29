@@ -498,7 +498,7 @@ import javax.crypto.spec.SecretKeySpec;
             }
           }
           else{
-            Log.d(_TAG, "PROXY-GET = " + proxy_url);
+            Log.d(_TAG, "PROXY-"+method+" = " + proxy_url);
           }
 
           String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
@@ -549,6 +549,9 @@ import javax.crypto.spec.SecretKeySpec;
               http.setMethod(method,queryData,
                   isPostType?postType:"application/x-www-form-urlencoded");
             }
+          }
+          else if (method.equalsIgnoreCase("DELETE")){
+            http.setMethod("DELETE",null,null);
           }
           http.execute();
           InputStream stream = new ByteArrayInputStream(http.body.toByteArray());

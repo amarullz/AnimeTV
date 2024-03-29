@@ -8130,10 +8130,22 @@ const home={
         [
           "mal",
           function(el){
+            el._atype='watching';
             home.recent_init(el, _MAL.home_loader);
           },
           "MAL "+_MAL.auth.user,
           true
+        ]
+      );
+      mylist.push(
+        [
+          "malplan",
+          function(el){
+            el._atype='plan_to_watch';
+            home.recent_init(el, _MAL.home_loader);
+          },
+          "MAL Plan to Watch "+_MAL.auth.user,
+          false
         ]
       );
     }
@@ -9835,6 +9847,22 @@ const _MAL={
     }));
     xhttp.send();
   },
+  alset_list:function(id, stat, cb){
+    _MAL.alreq(`mutation($id: Int){
+      SaveMediaListEntry(mediaId:$id, status:`+stat+`){
+        id
+        mediaId
+        status
+      }
+    }`,{"id":id},function(c){ cb(c); });
+  },
+  alset_del:function(id, cb){
+    _MAL.alreq(`mutation($id: Int){
+      DeleteMediaListEntry(id:$id){
+        deleted
+      }
+    }`,{"id":id},function(c){ cb(c); });
+  },
   alset_ep:function(animeid, ep, cb){
     _MAL.alreq(`mutation($id: Int, $progress:Int){
       SaveMediaListEntry(id:$id, progress:$progress){
@@ -10242,10 +10270,10 @@ const _MAL={
       'limit=10';
     _MAL.req(uri,"GET",cb);
   },
-  list:function(offset,cb){
+  list:function(type,offset,cb){
     var uri='/v2/users/@me/animelist?nsfw=true&'+
       'fields=list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
-      'status=watching&'+
+      'status='+enc(type)+'&'+
       'limit='+_MAL.limit;
     if (offset){
       uri+='&offset='+offset;
@@ -10254,6 +10282,14 @@ const _MAL={
   },
   set_ep:function(animeid, ep, cb){
     var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
+    _MAL.req(uri,"PUT",cb);
+  },
+  set_del:function(animeid, cb){
+    var uri='/v2/anime/'+animeid+'/my_list_status';
+    _MAL.req(uri,"DELETE",cb);
+  },
+  set_list:function(animeid, stat, cb){
+    var uri='/v2/anime/'+animeid+'/my_list_status?status='+enc(stat);
     _MAL.req(uri,"PUT",cb);
   },
   login:function(isanilist){
@@ -10408,7 +10444,7 @@ const _MAL={
   home_loader:function(g){
     g._onload=1;
     var load_page=(g._page-1)*_MAL.limit;
-    _MAL.list(load_page, function(r){
+    _MAL.list(g._atype,load_page, function(r){
       if (r.ok){
         try{
           var v=JSON.parse(r.responseText);
@@ -10934,14 +10970,50 @@ const _MAL={
       if (trailer_avail){
         hl._playtrailer=$n('div','alsd_button',null,hl._tools,'<c>play_arrow</c> Play Trailer');
       }
-      hl._addmal=$n('div','alsd_button alsd_button_right',null,hl._tools,'<c>bookmark_add</c> Add to MAL');
+      hl._addmal=$n('div','alsd_button alsd_button_right',null,hl._tools,'');
+      hl._addmal._mid=d.idMal;
+      hl._addmal._update=function(){
+        var x=hl._addmal;
+        x._curr='';
+        if (x._dat && x._dat.my_list_status && x._dat.my_list_status.status){
+          x.innerHTML='<c>bookmark</c> MAL '+ucfirst(x._dat.my_list_status.status.replace(/_/g,' '),1);
+          x._curr=x._dat.my_list_status.status;
+        }
+        else{
+          x.innerHTML='<c>bookmark_add</c> Add to MAL';
+        }
+      };
+      hl._addmal._update();
+      _MAL.mal_detail(d.idMal,function(r){
+        if (r.ok){
+          try{
+            var ms=JSON.parse(r.responseText);
+            hl._addmal._dat={
+              my_list_status:{status:''}
+            };
+            if (ms.my_list_status){
+              hl._addmal._dat=ms;
+              hl._addmal._update();
+            }
+          }catch(e){}
+        }
+      }, true);
+
+
       hl._addal=$n('div','alsd_button alsd_button_right',null,hl._tools,'');
       if (d.mediaListEntry){
+        hl._addal._curr=d.mediaListEntry.status;
+        hl._addal._mid=d.mediaListEntry.id;
+        hl._addal._aid=d.id;
         hl._addal.innerHTML='<c>bookmark</c> AniList '+ucfirst(d.mediaListEntry.status,true);
-        $n('div','alsd_button alsd_button_full',null,hl._vleft,ucfirst(d.mediaListEntry.status,true));
+        hl._addal._myinfo=$n('div','alsd_button alsd_button_full',null,hl._vleft,ucfirst(d.mediaListEntry.status,true));
       }
       else{
+        hl._addal._curr='';
+        hl._addal._mid=0;
+        hl._addal._aid=d.id;
         hl._addal.innerHTML='<c>bookmark_add</c>Add to AniList';
+        hl._addal._myinfo=$n('div','alsd_button alsd_button_full',null,hl._vleft,"Not on your list");
       }
       if (trailer_avail){
         hl._btn.push(hl._playtrailer);
@@ -11078,7 +11150,6 @@ const _MAL={
 
     if (c==KUP || c==KDOWN){
       var ss = (window.innerHeight / 5);
-      var sm = (window.innerWidth / 4);  
       var st=hl.scrollTop;
       var sh=hl.scrollHeight;
       if (c==KUP){
@@ -11110,6 +11181,134 @@ const _MAL={
       if (hl._btn[hl._btn_sel]==hl._playtrailer){
         hl._initTrailer();
         _MAL.pop_detail_youtube_send('toggle');
+      }
+      else if (hl._btn[hl._btn_sel]==hl._addal){
+        if (!_MAL.altoken){
+          _API.showToast("Please login to AniList first...");
+          return;
+        }
+        var x=hl._addal._curr;
+        var st=[
+          'CURRENT',
+          'PLANNING',
+          'COMPLETED',
+          'DROPPED',
+          'PAUSED',
+          'REPEATING'
+        ];
+        var sn=[];
+        var sl=-1;
+        for (var i=0;i<st.length;i++){
+          sn.push("Add to "+ucfirst(st[i],1));
+          if (st[i]==x){
+            sl=i;
+          }
+        }
+        if (st.indexOf(x)>-1){
+          sn.push('Remove from '+ucfirst(x,1));
+        }
+        var chval=_API.listPrompt(
+          "AniList",
+          sn,
+          (sl>-1)?sl:undefined
+        );
+        if (chval!=null){
+          if (chval==6){
+            /* delete */
+            if (confirm('Are you sure you want to remove it from AniList?')){
+              _MAL.alset_del(hl._addal._mid, function(v){
+                if (v){
+                  hl._addal._curr='';
+                  hl._addal.innerHTML='<c>bookmark_add</c>Add to AniList';
+                  hl._addal._myinfo.innerHTML="Not on your list";
+                  home.init_mylist();
+                  _API.showToast("Deleted from AniList...");
+                }
+                else{
+                  _API.showToast("Deleting AniList failed...");
+                }
+              });
+            }
+          }
+          else{
+            var ssel = st[chval];
+            _MAL.alset_list(hl._addal._aid, ssel, function(v){
+              if (v){
+                hl._addal._curr=ssel;
+                hl._addal.innerHTML='<c>bookmark</c> AniList '+ucfirst(ssel,1);
+                hl._addal._myinfo.innerHTML=ucfirst(ssel,1);
+                home.init_mylist();
+                _API.showToast("Saved to AniList "+ucfirst(ssel,1));
+              }
+              else{
+                _API.showToast("Saving AniList failed...");
+              }
+            });
+          }
+        }
+      }
+      else if (hl._btn[hl._btn_sel]==hl._addmal){
+        if (!_MAL.token){
+          _API.showToast("Please login to MAL first...");
+          return;
+        }
+        var st=[
+          'watching',
+          'completed',
+          'on_hold',
+          'dropped',
+          'plan_to_watch'
+        ];
+        hl._addmal._update();
+        var x=hl._addmal._curr;
+        var sn=[];
+        var sl=-1;
+        for (var i=0;i<st.length;i++){
+          sn.push("Add to "+ucfirst(st[i].replace(/_/g,' '),1));
+          if (st[i]==x){
+            sl=i;
+          }
+        }
+        if (st.indexOf(x)>-1){
+          sn.push('Remove from '+ucfirst(x.replace(/_/g,' '),1));
+        }
+        var chval=_API.listPrompt(
+          "MAL",
+          sn,
+          (sl>-1)?sl:undefined
+        );
+        if (chval!=null){
+          if (chval==5){
+            /* delete */
+            if (confirm('Are you sure you want to remove it from MAL?')){
+              _MAL.set_del(hl._addmal._mid, function(v){
+                if (v){
+                  hl._addmal._dat.my_list_status.status='';
+                  hl._addmal._update();
+                  home.init_mylist();
+                  _API.showToast("Deleted from MAL...");
+                }
+                else{
+                  _API.showToast("Deleting MAL failed...");
+                }
+              });
+            }
+          }
+          else{
+            var ssel = st[chval];
+            _MAL.set_list(hl._addmal._mid, ssel, function(v){
+              if (v){
+                hl._addmal._dat.my_list_status.status=ssel;
+                hl._addmal._update();
+                home.init_mylist();
+                _API.showToast("Saved to MAL "+ucfirst(ssel.replace(/_/g,' '),1));
+              }
+              else{
+                _API.showToast("Saving MAL failed...");
+              }
+            });
+          }
+        }
       }
     }
   },

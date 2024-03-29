@@ -596,6 +596,17 @@ public class AnimeApi extends WebViewClient {
       }
     }
     public void setMethod(String method, String body, String cType){
+      if (method.equalsIgnoreCase("DELETE")){
+        if (req!=null) {
+          req.method(method,null);
+        }
+        else if (http!=null){
+          try {
+            http.setRequestMethod(method);
+          }catch (Exception ignored){}
+        }
+        return;
+      }
       if (req!=null) {
         req.method(method, RequestBody.create(body, MediaType.get(cType)));
       }
