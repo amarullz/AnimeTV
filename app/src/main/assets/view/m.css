@@ -751,6 +751,7 @@ c.loader {
   display: block;
   padding-top:1.5vw;
 }
+#anilist_detail span.info span,
 .home_slideshow p div span.infobox span.infovalue span.info:before,
 .home_slideshow p div span.infobox span.infovalue span.info span{
   margin: 0;
@@ -764,30 +765,38 @@ c.loader {
 .home_slideshow p div span.infobox span.infovalue span.info span:not(:first-child){
   border-left: .1vw solid rgba(255,255,255,.3);
 }
+#anilist_detail span.info_ep,
 .home_slideshow p div span.info_ep{
   color:rgba(255,255,255,.9);
 }
+#anilist_detail span.info_type,
 .home_slideshow p div span.info_type{
   color:rgba(255,255,255,.7);
 }
+#anilist_detail span.info_adult,
 .home_slideshow p div span.info_adult{
   color:#f33;
 }
+#anilist_detail span.info_duration,
 .home_slideshow p div span.info_duration{
   color:#6bd;
 }
+#anilist_detail span.info_score,
 .home_slideshow p div span.info_score{
   padding:0 0 0 0;
 }
+#anilist_detail span.info_score u,
 .home_slideshow p div span.info_score u{
   position: relative;
   font-size:var(--fs-7vw);
   display: block;
   text-decoration: none;
 }
+#anilist_detail span.info_score b:last-child,
 .home_slideshow p div span.info_score b:last-child{
   opacity: .25;
 }
+#anilist_detail span.info_score b:first-child,
 .home_slideshow p div span.info_score b:first-child{
   position: absolute;
   overflow: hidden;
@@ -2770,8 +2779,196 @@ c.loader {
 #malview.loading #malview_rating,
 #malview.loading #malview_img,
 #malview.loading #malview_data,
-#malview.loading #malview_info {
+#malview.loading #malview_info,
+#malview.loading #malview_info_detail_button,
+
+#malview.anilist_detail #malview_rating,
+#malview.anilist_detail #malview_img,
+#malview.anilist_detail #malview_data,
+#malview.anilist_detail #malview_info,
+#malview.anilist_detail #malview_info_detail_button {
   display: none !important;
+}
+
+#malview.anilist_detail{
+  height:90vh;
+  bottom:5vh;
+}
+#malview #anilist_detail{
+  transition: all var(--tim-3s) var(--interpolation);
+  visibility: hidden;
+  opacity: 0;
+  z-index:50;
+  position: absolute;
+  top:0;
+  left:0;
+  right: 0;
+  bottom: 0;
+  background-color: #222;
+  padding:1.5vw;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-size: var(--fs-14vw);
+  background: linear-gradient(180deg, #222 0, #1e1e1e 100%);
+}
+
+
+/* AniList Detail Style */
+#anilist_detail h4{
+  color: var(--accent-1);
+  font-size: var(--fs-22vw);
+  padding:0 0 1vw 0;
+  margin:0;
+}
+#anilist_detail h5{
+  color: var(--primary-3);
+  font-size: var(--fs-17vw);
+  padding:0 0 1vw 0;
+  margin:0;
+}
+#anilist_detail p{
+  padding:0 0 .5vw 0;
+  margin:0;
+}
+#anilist_detail .alsd_revs li{
+  line-height: 1.4;
+  font-size: var(--fs-13vw);
+  margin-bottom: .3vw;
+}
+#anilist_detail .alsd_revs li b{
+  display: block;
+  background-color: #080;
+  padding: 0 .5vw 0 .5vw;
+  border-radius: .4vw;
+  margin-right: .5vw;
+  float: right;
+}
+#anilist_detail .alsd_revs li b::after{
+  content: '/100';
+  font-size: var(--fs-7vw);
+}
+#anilist_detail img.alsd_poster{
+  width:16vw;
+  height:22vw;
+  position: absolute;
+  background-color: #000;
+  border-radius: .8vw;
+  margin-right: 1.5vw;
+  margin-bottom: 1.5vw;
+}
+
+#anilist_detail .alsd_youtube{
+  width:50vw;
+  height:28vw;
+  border-radius: .8vw;
+  margin-bottom: 1vw;
+  background-color: #000;
+  visibility: visible;
+  position: relative;
+}
+#anilist_detail .alsd_youtube.hide{
+  visibility: hidden;
+  position: absolute;
+}
+#anilist_detail .alsd_content{
+  padding-left: 18vw;
+  min-height: 23vw;
+}
+#anilist_detail .alsd_infobox{
+  padding: .5vw 0 1.5vw 0;
+}
+#anilist_detail span.info span:first-child{
+  padding-left: 0;
+}
+#anilist_detail span.info span:not(:first-child){
+  border-left: .1vw solid rgba(255,255,255,.2);
+}
+#anilist_detail span.info span.info_status{
+  color: #1a1;
+}
+#malview.anilist_detail #anilist_detail{
+  visibility: visible;
+  opacity: 1;
+}
+#anilist_detail .alsd_desc{
+  font-size: var(--fs-13vw);
+  line-height: 1.2;
+}
+#anilist_detail .alsd_clear{
+  clear: both;
+}
+#anilist_detail .alsd_noavail{
+  clear: both;
+  color:#777;
+  padding:2vw;
+  text-align: center;
+}
+#anilist_detail .alsd_keyval{
+  display: block;
+  clear: both;
+  margin-top:2vw;
+  margin-bottom:2vw;
+  border-top:none;
+  background-color: #2b2b2b;
+  border-radius: .6vw;
+}
+#anilist_detail .alsd_keyval div.alsd_keyval_item{
+  display: block;
+  box-sizing: border-box;
+  width: 25%;
+  padding: 1vw 0 .5vw .5vw;
+  overflow: hidden;
+  float: left;
+  border-top:.1vw solid #222;
+}
+#anilist_detail .alsd_keyval div.alsd_keyval_item.fullwidth{
+  width: 100%;
+}
+#anilist_detail .alsd_keyval div.alsd_keyval_item.halfwidth{
+  width: 50%;
+}
+#anilist_detail .alsd_keyval div.alsd_keyval_item b,
+#anilist_detail .alsd_keyval div.alsd_keyval_item label{
+  display: block;
+  color:var(--primary-3);
+  font-weight: normal;
+  font-size: var(--fs-12vw);
+  padding-left:1vw;
+}
+#anilist_detail .alsd_keyval div.alsd_keyval_item b{
+  color:#fff;
+  font-size: var(--fs-13vw);
+  padding: 1vw;
+}
+#anilist_detail .alsd_keyval div.alsd_keyval_item label c{
+  margin-right: .6vw;
+  vertical-align: middle;
+  position: relative;
+  top:-.1vw;
+}
+
+
+
+
+#malview #malview_info_detail_button{
+  position: absolute;
+  z-index:10;
+  top:.8vw;
+  right:20.8vw;
+  left:auto;
+  bottom:auto;
+  padding:.4vw;
+  background-color: #333;
+  border-radius: .3vw;
+  font-size:var(--fs-15vw);
+  line-height:1;
+  white-space: nowrap;
+}
+#malview #malview_info_detail_button.active{
+  background-color: var(--primary-1);
+}
+#malview_info_detail_button c{
+  width: var(--fs-15vw);
 }
 #malview #malview_loading{
   position: absolute;
@@ -2846,10 +3043,10 @@ c.loader {
 
   font-size:var(--fs-11vw);
   line-height: 2.2vw;
-  background-color: #121212;
+  /* background-color: #121212;
   background-position: 98% .5vw;
   background-size: auto 3vw;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat; */
 }
 
 #malview_info div{
@@ -2908,6 +3105,9 @@ c.loader {
   font-weight: normal;
   line-height:1.4;
 }
+#malview_info #malview_title{
+  width:90%;
+}
 #malview_info div span b{
   color: var(--accent-1);
   font-weight: normal;
@@ -2929,7 +3129,6 @@ c.loader {
   margin-top: .5vw;
   background-color: #2a2a2a;
   box-sizing: border-box;
-
   line-height: 2.8vw;
 }
 #malview_data div.active{

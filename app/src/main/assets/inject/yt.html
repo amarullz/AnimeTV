@@ -47,6 +47,35 @@ body, html{
     vid.addEventListener("pause", function(){
       $p('yt-pause','');
     });
+    window.addEventListener('message',function(e) {
+        try{
+            console.warn(["YT", e]);
+            var j=JSON.parse(e.data);
+            if ('vcmd' in j){
+              if (j.vcmd=='toggle'){
+                if (vid.paused){
+                  vid.play();
+                }
+                else{
+                  vid.pause();
+                }
+              }
+              else if (j.vcmd=='pause'){
+                vid.pause();
+              }
+              else if (j.vcmd=='play'){
+                vid.play();
+              }
+              else if (j.vcmd=='mute'){
+                vid.muted=!vid.muted;
+              }
+            }
+        }catch(e){
+        }
+    });
+    if (location.search.indexOf('loop')){
+      vid.loop = true;
+    }
   }
   function findVid(){
     vid=document.querySelector('.html5-video-container video');

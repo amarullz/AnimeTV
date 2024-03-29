@@ -87,7 +87,7 @@ const VRF={
 //   wave.vidplayGetDataDo=wave.vidplayGetData;
 //   wave.vidplayGetData=function(u, cb){
 //     var s=u.split('/');
-//     if (s[2].indexOf('mcloud')<1){
+//     if (s[2].indexOf('mcloud')==-1){
 //       s[2]='vidplay.online';
 //     }
 //     var uu=s.join('/');

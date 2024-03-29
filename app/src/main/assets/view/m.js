@@ -7721,7 +7721,7 @@ const home={
     g._n_pager=$n('div','',{},home.home_pager,'');
   },
 
-  yt_init:function(ytid){
+  yt_init:function(ytid, doloop){
     // var yturl='https://www.youtube.com/embed/'+ytid+'?';
     var yturl='https://www.youtube-nocookie.com/embed/'+ytid+'?';
     yturl+='autoplay=1';
@@ -7731,6 +7731,9 @@ const home={
     }
     yturl+='&controls=0&disablekb=1';
     yturl+='&fs=0';
+    if (doloop){
+      yturl+='&loop=1';
+    }
     yturl+='&origin='+enc('https://'+__DNS);
     return yturl;
   },
@@ -7759,6 +7762,16 @@ const home={
       }
       home.anilist_yt.initialized=true;
       window.addEventListener('message',function(e) {
+        if (_MAL.pop.var.ondetail){
+          var pd=JSON.parse(e.data);
+          if (pd){
+            if ('vcmd' in pd){
+              _MAL.pop_detail_youtube_cb(pd.vcmd);
+            }
+          }
+          return;
+        }
+
         if (home.anilist_yt.activeg){
           try{
             var pd=JSON.parse(e.data);
@@ -7824,6 +7837,56 @@ const home={
     pb.action_handler_el(s);
   },
 
+  home_anilist_parse_infobox:function(d, hl, withSeason){
+    var vep=0;
+    if (d.nextAiringEpisode){
+      vep=d.nextAiringEpisode.episode-1;
+      if (vep<1){
+        vep=0;
+      }
+    }
+    var sumep=d.episodes;
+    var mtp=d.format;
+    if (mtp=='TV_SHORT'){
+      mtp='TV';
+    }
+    var infotxt='';
+    infotxt+='<span class="info_score"><u><b style="width:'+d.averageScore+'%">⭐⭐⭐⭐⭐</b><b>⭐⭐⭐⭐⭐</b></u></span>';
+    if (d.isAdult){
+      infotxt+='<span class="info_adult">18+</span>';
+    }
+    if (mtp&&(mtp!='unknown')){
+      mtp+=" &middot; "+d.seasonYear;
+    }
+    else{
+      mtp=d.seasonYear;
+    }
+    infotxt+='<span class="info_type">'+(mtp)+'</span>';
+    if (withSeason){
+      if (d.status){
+        infotxt+='<span class="info_status">'+(d.status)+'</span>';
+      }
+    }
+    if (d.duration){
+      infotxt+='<span class="info_duration">'+(d.duration)+' min</span>';
+    }
+    if (withSeason){
+      if (vep&&sumep){
+        vep=vep+" of "+sumep;
+      }
+    }
+    if (vep){
+      infotxt+='<span class="info_ep">'+special(vep+"")+' Episodes</span>';
+      d.ep=vep;
+    }
+    else if (sumep){
+      infotxt+='<span class="info_ep">'+special(sumep+"")+' Episodes</span>';
+      d.ep=sumep;
+    }
+    if (infotxt){
+      hl._ep=$n('span','info',null,hl._view,infotxt);
+    }
+  },
   home_anilist_parse:function(g,v){
     home.home_slide.innerHTML='';
     home.home_pager.innerHTML='';
@@ -7866,47 +7929,8 @@ const home={
           descval=descval.replace(/\n\n/g,'\n').replace(/\n\n/g,'\n').replace(/\n\n/g,'\n');
           hl._desc.innerHTML=nlbr(special(descval));
 
-          var vep=0;
-          if (d.nextAiringEpisode){
-            vep=d.nextAiringEpisode.episode-1;
-            if (vep<1){
-              vep=0;
-            }
-          }
-          var sumep=d.episodes;
-          
-          var mtp=d.format;
-          if (mtp=='TV_SHORT'){
-            mtp='TV';
-          }
-          var infotxt='';
-          infotxt+='<span class="info_score"><u><b style="width:'+d.averageScore+'%">⭐⭐⭐⭐⭐</b><b>⭐⭐⭐⭐⭐</b></u></span>';
+          home.home_anilist_parse_infobox(d,hl);
 
-          if (d.isAdult){
-            infotxt+='<span class="info_adult">18+</span>';
-          }
-          if (mtp&&(mtp!='unknown')){
-            mtp+=" &middot; "+d.seasonYear;
-          }
-          else{
-            mtp=d.seasonYear;
-          }
-          infotxt+='<span class="info_type">'+(mtp)+'</span>';
-          if (d.duration){
-            infotxt+='<span class="info_duration">'+(d.duration)+' min</span>';
-          }
-          if (vep){
-            infotxt+='<span class="info_ep">'+special(vep+"")+' Episodes</span>';
-            d.ep=vep;
-          }
-          else if (sumep){
-            infotxt+='<span class="info_ep">'+special(sumep+"")+' Episodes</span>';
-            d.ep=sumep;
-          }
-          
-          if (infotxt){
-            hl._ep=$n('span','info',null,hl._view,infotxt);
-          }
           _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
         }catch(ee){}
       }
@@ -9745,6 +9769,7 @@ const _MAL={
     if (!retry){
       retry=0;
     }
+    console.warn(["alreq",q]);
     var xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
         xhttp.ok=true;
@@ -9796,6 +9821,7 @@ const _MAL={
     },cb);
   },
   allist_search:function(q,cb,page,perpage,minimal,mywatch){
+    q=utfascii(q);
     _MAL.alreq((minimal?`query ($search: String, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -9850,9 +9876,50 @@ const _MAL={
           description
           bannerImage
           averageScore
+          favourites
+          popularity
+          trending
+          genres
+          startDate {
+            year
+            month
+            day
+          }
+          endDate {
+            year
+            month
+            day
+          }
+          studios {
+            edges{
+              isMain
+              node{
+                name
+              }
+            }
+          }
           mediaListEntry{
             id,
-            progress
+            progress,
+            status
+          }
+          synonyms
+          source
+          countryOfOrigin
+          reviews {
+            edges {
+              node {
+                id
+                summary
+                rating
+                score
+              }
+            }
+          }
+          trailer {
+            id
+            site
+            thumbnail
           }
         }
       }
@@ -9862,38 +9929,36 @@ const _MAL={
       "search":q
     },function(v){
       if (v){
-        try{
-          if (v.data.Page.media){
-            var srcq=[
-              utfascii(q),
-              slugString(q)
-            ];
-            var srcf=[
-              utfascii,
-              slugString
-            ];
-            for (var j=0;j<2 && !v.match;j++){
-              for (var i=0;i<v.data.Page.media.length;i++){
-                var med=v.data.Page.media[i];
-                var s1=med.title.english;
-                var s2=med.title.romaji;
-                var ms=med.status;
-                if (ms=="FINISHED" || ms=="RELEASING" || ms=="HIATUS" || (mywatch&&(ms=="NOT_YET_RELEASED")) ){
-                  if (s1 && (srcf[j](s1)==srcq[j])){
-                    v.match=JSON.parse(JSON.stringify(med));
-                    break;
-                  }
-                  else if (s2 && (srcf[j](s2)==srcq[j])){
-                    v.match=JSON.parse(JSON.stringify(med));
-                    break;
-                  }
+        if (v.data.Page.media){
+          var srcq=[
+            utfascii(q),
+            slugString(q)
+          ];
+          var srcf=[
+            utfascii,
+            slugString
+          ];
+          for (var j=0;j<2 && !v.match;j++){
+            for (var i=0;i<v.data.Page.media.length;i++){
+              var med=v.data.Page.media[i];
+              var s1=med.title.english;
+              var s2=med.title.romaji;
+              var ms=med.status;
+              if (ms=="FINISHED" || ms=="RELEASING" || ms=="HIATUS" || (mywatch&&(ms=="NOT_YET_RELEASED")) ){
+                if (s1 && (srcf[j](s1)==srcq[j])){
+                  v.match=JSON.parse(JSON.stringify(med));
+                  break;
+                }
+                else if (s2 && (srcf[j](s2)==srcq[j])){
+                  v.match=JSON.parse(JSON.stringify(med));
+                  break;
                 }
               }
             }
           }
-          cb(v);
-          return;
-        }catch(e){}
+        }
+        cb(v);
+        return;
       }
       cb(null);
     });
@@ -10686,6 +10751,8 @@ const _MAL={
     }
   },
   pop:{
+    detail_button:$('malview_info_detail_button'),
+    detail_holder:$('anilist_detail'),
     mv:$('malview'),
     title:$('malview_title'),
     img:$('malview_img'),
@@ -10705,6 +10772,7 @@ const _MAL={
     menu:[],
     menusel:0,
     var:{
+      ondetail:false,
       next:0,
       resume:0,
       ep:1,
@@ -10736,6 +10804,197 @@ const _MAL={
     }
   },
   onpopup:false,
+  pop_opendetail:function(){
+    //_MAL.pop.detail_holder
+    _MAL.pop.var.ondetail=true;
+    _MAL.pop.mv.classList.add('loading');
+    _MAL.pop.detail_holder.scrollTop=0;
+    _MAL.pop.detail_holder.innerHTML='';
+    _MAL.pop.detail_holder._el=null;
+    home.anilist_yt.init();
+    _MAL.allist_search(_MAL.pop.var.title?_MAL.pop.var.title:_MAL.pop.var.title_jp,function(v){
+      if (!_MAL.pop.var.ondetail){
+        _MAL.pop.mv.classList.remove('loading');
+        return;
+      }
+      if (!v || !v.match){
+        _MAL.pop.mv.classList.remove('loading');
+        _MAL.pop.var.ondetail=false;
+        _API.showToast("Matching AnimeList Not Found.");
+        return;
+      }
+      _MAL.pop.detail_holder.innerHTML='';
+      var d=v.match;
+      var hl=$n('div','alsd_conteiner',null,_MAL.pop.detail_holder,'');
+      hl._img=$n('img','alsd_poster',{loading:'lazy',src:$img(d.coverImage.large)},hl,'');
+      hl._content=$n('div','alsd_content',null,hl,'');
+
+      if (d.trailer){
+        if (d.trailer.site=="youtube"){
+          hl._trailer=$n('iframe','alsd_youtube hide',{
+              src:home.yt_init(d.trailer.id,1),
+              frameborder:'0',
+              loading:'lazy'
+            },
+            hl._content,''
+          );
+        }
+      }
+
+      hl._title=$n('h4','',{
+        jp:d.title.romaji?d.title.romaji:d.title.english
+      },hl._content,tspecial(
+        d.title.english?d.title.english:d.title.romaji
+      ));
+      hl._view=$n('div','alsd_infobox',null,hl._content,'');
+      home.home_anilist_parse_infobox(d,hl,true);
+
+      hl._desc=$n('p','alsd_desc',null,hl._content,d.description);
+
+      hl._kval=$n('p','alsd_keyval',null,hl,'');
+
+      function kv(c,k,v,ac){
+        var z=$n('div','alsd_keyval_item'+(ac?(' '+ac):''),null,hl._kval,'');
+        $n('label','',null,z,'<c>'+c+'</c>'+k);
+        $n('b','',null,z,v);
+      }
+      function fuzD(f){
+        if (!f) return '-';
+        var m='Jan,Feb,Mar,Apr,Mei,Jun,Jul,Aug,Sep,Oct,Nov,Des'.split(',');
+        var o='';
+        if (f.month){
+          o+=m[f.month-1];
+        }
+        if (f.day){
+          o+=' '+f.day;
+        }
+        if (f.year){
+          o+=' '+f.year;
+        }
+        o=o.trim();
+        return o?o:'-';
+      }
+      
+      kv('routine','Season',special(d.season));
+      kv('calendar_today','Year',special(d.seasonYear));
+      kv('calendar_clock','Start Date',fuzD(d.startDate));
+      kv('event_available','End Date',fuzD(d.endDate));
+
+      var stud='-';
+      if (d.studios){
+        if (d.studios.edges){
+          var stda=[];
+          for (var i=0;i<d.studios.edges.length;i++){
+            stda.push(d.studios.edges[i].node.name);
+          }
+          if (stda.length>0){
+            stud=stda.join("\n");
+          }
+        }
+      }
+      kv('signature','Synonyms',d.synonyms?nlbr(special(d.synonyms.join('\n'))):"-",'halfwidth alsd_clear');
+      kv('source_environment','Studios',nlbr(special(stud)),'halfwidth');
+      kv('interests','Genres',nlbr(special(d.genres.join('\n'))),'halfwidth alsd_clear');
+      kv('menu_book','Source',special((d.source+'').replace(/_/g,' ')));
+      kv('captive_portal','Country',special(d.countryOfOrigin));
+      
+      kv('star','Score',special(d.averageScore)+" / 100",'alsd_clear');
+      kv('celebration','Popularity',special(d.popularity));
+      kv('favorite','Favorites',special(d.favourites));
+      kv('trending_up','Trend',special(d.trending));
+
+      $n('div','alsd_clear',null,hl._kval,'');
+
+
+      if (d.reviews && d.reviews.edges && d.reviews.edges.length>0){
+        hl._revt=$n('h5','',null,hl,'Reviews');
+        hl._rev=$n('ul','alsd_revs',null,hl,'');
+        for (var i=0;i<d.reviews.edges.length;i++){
+          var rv=d.reviews.edges[i];
+          $n('li','',null,hl._rev,'<b>'+special(rv.node.score)+'</b> '+special(rv.node.summary));
+        }
+      }
+      else{
+        $n('div','alsd_noavail',null,hl,'No review available...');
+      }
+      _MAL.pop.detail_holder._el=hl;
+      _MAL.pop.detail_holder.scrollTop=0;
+      _MAL.pop.mv.classList.add('anilist_detail');
+    },1,5,false,true);
+  },
+  pop_detail_youtube_cb:function(vcmd){
+    var hl=_MAL.pop.detail_holder._el;
+    console.warn(['pop_detail_youtube_cb',vcmd]);
+    if (vcmd=='yt-play'){
+      if (hl && hl._trailer){
+        hl._trailer.classList.remove('hide');
+      }
+    }
+    else if (vcmd=='yt-pause' || pd.vcmd=='yt-end'){
+      
+    }
+  },
+  pop_detail_youtube_send:function(c){
+    var hl=_MAL.pop.detail_holder._el;
+    if (hl){
+      if (hl._trailer){
+        try{
+          hl._trailer.contentWindow.postMessage(JSON.stringify({
+            vcmd:c,
+            val:''
+          }),'*');
+        }catch(e){
+          console.warn('Send YT Msg: '+e);
+        }
+      }
+    }
+  },
+  pop_detail_keycb:function(c){
+    if (c==KUP || c==KDOWN){
+      var ss = (window.innerHeight / 20);
+      var sm = (window.innerWidth / 4);
+      var pp=_MAL.pop.detail_holder;
+      var st=pp.scrollTop;
+      var sh=pp.scrollHeight;
+      if (c==KUP){
+        st-=ss;
+        if (st<0){
+          st=0;
+        }
+      }
+      else if (c==KDOWN){
+        st+=ss;
+        if (st>sh){
+          st=sh;
+        }
+      }
+      if (st!=pp.scrollTop){
+        pp.scrollTop=st;
+        if (!pp._el._ytfpaused){
+          if (st>sm){
+            if (!pp._el._ytpaused){
+              pp._el._ytpaused=true;
+              _MAL.pop_detail_youtube_send('pause');
+            }
+          }
+          else if (pp._el._ytpaused){
+            pp._el._ytpaused=false;
+            _MAL.pop_detail_youtube_send('play');
+          }
+        }
+      }
+    }
+    else if (c==KENTER){
+      if (!pp._el._ytfpaused){
+        pp._el._ytfpaused=true;
+        _MAL.pop_detail_youtube_send('pause');
+      }
+      else{
+        pp._el._ytfpaused=false;
+        _MAL.pop_detail_youtube_send('play');
+      }
+    }
+  },
   pop_keycb:function(c){
     if (!_MAL.pop.var.ready){
       if (c==KBACK){
@@ -10743,8 +11002,22 @@ const _MAL={
       }
       return;
     }
+    if (_MAL.pop.var.ondetail){
+      if (c==KBACK){
+        _MAL.pop.var.ondetail=false;
+        _MAL.pop.mv.classList.remove('anilist_detail');
+        _MAL.pop.mv.classList.remove('loading');
+        _MAL.pop.detail_holder.innerHTML='';
+      }
+      else{
+        _MAL.pop_detail_keycb(c);
+      }
+      return;
+    }
+
     var pc=_MAL.pop.menusel;
     if (c==KBACK){
+      _MAL.pop.detail_holder.innerHTML='';
       _MAL.popup_close();
     }
     else if (c==KENTER){
@@ -10780,6 +11053,10 @@ const _MAL={
         }
         _MAL.popup_update();
         home.list_init_name(list.fav,home.mylist_el.fav);
+        return;
+      }
+      else if (el==_MAL.pop.detail_button){
+        _MAL.pop_opendetail();
         return;
       }
       else if (el==_MAL.pop.history){
@@ -10844,16 +11121,36 @@ const _MAL={
         _MAL.pop.setEp();
       }
       else if (_MAL.pop.watchlist==_MAL.pop.menu[pc]){
-        if (c==KRIGHT){
-          _MAL.pop_keycb(KDOWN);
+        if (c==KLEFT){
+          pc=0;
         }
-        return;
+        else if (c==KRIGHT){
+          _MAL.pop_keycb(KDOWN);
+          return;
+        }
       }
       else if (_MAL.pop.history==_MAL.pop.menu[pc]){
         if (c==KLEFT){
           _MAL.pop_keycb(KUP);
+          return;
+        }
+        else if (c==KRIGHT){
+          pc=0;
+        }
+      }
+      else if (_MAL.pop.detail_button==_MAL.pop.menu[pc]){
+        if (c==KRIGHT){
+          _MAL.pop_keycb(KDOWN);
+        }
+        else if (c==KLEFT){
+          _MAL.pop_keycb(KUP);
         }
         return;
+      }
+      else{
+        if ((c==KRIGHT)||(c==KLEFT)){
+          pc=0;
+        }
       }
     }
     else if (c==KUP){
@@ -10874,6 +11171,7 @@ const _MAL={
   popup_close:function(){
     _MAL.pop.mv.className='';
     $('popupcontainer').className='';
+    _MAL.pop.var.ondetail=false;
     _MAL.pop.var.ready=false;
     _MAL.onpopup=false;
   },
@@ -10960,6 +11258,7 @@ const _MAL={
     $('malview_info_genre').innerHTML=d.genre?special(d.genre):"-";
   },
   preview_do:function(url, img, ttid, currep, tcurr, tdur,d,arg,malid){
+    home.anilist_yt.cleanup();
     if (!_MAL.onpopup){
       return;
     }
@@ -10972,12 +11271,13 @@ const _MAL={
 
     _MAL.pop.img.src=$img(img);
     _MAL.pop.menu=[
+      _MAL.pop.detail_button,
       _MAL.pop.begin
     ];
     _MAL.pop.var.url=url;
     _MAL.pop.var.ttip=ttid;
     _MAL.pop.var.malid=malid?malid:null;
-    _MAL.pop.menusel=0;
+    _MAL.pop.menusel=1;
 
     _MAL.pop.var.title=d.title;
     _MAL.pop.var.title_jp=d.title_jp;
@@ -10988,7 +11288,7 @@ const _MAL={
     _MAL.pop.var.play.e=currep;
 
     // headimg
-    $('malview_info').style.backgroundImage=((d&&d.logoimg)?('url('+d.logoimg+')'):'');
+    // $('malview_info').style.backgroundImage=((d&&d.logoimg)?('url('+d.logoimg+')'):'');
 
     _MAL.preview_detail(d);
 
@@ -11019,7 +11319,7 @@ const _MAL={
       _MAL.pop.resume_ep.innerHTML='EP-'+(currep);
       _MAL.pop.resume.className='';
       _MAL.pop.var.resume=currep;
-      _MAL.pop.menusel=1;
+      _MAL.pop.menusel=2;
     }
     else{
       _MAL.pop.next_ep.innerHTML=
@@ -11048,6 +11348,7 @@ const _MAL={
     _MAL.pop_initlist(url);
 
     _MAL.pop.var.ready=true;
+    _MAL.pop.var.ondetail=false;
     }catch(e){
       console.log("PDO = "+e);
     }
