@@ -10826,7 +10826,9 @@ const _MAL={
       _MAL.pop.detail_holder.innerHTML='';
       var d=v.match;
       var hl=$n('div','alsd_conteiner',null,_MAL.pop.detail_holder,'');
-      hl._img=$n('img','alsd_poster',{loading:'lazy',src:$img(d.coverImage.large)},hl,'');
+      hl._vleft=$n('div','alsd_left_container alsd_keyval',null,hl,'');
+      hl._img=$n('img','alsd_poster',{loading:'lazy',src:$img(d.coverImage.large)},hl._vleft,'');
+
       hl._content=$n('div','alsd_content',null,hl,'');
 
       if (d.trailer){
@@ -10848,13 +10850,11 @@ const _MAL={
       ));
       hl._view=$n('div','alsd_infobox',null,hl._content,'');
       home.home_anilist_parse_infobox(d,hl,true);
-
       hl._desc=$n('p','alsd_desc',null,hl._content,d.description);
+      hl._kval=$n('p','alsd_keyval alsd_keyval_def',null,hl._content,'');
 
-      hl._kval=$n('p','alsd_keyval',null,hl,'');
-
-      function kv(c,k,v,ac){
-        var z=$n('div','alsd_keyval_item'+(ac?(' '+ac):''),null,hl._kval,'');
+      function kv(c,k,v,ac,isleft){
+        var z=$n('div','alsd_keyval_item'+(ac?(' '+ac):''),null,isleft?hl._vleft:hl._kval,'');
         $n('label','',null,z,'<c>'+c+'</c>'+k);
         $n('b','',null,z,v);
       }
@@ -10875,10 +10875,14 @@ const _MAL={
         return o?o:'-';
       }
       
-      kv('routine','Season',special(d.season));
-      kv('calendar_today','Year',special(d.seasonYear));
-      kv('calendar_clock','Start Date',fuzD(d.startDate));
-      kv('event_available','End Date',fuzD(d.endDate));
+      kv('calendar_clock','Start Date',fuzD(d.startDate),'',1);
+      kv('event_available','End Date',fuzD(d.endDate),'',1);
+      kv('menu_book','Source',special((d.source+'').replace(/_/g,' ')),'',1);
+      kv('captive_portal','Country',special(d.countryOfOrigin),'',1);
+      kv('star','Score',special(d.averageScore)+" / 100",'',1);
+      kv('celebration','Popularity',special(d.popularity),'',1);
+      kv('favorite','Favorites',special(d.favourites),'',1);
+      kv('trending_up','Trend',special(d.trending),'',1);
 
       var stud='-';
       if (d.studios){
@@ -10892,33 +10896,29 @@ const _MAL={
           }
         }
       }
-      kv('signature','Synonyms',d.synonyms?nlbr(special(d.synonyms.join('\n'))):"-",'halfwidth alsd_clear');
-      kv('source_environment','Studios',nlbr(special(stud)),'halfwidth');
-      kv('interests','Genres',nlbr(special(d.genres.join('\n'))),'halfwidth alsd_clear');
-      kv('menu_book','Source',special((d.source+'').replace(/_/g,' ')));
-      kv('captive_portal','Country',special(d.countryOfOrigin));
-      
-      kv('star','Score',special(d.averageScore)+" / 100",'alsd_clear');
-      kv('celebration','Popularity',special(d.popularity));
-      kv('favorite','Favorites',special(d.favourites));
-      kv('trending_up','Trend',special(d.trending));
-
+      kv('routine','Season',special(d.season));
+      kv('calendar_today','Year',special(d.seasonYear));
+      kv('signature','Synonyms',d.synonyms?(special(d.synonyms.join(', '))):"-",'fullwidth alsd_clear');
+      kv('source_environment','Studios',nlbr(special(stud)),'alsd_clear');
+      kv('interests','Genres',nlbr(special(d.genres.join('\n'))),'');
       $n('div','alsd_clear',null,hl._kval,'');
 
 
       if (d.reviews && d.reviews.edges && d.reviews.edges.length>0){
-        hl._revt=$n('h5','',null,hl,'Reviews');
-        hl._rev=$n('ul','alsd_revs',null,hl,'');
+        hl._revt=$n('h5','',null,hl._content,'Reviews');
+        hl._rev=$n('ul','alsd_revs',null,hl._content,'');
         for (var i=0;i<d.reviews.edges.length;i++){
           var rv=d.reviews.edges[i];
           $n('li','',null,hl._rev,'<b>'+special(rv.node.score)+'</b> '+special(rv.node.summary));
         }
       }
       else{
-        $n('div','alsd_noavail',null,hl,'No review available...');
+        $n('div','alsd_noavail',null,hl._content,'No review available...');
       }
+      $n('div','alsd_clear',null,hl,'');
       _MAL.pop.detail_holder._el=hl;
       _MAL.pop.detail_holder.scrollTop=0;
+      _MAL.pop.mv.classList.remove('loading');
       _MAL.pop.mv.classList.add('anilist_detail');
     },1,5,false,true);
   },
@@ -10951,7 +10951,7 @@ const _MAL={
   },
   pop_detail_keycb:function(c){
     if (c==KUP || c==KDOWN){
-      var ss = (window.innerHeight / 20);
+      var ss = (window.innerHeight / 5);
       var sm = (window.innerWidth / 4);
       var pp=_MAL.pop.detail_holder;
       var st=pp.scrollTop;

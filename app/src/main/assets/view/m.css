@@ -2703,6 +2703,8 @@ c.loader {
     opacity var(--tim-3s) var(--interpolation),
     visibility var(--tim-3s) var(--interpolation);
   will-change: opacity;
+
+  /* background: rgba(20,20,20,.2); */
 }
 #popupcontainer.active {
   opacity: 1;
@@ -2755,27 +2757,22 @@ c.loader {
   padding:0;
   box-sizing: border-box;
   background: #222;
+
   color:#fff;
-  transition: all var(--tim-3s) var(--interpolation);
-  transform: scale(.5);
+  transition: opacity var(--tim-3s) var(--interpolation), visibility var(--tim-3s) var(--interpolation);
   opacity: 0;
   visibility: hidden;
-  z-index: 18999;
+  z-index: 39999;
   pointer-events: none;
   overflow: hidden;
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22) !important;
   border-radius: .5vw;
-  
-  right:20vw;
-  left:20vw;
-  /* bottom:calc(50vh - 8.5vw); */
-  /* height: 19vw; */
+  right:18vw;
+  left:18vw;
   bottom:calc(50vh - 11vw);
   height:22vw;
-
-  will-change: transform, opacity;
+  will-change: opacity;
 }
-
 #malview.loading #malview_rating,
 #malview.loading #malview_img,
 #malview.loading #malview_data,
@@ -2793,6 +2790,7 @@ c.loader {
 #malview.anilist_detail{
   height:90vh;
   bottom:5vh;
+  background-color: #181818;
 }
 #malview #anilist_detail{
   transition: all var(--tim-3s) var(--interpolation);
@@ -2804,12 +2802,14 @@ c.loader {
   left:0;
   right: 0;
   bottom: 0;
-  background-color: #222;
+  /* background-color: #222; */
   padding:1.5vw;
   overflow-y: auto;
   overflow-x: hidden;
   font-size: var(--fs-14vw);
-  background: linear-gradient(180deg, #222 0, #1e1e1e 100%);
+
+  /* background: linear-gradient(180deg, #222 0, #1e1e1e 100%); */
+  /* background-color: #121212; */
 }
 
 
@@ -2823,12 +2823,15 @@ c.loader {
 #anilist_detail h5{
   color: var(--primary-3);
   font-size: var(--fs-17vw);
-  padding:0 0 1vw 0;
+  padding:0 0 .2vw 0;
   margin:0;
 }
 #anilist_detail p{
   padding:0 0 .5vw 0;
   margin:0;
+}
+#anilist_detail .alsd_revs{
+  padding-left: 1.6vw;
 }
 #anilist_detail .alsd_revs li{
   line-height: 1.4;
@@ -2842,29 +2845,41 @@ c.loader {
   border-radius: .4vw;
   margin-right: .5vw;
   float: right;
+  width:4.4vw;
+  text-align: center;
+  margin-left: 1vw;
 }
 #anilist_detail .alsd_revs li b::after{
   content: '/100';
   font-size: var(--fs-7vw);
 }
-#anilist_detail img.alsd_poster{
+#anilist_detail .alsd_left_container{
   width:16vw;
   height:22vw;
-  position: absolute;
+  float:left;
+  padding-right:2vw;
+}
+#anilist_detail img.alsd_poster{
   background-color: #000;
   border-radius: .8vw;
   margin-right: 1.5vw;
   margin-bottom: 1.5vw;
+  width:16vw;
+  height:22vw;
 }
 
 #anilist_detail .alsd_youtube{
-  width:50vw;
-  height:28vw;
+  width:42vw;
+  height:22vw;
   border-radius: .8vw;
   margin-bottom: 1vw;
   background-color: #000;
   visibility: visible;
   position: relative;
+}
+.view-bigfont #anilist_detail .alsd_youtube{
+  width:50vw;
+  height:22vw;
 }
 #anilist_detail .alsd_youtube.hide{
   visibility: hidden;
@@ -2903,42 +2918,37 @@ c.loader {
   padding:2vw;
   text-align: center;
 }
-#anilist_detail .alsd_keyval{
+#anilist_detail .alsd_keyval.alsd_keyval_def{
   display: block;
   clear: both;
   margin-top:2vw;
   margin-bottom:2vw;
-  border-top:none;
-  background-color: #2b2b2b;
   border-radius: .6vw;
 }
-#anilist_detail .alsd_keyval div.alsd_keyval_item{
+#anilist_detail div.alsd_keyval_item{
   display: block;
   box-sizing: border-box;
-  width: 25%;
-  padding: 1vw 0 .5vw .5vw;
+  width: 50%;
+  padding: .5vw 0 .5vw .5vw;
   overflow: hidden;
   float: left;
   border-top:.1vw solid #222;
 }
+#anilist_detail .alsd_keyval.alsd_left_container div.alsd_keyval_item,
 #anilist_detail .alsd_keyval div.alsd_keyval_item.fullwidth{
-  width: 100%;
-}
-#anilist_detail .alsd_keyval div.alsd_keyval_item.halfwidth{
-  width: 50%;
+  width: 100% !important;
 }
 #anilist_detail .alsd_keyval div.alsd_keyval_item b,
 #anilist_detail .alsd_keyval div.alsd_keyval_item label{
   display: block;
-  color:var(--primary-3);
+  color:#999;
   font-weight: normal;
   font-size: var(--fs-12vw);
-  padding-left:1vw;
 }
 #anilist_detail .alsd_keyval div.alsd_keyval_item b{
-  color:#fff;
+  color:var(--accent-1);
   font-size: var(--fs-13vw);
-  padding: 1vw;
+  padding-left: 1vw;
 }
 #anilist_detail .alsd_keyval div.alsd_keyval_item label c{
   margin-right: .6vw;
@@ -2954,7 +2964,7 @@ c.loader {
   position: absolute;
   z-index:10;
   top:.8vw;
-  right:20.8vw;
+  right:17.8vw;
   left:auto;
   bottom:auto;
   padding:.4vw;
@@ -2963,6 +2973,9 @@ c.loader {
   font-size:var(--fs-15vw);
   line-height:1;
   white-space: nowrap;
+}
+.view-bigfont #malview #malview_info_detail_button{
+  right:20.8vw;
 }
 #malview #malview_info_detail_button.active{
   background-color: var(--primary-1);
@@ -2993,7 +3006,6 @@ c.loader {
   display: block;
 }
 #malview.active{
-  transform: scale(1);
   opacity: 1;
   visibility: visible;
 }
@@ -3043,8 +3055,8 @@ c.loader {
 
   font-size:var(--fs-11vw);
   line-height: 2.2vw;
-  /* background-color: #121212;
-  background-position: 98% .5vw;
+  background-color: #121212;
+  /* background-position: 98% .5vw;
   background-size: auto 3vw;
   background-repeat: no-repeat; */
 }
@@ -3131,6 +3143,7 @@ c.loader {
   box-sizing: border-box;
   line-height: 2.8vw;
 }
+
 #malview_data div.active{
   background-color: var(--primary-1);
   box-shadow: 0 .03vw .06vw rgba(0, 0, 0, 0.16), 0 .03vw .06vw rgba(0, 0, 0, 0.23) !important;
@@ -3157,6 +3170,26 @@ c.loader {
   opacity: .6;
   background: #252525;
 }
+@supports (backdrop-filter: blur(.6vw)) {
+  #malview{
+    background-color: rgba(32,32,32,.6);
+    backdrop-filter: blur(.6vw);
+  }
+  #malview.anilist_detail{
+    background-color: rgba(24,24,24,.6);
+    backdrop-filter: blur(.6vw);
+  }
+  #malview_info{
+    background-color: rgba(0,0,0,.5);
+  }
+  #malview_data div.disable{
+    background-color: transparent;
+  }
+  #malview_data div{
+    background-color: rgba(45,45,45,.3);
+  }
+}
+
 #malview_data div#malplay_history{
   float: right;
 }
