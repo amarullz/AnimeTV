@@ -1171,7 +1171,7 @@ c.loader {
 .pb_menu {
   white-space: nowrap;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, #000 95%, rgba(0, 0, 0, 0));
+  /* -webkit-mask-image: linear-gradient(90deg, #000 95%, rgba(0, 0, 0, 0)); */
   transition: all var(--tim-8s) var(--interpolation);
 }
 
@@ -1188,7 +1188,7 @@ c.loader {
 }
 
 .pb_menu.maskleft {
-  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 5%, #000 95%, rgba(0, 0, 0, 0));
+  /* -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 5%, #000 95%, rgba(0, 0, 0, 0)); */
 }
 
 .pb_menu div {
@@ -3170,25 +3170,6 @@ c.loader {
   opacity: .6;
   background: #252525;
 }
-@supports (backdrop-filter: blur(.6vw)) {
-  #malview{
-    background-color: rgba(32,32,32,.6);
-    backdrop-filter: blur(.6vw);
-  }
-  #malview.anilist_detail{
-    background-color: rgba(24,24,24,.6);
-    backdrop-filter: blur(.6vw);
-  }
-  #malview_info{
-    background-color: rgba(0,0,0,.5);
-  }
-  #malview_data div.disable{
-    background-color: transparent;
-  }
-  #malview_data div{
-    background-color: rgba(45,45,45,.3);
-  }
-}
 
 #malview_data div#malplay_history{
   float: right;
@@ -3248,6 +3229,28 @@ c.loader {
 }
 #malview_data div c.right{
   float: right;
+}
+@supports (backdrop-filter: blur(.6vw)) {
+  html:not(.ui_performance) #malview{
+    background-color: rgba(32,32,32,.6);
+    backdrop-filter: blur(.6vw);
+  }
+  html:not(.ui_performance) #malview.anilist_detail{
+    background-color: rgba(24,24,24,.6);
+    backdrop-filter: blur(.6vw);
+  }
+  html:not(.ui_performance) #malview_info{
+    background-color: rgba(0,0,0,.5);
+  }
+  html:not(.ui_performance) #malview_data div.disable{
+    background-color: transparent;
+  }
+  html:not(.ui_performance) #malview_data div{
+    background-color: rgba(45,45,45,.3);
+  }
+  html:not(.ui_performance) #malview_data div.active{
+    background-color: var(--primary-1);
+  }
 }
 
 /* informative view */
