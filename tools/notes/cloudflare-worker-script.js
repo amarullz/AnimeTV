@@ -71,7 +71,7 @@ export default {
         "_id": name
       }
     });
-    await ENV.KV_ANIMETV.delete(name);
+    // await ENV.KV_ANIMETV.delete(name);
   },
   cookieGet(request, key) {
     let cookieString = request.headers.get("Cookie");
@@ -354,6 +354,97 @@ if (h.length>0){
     return new Response("ERROR");
   },
 
+  /* AnimeTV Discord Nightly */
+  async discord_nightly() {
+    try{
+      return await fetch('https://discord.com/api/v9/channels/1209830463913336853/messages?limit=8',{
+        cf: {
+            cacheTtl: 1800,
+            cacheEverything: true
+        },
+        method:"GET",
+        headers:{
+          'Authorization': 'Bot '+ENV.DISCORD_BOT_AUTH
+        }
+      });
+    }catch(e){}
+    return new Response("ERROR");
+  },
+
+  formatBytes(bytes, decimals = 2) {
+    if (!+bytes)
+      return "0 Bytes";
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+  },
+
+  /* AnimeTV Last Nightly */
+  async discord_nightly_file() {
+    try{
+      let r=await fetch('https://discord.com/api/v9/channels/1209830463913336853/messages?limit=20',{
+        cf: {
+            cacheTtl: 1800,
+            cacheEverything: true
+        },
+        method:"GET",
+        headers:{
+          'Authorization': 'Bot '+ENV.DISCORD_BOT_AUTH
+        }
+      });
+      let t=await r.json();
+      let fn=[];
+      for (var i=0;i<t.length;i++){
+        for (var j=0;j<t[i].attachments.length;j++){
+          if (t[i].attachments[j].content_type=='application/vnd.android.package-archive'){
+            var name=(t[i].attachments[j].filename.replace('animetv-','').replace('-release','').replace('.apk',''));
+            var vname=name.split('-')[0].replace(/\./g,'');
+            fn.push(
+              {
+                filename:t[i].attachments[j].filename,
+                name:'v'+name,
+                vnum:Number(vname),
+                url:t[i].attachments[j].url,
+                size:t[i].attachments[j].size,
+                filesize:this.formatBytes(t[i].attachments[j].size),
+                content:t[i].content,
+                time:t[i].timestamp
+              }
+            );
+          }
+        }
+      }
+      return new Response(JSON.stringify(fn),{
+        headers:{
+          'content-type':'application/json',
+          "Cache-Control": 'no-cache'
+        }
+      });
+    }catch(e){}
+    return new Response("ERROR");
+  },
+
+  /* AnimeTV Discord Nightly */
+  async discord(searchParams) {
+    try{
+      var s=searchParams.get("b");
+      var k=s?("&before="+s):"";
+      return await fetch('https://discord.com/api/v9/channels/1199444630467514388/messages?limit=20'+k,{
+        cf: {
+            cacheTtl: 1800,
+            cacheEverything: true
+        },
+        method:"GET",
+        headers:{
+          'Authorization': 'Bot '+ENV.DISCORD_BOT_AUTH
+        }
+      });
+    }catch(e){}
+    return new Response("ERROR");
+  },
+
   async fetch(request, env, ctx) {
     const { pathname, search, searchParams } = new URL(request.url);
     ENV=env;
@@ -372,6 +463,22 @@ if (h.length>0){
     else if (pathname.startsWith("/discord-info")){
       return this.discord_info();
     }
+
+    // Discord Info
+    else if (pathname.startsWith("/discord-nightly")){
+      return this.discord_nightly();
+    }
+
+    // Discord Info
+    else if (pathname.startsWith("/last-nightly")){
+      return this.discord_nightly_file();
+    }
+
+    // Discord Info
+    else if (pathname.startsWith("/discord")){
+      return this.discord(searchParams);
+    }
+    // 
 
     return this.badrequest();
   },

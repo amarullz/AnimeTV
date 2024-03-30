@@ -2289,7 +2289,8 @@ const _API={
               if (n.name.toLowerCase()==namev){
                 currentVersion=push_num;
               }
-              nl.push(n.name+(n.nightly?'':' - STABLE')+' ('+n.filesize+')');
+              var dt=new Date(n.time);
+              nl.push(n.name+(n.nightly?' ':' [ STABLE ]')+'('+n.filesize+')  --  '+dt.toLocaleString());
               np.push(n);
               push_num++;
             }
@@ -2302,10 +2303,12 @@ const _API={
             );
             if (chval!=null){
               var d=np[chval];
+              var dt=new Date(d.time);
               var ctxt=
-                "Filename: "+d.filename+" ("+d.filesize+")\n\n"+
+                "Filename: **"+d.filename+"** ("+d.filesize+")\n"+
+                "Release Date: **"+dt.toLocaleString()+"**\n\n"+
                 d.content.trim()+
-                (d.nightly?"\n\n**CAUTION: __NIGHTLY BUILD MAY UNSTABLE !!!__**\n\n":"\n\n")+
+                (d.nightly?"\n\n**CAUTION: __NIGHTLY BUILD MAY UNSTABLE !!!__**\n":"\n\n")+
                 (d.nightly?"**ARE YOU SURE YOU WANT TO INSTALL NIGHTLY BUILD?**":"**Install this stable build?**");
               ctxt=md2html(ctxt,true);
               if (_API.confirmDialog((d.nightly?"Nightly ":"Release ")+d.name,ctxt,true)){
