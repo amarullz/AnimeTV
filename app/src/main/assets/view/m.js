@@ -9480,13 +9480,13 @@ const home={
       else if (sel==2){
         var chval=_API.listPrompt(
           "MyList",
-          ["Refresh MyList","Customize MyList"]
+          ["Refresh MyList","Customize MyList", "Clear Watch History"]
         );
         if (chval!==null){
           if (chval==0){
             home.init_mylist();
           }
-          else{
+          else if (chval==1){
             listOrder.show(
               "Customize MyList",
               home.listOrder.mylist,
@@ -9501,6 +9501,16 @@ const home={
                 }
               }
             );
+          }
+          else if (chval==2){
+            if (!confirm('WARNING!!!\n\nThis action will clear your watch history, and can\'t be restored.\n\nYou want to continue?')){
+              return;
+            }
+            if (confirm('WARNING!!!\n\nYou Have '+(list.history.list.length)+' anime in your watch history.\nClear it now?')){
+              list.history={detail:{},list:[]};
+              list.save(list.history,'list_history');
+              home.init_mylist();
+            }
           }
         }
       }
