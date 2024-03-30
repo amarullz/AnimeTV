@@ -7895,7 +7895,9 @@ const home={
       mtp='TV';
     }
     var infotxt='';
-    infotxt+='<span class="info_score"><u><b style="width:'+d.averageScore+'%">⭐⭐⭐⭐⭐</b><b>⭐⭐⭐⭐⭐</b></u></span>';
+    if (d.averageScore){
+      infotxt+='<span class="info_score"><u><b style="width:'+d.averageScore+'%">⭐⭐⭐⭐⭐</b><b>⭐⭐⭐⭐⭐</b></u></span>';
+    }
     if (d.isAdult){
       infotxt+='<span class="info_adult">18+</span>';
     }
