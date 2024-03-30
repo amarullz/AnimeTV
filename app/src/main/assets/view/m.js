@@ -7974,7 +7974,7 @@ const home={
           hasNextPage
           currentPage
         }
-        media(sort:TRENDING_DESC, status:RELEASING,`+addj+` type: ANIME){
+        media(sort:TRENDING_DESC, isAdult:false, status:RELEASING,`+addj+` type: ANIME){
           id
           title{
             romaji
@@ -8311,10 +8311,10 @@ const home={
       }, "Top "+_MAL.allist_year()+" - AniList", false]
     );
     homepage.push(
-      ["alupcomming",function(el){
+      ["alupcoming",function(el){
         el._alsort='upcomming';
         home.recent_init(el, _MAL.allist_list_loader);
-      }, "Upcomming - AniList", false]
+      }, "Upcoming - AniList", false]
     );
 
     var homeSaved = listOrder.store.load("home",false);
@@ -9891,7 +9891,7 @@ const _MAL={
           hasNextPage
           currentPage
         }
-        media(sort: SEARCH_MATCH, type: ANIME, search: $search){
+        media(sort: SEARCH_MATCH, isAdult:false, type: ANIME, search: $search){
           id
           idMal
           status
@@ -9914,7 +9914,7 @@ const _MAL={
           hasNextPage
           currentPage
         }
-        media(sort: SEARCH_MATCH, type: ANIME, search: $search){
+        media(sort: SEARCH_MATCH, isAdult:false, type: ANIME, search: $search){
           id
           idMal
           title{
@@ -10037,7 +10037,7 @@ const _MAL={
           hasNextPage
           currentPage
         }
-        media(status:RELEASING, type: ANIME,`+addj+` format:TV) {
+        media(status:RELEASING, type: isAdult:false, ANIME,`+addj+` format:TV) {
           id
           title{
             romaji
@@ -10561,6 +10561,9 @@ const _MAL={
       if (v.data.Page.mediaList.length>0){
         for (var i=0;i<v.data.Page.mediaList.length;i++){
           var d=v.data.Page.mediaList[i];
+          if (d.media.isAdult){
+            continue;
+          }
           var malid="anilist_"+d.id;
           _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
           var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
@@ -10995,6 +10998,9 @@ const _MAL={
             }
           }
           trailer_avail=true;
+          if (!d.bannerImage){
+            d.bannerImage=d.trailer.thumbnail;
+          }
         }
       }
       if (d.bannerImage){
