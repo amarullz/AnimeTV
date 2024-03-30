@@ -2290,7 +2290,8 @@ const _API={
                 currentVersion=push_num;
               }
               var dt=new Date(n.time);
-              nl.push(n.name+(n.nightly?' ':' [ STABLE ]')+'('+n.filesize+')  --  '+dt.toLocaleString());
+              var ds=(dt.getYear()-100)+'-'+pad2(dt.getMonth()+1)+'-'+pad2(dt.getDate())+' '+pad2(dt.getHours())+':'+pad2(dt.getMinutes());
+              nl.push(n.name+(n.nightly?'':'-STABLE')+'\t('+n.filesize+')\t\t'+ds);
               np.push(n);
               push_num++;
             }
@@ -10066,7 +10067,7 @@ const _MAL={
           hasNextPage
           currentPage
         }
-        media(status:RELEASING, type: isAdult:false, ANIME,`+addj+` format:TV) {
+        media(status:RELEASING,isAdult:false, type: ANIME,`+addj+` format:TV) {
           id
           title{
             romaji
