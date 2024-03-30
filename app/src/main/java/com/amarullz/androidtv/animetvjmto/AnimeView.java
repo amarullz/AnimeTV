@@ -1185,16 +1185,21 @@ import javax.crypto.spec.SecretKeySpec;
     @Override
     public void onError(int i) {
       voiceSearchCallback(6, "");
-      voiceRecognizer.cancel();
-      voiceRecognizer.destroy();
+      if (voiceRecognizer!=null) {
+        voiceRecognizer.cancel();
+        voiceRecognizer.destroy();
+      }
       voiceRecognizer=null;
     }
     @Override
     public void onResults(Bundle bundle) {
       ArrayList<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
       voiceSearchCallback(4,results.get(0));
-      voiceRecognizer.cancel();
-      voiceRecognizer.destroy();
+      if (voiceRecognizer!=null) {
+        voiceRecognizer.stopListening();
+        voiceRecognizer.cancel();
+        voiceRecognizer.destroy();
+      }
       voiceRecognizer=null;
     }
     @Override
@@ -1209,9 +1214,13 @@ import javax.crypto.spec.SecretKeySpec;
   public void voiceSearchClose(){
     if (voiceRecognizer!=null){
       voiceSearchCallback(6, "");
+      voiceRecognizer.stopListening();
       voiceRecognizer.cancel();
       voiceRecognizer.destroy();
       voiceRecognizer=null;
+    }
+    else{
+      voiceSearchCallback(6, "");
     }
   }
   public void voiceSearchOpen(){
@@ -1242,7 +1251,7 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   public void voiceSearchCallback(int status, String text){
-    Log.d(_TAG,"Voice Search: "+text);
+    Log.d(_TAG,"Voice Search ("+status+"): "+text);
     activity.runOnUiThread(() ->{
       try {
         JSONObject j = new JSONObject("{}");
