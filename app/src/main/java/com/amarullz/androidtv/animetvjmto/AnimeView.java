@@ -1236,7 +1236,7 @@ import javax.crypto.spec.SecretKeySpec;
     Intent recognizerIntent =
         new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-    recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "com.amarullz.androidtv.animetvjmto");
+    recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, AnimeView.class.getPackage().getName());
     recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
     voiceSearchCallback(1, "");
     voiceRecognizer.startListening(recognizerIntent);
