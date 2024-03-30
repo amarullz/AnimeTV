@@ -8298,7 +8298,6 @@ const home={
         home.recent_init(el, _MAL.allist_list_loader);
       }, "Top Anime - AniList", false]
     );
-
     homepage.push(
       ["alpopular",function(el){
         el._alsort='popular';
@@ -8310,6 +8309,12 @@ const home={
         el._alsort='year';
         home.recent_init(el, _MAL.allist_list_loader);
       }, "Top "+_MAL.allist_year()+" - AniList", false]
+    );
+    homepage.push(
+      ["alupcomming",function(el){
+        el._alsort='upcomming';
+        home.recent_init(el, _MAL.allist_list_loader);
+      }, "Upcomming - AniList", false]
     );
 
     var homeSaved = listOrder.store.load("home",false);
@@ -10095,7 +10100,20 @@ const _MAL={
           if (d.isAdult){
             binfotxt+='<span class="info_adult">18+</span>';
           }
-          if (d.seasonYear){
+          var isplan=false;
+          if (d.status=='NOT_YET_RELEASED'){
+            if (d.startDate && d.startDate.year){
+              if (d.startDate.month){
+                var m='Jan,Feb,Mar,Apr,Mei,Jun,Jul,Aug,Sep,Oct,Nov,Des'.split(',');
+                binfotxt+='<span class="info_year"><c>event_upcoming</c>'+special(m[d.startDate.month-1]+' '+d.startDate.year)+'</span>';
+              }
+              else{
+                binfotxt+='<span class="info_year"><c>event_upcoming</c>'+special(d.startDate.year)+'</span>';
+              }
+              isplan=true;
+            }
+          }
+          if (!isplan && d.seasonYear){
             binfotxt+='<span class="info_year">'+special(d.seasonYear)+'</span>';
           }
           if (d.duration){
@@ -10167,11 +10185,18 @@ const _MAL={
   },
   allist_list:function(sort,page,perpage,cb){
     var sr='POPULARITY_DESC';
+    var blk='status_not_in:[HIATUS,CANCELLED,NOT_YET_RELEASED]';
     if (sort=='top'){
       sr='SCORE_DESC';
     }
     else if (sort=='year'){
       sr='SCORE_DESC, seasonYear: '+(_MAL.allist_year());
+    }
+    else if (sort=='upcomming'){
+      var nd=new Date();
+      var fd=nd.getFullYear()+''+pad2(nd.getMonth()+1)+''+pad2(nd.getDate());
+      blk='status:NOT_YET_RELEASED,startDate_greater:'+fd;
+      sr='START_DATE';
     }
     var addj=' countryOfOrigin: "JP",';
     if (pb.cfg_data.nonjapan){
@@ -10184,7 +10209,7 @@ const _MAL={
           hasNextPage
           currentPage
         }
-        media(sort:`+sr+`,isAdult:false, type: ANIME,`+addj+` status_not_in:[HIATUS,CANCELLED,NOT_YET_RELEASED]) {
+        media(sort:`+sr+`,isAdult:false, type: ANIME,`+addj+` `+blk+`) {
           id
           title{
             romaji
@@ -10192,6 +10217,11 @@ const _MAL={
           }
           coverImage{
             large
+          }
+          startDate {
+            year
+            month
+            day
           }
           status
           duration
@@ -10842,8 +10872,9 @@ const _MAL={
           }
           var kw=dmedia.title.romaji?dmedia.title.romaji:dmedia.title.english;
           _MAL.pop_opendetail(kw, true);
-          // _MAL.popup_close();
-          _API.showToast("Matching anime not found...");
+          if (dmedia.status && dmedia.status!='NOT_YET_RELEASED'){
+            _API.showToast("Matching anime not found...");
+          }
         },isMedia?2:1);
       }
     }catch(e){

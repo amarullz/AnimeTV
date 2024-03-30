@@ -2423,8 +2423,9 @@ c.loader {
 }
 .home_list p div span.info span c{
   vertical-align: middle;
-  margin-left: -.25vw;
-  margin-right: 0;
+  margin-left: -.3vw;
+  margin-right: .1vw;
+  margin-top:-.1vw;
   font-size: var(--fs-8vw);
   max-width: var(--fs-8vw);
   overflow: hidden;
