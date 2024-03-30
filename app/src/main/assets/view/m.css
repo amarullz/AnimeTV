@@ -475,7 +475,7 @@ c.loader {
 }
 #home_header_banner #home_logo{
   padding-left:0;
-  padding-right: 2vw;
+  padding-right:0;
   line-height:var(--fs-20vw);
   font-size: var(--fs-20vw);
   color:rgba(255,255,255,.6);
@@ -484,6 +484,9 @@ c.loader {
 #home_header_banner #home_schedule,
 #home_header_banner #home_settings{
   float: right;
+}
+#home_header_banner #home_schedule,
+#home_header_banner #home_settings{
   padding:0;
   width: 4vw;
   line-height: 4vw;
@@ -491,6 +494,19 @@ c.loader {
   margin-left: 1vw;
   margin-top:-1vw;
   position: relative;
+}
+#home_header_banner #home_voice{
+  padding:0;
+  width: 3vw;
+  line-height: 3vw;
+  text-align: center;
+  margin-left: .5vw;
+  margin-right: 0;
+  position: relative;
+}
+#home_header_banner #home_voice c{
+  font-size: var(--fs-17vw);
+  line-height: 3vw;
 }
 #home_header_banner #home_search c{
   width:var(--fs-13vw);
@@ -654,6 +670,9 @@ c.loader {
   object-fit: cover;
   transition: transform 18s linear, opacity 5s linear;
   transform-origin: center 80%;
+}
+.home_slideshow p div img.isthumb{
+  width: 80vw;
 }
 .home_slideshow p div.active.yt-playing img{
   opacity:0;
@@ -941,8 +960,8 @@ c.loader {
 
 #home_discord_info{
   position: absolute;
-  left:38vw;
-  width:36vw;
+  left:40vw;
+  width:35vw;
   height:7vw;
   top:.7vw;
 
@@ -3403,6 +3422,9 @@ c.loader {
 }
 .view-bigfont #malview_info div p{
   -webkit-line-clamp: 5;
+}
+.view-bigfont.view-biggest #malview_info div p{
+  -webkit-line-clamp: 4;
 }
 .view-bigfont #malview_info div span{
   line-height:1.2;
