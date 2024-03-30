@@ -507,9 +507,68 @@ c.loader {
 #home_header_banner #home_voice c{
   font-size: var(--fs-17vw);
   line-height: 3vw;
+  position: relative;
+  z-index: 10;
 }
+#home_header_banner #home_voice.onvoice{
+  color:var(--primary-1);
+  text-shadow: none !important;
+}
+#home_header_banner #home_voice:before{
+  content:attr(vtext);
+  position: absolute;
+  z-index: 1;
+  display: inline-block;
+  background-color: #fff;
+  top:-.6vw;
+  left:-.5vw;
+  padding: .5vw 1vw .5vw 3.5vw;
+  border-radius: 8vw;
+  white-space: nowrap;
+  text-align: left;
+  border:.2vw solid var(--accent-1);
+  transition: all var(--tim-3s) var(--interpolation);
+  visibility: hidden;
+  opacity: 0;
+  width:0vw;
+  overflow: hidden;
+  animation: onvoice_keyframe .5s linear infinite alternate;
+}
+@keyframes onvoice_keyframe {
+  0% {
+    border-color: #000;
+  }
+  90% {
+    border-color: var(--accent-1);
+  }
+  100% {
+    border-color: var(--accent-1);
+  }
+}
+@keyframes onvoice_c_keyframe {
+  0% {
+    color: #000;
+  }
+  90% {
+    color: var(--accent-1);
+  }
+  100% {
+    color: var(--accent-1);
+  }
+}
+#home_header_banner #home_voice.onvoice:before{
+  visibility: visible;
+  opacity: 1;
+  width:21vw;
+}
+#home_header_banner #home_voice.onvoice c{
+  text-shadow: none !important;
+  animation: onvoice_c_keyframe .5s linear infinite alternate;
+}
+
 #home_header_banner #home_search c{
   width:var(--fs-13vw);
+  margin-left:-.4vw;
   overflow: hidden;
 }
 #home_header_banner #home_schedule c,

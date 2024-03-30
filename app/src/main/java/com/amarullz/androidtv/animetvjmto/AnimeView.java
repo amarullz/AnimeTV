@@ -3,10 +3,8 @@ package com.amarullz.androidtv.animetvjmto;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -28,9 +26,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsPromptResult;
@@ -45,7 +40,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -99,7 +93,7 @@ import javax.crypto.spec.SecretKeySpec;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -1161,11 +1155,65 @@ import javax.crypto.spec.SecretKeySpec;
         voiceSearchOpen();
       });
     }
+    @JavascriptInterface
+    public void voiceClose(){
+      activity.runOnUiThread(()->{
+        voiceSearchClose();
+      });
+    }
   }
 
-  public SpeechRecognizer voiceRecognizer;
-  public Dialog voiceProgress;
-  public TextView voiceTextView;
+  public SpeechRecognizer voiceRecognizer=null;
+  public RecognitionListener voiceListener=new RecognitionListener() {
+    @Override
+    public void onReadyForSpeech(Bundle bundle) {
+      voiceSearchCallback(2, "");
+    }
+    @Override
+    public void onBeginningOfSpeech() {
+    }
+    @Override
+    public void onRmsChanged(float v) {
+    }
+    @Override
+    public void onBufferReceived(byte[] bytes) {
+    }
+    @Override
+    public void onEndOfSpeech() {
+      voiceSearchCallback(5, "");
+    }
+    @Override
+    public void onError(int i) {
+      voiceSearchCallback(6, "");
+      voiceRecognizer.cancel();
+      voiceRecognizer.destroy();
+      voiceRecognizer=null;
+    }
+    @Override
+    public void onResults(Bundle bundle) {
+      ArrayList<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+      voiceSearchCallback(4,results.get(0));
+      voiceRecognizer.cancel();
+      voiceRecognizer.destroy();
+      voiceRecognizer=null;
+    }
+    @Override
+    public void onPartialResults(Bundle bundle) {
+      ArrayList<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+      voiceSearchCallback(3,results.get(0));
+    }
+    @Override
+    public void onEvent(int i, Bundle bundle) {
+    }
+  };
+  public void voiceSearchClose(){
+    if (voiceRecognizer!=null){
+      voiceSearchCallback(6, "");
+      voiceRecognizer.cancel();
+      voiceRecognizer.destroy();
+      voiceRecognizer=null;
+    }
+  }
   public void voiceSearchOpen(){
     if(ContextCompat.checkSelfPermission(activity,"android.permission.RECORD_AUDIO") != PackageManager.PERMISSION_GRANTED){
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1174,81 +1222,36 @@ import javax.crypto.spec.SecretKeySpec;
       }
       return;
     }
-
     voiceRecognizer = SpeechRecognizer.createSpeechRecognizer(activity);
-    voiceProgress=new Dialog(activity);
-    voiceProgress.setContentView(R.layout.voice_layout);
-    voiceProgress.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    voiceProgress.setCancelable(true);
-    voiceTextView = voiceProgress.findViewById(R.id.voice_result);
-    voiceProgress.setOnDismissListener(dialogInterface -> voiceRecognizer.cancel());
-    ImageView voiceIcon=voiceProgress.findViewById(R.id.voice_icon);
-    Animation animation = new AlphaAnimation(1, 0.2f);
-    animation.setDuration(500);
-    animation.setInterpolator(new LinearInterpolator());
-    animation.setRepeatCount(Animation.INFINITE);
-    animation.setRepeatMode(Animation.REVERSE);
-    voiceIcon.startAnimation(animation);
-    voiceRecognizer.setRecognitionListener(new RecognitionListener() {
-      @Override
-      public void onReadyForSpeech(Bundle bundle) {
-        voiceProgress.show();
-      }
-
-      @Override
-      public void onBeginningOfSpeech() {
-      }
-
-      @Override
-      public void onRmsChanged(float v) {
-      }
-
-      @Override
-      public void onBufferReceived(byte[] bytes) {
-      }
-
-      @Override
-      public void onEndOfSpeech() {
-        voiceRecognizer.cancel();
-        voiceProgress.dismiss();
-      }
-      @Override
-      public void onError(int i) {
-        voiceRecognizer.cancel();
-        voiceProgress.dismiss();
-      }
-      @Override
-      public void onResults(Bundle bundle) {
-        ArrayList<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        voiceSearchCallback(results.get(0));
-        voiceRecognizer.cancel();
-        voiceProgress.dismiss();
-      }
-      @Override
-      public void onPartialResults(Bundle bundle) {
-        ArrayList<String> results = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        voiceTextView.setText(results.get(0));
-      }
-
-      @Override
-      public void onEvent(int i, Bundle bundle) {
-      }
-    });
+    voiceRecognizer.setRecognitionListener(voiceListener);
     Intent recognizerIntent =
         new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
     recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "com.amarullz.androidtv.animetvjmto");
     recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+    voiceSearchCallback(1, "");
     voiceRecognizer.startListening(recognizerIntent);
+    /*
+    1. Start
+    2. Ready to speak
+    3. Partial
+    4. Finish
+    5. End of Speak
+    6. Error / close
+    */
   }
 
-  public void voiceSearchCallback(String text){
+  public void voiceSearchCallback(int status, String text){
     Log.d(_TAG,"Voice Search: "+text);
     activity.runOnUiThread(() ->{
       try {
         JSONObject j = new JSONObject("{}");
+        j.put("status", status);
         j.put("value", text);
-        webView.evaluateJavascript("__VOICESEARCH("+j.toString()+");", null);
+        webView.evaluateJavascript(
+            "__VOICESEARCH("+j.toString()+");",
+            null
+        );
       }catch (Exception ignored){}
     });
   }

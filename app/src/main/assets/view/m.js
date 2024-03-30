@@ -2377,7 +2377,9 @@ const _API={
 
   voiceSearch:function(cb){
     _API.voicesearchcb=cb;
-    _JSAPI.voiceSearch();
+    if (cb){
+      _JSAPI.voiceSearch();
+    }
   },
 
   /* Set key handler */
@@ -9398,6 +9400,41 @@ const home={
         home.search.update(home.search.sel);
       },500);
       home.search.dosearch();
+    },
+    onvoicesearch:false,
+    voiceSearchClose:function(){
+      if (home.search.onvoicesearch){
+        _JSAPI.voiceClose();
+      }
+    },
+    voiceSearch:function(ishome){
+      home.search.onvoicesearch=true;
+      _API.voiceSearch(function(v){
+        if (v && ('status' in v)){
+          if ((v.status==4) && v.value){
+            $('home_voice').setAttribute('vtext',v.value);
+            home.search.open({kw:v.value});
+          }
+          else if(v.status==3){
+            $('home_voice').setAttribute('vtext',v.value+'...');
+          }
+          else if(v.status==1){
+            $('home_voice').setAttribute('vtext','...');
+            $('home_voice').classList.add('onvoice');
+          }
+          else if(v.status==2){
+            $('home_voice').setAttribute('vtext','Speak Now...');
+          }
+          /* close */
+          if ((v.status==4)||(v.status==6)){
+            _API.voiceSearch(null);
+            home.search.onvoicesearch=false;
+            requestAnimationFrame(function(){
+              $('home_voice').classList.remove('onvoice');
+            });
+          }
+        }
+      });
     }
   },
   onsearch:false,
@@ -9544,11 +9581,7 @@ const home={
         home.settings.open(0);
       }
       else if (sel==5){
-        _API.voiceSearch(function(v){
-          if (v && v.value){
-            home.search.open({kw:v.value});
-          }
-        });
+        home.search.voiceSearch(1);
       }
     }
   },
@@ -9709,6 +9742,12 @@ const home={
     return home.home_header;
   },
   keycb:function(c){
+    if (home.search.onvoicesearch){
+      if (c==KENTER || c==KBACK){
+        home.search.voiceSearchClose();
+      }
+      return;
+    }
     if (home.onsearch){
       return home.search_keycb(c);
     }
