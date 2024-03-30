@@ -522,11 +522,18 @@ var kaas={
       if (view_data._active_ep){
         view_data._active_ep.active=false;
       }
+      var found_ep=false;
       for (var i=0;i<view_data.ep.length;i++){
         if (view_data.ep[i].ep==ep){
           view_data.ep[i].active=true;
           view_data._active_ep=view_data.ep[i];
+          found_ep=true;
         }
+      }
+      if (!found_ep && (view_data.ep.length>0)){
+        ep=view_data.ep[0].ep;
+        view_data.ep[0].active=true;
+        view_data._active_ep=view_data.ep[0];
       }
       loadServer();
       return uid;
@@ -535,6 +542,7 @@ var kaas={
     var view_eps={};
     function ep_loaded(r,isdub){
       if (r && r.result){
+        
         for (var i=0;i<r.result.length;i++){
           var p=r.result[i];
           var d=null;
@@ -574,6 +582,11 @@ var kaas={
         vep.sort(function(a, b) {
           return Number(a.ep) - Number(b.ep);
         });
+        if (!view_data._active_ep && (view_data.ep.length>0)) {
+          ep=view_data.ep[0].ep;
+          view_data.ep[0].active=true;
+          view_data._active_ep=view_data.ep[0];
+        }
         kaas.view_cache[uri]=view_data;
         loadServer();
       }
@@ -7924,19 +7937,22 @@ const home={
           var hl=$n('div','fullimg',{action:"#"+malid,arg:''},g.P,'');
           home.home_add_pager(hl);
           hl._imgh=$n('content','img_holder',null,hl,'');
-          hl._img=$n('img','',{loading:'lazy',src:$img(d.bannerImage?d.bannerImage:d.coverImage.large)},hl._imgh,'');
-          hl._img.onload=function(){
-            this.classList.add('loaded');
-          };
-
           if (d.trailer){
             if (d.trailer.site=="youtube"){
               hl._iframe_holder=$n('framediv','iframe_holder',null,hl,'');
               hl._ytid=d.trailer.id;
               hl._activeCb=home.anilist_trailer_cb;
               has_trailer=true;
+              if (!d.bannerImage){
+                d.bannerImage=d.trailer.thumbnail;
+              }
             }
           }
+
+          hl._img=$n('img','',{loading:'lazy',src:$img(d.bannerImage?d.bannerImage:d.coverImage.large)},hl._imgh,'');
+          hl._img.onload=function(){
+            this.classList.add('loaded');
+          };
 
           hl._viewbox=$n('span','infobox',null,hl,'');
           hl._view=$n('span','infovalue',null,hl._viewbox,'');
