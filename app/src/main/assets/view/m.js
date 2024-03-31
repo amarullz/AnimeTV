@@ -3990,8 +3990,6 @@ const vtt={
       vtt.playback.btntv=null;
       pb.pb_track_buffer._curr=-1;
       pb.pb_track_buffer.style.width="";
-      pb.pb_loading.classList.remove('buffering');
-      pb.pb_loading.classList.remove('active');
       if (start){
         vtt.playback.btntv=setInterval(vtt.playback.buffer_track,200);
       }
@@ -4686,8 +4684,6 @@ const pb={
 
       /* Reset Stream Type */
       _API.setStreamTypeValue(-1,0);
-
-      pb.pb_loading.classList.remove('buffering');
       pb.pb_loading.classList.remove('active');
       pb.pb.classList.remove('active');
       _API.clearCb();
@@ -4696,7 +4692,6 @@ const pb={
       _API.setUri("/home");
     }
     else{
-      pb.pb_loading.classList.remove('buffering');
       pb.pb_loading.classList.add('active');
       pb.pb.classList.add('active');
     }
@@ -6420,33 +6415,6 @@ const pb={
         pb.pb_track_pos.innerHTML=sec2ts(pos,dur<3600);
         pb.pb_track_dur.innerHTML=sec2ts(dur,dur<3600);
         pb.update_malist_ep(dr);
-
-        var isBuffering=(pb.pb_track_buffer._curr>0 && pb.pb_track_buffer._curr<dr);
-        if (isBuffering){
-          if (!pb.pb_track_buffer._isbuffering){
-            pb.pb_track_buffer._isbuffering=true;
-            if (pb.pb_track_buffer._bufferto){
-              clearTimeout(pb.pb_track_buffer._bufferto);
-            }
-            pb.pb_track_buffer._bufferto=
-            setTimeout(function(){
-              pb.pb_track_buffer._bufferto=null;
-              if (pb.pb_track_buffer._isbuffering){
-                pb.pb_loading.classList.add('buffering');
-                pb.pb_loading.classList.add('active');
-              }
-            },2000);
-          }
-        }
-        else if (pb.pb_track_buffer._isbuffering){
-          pb.pb_track_buffer._isbuffering=false;
-          if (pb.pb_track_buffer._bufferto){
-            clearTimeout(pb.pb_track_buffer._bufferto);
-            pb.pb_track_buffer._bufferto=null;
-          }
-          pb.pb_loading.classList.remove('active');
-        }
-
         if (pb.cfg_data.preloadep && (dr>80) && (pb.preload_started==0)){
           pb.preload_ep();
         }
@@ -6735,7 +6703,6 @@ const pb={
     set:false
   },
   init:function(){
-    pb.pb_loading.classList.remove('buffering');
     pb.preload_started=0;
     pb.preload_video_started=0;
 
@@ -9604,6 +9571,7 @@ const home={
       ],
       days_el:[]
     };
+    window.__schd=schedules;
     function loaded(){
       window._sch=schedules;
       console.log(schedules);
@@ -9633,14 +9601,16 @@ const home={
         var animeDay = d.airDate.getDay();
 
         var isToday=(nowd.getDate()==d.airDate.getDate());
-        var isAired=(!isToday)&&(animeDay==now);
+        var isAired=(d.airIn<0);
 
         var hl=$n('div','',{action:"#"+malid,arg:''},schedules.days_el[animeDay].P,'');
         hl._img=$n('img','',{loading:'lazy',src:$img(d.coverImage.large)},hl,'');
         hl._title=$n('b','',{jp:d.title.romaji?d.title.romaji:d.title.english},hl,tspecial(d.title.english?d.title.english:d.title.romaji));
 
         var airTime=d.airDate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-        hl._ep=$n('span','info_airtime'+(isAired?' schedule_aired':''),null,hl,airTime);
+        hl._ep=$n('span','info_airtime'+(isAired?' schedule_aired':''),null,
+          hl,'<c>'+(isAired?'done':'schedule')+'</c>'+airTime
+        );
 
         var infotxt='';
         var mtp=d.format;
@@ -9653,25 +9623,11 @@ const home={
         if (mtp&&(mtp!='unknown')){
           infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
         }
-        var vep=0;
-        var rvep=0;
-        if (d.nextAiringEpisode){
-          rvep=vep=d.nextAiringEpisode.episode;
-          rvep--;
-          if (isAired){
-            vep--;
-          }
-          if (rvep<1){
-            rvep=0;
-          }
-          if (vep<1){
-            vep=0;
-          }
-        }
+        var vep=d.airEp;
         var sumep=d.episodes;
         if (vep){
           infotxt+='<span class="info_ep"><c>movie</c>'+special(vep+"")+'</span>';
-          d.ep=rvep;
+          d.ep=isAired?vep:(vep-1);
         }
         if (sumep){
           infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(sumep+"")+'</span>';
@@ -9697,18 +9653,32 @@ const home={
       }
       page._oninit=false;
     }
-    function load(page){
-      _MAL.allist_schedule(page,function(r){
+    function load(_ctm, _etm, page){
+      _MAL.allist_schedule(_ctm, page,function(r){
         if (r){
           try{
-            for (var i=0;i<r.data.Page.media.length;i++){
-              var m=r.data.Page.media[i];
+            var isEnd=false;
+            for (var i=0;i<r.data.Page.airingSchedules.length;i++){
+              var a=r.data.Page.airingSchedules[i];
+              var m=a.media;
+              if (m.isAdult){
+                continue;
+              }
+              if (!pb.cfg_data.nonjapan){
+                if (m.countryOfOrigin!="JP"){
+                  continue;
+                }
+              }
               if (schedules.ids.indexOf(m.id)==-1){
-                if (m.nextAiringEpisode && m.nextAiringEpisode.airingAt){
+                if (a.airingAt){
+                  if (a.airingAt>=_etm){
+                    isEnd=true;
+                    break;
+                  }
                   schedules.ids.push(m.id);
-                  m.airAt=m.nextAiringEpisode.airingAt;
-                  m.airEp=m.nextAiringEpisode.episode;
-                  m.airIn=m.nextAiringEpisode.timeUntilAiring;
+                  m.airAt=a.airingAt;
+                  m.airEp=a.episode;
+                  m.airIn=a.timeUntilAiring;
                   var d=new Date(m.airAt*1000);
                   m.airDate=d;
                   m.airSort=(d.getDay()*5000)+(d.getHours()*1000)+d.getMinutes();
@@ -9716,20 +9686,23 @@ const home={
                 }
               }
             }
-            if (r.data.Page.pageInfo.hasNextPage){
-              load(page+1);
+            if (!isEnd && r.data.Page.pageInfo.hasNextPage && (page<10)){
+              load(_ctm, _etm, page+1);
               return;
             }
           }catch(e){
             console.log("Err Schedule: "+e);
           }
         }
-        /* sort */
-        schedules.data.sort(function(a,b){ return a.airSort-b.airSort; });
         loaded();
       });
     }
-    load(1);
+
+    var dateNow = new Date();
+    dateNow.setHours(0, 0, 0, 0);
+    var startDate = Math.floor(dateNow.getTime() / 1000);
+    var endDate = startDate + 604800;
+    load(startDate, endDate, 1);
   },
 
   col_selected:0,
@@ -10129,44 +10102,46 @@ const _MAL={
       cb(null);
     });
   },
-  allist_schedule:function(page,cb){
+  allist_schedule:function(tm,page,cb){
     var addj=' countryOfOrigin: "JP",';
     if (pb.cfg_data.nonjapan){
       addj='';
     }
-    _MAL.alreq(`query ($page: Int, $perPage: Int){
+    _MAL.alreq(`query ($tm: Int, $page: Int, $perPage: Int){
       Page(page: $page, perPage: $perPage) {
         pageInfo {
           perPage
           hasNextPage
           currentPage
         }
-        media(status:RELEASING,isAdult:false, type: ANIME,`+addj+` format:TV) {
-          id
-          title{
-            romaji
-            english
+        airingSchedules(airingAt_greater:$tm,sort:TIME){
+          airingAt
+          episode
+          timeUntilAiring
+          media{
+            id
+            title{
+              romaji
+              english
+            }
+            coverImage{
+              large
+            }
+            status
+            duration
+            format
+            seasonYear
+            season
+            isAdult
+            episodes
+            countryOfOrigin
           }
-          coverImage{
-            large
-          }
-          status
-          duration
-          format
-          seasonYear
-          season
-          isAdult
-          nextAiringEpisode {
-            episode
-            airingAt
-            timeUntilAiring
-          }
-          episodes
         }
       }
     }`,{
       "page":page?page:1,
-      "perPage":50
+      "perPage":50,
+      "tm":tm
     },function(v){
       if (v){
         try{
@@ -10401,7 +10376,7 @@ const _MAL={
   },
   mal_detail:function(id,cb,minimal){
     // 56731
-    var uri='/v2/anime/'+id+'?nsfw=true&'+
+    var uri='/v2/anime/'+id+'?nsfw=false&'+
       (minimal?
         'fields=my_list_status,num_episodes,alternative_titles&':
         'fields=my_list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&')+
@@ -10409,7 +10384,7 @@ const _MAL={
     _MAL.req(uri,"GET",cb);
   },
   list:function(type,offset,cb){
-    var uri='/v2/users/@me/animelist?nsfw=true&'+
+    var uri='/v2/users/@me/animelist?nsfw=false&'+
       'fields=list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
       'status='+enc(type)+'&'+
       'limit='+_MAL.limit;

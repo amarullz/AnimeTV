@@ -1157,19 +1157,6 @@ c.loader {
   opacity: 1;
   visibility: visible;
 }
-#pb_loading.buffering{
-  transition: all var(--tim-2s) var(--interpolation);
-}
-#pb_loading.buffering #pb_load {
-  display: none;
-}
-#pb_loading.buffering .z-loader{
-  opacity: .7;
-}
-#pb_loading.buffering .z-loader:after,
-#pb_loading.buffering .z-loader:before{
-  border-color: #333;
-}
 
 /**** META ****/
 #pb_meta {
@@ -2459,19 +2446,11 @@ c.loader {
   border-radius: .25vw;
   overflow: hidden;
   padding:0 .4vw 0 .4vw;
-  background-color: var(--primary-bg);
+  background-color: var(--primary-2);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
 }
 .home_list p div span.info_airtime.schedule_aired{
-  background-color: var(--primary-1);
-}
-.home_list p div span.info_airtime::before{
-  font-size: var(--fs-7vw);
-  padding-right: .4vw;
-  content: '🕙';
-}
-.home_list p div span.info_airtime.schedule_aired::before{
-  content: '🎬';
+  background-color: var(--primary-bg);
 }
 
 .home_list.active p div.active span.info {
