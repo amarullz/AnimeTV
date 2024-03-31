@@ -1234,18 +1234,18 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   public boolean voiceHaveMic(boolean checkSpeech){
-    PackageManager pm = activity.getPackageManager();
-    boolean micPresent = pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
-    Log.d(_TAG,"Microphone: "+micPresent);
-    if (micPresent&&checkSpeech) {
+//    PackageManager pm = activity.getPackageManager();
+//    boolean micPresent = pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
+//    Log.d(_TAG,"Microphone: "+micPresent);
+//    if (micPresent&&checkSpeech) {
       if (SpeechRecognizer.isRecognitionAvailable(activity)) {
         Log.d(_TAG,"Speech available");
         return true;
       }
       Log.d(_TAG,"Speech not available");
       return false;
-    }
-    return micPresent;
+//    }
+//    return micPresent;
   }
   public void voiceSearchOpen(){
     if(ContextCompat.checkSelfPermission(activity,"android.permission.RECORD_AUDIO") != PackageManager.PERMISSION_GRANTED){

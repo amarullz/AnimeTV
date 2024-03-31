@@ -7,6 +7,14 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 
 [![AnimeTV](/tools/logo-design/animetv-logo/animetv-logo-brand.png)](https://amarullz.com/)
 
+## Download URL and Code
+- **STABLE APK**
+  - URL: [https://animetv.amarullz.com/apk](https://animetv.amarullz.com/apk)
+  - AFTV Downloader code: **`601972`**
+- **NIGHTLY APK**
+  - URL: [https://animetv.amarullz.com/nightly](https://animetv.amarullz.com/nightly)
+  - AFTV Downloader code: **`196130`**
+
 ## Donation & More Information
 
 | License | Stable Release | Nightly Release | Support |
