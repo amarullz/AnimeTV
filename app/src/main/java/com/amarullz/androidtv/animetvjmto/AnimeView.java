@@ -1174,6 +1174,7 @@ import javax.crypto.spec.SecretKeySpec;
     }
     @Override
     public void onRmsChanged(float v) {
+      voiceSearchCallback(7,v+"");
     }
     @Override
     public void onBufferReceived(byte[] bytes) {
@@ -1249,6 +1250,7 @@ import javax.crypto.spec.SecretKeySpec;
     4. Finish
     5. End of Speak
     6. Error / close
+    7. RMS
     */
   }
 

@@ -9379,11 +9379,19 @@ const home={
       _API.voiceSearch(function(v){
         if (v && ('status' in v)){
           if ((v.status==4) && v.value){
-            $('home_voice').setAttribute('vtext',v.value);
+            var pt=v.value;
+            if (pt.length>24){
+              pt=pt.substring(pt.length-24);
+            }
+            $('home_voice').setAttribute('vtext',pt);
             home.search.open({kw:v.value});
           }
           else if(v.status==3){
-            $('home_voice').setAttribute('vtext',v.value+'...');
+            var pt=v.value;
+            if (pt.length>24){
+              pt=pt.substring(pt.length-24);
+            }
+            $('home_voice').setAttribute('vtext',pt+'...');
           }
           else if(v.status==1){
             $('home_voice').setAttribute('vtext','...');
@@ -9392,12 +9400,20 @@ const home={
           else if(v.status==2){
             $('home_voice').setAttribute('vtext','Speak Now...');
           }
+          else if(v.status==7){
+            var vt=toFloat(v.value)-3.0;
+            if (vt<0) vt=0;
+            vt=vt/8.0;
+            console.log("RMS: "+vt);
+            $('home_voice').firstElementChild.style.backgroundColor='rgba(180,200,220,'+vt+')';
+          }
           /* close */
           if ((v.status==4)||(v.status==6)){
             _API.voiceSearch(null);
             home.search.onvoicesearch=false;
             requestAnimationFrame(function(){
               $('home_voice').classList.remove('onvoice');
+              $('home_voice').firstElementChild.style.backgroundColor='';
             });
           }
         }

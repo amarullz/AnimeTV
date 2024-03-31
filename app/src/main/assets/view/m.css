@@ -507,8 +507,11 @@ c.loader {
 #home_header_banner #home_voice c{
   font-size: var(--fs-17vw);
   line-height: 3vw;
+  width: 3vw;
+  text-align: center;
   position: relative;
   z-index: 10;
+  border-radius: 3vw;
 }
 #home_header_banner #home_voice.onvoice{
   color:var(--primary-1);
