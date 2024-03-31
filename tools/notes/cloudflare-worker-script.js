@@ -7,7 +7,7 @@ export default {
   /* Bad Request - Redirect to homepage */
   badrequest(){
     return new Response(null, {
-      status: 301,
+      status: 307,
       headers: {
         'Location': ENV.HOMEPAGE_URL
       }
@@ -137,7 +137,7 @@ export default {
         };
         await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
-          status: 301,
+          status: 307,
           headers: {
             'Location': "https://anilist.co/api/v2/oauth/authorize?client_id="+ENV.ANILIST_CLIENT_ID+"&response_type=token",
             'Set-Cookie': "__alid="+lid+";"
@@ -194,7 +194,7 @@ export default {
 
         await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
-          status: 301,
+          status: 307,
           headers: {
             'Location': ENV.ANILIST_END_URL+"?lid="+lid
           }
@@ -239,7 +239,7 @@ if (h.length>0){
           'code_challenge='+mal_challange;
         await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
-          status: 301,
+          status: 307,
           headers: {
             'Location': mal_url,
             'Set-Cookie': "__klid="+lid+"--_--"+mal_challange+";"
@@ -327,7 +327,7 @@ if (h.length>0){
 
         await this.cachePut(lid,JSON.stringify(d));
         return new Response(null, {
-          status: 301,
+          status: 307,
           headers: {
             'Location': ENV.MAL_END_URL+"?lid="+lid
           }
@@ -406,7 +406,7 @@ if (h.length>0){
               if (redirectApk==1){
                 if (name.toLowerCase().indexOf('-nightly')==-1){
                   return new Response(null, {
-                    status: 301,
+                    status: 307,
                     headers: {
                       'Location': t[i].attachments[j].url
                     }
@@ -415,7 +415,7 @@ if (h.length>0){
               }
               else{
                 return new Response(null, {
-                  status: 301,
+                  status: 307,
                   headers: {
                     'Location': t[i].attachments[j].url
                   }
