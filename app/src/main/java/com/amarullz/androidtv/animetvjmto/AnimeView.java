@@ -1236,8 +1236,10 @@ import javax.crypto.spec.SecretKeySpec;
     Intent recognizerIntent =
         new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-    recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, AnimeView.class.getPackage().getName());
+    recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
+        activity.getPackageName());
     recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+    recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
     voiceSearchCallback(1, "");
     voiceRecognizer.startListening(recognizerIntent);
     /*

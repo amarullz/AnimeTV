@@ -9485,11 +9485,12 @@ const home={
   },
 
   header_keycb:function(g,c){
-    if (c==KLEFT||c==KRIGHT){
+    if (c==KLEFT||c==KRIGHT||c==-1){
       var hsel=home.header_items_selected;
       home.header_items[hsel].classList.remove('active');
       if (c==KRIGHT) hsel++;
       else if (c==KLEFT) hsel--;
+      else if (c==-1) hsel=0;
       if (hsel>=home.header_items.length){
         hsel=0;
       }
@@ -9768,7 +9769,12 @@ const home={
 
     if (c==KBACK){
       if (pr==0){
-        _JSAPI.appQuit();
+        if (home.header_items_selected==0){
+          _JSAPI.appQuit();
+        }
+        else{
+          home.header_keycb(home.home_header,-1);
+        }
       }
       else{
         pr=0;
