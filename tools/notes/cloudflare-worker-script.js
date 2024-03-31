@@ -382,7 +382,7 @@ if (h.length>0){
   },
 
   /* AnimeTV Last Nightly */
-  async discord_nightly_file() {
+  async discord_nightly_file(redirectApk) {
     try{
       let r=await fetch('https://discord.com/api/v9/channels/1209830463913336853/messages?limit=20',{
         cf: {
@@ -401,6 +401,27 @@ if (h.length>0){
           if (t[i].attachments[j].content_type=='application/vnd.android.package-archive'){
             var name=(t[i].attachments[j].filename.replace('animetv-','').replace('-release','').replace('.apk',''));
             var vname=name.split('-')[0].replace(/\./g,'');
+            if (redirectApk){
+              // redirectApk
+              if (redirectApk==1){
+                if (name.toLowerCase().indexOf('-nightly')==-1){
+                  return new Response(null, {
+                    status: 301,
+                    headers: {
+                      'Location': t[i].attachments[j].url
+                    }
+                  });
+                }
+              }
+              else{
+                return new Response(null, {
+                  status: 301,
+                  headers: {
+                    'Location': t[i].attachments[j].url
+                  }
+                });
+              }
+            }
             fn.push(
               {
                 filename:t[i].attachments[j].filename,
@@ -415,6 +436,9 @@ if (h.length>0){
             );
           }
         }
+      }
+      if (redirectApk){
+        return new Response("ERROR");        
       }
       return new Response(JSON.stringify(fn),{
         headers:{
@@ -477,6 +501,14 @@ if (h.length>0){
     // Discord Info
     else if (pathname.startsWith("/discord")){
       return this.discord(searchParams);
+    }
+
+    // APK
+    else if (pathname.startsWith("/apk")){
+      return this.discord_nightly_file(1);
+    }
+    else if (pathname.startsWith("/nightly")){
+      return this.discord_nightly_file(2);
     }
     // 
 
