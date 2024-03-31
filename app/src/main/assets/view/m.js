@@ -8116,8 +8116,8 @@ const home={
     $('home_homepage'),
     $('home_mylist'),
     $('home_schedule'),
-    $('home_settings'),
-    $('home_voice')
+    $('home_settings')
+    
   ],
   home_time:$('home_time'),
   header_timeupdate:function(){
@@ -8392,7 +8392,15 @@ const home={
     home.row_selected=0;
     home.home_header._keycb=home.header_keycb;
     home.home_header.classList.add('active');
+
     home.header_items[0].classList.add('active');
+    try{
+      if (_JSAPI.haveMic(true)){
+        home.header_items.push($('home_voice'));
+        $('home_voice').classList.remove('hide');
+      }
+    }catch(e){}
+
     home.update_homepages(0);
     home.init_discord_message();
   },
@@ -9376,6 +9384,9 @@ const home={
     },
     voiceSearch:function(ishome){
       home.search.onvoicesearch=true;
+      // haveMic
+      $('home_voice').setAttribute('vtext','...');
+      $('home_voice').classList.add('onvoice');
       _API.voiceSearch(function(v){
         if (v && ('status' in v)){
           if ((v.status==4) && v.value){
@@ -9394,8 +9405,7 @@ const home={
             $('home_voice').setAttribute('vtext',pt+'...');
           }
           else if(v.status==1){
-            $('home_voice').setAttribute('vtext','...');
-            $('home_voice').classList.add('onvoice');
+            $('home_voice').setAttribute('vtext','.....');
           }
           else if(v.status==2){
             $('home_voice').setAttribute('vtext','Speak Now...');
@@ -9943,10 +9953,10 @@ const _MAL={
     }
     xhttp.setRequestHeader("X-Org-Prox", "https://anilist.co");
     xhttp.setRequestHeader("X-Ref-Prox", "https://anilist.co/");
-    xhttp.setRequestHeader("Post-Body", JSON.stringify({
+    xhttp.setRequestHeader("Post-Body", encodeURIComponent(JSON.stringify({
       query: q,
       variables: v
-    }));
+    })));
     xhttp.send();
   },
   alset_list:function(id, stat, cb){
@@ -11192,14 +11202,13 @@ const _MAL={
         return o?o:'-';
       }
       
+      kv('interests','Genres',nlbr(special(d.genres.join('\n'))),'',1);
       kv('calendar_clock','Start Date',fuzD(d.startDate),'',1);
       kv('event_available','End Date',fuzD(d.endDate),'',1);
       kv('menu_book','Source',special(((d.source?d.source:'')+'').replace(/_/g,' ')),'',1);
       kv('captive_portal','Country',special(d.countryOfOrigin?d.countryOfOrigin:'-'),'',1);
-      kv('star','Score',special(d.averageScore?d.averageScore:'-')+" / 100",'',1);
-      kv('celebration','Popularity',special(d.popularity?d.popularity:'-'),'',1);
-      kv('favorite','Favorites',special(d.favourites?d.favourites:'-'),'',1);
-      kv('trending_up','Trend',special(d.trending?d.trending:'-'),'',1);
+      kv('routine','Season',special(d.season?d.season:'-')+special(d.seasonYear?' '+d.seasonYear:''),'',1);
+      // kv('calendar_today','Year',special(d.seasonYear?d.seasonYear:'-'),'',1);
 
       var stud='-';
       if (d.studios){
@@ -11214,13 +11223,22 @@ const _MAL={
         }
       }
       
+      
+
+      kv('star','Score',special(d.averageScore?d.averageScore:'-')+" / 100");
+      kv('celebration','Popularity',special(d.popularity?d.popularity:'-'));
+      kv('favorite','Favorites',special(d.favourites?d.favourites:'-'));
+      kv('trending_up','Trend',special(d.trending?d.trending:'-'));
+
+      
+
       var othername=kv('signature','Other Name',tspecial(d.title.romaji?d.title.romaji:d.title.english),'fullwidth alsd_clear');
       othername.setAttribute('jp',d.title.english?d.title.english:d.title.romaji);
-      kv('routine','Season',special(d.season?d.season:'-'),'alsd_clear');
-      kv('calendar_today','Year',special(d.seasonYear?d.seasonYear:'-'));
-      kv('signature','Synonyms',d.synonyms?(special(d.synonyms.join(', '))):"-",'fullwidth alsd_clear');
-      kv('source_environment','Studios',nlbr(special(stud)),'alsd_clear');
-      kv('interests','Genres',nlbr(special(d.genres.join('\n'))),'');
+
+      kv('signature','Synonyms',d.synonyms?nlbr(special(d.synonyms.join('\n'))):"-",'alsd_clear alsd_half');
+      kv('source_environment','Studios',nlbr(special(stud)),'alsd_half');
+      
+
       $n('div','alsd_clear',null,hl._kval,'');
 
 
@@ -11251,6 +11269,7 @@ const _MAL={
       if (hl && hl._trailer){
         console.warn("Play YT");
         hl._ytfpaused=true;
+        hl._ytferror=false;
         hl._playtrailer.innerHTML='<c>pause</c> Pause Trailer';
       }
     }
@@ -11258,6 +11277,7 @@ const _MAL={
       if (hl && hl._trailer){
         console.warn("Pause YT");
         hl._ytfpaused=false;
+        hl._ytferror=false;
         hl._playtrailer.innerHTML='<c>play_arrow</c> Play Trailer';
       }
     }

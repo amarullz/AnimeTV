@@ -93,7 +93,7 @@ import javax.crypto.spec.SecretKeySpec;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=true;
+  public static boolean USE_WEB_VIEW_ASSETS=false;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -480,6 +480,9 @@ import javax.crypto.spec.SecretKeySpec;
             queryData="";
           }
           String bodyData = request.getRequestHeaders().get("Post-Body");
+          if (bodyData!=null){
+            bodyData = URLDecoder.decode(bodyData,"UTF-8");
+          }
           String postType = request.getRequestHeaders().get("X-Post-Prox");
 
           if (postType!=null){
@@ -1161,6 +1164,11 @@ import javax.crypto.spec.SecretKeySpec;
         voiceSearchClose();
       });
     }
+
+    @JavascriptInterface
+    public boolean haveMic(boolean checkSpeech){
+      return voiceHaveMic(checkSpeech);
+    }
   }
 
   public SpeechRecognizer voiceRecognizer=null;
@@ -1224,12 +1232,28 @@ import javax.crypto.spec.SecretKeySpec;
       voiceSearchCallback(6, "");
     }
   }
+
+  public boolean voiceHaveMic(boolean checkSpeech){
+    PackageManager pm = activity.getPackageManager();
+    boolean micPresent = pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
+    Log.d(_TAG,"Microphone: "+micPresent);
+    if (micPresent&&checkSpeech) {
+      if (SpeechRecognizer.isRecognitionAvailable(activity)) {
+        Log.d(_TAG,"Speech available");
+        return true;
+      }
+      Log.d(_TAG,"Speech not available");
+      return false;
+    }
+    return micPresent;
+  }
   public void voiceSearchOpen(){
     if(ContextCompat.checkSelfPermission(activity,"android.permission.RECORD_AUDIO") != PackageManager.PERMISSION_GRANTED){
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         ActivityCompat.requestPermissions(activity,new String[]{"android" +
             ".permission.RECORD_AUDIO"},500);
       }
+      voiceSearchCallback(6, "");
       return;
     }
     voiceRecognizer = SpeechRecognizer.createSpeechRecognizer(activity);

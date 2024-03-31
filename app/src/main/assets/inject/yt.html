@@ -26,10 +26,11 @@ video{
   display: block !important;
 }
 #yterror_msg{
-  z-index: 9999999 !important;
+  z-index: 1 !important;
   display: none;
 }
 #yterror_msg.active{
+  z-index: 9999999 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,21 +49,46 @@ body, html{
 <script>
 (function(){
   var vid=null;
+  var _errorMsgElm=null;
+  var _isErrorMsg=false;
   function $p(c,d){
     parent.postMessage(JSON.stringify({
       vcmd:c,
       val:d
     }),'*');
   }
+  function checkVid(){
+    if (!vid.src){
+      if (!_errorMsgElm){
+        _errorMsgElm=document.createElement('div');
+        _errorMsgElm.setAttribute('id','yterror_msg');
+        _errorMsgElm.innerHTML='<div>Trailer video is unavailable<br>or regionally blocked</div>';
+        document.body.appendChild(_errorMsgElm);
+      }
+      if (!_isErrorMsg){
+        _errorMsgElm.classList.add('active');
+        $p('yt-error','');
+        _isErrorMsg=true;
+      }
+    }else if(_errorMsgElm){
+      if (_isErrorMsg){
+        _errorMsgElm.classList.remove('active');
+        _isErrorMsg=false;
+      }
+    }
+  }
   function init(){
     vid.addEventListener("play", function(){
       $p('yt-play','');
+      checkVid();
     });
     vid.addEventListener("ended", function(){
       $p('yt-end','');
+      checkVid();
     });
     vid.addEventListener("pause", function(){
       $p('yt-pause','');
+      checkVid();
     });
     window.addEventListener('message',function(e) {
         try{
@@ -92,21 +118,6 @@ body, html{
     });
     if (location.search.indexOf('loop')){
       vid.loop = true;
-    }
-  }
-  var _errorMsgElm=null;
-  function checkVid(){
-    if (!vid.src){
-      if (!_errorMsgElm){
-        _errorMsgElm=document.createElement('div');
-        _errorMsgElm.setAttribute('id','yterror_msg');
-        _errorMsgElm.innerHTML='<div>Trailer video is unavailable<br>or regionally blocked</div>';
-        document.body.appendChild(_errorMsgElm);
-      }
-      _errorMsgElm.classList.add('active');
-      $p('yt-error','');
-    }else if(_errorMsgElm){
-      _errorMsgElm.classList.remove('active');
     }
   }
   function findVid(){

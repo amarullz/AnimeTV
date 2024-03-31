@@ -504,6 +504,9 @@ c.loader {
   margin-right: 0;
   position: relative;
 }
+#home_header_banner #home_voice.hide{
+  display: none;
+}
 #home_header_banner #home_voice c{
   font-size: var(--fs-17vw);
   line-height: 3vw;
@@ -3063,7 +3066,7 @@ c.loader {
 #anilist_detail div.alsd_keyval_item{
   display: block;
   box-sizing: border-box;
-  width: 50%;
+  width: 25%;
   padding: .5vw 0 .5vw .5vw;
   overflow: hidden;
   float: left;
@@ -3072,6 +3075,9 @@ c.loader {
 #anilist_detail .alsd_keyval.alsd_left_container div.alsd_keyval_item,
 #anilist_detail .alsd_keyval div.alsd_keyval_item.fullwidth{
   width: 100% !important;
+}
+#anilist_detail .alsd_keyval div.alsd_keyval_item.alsd_half{
+  width: 50% !important;
 }
 #anilist_detail .alsd_keyval div.alsd_keyval_item b,
 #anilist_detail .alsd_keyval div.alsd_keyval_item label{
@@ -3084,6 +3090,7 @@ c.loader {
   color:var(--accent-1);
   font-size: var(--fs-13vw);
   padding-left: 1vw;
+  padding-right: 1vw;
 }
 #anilist_detail .alsd_keyval div.alsd_keyval_item label c{
   margin-right: .6vw;
