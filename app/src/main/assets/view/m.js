@@ -3382,7 +3382,10 @@ const _API={
   },
   videoCompleteTo:null,
   setVideo:function(src, cb){
-    clearInterval(_API.vidInterval);
+    if (_API.vidInterval){
+      clearInterval(_API.vidInterval);
+      _API.vidInterval=null;
+    }
     if (src){
       _JSAPI.videoSetUrl(src);
       var initialized=false;
@@ -4007,12 +4010,17 @@ const vtt={
       }
     },
     play:function(){
+      if (vtt.playback.intv){
+        clearInterval(vtt.playback.intv);
+        vtt.playback.intv=null;
+      }
       vtt.playback.intv=setInterval(vtt.playback.monitor,50);
       
     },
     pause:function(){
       vtt.playback.show=false;
       clearInterval(vtt.playback.intv);
+      vtt.playback.intv=null;
     }
   }
 };
@@ -4698,6 +4706,7 @@ const pb={
       _API.setStreamTypeValue(-1,0);
       pb.pb_loading.classList.remove('active');
       pb.pb.classList.remove('active');
+      home.home.classList.remove('onpb');
       _API.clearCb();
       _API.setKey(home.keycb);
       home.list_init();
@@ -4706,6 +4715,7 @@ const pb={
     else{
       pb.pb_loading.classList.add('active');
       pb.pb.classList.add('active');
+      home.home.classList.add('onpb');
     }
   },
 
@@ -7734,6 +7744,7 @@ const home={
     var g=home.home_slide;
     if (g._slide_interval){
       clearInterval(g._slide_interval);
+      g._slide_interval=null;
     }
     g._slide_interval=setInterval(function(){
       if (!g.classList.contains('active')){
@@ -8151,7 +8162,12 @@ const home={
     mylist:[]
   },
   mylist_el:{},
-  init_mylist:function(){
+  mylist_initialized:false,
+  init_mylist:function(force){
+    if (home.mylist_initialized&&!force){
+      return;
+    }
+    home.mylist_initialized=true;
     var mylist=[];
     if (_MAL.islogin()){
       mylist.push(
@@ -8403,7 +8419,7 @@ const home={
     home.header_timeupdate();
 
     home.init_homepage();
-    home.init_mylist();
+    // home.init_mylist();
 
     _API.setKey(home.keycb);
     home.col_selected=0;
@@ -9493,6 +9509,9 @@ const home={
     if (n==2){
       home.schedule_init();
     }
+    else if (n==1){
+      home.init_mylist(false);
+    }
   },
 
   header_keycb:function(g,c){
@@ -9556,7 +9575,7 @@ const home={
         );
         if (chval!==null){
           if (chval==0){
-            home.init_mylist();
+            home.init_mylist(true);
           }
           else if (chval==1){
             listOrder.show(
@@ -9569,7 +9588,7 @@ const home={
                     listSaved.push([v[i].id,v[i].active]);
                   }
                   listOrder.store.save("mylist",listSaved,true);
-                  home.init_mylist();
+                  home.init_mylist(true);
                 }
               }
             );
@@ -9939,7 +9958,7 @@ const _MAL={
     xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.token);
     xhttp.send();
   },
-  alreq:function(q, v, cb, notoken, retry){
+  alreq:function(q, vars, cb, notoken, retry){
     if (!retry){
       retry=0;
     }
@@ -9948,11 +9967,11 @@ const _MAL={
         xhttp.ok=true;
         try{
           var v=JSON.parse(xhttp.responseText);
-          if (v.error && v.error.status==500){
+          if (v && v.error && v.error.status==500){
             // retry
             if (retry<4){
               setTimeout(function(){
-                _MAL.alreq(q,v,cb,notoken,retry+1);
+                _MAL.alreq(q,vars,cb,notoken,retry+1);
               },50);
             }
             else{
@@ -9983,7 +10002,7 @@ const _MAL={
     xhttp.setRequestHeader("X-Ref-Prox", "https://anilist.co/");
     xhttp.setRequestHeader("Post-Body", encodeURIComponent(JSON.stringify({
       query: q,
-      variables: v
+      variables: vars
     })));
     xhttp.send();
   },
@@ -10206,7 +10225,11 @@ const _MAL={
   },
   allist_list_parser:function(g,v){
     try{
-      if (!v.data.Page.pageInfo.hasNextPage){
+      if (!v || v.error || !v.data || !v.data.Page || !v.data.Page.pageInfo){
+        g._page=100;
+        return;
+      }
+      if (!v.data.Page.pageInfo.hasNextPage || (v.data.Page.media.length<12)){
         g._page=100;
       }
       if (v.data.Page.media.length>0){

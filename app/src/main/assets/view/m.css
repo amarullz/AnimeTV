@@ -11,7 +11,12 @@
   font-weight: 400;
   src: url(icon.woff2) format('woff2');
 }
-
+#animetv{
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
 .mainbgimage {
   object-fit: cover;
   position: fixed;
@@ -742,7 +747,7 @@ c.loader {
 }
 .home_slideshow p div.active.yt-playing img{
   opacity:0;
-  transform: scale(1);
+  /* transform: scale(1); */
 }
 .home_slideshow p div .iframe_holder{
   display: none;
@@ -791,11 +796,11 @@ c.loader {
   display: block;
   transition: transform var(--tim-4s) var(--interpolation);
   transform-origin: center left;
-  transform: scale(.95);
+  /* transform: scale(.95); */
 }
-.home_slideshow.active p div span.infobox span.infovalue{
+/* .home_slideshow.active p div span.infobox span.infovalue{
   transform: scale(1);
-}
+} */
 .home_slideshow p div span.infobox span.infovalue h4{
   margin:0;
   padding:0;
@@ -831,7 +836,7 @@ c.loader {
   text-shadow: 0 .1vw .2vw #000 !important;
   transition: color var(--tim-3s) var(--interpolation), transform var(--tim-5s) var(--interpolation);
 }
-.home_slideshow p div span.infobox span.infovalue span.desc{
+/* .home_slideshow p div span.infobox span.infovalue span.desc{
   transform-origin: top left;
   transform: scale(1);
 }
@@ -842,16 +847,16 @@ c.loader {
 .home_slideshow.active p div.active.yt-playing span.infobox span.infovalue span.desc,
 .home_slideshow.active p div.active.yt-playing span.infobox span.infovalue h4{
   transform: scale(.9);
-}
+} */
 .home_slideshow.active p div.active span.infobox span.infovalue h4{
   color:#fff;
 }
 .home_slideshow.active p div.active span.infobox span.infovalue span.desc{
   color:rgba(255,255,255,.8);
 }
-.home_slideshow p div.active img{
+/* .home_slideshow p div.active img{
   transform: scale(1.1);
-}
+} */
 .home_slideshow p div span.infobox span.infovalue span.info{
   display: block;
   padding-top:1.5vw;
@@ -1039,7 +1044,7 @@ c.loader {
   transition: all 0.3s var(--interpolation);
   visibility: visible;
   opacity: 1;
-  transform: scale(1);
+  /* transform: scale(1); */
   will-change: transform, opacity;
 }
 #home_discord_info #home_discord_info_value:empty{
@@ -1112,10 +1117,7 @@ c.loader {
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
-  transition: all var(--tim-3s) var(--interpolation);
-  opacity: 0;
-  visibility: hidden;
-  z-index: 9999;
+  display: none;
   pointer-events: none;
 }
 
@@ -1129,11 +1131,13 @@ c.loader {
 .playback_on_video #home {
   display: none !important;
 }
+#home.onpb {
+  display: none !important;
+}
 
 #pb.active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+  z-index: 9999;
+  display: block;
 }
 
 #pb_loading {
@@ -1296,8 +1300,14 @@ c.loader {
     margin-left var(--tim-1s) var(--interpolation),
     margin-right 0s !important;
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
-  transform: scale(.91);
-  will-change: transform;
+  /* transform: scale(.91);
+  will-change: transform; */
+  margin-left:.5vw;
+  z-index:1;
+  position: relative;
+}
+.pb_menu>p>div:first-child{
+  margin-left:0;
 }
 
 .pb_menu.active>p>div {
@@ -1311,7 +1321,8 @@ c.loader {
 .pb_menu.active>p>div.active {
   background-color: var(--primary-2);
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
-  transform: scale(1);
+  /* transform: scale(1.1); */
+  z-index:2;
 }
 
 /* .pb_menu.active div:has(+ .active),
@@ -2080,9 +2091,10 @@ c.loader {
   color: #fff;
 }
 
-.home_list div {
+.home_list>p>div {
   padding: 0 !important;
   padding-bottom: 0 !important;
+  margin-left:1vw;
   position: relative;
   border-radius: .3vw;
   overflow: hidden;
@@ -2091,24 +2103,27 @@ c.loader {
   background-color: #333 !important;
   outline: .01vw solid #333 !important
 }
+.home_list>p>div:first-child{
+  margin-left:0;
+}
 
-.home_list div img {
+.home_list>p>div img {
   background-color: #111;
   width: 12vw;
   height: 17vw;
 }
 
-.home_list div img {
+.home_list>p>div img {
   opacity: .8;
   transition: all var(--tim-2s) var(--interpolation);
   will-change: opacity;
 }
 
-.home_list div.active img {
+.home_list>p>div.active img {
   opacity: 1;
 }
 
-.home_list div b {
+.home_list>p>div b {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -2133,47 +2148,47 @@ c.loader {
   text-overflow: ellipsis;
 }
 
-.home_list.active div.active b{
+.home_list.active>p>div.active b{
   overflow: visible;
   white-space: normal;
   text-overflow: clip;
   background-color: var(--primary-1);
 }
 
-.home_list.pb_menu.active div.active {
+.home_list.pb_menu.active>p>div.active {
   background-color: #fff !important;
   outline: .25vw solid #fff !important;
 }
 
-#home_slide.home_list div{
+#home_slide.home_list>p>div{
   width: 35vw !important;
   background-color: var(--primary-1);
   background-image: linear-gradient(180deg, var(--primary-2), var(--primary-1) 100%);
   overflow: hidden;
   text-shadow: .05vw .05vw .3vw #000;
 }
-#home_slide.home_list.pb_menu.active div.active{
+#home_slide.home_list.pb_menu.active>p>div.active{
   background-color: var(--primary-2);
   background-image: linear-gradient(180deg, var(--primary-3), var(--primary-1) 100%);
 }
-#home_slide.home_list div img {
+#home_slide.home_list>p>div img {
   width: 12vw !important;
   object-fit: cover;
   opacity: 0;
   transition: all 2s linear;
 }
-#home_slide.home_list div img.loaded{
+#home_slide.home_list>p>div img.loaded{
   opacity: 1;
 }
-#home_slide.home_list div span.info{
+#home_slide.home_list>p>div span.info{
   font-size:var(--fs-12vw);
   top:.5vw;
   right:.5vw;
 }
-#home_slide.home_list div span.info span{
+#home_slide.home_list>p>div span.info span{
   padding: .4vw;
 }
-#home_slide.home_list div span.infobox{
+#home_slide.home_list>p>div span.infobox{
   position: absolute;
   left: 12vw;
   right: 0;
@@ -2188,29 +2203,29 @@ c.loader {
   font-weight: normal;
 }
 
-#home_slide.home_list div span.infobox span.infovalue{
+#home_slide.home_list>p>div span.infobox span.infovalue{
   display: block;
   padding: 1vw;
   width:100%;
   box-sizing: border-box;
 }
 
-#home_slide.home_list div.fullimg{
+#home_slide.home_list>p>div.fullimg{
   width: 50vw !important;
   height: 20vw !important;
   background-color: #000 !important;
   background-image: none !important;
 }
-#home_slide.home_list div.fullimg img {
+#home_slide.home_list>p>div.fullimg img {
   width: 50vw !important;
   height: 20vw !important;
   left:auto;
   right:0;
   position: absolute;
   will-change: transform;
-  transform: scale(1);
+  /* transform: scale(1); */
 }
-@keyframes homebgani {
+/* @keyframes homebgani {
   0% {
     transform: scale(1)
   }
@@ -2221,18 +2236,18 @@ c.loader {
 }
 #home_slide.home_list.active div.fullimg.active img {
   animation: homebgani 15s linear forwards;
-}
-#home_slide.home_list div.fullimg span.infobox{
+} */
+#home_slide.home_list>p>div.fullimg span.infobox{
   left: 0;
   right: 17vw;
   padding-left: 1vw;
   background: linear-gradient(90deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, .8) 40%, rgba(0, 0, 0, 0) 100%);
 }
-#home_slide.home_list div.fullimg span.infobox *{
+#home_slide.home_list>p>div.fullimg span.infobox *{
   text-shadow: .05vw .05vw .3vw #000 !important;
 }
 
-#home_slide.home_list div span.infobox span.infovalue h4{
+#home_slide.home_list>p>div span.infobox span.infovalue h4{
   margin:0;
   padding:0;
   font-weight: normal;
@@ -2246,7 +2261,7 @@ c.loader {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-#home_slide.home_list div span.infobox span.infovalue span.desc{
+#home_slide.home_list>p>div span.infobox span.infovalue span.desc{
   font-size:var(--fs-12vw);
   color:rgba(255,255,255,.8);
   line-height: 1.2;
@@ -2381,6 +2396,7 @@ c.loader {
   background-position: center center;
   background-repeat: no-repeat;
   transition: all var(--tim-3s) var(--interpolation);
+  transform: scale(1.2);
   opacity: 0;
   visibility: hidden;
   z-index: 100;
@@ -2390,6 +2406,7 @@ c.loader {
 
 #search.active {
   opacity: 1;
+  transform: scale(1);
   visibility: visible;
   pointer-events: auto;
 }
@@ -2567,7 +2584,7 @@ c.loader {
 
 /* Settings */
 #settings {
-  position: fixed;
+  position: absolute;
   right:0;
   top:0;
   bottom: 0;
@@ -2612,7 +2629,7 @@ c.loader {
   border-bottom: .1vw solid #111;
 }
 #settings.active {
-  transform: translateY(0);
+  transform: translateX(0);
   opacity: 1;
   visibility: visible;
 }
@@ -2854,9 +2871,10 @@ c.loader {
   background: #222;
 
   color:#fff;
-  transition: opacity var(--tim-3s) var(--interpolation), visibility var(--tim-3s) var(--interpolation);
+  transition: all var(--tim-3s) var(--interpolation);
   opacity: 0;
   visibility: hidden;
+  transform: scale(.5);
   z-index: 39999;
   pointer-events: none;
   overflow: hidden;
@@ -3175,6 +3193,7 @@ c.loader {
 #malview.active{
   opacity: 1;
   visibility: visible;
+  transform: scale(1);
 }
 #malview #malview_rating{
   position: absolute;
