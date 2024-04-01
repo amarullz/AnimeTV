@@ -4219,7 +4219,8 @@ const pb={
     mirrorserver:false,
     listprog:0,
     dubaudio:false,
-    preloadep:true
+    preloadep:true,
+    homylist:false,
   },
   cfg_load:function(){
     var itm=_JSAPI.storeGet(_API.user_prefix+'pb_cfg',"");
@@ -4240,6 +4241,8 @@ const pb={
         
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.preloadep=('preloadep' in j)?(j.preloadep?true:false):true;
+        pb.cfg_data.homylist=('homylist' in j)?(j.homylist?true:false):false;
+        
         
         pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
         pb.cfg_data.progcache=('progcache' in j)?(j.progcache?true:false):true;
@@ -4330,6 +4333,8 @@ const pb={
     pb.cfg_data.jptitle=false;
     pb.cfg_data.progcache=true;
     pb.cfg_data.preloadep=true;
+    pb.cfg_data.homylist=true;
+    
     pb.cfg_data.usedoh=true;
     
     pb.cfg_data.compactlist=false;
@@ -4422,10 +4427,7 @@ const pb={
     'Dark'
   ],
   cfg_save:function(){
-    // var savingjs=JSON.stringify(pb.cfg_data);
     _JSAPI.storeSet(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
-//    localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
-    // console.log('ATVLOG STORAGE SAVE = '+savingjs);
   },
   cfg_setactive(el, state){
     if (state){
@@ -4561,6 +4563,7 @@ const pb={
       
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('preloadep'); 
+      pb.cfg_update_el('homylist');
       
       pb.cfg_update_el('nonjapan');
       pb.cfg_update_el('alisthomess');
@@ -7240,8 +7243,11 @@ const home={
           d.adult=true;
         }
 
-        d.type=t.querySelector('.fd-infor .fdi-item').textContent;
-        d.duration=t.querySelector('.fd-infor .fdi-item.fdi-duration').textContent+'in';
+        d.type=(t.querySelector('.fd-infor .fdi-item').textContent+'').replace('(? eps)','').trim();
+        var dur=t.querySelector('.fd-infor .fdi-item.fdi-duration').textContent+'';
+        if (dur && (dur.charAt(dur.length-1)=='m')){
+          d.duration=dur+'in';
+        }
         if (d.duration){
           d.duration=d.duration.replace('min','').trim();
           if (d.duration){
@@ -8327,7 +8333,13 @@ const home={
       }
     }
   },
-  init_homepage:function(){
+  homepage_initialized:false,
+  init_homepage:function(force){
+    if (home.homepage_initialized&&!force){
+      return;
+    }
+    home.homepage_initialized=true;
+
     var homepage=[];
     if (__SD3){
       // hianime
@@ -8454,8 +8466,12 @@ const home={
     list.load();
     home.header_timeupdate();
 
-    home.init_homepage();
-    // home.init_mylist();
+    if (pb.cfg_data.homylist){
+      home.init_mylist(true);
+    }
+    else{
+      home.init_homepage(true);
+    }
 
     _API.setKey(home.keycb);
     home.col_selected=0;
@@ -8471,7 +8487,7 @@ const home={
       }
     }catch(e){}
 
-    home.update_homepages(0);
+    home.update_homepages(pb.cfg_data.homylist?1:0);
     home.init_discord_message();
   },
   init_discord_message:function(){
@@ -8612,7 +8628,6 @@ const home={
         );
         
 
-
         /* Style */
         home.settings.tools._s_ccstyle=$n(
           'div','',{
@@ -8644,6 +8659,15 @@ const home={
           },
           home.settings.styling.P,
           '<c>wallpaper</c> Wallpaper<span class="value">Wallpaper-1</span>'
+        );
+
+        home.settings.tools._s_homylist=$n(
+          'div','',{
+            action:'*homylist',
+            s_desc:'Set MyList as main page when AnimeTV started'
+          },
+          home.settings.styling.P,
+          '<c class="check">clear</c><c>dvr</c> MyList Main Page'
         );
 
         home.settings.tools._s_compactlist=$n(
@@ -9548,6 +9572,9 @@ const home={
     else if (n==1){
       home.init_mylist(false);
     }
+    else if (n==0){
+      home.init_homepage(false);
+    }
   },
 
   header_keycb:function(g,c){
@@ -9581,7 +9608,7 @@ const home={
         );
         if (chval!==null){
           if (chval==0){
-            home.init_homepage();
+            home.init_homepage(true);
           }
           else if (chval==1){
             listOrder.show(
@@ -9594,7 +9621,7 @@ const home={
                     homeSaved.push([v[i].id,v[i].active]);
                   }
                   listOrder.store.save("home",homeSaved,false);
-                  home.init_homepage();
+                  home.init_homepage(true);
                 }
               }
             );
