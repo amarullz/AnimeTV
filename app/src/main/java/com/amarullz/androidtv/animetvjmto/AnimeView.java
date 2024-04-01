@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -93,7 +94,9 @@ import javax.crypto.spec.SecretKeySpec;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
+
+  public AudioManager audioManager;
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -166,6 +169,9 @@ import javax.crypto.spec.SecretKeySpec;
     webView.setBackgroundColor(Color.TRANSPARENT);
     webviewInitConfig(webView);
 //    webviewInitConfig(webView2);
+
+    audioManager =
+        (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
 
     webView.setWebChromeClient(new WebChromeClient() {
       @Override public Bitmap getDefaultVideoPoster() {
@@ -272,6 +278,11 @@ import javax.crypto.spec.SecretKeySpec;
     AnimeProvider.executeJob(activity);
   }
 
+  public void audioPlayClick(){
+    try {
+      audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK, 0.5f);
+    }catch (Exception ignored){}
+  }
   public void reloadView(){
 //    aApi.cleanWebView();
     webView.clearCache(true);
@@ -1152,6 +1163,11 @@ import javax.crypto.spec.SecretKeySpec;
       } catch (Exception e) {
         return "";
       }
+    }
+
+    @JavascriptInterface
+    public void playClick(){
+      audioPlayClick();
     }
 
     @JavascriptInterface
