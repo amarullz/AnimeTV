@@ -1,4 +1,66 @@
 # Changelogs
+- **3.8.0** 🍓
+  - Features
+    - Add voice search
+    - Add clear history feature
+    - Add AniList detail anime on popup
+      - Add to AniList function
+      - Add to MAL function
+      - Anime details & trailer
+    - List
+      - Top Anime, All Time Popular & Top This Year from AniList - disable by default
+      - Add Upcoming anime from AniList in home-page - disable by default
+      - Add MAL Plan to watch list - disable by default
+      - Add AniList planned to MyList - disable by default
+  - Performance
+    - Minimize use of scaling transform specially on pb_menu and home_list
+    - Use relative global container for UI elements
+    - Display none for home element when playback shown
+    - Remove home slideshow information scaling
+    - Disable remote debuging webview on release build
+    - Minimize usage of position fixed for better performance[*]
+    - initialized MyList only after it shown
+  - UI & UX
+    - Update logo & branding design
+    - Tweak scrolling amount to fits it respectable pages (home, list, settings, playbacks)
+    - Use outerWidth/outerHeight for measure display rather than innerWidth/Height
+    - Remove buffering spinning
+    - Tweak back button before exit
+    - Hide stars when averageScore unavailable
+    - Tweak nightly date format
+    - Add nightly build release date time info
+    - Use youtube thumbnails when banner image unavailable (maxres)
+    - Rearrange detail info positioning
+    - Add Larger font size
+    - Add blur effect - only for non-performance-ui
+    - Set big font-size as default
+    - Add detail episode info & episode indicator/symbol on list
+    - Fix overflow line on slideshow image
+    - Tweak ordering item size
+    - Tweak & relaxed buffering indicator
+  - Networking, API and Sources
+    - Global update MAL/AniList
+    - Merge kickass anime stream skip data & subtitle from both mirror
+    - Nulling default stream_mirror - kaas
+    - Fix AniList retry request
+    - Fix cb(null) on non returned exception, prevent some unexpected behavior
+    - Use new query for airing schedule
+    - Fix anilist request for title with characters outside of Latin1
+    - Fix schedule request
+    - Fix source-6 kickass ep-0 play
+    - Block all adult contents from AniList data
+    - Improve matching anime algorithm
+    - Fix anilist find no data handler
+    - Fix vidplay streaming domain
+    - Include chinese in anilist if chinese anime is selected
+  - Others
+    - Check SpeechRecognizer availability
+    - Fix trailer playing audio but have error video not available
+- **3.4.8 ❄️**
+  - Reupdate Source 1 & 2 Encryption with online source vrf encryptor
+- **3.4.6 ❄️**
+  - Update Source 1 & 2 Encryption
+  - Update application branding
 - **3.4.0 🪇**
   - **New UI Design**
   - **Add Source 6 from Kickassanime**

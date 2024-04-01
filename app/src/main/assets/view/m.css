@@ -2954,6 +2954,7 @@ c.loader {
   background-color: rgba(8,8,8,.4);
   border-bottom:.1vw solid rgba(255,255,255,.1);
   padding:1.5vw;
+  /* scroll-behavior: smooth; */
 }
 #anilist_detail .alsd_tools{
   position: absolute;
@@ -3448,6 +3449,7 @@ c.loader {
   box-shadow: none !important;
   overflow: visible !important;
   transition: none !important;
+  border-radius: .4vw !important;
 }
 .view-informative .home_list:not(#home_slide)>p>div img {
   width: 12vw;
@@ -3468,12 +3470,15 @@ c.loader {
   line-height: var(--fs-15vw);
   white-space: normal !important;
   background-color: transparent !important;
-  color: rgba(255,255,255,.5) !important;
+  color: rgba(255,255,255,.4) !important;
 }
 .view-informative .home_list:not(#home_slide).active>p>div.active img {
   /* border: .5vw solid var(--accent-1) !important; */
   border: .4vw solid #fff !important;
 }
+/* .view-informative .home_list:not(#home_slide).active>p>div.active{
+  background-color: rgba(255,255,255,.5) !important;
+} */
 .view-informative .home_list:not(#home_slide).active>p>div.active b {
   color: #fff !important;
 }
