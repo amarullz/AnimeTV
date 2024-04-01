@@ -8,10 +8,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240330",
 
-  "appnum": 348,
-  "appver": "3.4.8",
-  "appsize": "10.1 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/3.4.8/animetv-3.4.8.apk",
+  "appnum": 380,
+  "appver": "3.8.0",
+  "appsize": "9.97 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/3.8.0/animetv-3.8.0.apk",
   "appnote": 
-    "- Use Server-based script vrf encryptor for source 1/2\n- Update Source 1 & 2 Encryption\n- Brand new UI with trailer video\n- New Source 6 from Kickassanime\n- Add new airing schedule\n- Add managing & reordering home"
+    "- Add AniList detail anime with trailer\n- Add Clear history & Voice search features\n- Improve performance\n- Add Top, All time popular, Upcoming (disable by default)"
 }
