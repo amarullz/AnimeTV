@@ -1390,7 +1390,9 @@ const wave={
       if (r.ok){
         try{
           var d=JSON.parse(r.responseText);
-          cb(d);
+          try{
+            cb(d);
+          }catch(e){}
           return;
         }catch(e){}
       }
@@ -1436,7 +1438,9 @@ const wave={
           '/'+
           slug+
           vidSearch;
-        cb(mediaUrl);
+        try{
+          cb(mediaUrl);
+        }catch(e){}
         return;
       }catch(e){}
       cb(null);
@@ -1470,7 +1474,9 @@ const wave={
           if (r.ok){
             try{
               var d=JSON.parse(r.responseText);
-              cb(d);
+              try{
+                cb(d);
+              }catch(e){}
               return;
             }catch(e){}
           }
@@ -3032,13 +3038,17 @@ const _API={
               if (__SD==1){
                 var tipid=d.querySelector("#watch-main").getAttribute('data-id');
                 var ttid=''+tipid+'?/cache'+$tick();
-                _API.getTooltip(ttid,cb);
+                try{
+                  _API.getTooltip(ttid,cb);
+                }catch(e){}
                 return;
               }
               else{
                 var tipid=d.querySelector("main div.container.watch-wrap").getAttribute('data-id');
                 var ttid=''+tipid+'?/cache'+$tick();
-                _API.getTooltip(ttid,cb);
+                try{
+                  _API.getTooltip(ttid,cb);
+                }catch(e){}
                 return;
               }
             }catch(e){}
@@ -3821,7 +3831,9 @@ const vtt={
           txts=txts.replace(/\ >/g,">");
           txts=txts.replace(/\ >/g,">");
           txts=txts.replace(/\ >/g,">");
-          cb(txts);
+          try{
+            cb(txts);
+          }catch(e){}
           return;
         }
         catch(e){
@@ -6128,7 +6140,7 @@ const pb={
           }
           if (g._midx>0){
             var iw=0;
-            iw=window.innerWidth/g._midx;
+            iw=window.outerWidth/g._midx;
             var ow=(g._itemwidth)?g._itemwidth():n.offsetWidth;
             var xpos=n.offsetLeft+(ow/2);
             if (xpos>iw){
@@ -6190,7 +6202,7 @@ const pb={
         var p=pb.gestures.pos(ev);
         var xmove=p[0]-s[0];
         if (this.P){
-          if (Math.abs(xmove)<(window.innerWidth*0.06)){
+          if (Math.abs(xmove)<(window.outerWidth*0.06)){
             this.P.style.marginLeft=(xmove/1.5)+'px';
           }
           else{
@@ -6376,11 +6388,17 @@ const pb={
     else{
       pb.pb_meta.classList.remove('active');
     }
-    var vh=(pb.menusel<pb.menus.length-1)?window.innerHeight/13:0;
-    for (var i=2;((i<=pb.menusel)&&(i<pb.menus.length));i++){
-      vh+=pb.menus[i].offsetHeight;
+    var vh=0;
+    if (pb.menusel<pb.menus.length-1){
+      vh=(pb.menusel<pb.menus.length-1)?window.outerHeight/13:0;
+      for (var i=2;((i<=pb.menusel)&&(i<pb.menus.length));i++){
+        vh+=pb.menus[i].offsetHeight;
+      }
     }
-    pb.pb_iactions.style.transform='translateY('+(window.innerHeight-vh)+'px)';
+    else{
+      vh=pb.pb_iactions.offsetHeight;
+    }
+    pb.pb_iactions.style.transform='translateY('+(window.outerHeight-vh)+'px)';
     if (pb.menus[pb.menusel]._sel){
       pb.menu_select(pb.menus[pb.menusel],pb.menus[pb.menusel]._sel);
     }
@@ -8857,7 +8875,7 @@ const home={
       var st=home.settings.sscroll.scrollTop;
       var sh=home.settings.sscroll.offsetHeight;
       var sb=st+sh;
-      var hdrHeight=Math.floor(window.innerWidth*0.05);
+      var hdrHeight=Math.floor(window.outerWidth*0.05);
       if (ot>hdrHeight){
         ot-=hdrHeight;
       }
@@ -9805,8 +9823,14 @@ const home={
         activeItem._activeCb(activeItem,true);
       }
       if (pr>1){
-        var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.innerHeight + (window.innerWidth*0.06));
-        if (ty<0) ty=0;
+        var ty=0;
+        if (pr==home.menus[pc].length){
+          ty=home.home_scroll.offsetHeight-window.outerHeight;
+        }
+        else{
+          var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.outerHeight + (window.outerWidth*0.14));
+          if (ty<0) ty=0;
+        }
         home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
       }
       else{
@@ -9932,11 +9956,15 @@ const _MAL={
               },50);
             }
             else{
-              cb(null);
+              try{
+                cb(null);
+              }catch(e){}
             }
             return;
           }
-          cb(v);
+          try{
+            cb(v);
+          }catch(e){}
           return;
         }catch(e){}
         cb(null);
@@ -10170,10 +10198,8 @@ const _MAL={
       "tm":tm
     },function(v){
       if (v){
-        try{
-          cb(v);
-          return;
-        }catch(e){}
+        cb(v);
+        return;
       }
       cb(null);
     }, true);
@@ -10348,10 +10374,8 @@ const _MAL={
       "perPage":perpage
     },function(v){
       if (v){
-        try{
-          cb(v);
-          return;
-        }catch(e){}
+        cb(v);
+        return;
       }
       cb(null);
     }, true);
@@ -11313,7 +11337,7 @@ const _MAL={
     }
 
     if (c==KUP || c==KDOWN){
-      var ss = (window.innerHeight / 5);
+      var ss = (window.outerHeight / 5);
       var st=hl.scrollTop;
       var sh=hl.scrollHeight;
       if (c==KUP){
@@ -12079,8 +12103,8 @@ body.classList.remove('notready');
       var yUp = evt.touches[0].clientY;
       var xDiff = xDown - xUp;
       var yDiff = yDown - yUp;
-      var minMove=window.innerWidth*0.07;
-      var minCancel=window.innerWidth*0.02;
+      var minMove=window.outerWidth*0.07;
+      var minCancel=window.outerWidth*0.02;
       if ( Math.abs( xDiff ) < Math.abs( yDiff ) ) {
         if (Math.abs( yDiff )>minMove){
           if ( yDiff > 0 ) {

@@ -22,6 +22,7 @@
   height: 100vh;
   transition: opacity 5s linear;
   opacity: 1;
+  display: none;
 }
 
 .notready #home{
@@ -256,7 +257,7 @@ html {
   font-weight: normal;
   background: transparent !important;
   color: #fff;
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; */
   overflow: hidden;
 }
 
@@ -1100,12 +1101,13 @@ c.loader {
 
 /****************************** PLAYBACK ******************************/
 #pb {
-  position: fixed;
+  position: absolute;
   /* inset: 0; */
   top:0;
   left:0;
   right:0;
   bottom:0;
+  overflow: hidden;
   background: #000;
   background-size: contain;
   background-position: center center;
@@ -1117,7 +1119,7 @@ c.loader {
   pointer-events: none;
 }
 
-.playback_on_video #animebg,
+/* .playback_on_video #animebg, */
 .playback_on_video #pb {
   background: rgba(0,0,0,0) !important;
   background-image: none !important;
@@ -1984,7 +1986,7 @@ c.loader {
 
 /********************************* HOME *********************************/
 #home {
-  position: fixed;
+  position: absolute;
   z-index: 2;
   transition: all var(--tim-2s) var(--interpolation);
   display: block;
@@ -1993,6 +1995,7 @@ c.loader {
   left:0;
   right:0;
   bottom:0;
+  overflow: hidden;
 }
 
 .home_opt_list,
@@ -2261,25 +2264,30 @@ c.loader {
 
 
 #home_scroll{
-  position: relative;
+  position: absolute;
   display: block;
+  top:0;
+  left:0;
+  right: 0;
   z-index:0;
   transition: transform var(--tim-3s) var(--interpolation);
   will-change: transform;
 }
 #home_scroll_mask{
-  position: absolute;
+  position: relative;
   left:0;
   right:0;
   top:0;
   bottom:0;
+  width:100vw;
+  height:100vh;
   overflow: hidden;
 }
 #home_about{
   text-align: center;
 }
 #home_about span{
-  padding:.5vw;
+  padding:.5vw 0 2vw 0;
   color:rgba(255,255,255,.6);
   text-shadow: .2vw .2vw .2vw #000;
   font-size:var(--fs-10vw);
@@ -2295,6 +2303,7 @@ c.loader {
 
 #animebg {
   position: absolute;
+  /* display: none; */
   /* inset: 0; */
   top:0;
   left:0;
@@ -2360,12 +2369,13 @@ c.loader {
 }
 
 #search {
-  position: fixed;
+  position: absolute;
   /* inset: 0; */
   top:0;
   left:0;
   right:0;
   bottom:0;
+  overflow: hidden;
   background: linear-gradient(180deg, #000, var(--primary-bg) 100%);
   background-size: contain;
   background-position: center center;
@@ -2771,11 +2781,12 @@ c.loader {
 
 #popupcontainer{
   pointer-events: none;
-  position: fixed;
+  position: absolute;
   right:0;
   left:0;
   bottom:0;
   top:0;
+  overflow: hidden;
   background-color: rgba(0,0,0,.7);
   z-index: 29999;
   display: flex;
@@ -2837,7 +2848,7 @@ c.loader {
 
 /* Settings */
 #malview {
-  position: fixed;
+  position: absolute;
   padding:0;
   box-sizing: border-box;
   background: #222;
@@ -3484,7 +3495,7 @@ c.loader {
 
 /******************************** REORDER ***********************/
 #listorder{
-  position: fixed;
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
