@@ -4246,7 +4246,7 @@ const pb={
 
         if ('trailer' in j){
           var sv=parseInt(j.trailer);
-          if (sv&&sv>0&&sv<=2)
+          if (!isNaN(sv)&&sv>=0&&sv<=2)
             pb.cfg_data.trailer=sv;
         }
 
@@ -5347,6 +5347,7 @@ const pb={
         pb.updateStreamTypeInfo();
         wave.vidplayGetData(pb.data.stream_vurl,function(r){
           if (r && r.result && r.result.sources){
+            pb.video_tmp_start_pos=pb.startpos_val;
             if (pb.mediainfo_callback(r)){
               return;
             }
