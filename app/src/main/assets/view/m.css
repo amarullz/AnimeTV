@@ -2094,14 +2094,17 @@ c.loader {
 .home_list>p>div {
   padding: 0 !important;
   padding-bottom: 0 !important;
-  margin-left:1vw;
+  margin-left:.5vw;
   position: relative;
   border-radius: .3vw;
   overflow: hidden;
+  background-color: #333 !important;
+  outline: .01vw solid #333 !important;
   width: 12vw;
   height: 17vw;
-  background-color: #333 !important;
-  outline: .01vw solid #333 !important
+}
+.home_list>p>div.active{
+  background-color: var(--primary-1);
 }
 .home_list>p>div:first-child{
   margin-left:0;
@@ -2447,8 +2450,8 @@ c.loader {
   display: block;
   position: absolute;
   z-index: 300;
-  top: .3vw;
-  right: .3vw;
+  top: .4vw;
+  right: .45vw;
   font-size: var(--fs-8vw);
   line-height: 1.4;
   padding: 0 !important;
@@ -2462,27 +2465,15 @@ c.loader {
 .home_list p div span.info.info_bottom{
   top: auto;
   right:auto;
-  left: .3vw;
-  bottom: 4.3vw;
+  left: .45vw;
+  bottom: 4.35vw;
   text-align: left;
 }
 
-.home_list p div span.info_airtime{
-  display: block;
-  position: absolute;
-  z-index: 300;
-  bottom: 4.3vw;
-  left: .3vw;
-  font-size: var(--fs-10vw);
-  line-height: 1.4;
-  outline:.12vw solid #000;
-  border-radius: .25vw;
-  overflow: hidden;
-  padding:0 .4vw 0 .4vw;
+.home_list p div span.info .info_airtime{
   background-color: var(--primary-2);
-  box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
 }
-.home_list p div span.info_airtime.schedule_aired{
+.home_list p div span.info .info_airtime.schedule_aired{
   background-color: var(--primary-bg);
 }
 
@@ -3446,20 +3437,22 @@ c.loader {
 .view-informative .home_list {
   min-height: calc(var(--fs-20vw) + 20.7vw);
 }
-.view-informative .home_list:not(#home_slide) div {
+.view-informative .home_list:not(#home_slide)>p>div {
   height: calc(var(--fs-20vw) + 18.5vw);
   background-color: transparent !important;
   outline: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   overflow: visible !important;
+  transition: none !important;
 }
-.view-informative .home_list:not(#home_slide) div img {
+.view-informative .home_list:not(#home_slide)>p>div img {
   width: 12vw;
   height: 17vw;
   border-radius: .3vw;
+  box-sizing: border-box;
 }
-.view-informative .home_list:not(#home_slide) div b {
+.view-informative .home_list:not(#home_slide)>p>div b {
   text-align: left;
   padding: 0 .3vw 0 .3vw;
   height: calc(var(--fs-14vw) * 2);
@@ -3472,15 +3465,16 @@ c.loader {
   line-height: var(--fs-14vw);
   white-space: normal !important;
   background-color: transparent !important;
-  color: rgba(255,255,255,.7) !important;
+  color: rgba(255,255,255,.5) !important;
 }
-.view-informative .home_list:not(#home_slide).active div.active img {
-  outline: .2vw solid #fff !important;
+.view-informative .home_list:not(#home_slide).active>p>div.active img {
+  /* border: .5vw solid var(--accent-1) !important; */
+  border: .4vw solid #fff !important;
 }
-.view-informative .home_list:not(#home_slide).active div.active b {
+.view-informative .home_list:not(#home_slide).active>p>div.active b {
   color: #fff !important;
 }
-.view-informative .home_list:not(#home_slide) p div i{
+.view-informative .home_list:not(#home_slide)>p>div i{
   bottom:calc(calc(var(--fs-17vw) * 2) + .5vw);
 }
 

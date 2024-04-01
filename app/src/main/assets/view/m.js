@@ -9671,8 +9671,8 @@ const home={
         hl._title=$n('b','',{jp:d.title.romaji?d.title.romaji:d.title.english},hl,tspecial(d.title.english?d.title.english:d.title.romaji));
 
         var airTime=d.airDate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-        hl._ep=$n('span','info_airtime'+(isAired?' schedule_aired':''),null,
-          hl,'<c>'+(isAired?'done':'schedule')+'</c>'+airTime
+        hl._ep=$n('span','info_bottom info',null,
+          hl,'<span class="info_airtime'+(isAired?' schedule_aired':'')+'"><c>'+(isAired?'done':'schedule')+'</c>'+airTime+'</span>'
         );
 
         var infotxt='';
