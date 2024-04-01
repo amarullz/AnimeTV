@@ -1899,9 +1899,6 @@ window.__VOICESEARCH=function(d){
 //   _API.mp4cb(d);
 // };
 
-/* Number of bgimage */
-const BGIMG_NUM=9;
-
 /* Key codes */
 const KUP=38;
 const KDOWN=40;
@@ -1923,6 +1920,26 @@ const _API={
   user_prefix:'', /* current localStorage user prefix _API.user_prefix */
   
   html_class:'',
+
+  wallpaper_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/wallpaper/',
+  wallpaper_data:[],
+  wallpaper_list:function(cb){
+    if (_API.wallpaper_data.length>0){
+      cb(_API.wallpaper_data.length);
+      return;
+    }
+    $ap(_API.wallpaper_base+'wallpaper.json',function(v){
+      if (v.ok){
+        try{
+          var wd=JSON.parse(v.responseText);
+          if (wd.length>0){
+            _API.wallpaper_data=JSON.parse(v.responseText);
+          }
+        }catch(e){}
+      }
+      cb(_API.wallpaper_data.length);
+    });
+  },
 
   /*** THEMES ***/
   theme_list:[
@@ -1949,7 +1966,14 @@ const _API={
   },
 
   bgimg_update:function(){
-    $('animebg').className='bg'+pb.cfg_data.bgimg;
+    if (pb.cfg_data.bgimg.src){
+      $('animebg').style.backgroundImage='url('+_API.wallpaper_base+pb.cfg_data.bgimg.src+')';
+      $('animebg').className='';
+    }
+    else{
+      $('animebg').style.backgroundImage='';
+      $('animebg').className='bg0';
+    }
   },
 
   listPrompt:function(title,list,sel){
@@ -4188,7 +4212,7 @@ const pb={
     scale:0,
     lang:'',
     ccstyle:0,
-    bgimg:BGIMG_NUM-1,
+    bgimg:{},
     quality:0,
     uifontsize:2,
     httpclient:0,
@@ -4241,7 +4265,7 @@ const pb={
         pb.cfg_data.ccstyle=('ccstyle' in j)?j.ccstyle:'';
         vtt.set_style(pb.cfg_data.ccstyle);
 
-        pb.cfg_data.bgimg=('bgimg' in j)?j.bgimg:BGIMG_NUM-1;
+        pb.cfg_data.bgimg=JSON.parse(JSON.stringify(('bgimg' in j)?j.bgimg:{}));
         _API.bgimg_update();
 
         if ('trailer' in j){
@@ -4327,7 +4351,7 @@ const pb={
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
     pb.cfg_data.ccstyle=0;
-    pb.cfg_data.bgimg=BGIMG_NUM-1;
+    pb.cfg_data.bgimg={};
     pb.cfg_data.quality=0;
   },
   cfgserver_name:[
@@ -4387,18 +4411,6 @@ const pb={
     "Medium",
     "Low"
   ],
-  cfgwallpaper_name:[
-    "No Wallpaper",
-    "Gate",
-    "Waifu 1",
-    "Sunny Go",
-    "Waifu 2",
-    "Your Name",
-    "Fuji",
-    "Your Name 2",
-    "Hill Bench",
-    "Gojo Satoru",
-  ],
   cfgtheme_name:[
     'Purple',
     'Blue',
@@ -4410,7 +4422,7 @@ const pb={
     'Dark'
   ],
   cfg_save:function(){
-    var savingjs=JSON.stringify(pb.cfg_data);
+    // var savingjs=JSON.stringify(pb.cfg_data);
     _JSAPI.storeSet(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
 //    localStorage.setItem(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
     // console.log('ATVLOG STORAGE SAVE = '+savingjs);
@@ -4439,7 +4451,7 @@ const pb={
         el.lastElementChild.innerHTML=vtt.stylename(pb.cfg_data.ccstyle);
       }
       else if (key=='bgimg'){
-        el.lastElementChild.innerHTML=pb.cfgwallpaper_name[pb.cfg_data.bgimg];
+        el.lastElementChild.innerHTML=pb.cfg_data.bgimg.title?pb.cfg_data.bgimg.title:"No Wallpaper";
       }
       else if (key=='quality'){
         if (root==key,pb.pb_settings){
@@ -5955,17 +5967,40 @@ const pb={
         }
       }
       else if (key=="bgimg"){
-        pb.state=0;
-        var chval=_API.listPrompt(
-          "Wallpaper",
-          pb.cfgwallpaper_name,
-          pb.cfg_data.bgimg
-        );
-        if (chval!=null){
-          pb.cfg_data.bgimg=toInt(chval);
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-          _API.bgimg_update();
+        // pb.state=0;
+        if (!_API.wallpaper_list_onload){
+          _API.wallpaper_list_onload=true;
+          _API.wallpaper_list(function(){
+            _API.wallpaper_list_onload=false;
+            var wp=["No Wallpaper"];
+            var ws=[""];
+            var curr=0;
+            if (_API.wallpaper_data.length>0){
+              for (var i=0;i<_API.wallpaper_data.length;i++){
+                if (_API.wallpaper_data[i].title && _API.wallpaper_data[i].src){
+                  wp.push(_API.wallpaper_data[i].title);
+                  ws.push(_API.wallpaper_data[i].src);
+                  if (pb.cfg_data.bgimg.src && pb.cfg_data.bgimg.src==_API.wallpaper_data[i].src){
+                    curr=i+1;
+                  }
+                }
+              }
+            }
+            var chval=_API.listPrompt(
+              "Wallpaper",
+              wp,
+              curr
+            );
+            if (chval!=null){
+              pb.cfg_data.bgimg=JSON.parse(JSON.stringify({
+                "src":ws[chval],
+                "title":wp[chval]
+              }));
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+              _API.bgimg_update();
+            }
+          });
         }
       }
       else if (key=='nonjapan'){
