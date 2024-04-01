@@ -1268,7 +1268,7 @@ c.loader {
   transition: all var(--tim-8s) var(--interpolation);
 }
 
-.pb_menu p {
+.pb_menu>p {
   margin: 0;
   padding: 0;
   position: relative;
@@ -1284,7 +1284,7 @@ c.loader {
   /* -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 5%, #000 95%, rgba(0, 0, 0, 0)); */
 }
 
-.pb_menu div {
+.pb_menu>p>div {
   display: inline-block;
   background-color: rgba(255, 255, 255, .1);
   padding: .2vw .8vw .2vw .8vw;
@@ -1300,15 +1300,15 @@ c.loader {
   will-change: transform;
 }
 
-.pb_menu.active div {
+.pb_menu.active>p>div {
   background-color: rgba(255, 255, 255, .4);
 }
 
-.pb_menu div.active {
+.pb_menu>p>div.active {
   background-color: var(--dimm-1);
 }
 
-.pb_menu.active div.active {
+.pb_menu.active>p>div.active {
   background-color: var(--primary-2);
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
   transform: scale(1);
