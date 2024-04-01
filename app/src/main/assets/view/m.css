@@ -2334,36 +2334,46 @@ c.loader {
   background-image: none;
   background-color: var(--primary-bg);
 }
+#animebg::before{
+  content: ' ';
+  position: absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background-image: 
+    linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%);
+}
 
 #animebg.bg1 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/1.webp);
+  background-image: url(bg/1.webp);
 }
 #animebg.bg2 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/2.jpg);
+  background-image: url(bg/2.jpg);
 }
 #animebg.bg3 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/3.jpg);
+  background-image: url(bg/3.jpg);
 }
 #animebg.bg4 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/4.jpg);
+  background-image: url(bg/4.jpg);
 }
 #animebg.bg5 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/5.webp);
+  background-image: url(bg/5.webp);
 }
 #animebg.bg6 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/6.jpg);
+  background-image: url(bg/6.jpg);
 }
 #animebg.bg7 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/7.jpg);
+  background-image: url(bg/7.jpg);
 }
 #animebg.bg8 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/8.webp);
+  background-image: url(bg/8.webp);
 }
 #animebg.bg9 {
-  background-image: linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%), url(bg/9.webp);
+  background-image: url(bg/9.webp);
 }
 
-.theme_dark #animebg:not(.bg0)::before{
+/* .theme_dark #animebg:not(.bg0)::before{
   content:'';
   position: absolute;
   left: 0;
@@ -2371,11 +2381,14 @@ c.loader {
   right: 0;
   bottom: 0;
   background-image: linear-gradient(180deg, rgba(0, 0, 0, .6), #000 100%);
-}
+} */
 
 #animebg.bg0 {
   background-image: none !important;
   background-color: var(--primary-bg) !important;
+}
+#animebg.bg0::before{
+  display: none;
 }
 .ui_performance #animebg.bg0 + #home #home_scroll{
   background-image: none;
