@@ -9719,7 +9719,7 @@ const home={
             if (confirm('WARNING!!!\n\nYou Have '+(list.history.list.length)+' anime in your watch history.\nClear it now?')){
               list.history={detail:{},list:[]};
               list.save(list.history,'list_history');
-              home.init_mylist();
+              home.init_mylist(true);
             }
           }
         }
@@ -11570,7 +11570,7 @@ const _MAL={
                   hl._addal._curr='';
                   hl._addal.innerHTML='<c>bookmark_add</c>Add to AniList';
                   hl._addal._myinfo.innerHTML="Not on your list";
-                  home.init_mylist();
+                  home.init_mylist(true);
                   _API.showToast("Deleted from AniList...");
                 }
                 else{
@@ -11586,7 +11586,7 @@ const _MAL={
                 hl._addal._curr=ssel;
                 hl._addal.innerHTML='<c>bookmark</c> AniList '+ucfirst(ssel,1);
                 hl._addal._myinfo.innerHTML=ucfirst(ssel,1);
-                home.init_mylist();
+                home.init_mylist(true);
                 _API.showToast("Saved to AniList "+ucfirst(ssel,1));
               }
               else{
@@ -11635,7 +11635,7 @@ const _MAL={
                 if (v){
                   hl._addmal._dat.my_list_status.status='';
                   hl._addmal._update();
-                  home.init_mylist();
+                  home.init_mylist(true);
                   _API.showToast("Deleted from MAL...");
                 }
                 else{
@@ -11650,7 +11650,7 @@ const _MAL={
               if (v){
                 hl._addmal._dat.my_list_status.status=ssel;
                 hl._addmal._update();
-                home.init_mylist();
+                home.init_mylist(true);
                 _API.showToast("Saved to MAL "+ucfirst(ssel.replace(/_/g,' '),1));
               }
               else{
