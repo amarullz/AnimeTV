@@ -11399,10 +11399,10 @@ const _MAL={
 
       
 
-      var othername=kv('signature','Other Name',tspecial(d.title.romaji?d.title.romaji:d.title.english),'fullwidth alsd_clear');
+      var othername=kv('shoppingmode','Other Name',tspecial(d.title.romaji?d.title.romaji:d.title.english),'fullwidth alsd_clear');
       othername.setAttribute('jp',d.title.english?d.title.english:d.title.romaji);
 
-      kv('signature','Synonyms',d.synonyms?nlbr(special(d.synonyms.join('\n'))):"-",'alsd_clear alsd_half');
+      kv('package','Synonyms',d.synonyms?nlbr(special(d.synonyms.join('\n'))):"-",'alsd_clear alsd_half');
       kv('source_environment','Studios',nlbr(special(stud)),'alsd_half');
       
 

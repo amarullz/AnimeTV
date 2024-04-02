@@ -952,7 +952,7 @@ c.loader {
   border-radius: 1vw;
   margin: 0 .2vw 0 .2vw;
   display: inline-block;
-  transition: width var(--tim-3s) var(--interpolation), opacity var(--tim-3s) var(--interpolation);
+  transition: width var(--tim-2s) linear;
   vertical-align: middle;
   opacity:.5;
 }
