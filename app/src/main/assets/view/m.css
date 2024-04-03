@@ -797,7 +797,9 @@ c.loader {
   position: relative;
   top:-.2vw;
 }
-
+/* #search_anilist{
+  display:none !important;
+} */
 
 
 
@@ -2169,7 +2171,7 @@ c.loader {
 
 .home_opt_list,
 .home_list {
-  padding: 0 5vw 1vw 4vw;
+  padding: 0 5vw 1vw 5vw;
   position: relative;
   transition: all var(--tim-2s) var(--interpolation);
   opacity: .8;
