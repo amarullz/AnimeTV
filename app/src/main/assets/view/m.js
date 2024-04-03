@@ -9336,6 +9336,96 @@ const home={
       home.search.kw.value=home.search.kw.value.trim();
 
       if (home.search.kw.value!=''||home.search.genreval.length>0){
+        if (home.search.src.cfg.anilist){
+          home.search.res.setAttribute('list-title','AniList Search Result');
+          var kw=home.search.kw.value;
+          var gnr=[];
+          var tpe='';
+          for (var i=0;i<home.search.genreval.length;i++){
+            var vl=home.search.genreval[i];
+            if (vl.charAt(0)=='_'){
+              tpe=_MAL.anilist.genres[vl];
+            }
+            else{
+              gnr.push(_MAL.anilist.genres[vl]);
+            }
+          }
+          var qgenre=(gnr.length>0)?(", genre_in:"+JSON.stringify(gnr)+""):'';
+          var qformat=tpe?(", format:"+tpe):"";
+          var qsearch=kw?", search: $search":"";
+          var qvars=kw?", $search: String":"";
+          var vars={
+            page:getpage?getpage:1,
+            perPage:12
+          };
+          if (kw){
+            vars.search=kw;
+          }
+          if (!getpage||(getpage<=1)){
+            var rc=home.search.res;
+            rc._page=1;
+            rc._havenext=false;
+            pb.menu_clear(rc);
+            rc._nojump=true;
+            pb.menu_init(rc);
+            rc._spre=[];
+            rc._spost=[];
+            rc._onload=0;
+            rc._sel=null;
+          }
+          var query=
+`query ($page: Int, $perPage: Int`+qvars+`) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      perPage
+      hasNextPage
+      currentPage
+    }
+    media(sort: SEARCH_MATCH, isAdult:false, type: ANIME`+qsearch+qformat+qgenre+`){
+      id
+      title{
+        romaji
+        english
+      }
+      coverImage{
+        large
+      }
+      startDate {
+        year
+        month
+        day
+      }
+      status
+      duration
+      format
+      seasonYear
+      season
+      isAdult
+      averageScore
+      nextAiringEpisode {
+        episode
+        airingAt
+        timeUntilAiring
+      }
+      episodes
+    }
+  }
+}`;
+          home.search.res.classList.add('searching');
+          home.search.res._onload=1;
+          _MAL.alreq(query,vars,function(v){
+            try{
+              _MAL.allist_list_parser(home.search.res,v,true);
+            }catch(e){
+              console.warn(["dosearch_parse_anilist",e,v]);
+            }
+            home.search.res.classList.remove('searching');
+            home.search.res._onload=0;
+          },true);
+          return true;
+        }
+
+        home.search.res.setAttribute('list-title','Search Result');
         var uri=_API.filterurl(
           home.search.kw.value,
           home.search.genreval,
@@ -9476,18 +9566,28 @@ const home={
         }
         return true;
       },
-      mutesave:function(){
-        _JSAPI.storeSet(_API.user_prefix+'search_muted',home.search.src.muted?'1':'');
+      cfgsave:function(){
+        _JSAPI.storeSet(_API.user_prefix+'search_config',JSON.stringify(home.search.src.cfg));
       },
-      muteload:function(){
-        var mute_setting=_JSAPI.storeGet(_API.user_prefix+'search_muted',"");
-        home.search.src.muted=mute_setting?true:false;
+      cfgload:function(){
+        var tcfg=_JSAPI.storeGet(_API.user_prefix+'search_config',"");
+        var cfg={
+          mute:false,
+          anilist:false
+        };
+        if (tcfg){
+          try{
+            cfg=JSON.parse(tcfg);
+          }catch(e){}
+        }
+        home.search.src.cfg=cfg;  
       },
       load:function(){
         if (home.search.history.data!==null){
           return;
         }
-        home.search.history.muteload();
+        // home.search.history.muteload();
+        home.search.history.cfgload();
         home.search.history.data=[];
         var search_history=_JSAPI.storeGet(_API.user_prefix+'search_history',"");
         if (search_history){
@@ -9496,7 +9596,10 @@ const home={
       }
     },
     src:{
-      muted:false,
+      cfg:{
+        mute:false,
+        anilist:false
+      },
       keyword:$('search_kw'),
       keyboard:$('search_keyboard'),
       keypad:$('search_keypad'),
@@ -9631,14 +9734,14 @@ const home={
               var sel=g._rows[pr]._sel;
               var k=sel.getAttribute('key');
               if (k=='mute'){
-                s.muted=!s.muted;
-                if (s.muted){
+                s.cfg.muted=!s.cfg.muted;
+                if (s.cfg.muted){
                   sel.firstElementChild.innerHTML='volume_off';
                 }
                 else{
                   sel.firstElementChild.innerHTML='brand_awareness';
                 }
-                home.search.history.mutesave();
+                home.search.history.cfgsave();
                 return true;
               }
 
@@ -9695,7 +9798,7 @@ const home={
               g._rows[pr]._sel=g._rows[pr]._cols[1];
             }
             g._rows[pr]._sel.classList.add('active');
-            if (!s.muted){
+            if (!s.cfg.muted){
               clk();
             }
             return true;
@@ -9711,7 +9814,7 @@ const home={
             g._rows[pr]._cols[pc].classList.add('active');
             g._rows[pr]._sel=g._rows[pr]._cols[pc];
           }
-          if (!s.muted){
+          if (!s.cfg.muted){
             clk();
           }
           return true;
@@ -9729,7 +9832,7 @@ const home={
           else{
             g._csel=4;
           }
-          if (!s.muted){
+          if (!s.cfg.muted){
             clk();
           }
           return true;
@@ -9747,7 +9850,7 @@ const home={
             p._sel.classList.remove('active');
             next.classList.add('active');
             p._sel=next;
-            if (!s.muted){
+            if (!s.cfg.muted){
               clk();
             }
             return true;
@@ -9782,7 +9885,7 @@ const home={
             var sz=1;
             if (kd in s.special_keys){
               if (kd=='mute'){
-                s.special_keys[kd][0]=s.muted?'volume_off':'brand_awareness';
+                s.special_keys[kd][0]=s.cfg.muted?'volume_off':'brand_awareness';
               }
               txt='<c>'+(s.special_keys[kd][0])+'</c>';
               cn=s.special_keys[kd][1];
@@ -9878,7 +9981,8 @@ const home={
         else{
           found=hist;
         }
-        for (var i=0;(i<found.length) && (n<4);i++){
+        var max_show=fkw?5:4;
+        for (var i=0;(i<found.length) && (n<max_show);i++){
           var kv=fkw?found[i][0]:found[i];
           var h=addh(kv,kv,'history');
           if (n==0){
@@ -9888,7 +9992,7 @@ const home={
           h._keycb=s.history_item_keycb;
           n++;
         }
-        if (hist.length>0){
+        if (!fkw && hist.length>0){
           var clr=addh("---","Clear search history",'clear');
           clr._isclear=true;
           clr.classList.add('clear_history');
@@ -9946,14 +10050,10 @@ const home={
             return true;
           }
           else if (el==$('search_anilist')){
-            if (el.firstElementChild.innerHTML=='check'){
-              el.firstElementChild.innerHTML='close';
-            }
-            else{
-              el.firstElementChild.innerHTML='check';
-            }
+            home.search.src.cfg.anilist=!home.search.src.cfg.anilist;
+            home.search.history.cfgsave();
             clk();
-            _API.showToast('Feature still under development...')
+            home.search.init_search();
             return true;
           }
         }
@@ -9967,26 +10067,15 @@ const home={
         }
       }
     },
-    open:function(arg){
+    init_search:function(){
       var s=home.search.src;
-      home.search.history.load();
-      home.search.initresult(home.search.res);
-      _API.setUri((__SD3||__SD5)?"/search":"/filter");
-      home.onsearch=true;
-      home.search.search.classList.add('active');
-      home.search.kw._keycb=home.search.kwcb;
-      home.search.kw.value='';
-      var srcgenre='';
-
-      var havekw=false;
-      if (arg){
-        if (arg.kw){
-          home.search.kw.value=arg.kw;
-          havekw=true;
-        }
-        else if (arg.genre){
-          srcgenre=arg.genre;
-        }
+      var isAnilist = s.cfg.anilist;
+      var anilist_el = $('search_anilist');
+      if (!isAnilist){
+        anilist_el.firstElementChild.innerHTML='close';
+      }
+      else{
+        anilist_el.firstElementChild.innerHTML='check';
       }
 
       pb.menu_clear(home.search.genres);
@@ -9996,7 +10085,10 @@ const home={
       home.search.genres._els={};
       var vsel=null;
       var genrelist=_API.genres;
-      if (__SD3){
+      if (isAnilist){
+        genrelist=_MAL.anilist.genres;
+      }
+      else if (__SD3){
         genrelist=_API.genres_hi;
       }
       else if (__SD6){
@@ -10013,8 +10105,8 @@ const home={
         home.search.genres.P,special(title));
         gn._title=title;
         gn._key=i;
-        if (srcgenre){
-          if (srcgenre.toLowerCase()==i.toLowerCase()){
+        if (home.search.srcgenre){
+          if (home.search.srcgenre.toLowerCase()==i.toLowerCase()){
             vsel=gn;
             gn.innerHTML='<c>check</c> '+special(title);
             home.search.genreval.push(i);
@@ -10022,12 +10114,47 @@ const home={
         }
         home.search.genres._els[i]=gn;
       }
-      
+      if (vsel){
+        pb.menu_select(home.search.genres,vsel);
+      }
+      else{
+        pb.menu_select(home.search.genres,home.search.genres.P.firstElementChild);
+      }
+      return vsel;
+    },
+    srcgenre:'',
+    open:function(arg){
+      var s=home.search.src;
+      home.search.history.load();
+      home.search.initresult(home.search.res);
+      _API.setUri((__SD3||__SD5)?"/search":"/filter");
+      home.onsearch=true;
+      home.search.search.classList.add('active');
+      home.search.kw._keycb=home.search.kwcb;
+      home.search.kw.value='';
+      home.search.srcgenre='';
+
+      var havekw=false;
+      if (arg){
+        if (arg.kw){
+          home.search.kw.value=arg.kw;
+          havekw=true;
+        }
+        else if (arg.genre){
+          home.search.srcgenre=arg.genre;
+        }
+      }
+
+      /* Init genres & types */
+      var vsel=home.search.init_search();
+
+      /* Init tools */
       s.initkeys(s.keyboard,s.keyboard_keys, 1);
       s.initkeys(s.keypad,s.keypad_keys, 2);
       s.init_search_history();
       s.order[0]._keycb=s.header_cb;
 
+      /* Init headers */
       s.header_items=[];
       if (_JSAPI.haveMic(true)){
         s.header_items.push($('search_voice'));
@@ -10043,6 +10170,7 @@ const home={
         s.header_items[i].classList[i==0?'add':'remove']('active');
       }
 
+      /* Init navigation order */
       for (var i=0;i<s.order.length;i++){
         s.order[i].classList.remove('active');
       }
@@ -10052,12 +10180,11 @@ const home={
       s.order[1]._sel=s.keyboard;
       s.order_sel=1;
 
+      /* Init arguments behavior */
       if (vsel){
-        pb.menu_select(home.search.genres,vsel);
         s.order_sel=2;
       }
       else{
-        pb.menu_select(home.search.genres,home.search.genres.P.firstElementChild);
         if (havekw){
           s.order_sel=3;
         }
@@ -10592,6 +10719,15 @@ window.__ARGUPDATE=function(){
 
 /* MAL API */
 const _MAL={
+  anilist:{
+    genres:{
+      "_tv":"TV","_tv_short":"TV_SHORT","_movie":"MOVIE","_special":"SPECIAL","_ova":"OVA","_ona":"ONA",
+      "Action":"Action","Adventure":"Adventure","Comedy":"Comedy","Drama":"Drama","Ecchi":"Ecchi",
+      "Fantasy":"Fantasy","Hentai":"Hentai","Horror":"Horror","Mahou Shoujo":"Mahou Shoujo","Mecha":"Mecha",
+      "Music":"Music","Mystery":"Mystery","Psychological":"Psychological","Romance":"Romance","Sci-Fi":"Sci-Fi",
+      "Slice of Life":"Slice of Life","Sports":"Sports","Supernatural":"Supernatural","Thriller":"Thriller"
+    }
+  },
   token:"",
   altoken:"",
   auth:null,
@@ -10937,14 +11073,25 @@ const _MAL={
       cb(null);
     }, true);
   },
-  allist_list_parser:function(g,v){
+  allist_list_parser:function(g,v,isSearch){
     try{
+      g._havenext=true;
       if (!v || v.error || !v.data || !v.data.Page || !v.data.Page.pageInfo){
-        g._page=100;
+        if (isSearch){
+          g._havenext=false;
+        }
+        else{
+          g._page=100;
+        }
         return;
       }
       if (!v.data.Page.pageInfo.hasNextPage || (v.data.Page.media.length<12)){
-        g._page=100;
+        if (isSearch){
+          g._havenext=false;
+        }
+        else{
+          g._page=100;
+        }
       }
       if (v.data.Page.media.length>0){
         for (var i=0;i<v.data.Page.media.length;i++){
