@@ -9340,18 +9340,18 @@ const home={
           home.search.res.setAttribute('list-title','AniList Search Result');
           var kw=home.search.kw.value;
           var gnr=[];
-          var tpe='';
+          var tpe=[];
           for (var i=0;i<home.search.genreval.length;i++){
             var vl=home.search.genreval[i];
             if (vl.charAt(0)=='_'){
-              tpe=_MAL.anilist.genres[vl];
+              tpe.push(_MAL.anilist.genres[vl]);
             }
             else{
               gnr.push(_MAL.anilist.genres[vl]);
             }
           }
           var qgenre=(gnr.length>0)?(", genre_in:"+JSON.stringify(gnr)+""):'';
-          var qformat=tpe?(", format:"+tpe):"";
+          var qformat=tpe?(", format_in:["+(tpe.join(','))+"]"):"";
           var qsearch=kw?", search: $search":"";
           var qvars=kw?", $search: String":"";
           var vars={
