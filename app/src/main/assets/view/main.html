@@ -12,13 +12,13 @@
 <div id="animetv">
 <div id="animebg">&nbsp;</div>
 <div id="home">
-    <div id="home_header">
-        <div id="home_header_banner">
+    <div id="home_header" class="animetv_header">
+        <div id="home_header_banner" class="animetv_header_banner">
             <div id="home_time"></div>
             <div id="home_settings" title="Settings"><c>settings</c></div>
             <div id="home_schedule" title="Airing Schedule"><c>calendar_month</c></div>
-            <div id="home_logo">AnimeTV</div>
-            <div id="home_voice" class="hide"><c>mic</c></div>
+            <div id="home_logo" class="animetv_logo">AnimeTV</div>
+            <div id="home_voice" class="animetv_voice hide"><c>mic</c></div>
             <div id="home_search"><c>search</c>Search</div>
             <div id="home_homepage">Home</div>
             <div id="home_mylist">MyList</div>
@@ -41,9 +41,24 @@
     </div>
 </div>
 <div id="search">
-    <input id="search_keyword" value="" placeholder="Search Anime...">
-    <div id="search_genre" list-title="Genre" class="home_opt_list pb_menu"></div>
-    <div id="search_result" list-title="Search Result" class="home_list pb_menu"><p></p></div>
+    <div id="search_header" class="animetv_header active">
+        <div id="search_header_banner" class="animetv_header_banner">
+            <div id="search_logo" class="animetv_logo">AnimeTV</div>
+            <div id="search_voice" class="animetv_voice hide"><c>mic</c></div>
+            <div id="search_kbd" class="animetv_voice"><c>keyboard</c></div>
+            <div id="search_kw_holder"><c>search</c><input id="search_kw" value="" placeholder="Search Anime..."></div>
+            <div id="search_anilist" class="item_right"><c>close</c> Search from AniList</div>
+        </div>
+        <div id="search_tools">
+            <div id="search_history"></div>
+            <div id="search_keyboard" class="search_pad"></div>
+            <div id="search_keypad" class="search_pad"></div>
+        </div>
+    </div>
+    <div id="search_content">
+        <div id="search_genre" list-title="Type &amp; Genres" class="home_opt_list pb_menu"></div>
+        <div id="search_result" list-title="Search Result" class="home_list pb_menu"><p></p></div>
+    </div>
 </div>
 <div id="pb">
     <div id="pb_vid"></div>

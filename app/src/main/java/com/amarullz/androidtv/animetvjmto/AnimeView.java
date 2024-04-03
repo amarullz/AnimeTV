@@ -279,9 +279,11 @@ import javax.crypto.spec.SecretKeySpec;
   }
 
   public void audioPlayClick(){
-    try {
-      audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK, 0.5f);
-    }catch (Exception ignored){}
+    runOnUiThreadWait(()->{
+      try {
+        audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK, 0.5f);
+      }catch (Exception ignored){}
+    });
   }
   public void reloadView(){
 //    aApi.cleanWebView();
