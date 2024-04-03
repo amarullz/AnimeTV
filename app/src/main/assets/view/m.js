@@ -9351,7 +9351,7 @@ const home={
             }
           }
           var qgenre=(gnr.length>0)?(", genre_in:"+JSON.stringify(gnr)+""):'';
-          var qformat=tpe?(", format_in:["+(tpe.join(','))+"]"):"";
+          var qformat=(tpe.length>0)?(", format_in:["+(tpe.join(','))+"]"):"";
           var qsearch=kw?", search: $search":"";
           var qvars=kw?", $search: String":"";
           var vars={
