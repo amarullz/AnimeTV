@@ -9415,7 +9415,11 @@ const home={
           home.search.res._onload=1;
           _MAL.alreq(query,vars,function(v){
             try{
-              _MAL.allist_list_parser(home.search.res,v,true);
+              if (_MAL.allist_list_parser(home.search.res,v,true)>0){
+                if (home.search.history.add(home.search.src.keyword.value)){
+                  home.search.src.init_search_history();
+                }
+              }
             }catch(e){
               console.warn(["dosearch_parse_anilist",e,v]);
             }
@@ -9559,7 +9563,7 @@ const home={
           s.data.unshift(v);
           s.save();
         }
-        else{
+        else if (found>0){
           s.data.splice(found,1);
           s.data.unshift(v);
           s.save();
@@ -11179,10 +11183,13 @@ const _MAL={
           pb.menu_select(g,g.P.firstElementChild);
         else
           pb.menu_select(g,g._sel);
+
+        return v.data.Page.media.length;
       }
     }catch(e){
       console.log("ANILIST - LIST_PARSER : "+e);
     }
+    return 0;
   },
   allist_list_loader:function(g){
     g._onload=1;
