@@ -94,7 +94,7 @@ import javax.crypto.spec.SecretKeySpec;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=true;
+  public static boolean USE_WEB_VIEW_ASSETS=false;
 
   public AudioManager audioManager;
 
@@ -327,15 +327,17 @@ import javax.crypto.spec.SecretKeySpec;
         try {
           URL vurl=new URL(videoStatCurrentUrl);
           String host=vurl.getHost();
-          if (host.contains(Conf.STREAM_DOMAIN1)){
-            settings.put("Origin", "https://" + Conf.STREAM_DOMAIN1);
-          }
-          else if (host.contains(Conf.STREAM_DOMAIN2)){
+
+          if (host.contains(Conf.STREAM_DOMAIN2)){
             settings.put("Origin", "https://" + Conf.STREAM_DOMAIN2);
             settings.put("Referer", "https://" + Conf.STREAM_DOMAIN2+"/");
           }
           else if (host.contains(Conf.STREAM_DOMAIN)){
             settings.put("Origin", "https://" + Conf.STREAM_DOMAIN);
+          }
+          else if (host.contains(Conf.STREAM_DOMAIN1) || Conf.SOURCE_DOMAIN<3){
+            settings.put("Origin", "https://" + Conf.STREAM_DOMAIN1);
+            settings.put("Referer", "https://" + Conf.STREAM_DOMAIN1+"/");
           }
           else if (host.contains(Conf.STREAM_DOMAIN3)){
             settings.put("Origin", "https://" + Conf.STREAM_DOMAIN3);
