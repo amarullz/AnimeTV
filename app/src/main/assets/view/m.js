@@ -7315,7 +7315,7 @@ const home={
       }
       else{
         /* Schedule */
-        if (t.length==7){
+        if (Array.isArray(t)){
           if (t[0].animes && t[0].title){
             var scd=t;
             t=[];
@@ -8463,7 +8463,7 @@ const home={
       ];
     }
     else if (__SD5){
-      // hianime
+      // flix
       homepage=[
         ["airing",'/__proxy/'+__AFLIX.ns+'/schedule', "Airing", true],
         ["popular",'/__proxy/'+__AFLIX.ns+'/popular?page=', "Popular", false],
