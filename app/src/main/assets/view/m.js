@@ -8316,6 +8316,7 @@ const home={
                 h._prev_sel=hels;
                 hels.classList.add('tab_active');
                 hel._holder._atype=hels._atype;
+                hel._holder._page=1;
                 home.recent_init(hel._holder, _MAL.alhome_loader);
                 return true;
               }
@@ -8535,6 +8536,7 @@ const home={
               h._prev_sel=hels;
               hels.classList.add('tab_active');
               hel._holder._alsort=hels._atype;
+              hel._holder._page=1;
               home.recent_init(hel._holder, _MAL.allist_list_loader);
               return true;
             }
