@@ -8325,7 +8325,9 @@ const home={
             h._enter_cb(h,h._sel);
           },
           "AniList Tabbed "+_MAL.alauth.user,
-          true
+          true,
+          null,
+          ["anilist","anilistplan"]
         ]
       );
 
@@ -8337,7 +8339,9 @@ const home={
             home.recent_init(el, _MAL.alhome_loader);
           },
           "AniList "+_MAL.alauth.user,
-          false
+          false,
+          null,
+          ["anilisttab"]
         ]
       );
       
@@ -8350,7 +8354,9 @@ const home={
             home.recent_init(el, _MAL.alhome_loader);
           },
           "AniList Plan to Watch "+_MAL.alauth.user,
-          false
+          false,
+          null,
+          ["anilisttab"]
         ]
       );
     }
@@ -8384,15 +8390,25 @@ const home={
       mylist[i][4]=false;
       list_ids[mylist[i][0]]=mylist[i];
     }
+
     if (listSaved!=null){
+      var disabling_ids=[];
       for (var i=0;i<listSaved.length;i++){
         var hs=listSaved[i];
         if (hs[0] in list_ids){
-          list_ids[hs[0]][4]=true;
-          list_order.push([hs[0],hs[1]]);
+          if (disabling_ids.indexOf(hs[0])==-1){
+            if (hs[1]){
+              if (list_ids[hs[0]][5]){
+                disabling_ids=disabling_ids.concat(list_ids[hs[0]][5]);
+              }
+            }
+            list_ids[hs[0]][4]=true;
+            list_order.push([hs[0],hs[1]]);
+          }
         }
       }
     }
+
     for (var i=0;i<mylist.length;i++){
       var hs=mylist[i];
       if (!hs[4]){
@@ -8422,7 +8438,8 @@ const home={
           {
             id:hd[0],
             active:ho[1],
-            title:hd[2]
+            title:hd[2],
+            disabling:hd[5]?hd[5]:null
           }
         );
       }
@@ -8603,7 +8620,8 @@ const home={
           {
             id:hd[0],
             active:ho[1],
-            title:hd[2]
+            title:hd[2],
+            disabling: null
           }
         );
       }
@@ -13085,7 +13103,8 @@ const listOrder={
       el._data={
         id:li.id,
         active:li.active,
-        title:li.title
+        title:li.title,
+        disabling:li.disabling
       };
     }
     listOrder.group._sel = listOrder.group.P.firstElementChild;
@@ -13145,6 +13164,18 @@ const listOrder={
       listOrder.group._sel._data.active=!listOrder.group._sel._data.active;
       if (listOrder.group._sel._data.active){
         listOrder.group._sel.firstElementChild.classList.add('checked');
+        if (listOrder.group._sel._data.disabling){
+          var dsb=listOrder.group._sel._data.disabling;
+          for (var j=0;j<dsb.length;j++){
+            for (var i=0;i<listOrder.group.P.childElementCount;i++){
+              var c=listOrder.group.P.children[i];
+              if (c._data.id==dsb[j]){
+                c._data.active=false;
+                c.firstElementChild.classList.remove('checked');
+              }
+            }
+          }
+        }
       }
       else{
         listOrder.group._sel.firstElementChild.classList.remove('checked');
