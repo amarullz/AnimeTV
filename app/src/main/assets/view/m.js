@@ -8278,20 +8278,75 @@ const home={
     if (_MAL.islogin(true)){
       mylist.push(
         [
-          "anilist",
+          "anilisttab",
           function(el){
-            el._atype='watch';
-            home.recent_init(el, _MAL.alhome_loader);
+            var par=el.parentElement;
+            el.setAttribute("list-title","");
+            el.classList.add('home_list_notitle');
+            var h=$n('div','pb_menu home_tabs', null, null, '');
+            par.insertBefore(h,el);
+            h._holder=el;
+            h._midx=1;
+            home.menus[1].push(h);
+            var atype=[
+              'CURRENT',
+              'PLANNING',
+              'COMPLETED',
+              'DROPPED',
+              'PAUSED',
+              'REPEATING'
+            ];
+            pb.menu_clear(h);
+            pb.menu_init(h);
+            h.P.setAttribute("list-title","AniList "+_MAL.alauth.user);
+            for (var i=0;i<atype.length;i++){
+              var title=ucfirst(atype[i],1);
+              var gn=$n('div','',null,h.P,special(title));
+              gn._atype=atype[i];
+              if (i==0){
+                h._sel=gn;
+              }
+            }
+            h._prev_sel=null;
+            h._enter_cb=function(hel,hels){
+              if (hel._sel){
+                if (h._prev_sel){
+                  h._prev_sel.classList.remove('tab_active');
+                }
+                h._prev_sel=hels;
+                hels.classList.add('tab_active');
+                hel._holder._atype=hels._atype;
+                home.recent_init(hel._holder, _MAL.alhome_loader);
+                return true;
+              }
+              return false;
+            };
+            pb.menu_select(h,h._sel);
+            h._enter_cb(h,h._sel);
           },
-          "AniList "+_MAL.alauth.user,
+          "AniList Tabbed "+_MAL.alauth.user,
           true
         ]
       );
+
+      mylist.push(
+        [
+          "anilist",
+          function(el){
+            el._atype='CURRENT';
+            home.recent_init(el, _MAL.alhome_loader);
+          },
+          "AniList "+_MAL.alauth.user,
+          false
+        ]
+      );
+      
+
       mylist.push(
         [
           "anilistplan",
           function(el){
-            el._atype='plan';
+            el._atype='PLANNING';
             home.recent_init(el, _MAL.alhome_loader);
           },
           "AniList Plan to Watch "+_MAL.alauth.user,
@@ -8420,6 +8475,61 @@ const home={
       ];
     }
 
+    homepage.push(
+      [
+        "altab",
+        function(el){
+          var par=el.parentElement;
+          el.setAttribute("list-title","");
+          el.classList.add('home_list_notitle');
+          var h=$n('div','pb_menu home_tabs', null, null, '');
+          par.insertBefore(h,el);
+          h._holder=el;
+          h._midx=1;
+          home.menus[0].push(h);
+          var atype=[
+            'top',
+            'popular',
+            'year',
+            'upcomming'
+          ];
+          var atitle=[
+            'Top Anime',
+            'All Time Popular',
+            'Top '+_MAL.allist_year(),
+            'Upcoming'
+          ];
+          pb.menu_clear(h);
+          pb.menu_init(h);
+          h.P.setAttribute("list-title","AniList");
+          for (var i=0;i<atype.length;i++){
+            var gn=$n('div','',null,h.P,special(atitle[i]));
+            gn._atype=atype[i];
+            if (i==0){
+              h._sel=gn;
+            }
+          }
+          h._prev_sel=null;
+          h._enter_cb=function(hel,hels){
+            if (hel._sel){
+              if (h._prev_sel){
+                h._prev_sel.classList.remove('tab_active');
+              }
+              h._prev_sel=hels;
+              hels.classList.add('tab_active');
+              hel._holder._alsort=hels._atype;
+              home.recent_init(hel._holder, _MAL.allist_list_loader);
+              return true;
+            }
+            return false;
+          };
+          pb.menu_select(h,h._sel);
+          h._enter_cb(h,h._sel);
+        },
+        "AniList Tabbed List",
+        false
+      ]
+    );
     homepage.push(
       ["altop",function(el){
         el._alsort='top';
@@ -9548,6 +9658,13 @@ const home={
         home.search.history.data=[];
         home.search.history.save();
       },
+      del:function(kw){
+        var fnd=home.search.history.data.indexOf(kw);
+        if (fnd>=-1){
+          home.search.history.data.splice(fnd,1);
+          home.search.history.save();
+        }
+      },
       add:function(v){
         if (!v){
           return false;
@@ -9687,9 +9804,15 @@ const home={
             var next=null;
             if (c==ukey){
               next=p._sel.previousElementSibling;
+              if (g._isloop && !next){
+                next=p._sel.parentElement.lastElementChild;
+              }
             }
             else{
               next=p._sel.nextElementSibling;
+              if (g._isloop && !next){
+                next=p._sel.parentElement.firstElementChild;
+              }
             }
             if (next){
               clk();
@@ -9846,9 +9969,15 @@ const home={
           var next=null;
           if (c==KLEFT){
             next=g.previousElementSibling;
+            if (!next){
+              next=g.parentElement.lastElementChild;
+            }
           }
           else{
             next=g.nextElementSibling;
+            if (!next){
+              next=g.parentElement.firstElementChild;
+            }
           }
           if (next){
             p._sel.classList.remove('active');
@@ -9932,10 +10061,38 @@ const home={
             }
             else{
               clk();
-              s.keyword.value=kw;
-              home.search.dosearch();
-              s.select_result();
+              if (g._isdel){
+                if(confirm("Delete '"+kw+"' from search history?")){
+                  home.search.history.del(kw);
+                  home.search.src.init_search_history();
+                }
+              }
+              else{
+                s.keyword.value=kw;
+                home.search.dosearch();
+                s.select_result();
+              }
               return true;
+            }
+          }
+        }
+        else if (c==KLEFT){
+          if (!g._isclear){
+            if (!g._isdel){
+              g._isdel=true;
+              g._ico.classList.add('clear');
+              g._ico.innerHTML='clear';
+              clk();
+              return true;
+            }
+          }
+        }
+        if (c==KLEFT || c==KRIGHT || c==KUP || c==KDOWN){
+          if (!g._isclear){
+            if (g._isdel){
+              g._isdel=false;
+              g._ico.classList.remove('clear');
+              g._ico.innerHTML='history';
             }
           }
         }
@@ -9959,12 +10116,13 @@ const home={
         var s=home.search.src;
         var hist=home.search.history.data;
         s.history._keycb=s.container_keycb;
+        s.history._isloop=true;
         s.history._isrow=true;
         s.history.innerHTML='';
         function addh(id,t,ic){
           var h=$n('div','',{"val":id},s.history,'');
           var u=$n('span','',null,h,'');
-          $n('c','',null,u,ic);
+          h._ico=$n('c','',null,u,ic);
           $n('b','',null,u,special(t));
           return h;
         }
@@ -9997,7 +10155,7 @@ const home={
           n++;
         }
         if (!fkw && hist.length>0){
-          var clr=addh("---","Clear search history",'clear');
+          var clr=addh("---","Clear search history",'delete_forever');
           clr._isclear=true;
           clr.classList.add('clear_history');
           clr._keycb=s.history_item_keycb;
@@ -10686,24 +10844,46 @@ const home={
       if (activeItem._activeCb){
         activeItem._activeCb(activeItem,true);
       }
+      var itop=0;
       if (pr>1){
-        var ty=0;
-        if (pr==home.menus[pc].length){
-          ty=home.home_scroll.offsetHeight-window.outerHeight;
+        var els=home.menus[pc][pr-1];
+        if (els.classList.contains('home_tabs')){
+          els=home.menus[pc][pr];
         }
-        else{
-          var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.outerHeight + (window.outerWidth*0.14));
-          if (ty<0) ty=0;
+        itop=els.offsetTop+els.offsetHeight;
+      }
+      var oheight = Math.floor(window.outerHeight / 1.2);
+      if (itop>oheight){
+        home.home_header.classList.add('scrolled');
+        var ty = itop-oheight;
+        if ((pr==home.menus[pc].length) || (ty>(home.home_scroll.offsetHeight-window.outerHeight))) {
+          ty=home.home_scroll.offsetHeight-window.outerHeight;
         }
         home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
       }
       else{
+        home.home_header.classList.remove('scrolled');
         home.home_scroll.style.transform="";
       }
-      if (pr>1)
-        home.home_header.classList.add('scrolled');
-      else
-        home.home_header.classList.remove('scrolled');
+
+      // if (pr>1){
+      //   var ty=0;
+      //   if (pr==home.menus[pc].length){
+      //     ty=home.home_scroll.offsetHeight-window.outerHeight;
+      //   }
+      //   else{
+      //     var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.outerHeight + (window.outerWidth*0.14));
+      //     if (ty<0) ty=0;
+      //   }
+      //   home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
+      // }
+      // else{
+      //   home.home_scroll.style.transform="";
+      // }
+      // if (pr>1)
+      //   home.home_header.classList.add('scrolled');
+      // else
+      //   home.home_header.classList.remove('scrolled');
     }
   },
 
@@ -11271,10 +11451,9 @@ const _MAL={
       cb(null);
     }, true);
   },
-  allist:function(type,page,cb){
-    var stype='CURRENT';
-    if (type=='plan'){
-      stype='PLANNING';
+  allist:function(stype,page,cb){
+    if (!stype){
+      stype='CURRENT';
     }
     _MAL.alreq(`query ($user: String, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
@@ -11511,6 +11690,7 @@ const _MAL={
   },
   alhome_loader:function(g){
     g._onload=1;
+    g.classList.remove('nodata');
     _MAL.allist(g._atype,g._page,function(v){
       if (v){
         try{
@@ -11579,6 +11759,7 @@ const _MAL={
         g._page=100;
       }
       if (v.data.Page.mediaList.length>0){
+        g.classList.remove('nodata');
         for (var i=0;i<v.data.Page.mediaList.length;i++){
           var d=v.data.Page.mediaList[i];
           if (d.media.isAdult){
@@ -11629,6 +11810,9 @@ const _MAL={
           pb.menu_select(g,g.P.firstElementChild);
         else
           pb.menu_select(g,g._sel);
+      }
+      else{
+        g.classList.add('nodata');
       }
     }catch(e){
       console.log("ANILIST - ERR : "+e);
