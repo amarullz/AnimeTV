@@ -8254,13 +8254,76 @@ const home={
     if (_MAL.islogin()){
       mylist.push(
         [
+          "maltab",
+          function(el){
+            var par=el.parentElement;
+            el.setAttribute("list-title","");
+            el.classList.add('home_list_notitle');
+            var h=$n('div','pb_menu home_tabs', null, null, '');
+            par.insertBefore(h,el);
+            h._holder=el;
+            h._midx=1;
+            home.menus[1].push(h);
+            var atype=[
+              'watching',
+              'plan_to_watch',
+              'completed',
+              'dropped',
+              'on_hold'
+            ];
+            var atitle=[
+              'Watching',
+              'Planning',
+              'Completed',
+              'Dropped',
+              'On Hold'
+            ];
+            pb.menu_clear(h);
+            pb.menu_init(h);
+            h.P.setAttribute("list-title","MAL "+_MAL.auth.user);
+            for (var i=0;i<atype.length;i++){
+              var title=atitle[i];
+              var gn=$n('div','',null,h.P,special(title));
+              gn._atype=atype[i];
+              if (i==0){
+                h._sel=gn;
+              }
+            }
+            h._prev_sel=null;
+            h._enter_cb=function(hel,hels){
+              if (hel._sel){
+                if (h._prev_sel){
+                  h._prev_sel.classList.remove('tab_active');
+                }
+                h._prev_sel=hels;
+                hels.classList.add('tab_active');
+                hel._holder._atype=hels._atype;
+                hel._holder._page=1;
+                home.recent_init(hel._holder, _MAL.home_loader);
+                return true;
+              }
+              return false;
+            };
+            pb.menu_select(h,h._sel);
+            h._enter_cb(h,h._sel);
+          },
+          "MAL Tabbed "+_MAL.auth.user,
+          true,
+          null,
+          ["mal","malplan"]
+        ]
+      );
+      mylist.push(
+        [
           "mal",
           function(el){
             el._atype='watching';
             home.recent_init(el, _MAL.home_loader);
           },
           "MAL "+_MAL.auth.user,
-          true
+          false,
+          null,
+          ["maltab"]
         ]
       );
       mylist.push(
@@ -8271,7 +8334,9 @@ const home={
             home.recent_init(el, _MAL.home_loader);
           },
           "MAL Plan to Watch "+_MAL.auth.user,
-          false
+          false,
+          null,
+          ["maltab"]
         ]
       );
     }
@@ -11696,6 +11761,7 @@ const _MAL={
   },
   home_loader:function(g){
     g._onload=1;
+    g.classList.remove('nodata');
     var load_page=(g._page-1)*_MAL.limit;
     _MAL.list(g._atype,load_page, function(r){
       if (r.ok){
@@ -11847,9 +11913,11 @@ const _MAL={
     else{
       g._page=100;
     }
+    g.classList.add('nodata');
     if ('data' in v){
       try{
         if (v.data.length>0){
+          g.classList.remove('nodata');
           for (var i=0;i<v.data.length;i++){
             var d=v.data[i];
             var malid="mal_"+d.node.id;
