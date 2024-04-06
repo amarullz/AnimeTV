@@ -8,10 +8,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240330",
 
-  "appnum": 380,
-  "appver": "3.8.0",
-  "appsize": "9.97 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/3.8.0/animetv-3.8.0.apk",
+  "appnum": 404,
+  "appver": "4.0.4",
+  "appsize": "5.91 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/4.0.4/animetv-4.0.4.apk",
   "appnote": 
-    "- Add AniList detail anime with trailer\n- Add Clear history & Voice search features\n- Improve performance\n- Add Top, All time popular, Upcoming (disable by default)"
+    "- Revamp Search UI\n- Add Tabbed list for AniList and MAL\n- Add nav sound, clock settings, MyList config\n- Fix sources & video streaming"
 }
