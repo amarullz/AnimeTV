@@ -5476,8 +5476,8 @@ const pb={
               ERROR:3
             };
             eval(iscript+`
-            play_data.pos[0]=[introstart?introstart:0,introend?introend:0];
-            play_data.pos[1]=[outrostart?outrostart:0,outroend?outroend:0];
+            play_data.pos[0]=[introstart&&introend?introstart:0,introstart&&introend?introend:0];
+            play_data.pos[1]=[outrostart&&outroend?outrostart:0,outrostart&&outroend?outroend:0];
             `);
             delete window.Hls;
             delete window.hls;
@@ -8329,7 +8329,6 @@ const home={
         hels.classList.add('tab_active');
         hels._ctn.style.display='';
         if (!hels._ctn._intz || force){
-          console.warn(hels);
           hels._ctn._intz=true;
           pb.menu_clear(hels._ctn);
           pb.menu_init(hels._ctn);
