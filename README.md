@@ -92,6 +92,8 @@ Here only a couple screenshot:
 
 ![Settings](https://cdn.discordapp.com/attachments/1221532077699108994/1221532535880945755/4-animetv-settings.jpg?ex=6612ebd3&is=660076d3&hm=eebdb348f9aaa4fe56293ae7e38a7fe92f8360871ee088c1692fe37d6f8f61ad&)
 
+![Popup](https://cdn.discordapp.com/attachments/1221532077699108994/1221532536413491370/5-animetv-popup.jpg?ex=6612ebd3&is=660076d3&hm=a0522ca71fab612ad5de4b6604ac8ec203ebdba20647e4424ac1c69bae6fc717&&)
+
 ## License
 **Copyright 2023 Ahmad Amarullah (https://amarullz.com)**
 
