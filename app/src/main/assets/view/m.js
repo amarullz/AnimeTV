@@ -4204,6 +4204,15 @@ const pb={
       document.body.classList.add('view-informative');
     }
 
+    if (pb.cfg_data.showclock){
+      $('home_header').classList.remove('animetv_noclock');
+    }
+    else{
+      $('home_header').classList.add('animetv_noclock');
+    }
+
+    
+
     _JSAPI.setProgCache(pb.cfg_data.progcache);
     _JSAPI.setDOH(pb.cfg_data.usedoh);
     
@@ -4218,6 +4227,7 @@ const pb={
     skipfiller:false,
     jptitle:false,
     compactlist:false,
+    showclock:true,
     progcache:true,
     usedoh:true,
     nonjapan:false,
@@ -4268,6 +4278,8 @@ const pb={
         
         
         pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
+        pb.cfg_data.showclock=('showclock' in j)?(j.showclock?true:false):true;
+        
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
         pb.cfg_data.alisthomess=('alisthomess' in j)?(j.alisthomess?true:false):true;
         
@@ -4358,6 +4370,7 @@ const pb={
     pb.cfg_data.usedoh=true;
     
     pb.cfg_data.compactlist=false;
+    pb.cfg_data.showclock=true;
     
     pb.cfg_data.nonjapan=false;
     pb.cfg_data.alisthomess=true;
@@ -4599,6 +4612,10 @@ const pb={
       pb.cfg_update_el('usedoh');
       
       pb.cfg_update_el('compactlist');
+      pb.cfg_update_el('showclock');
+      
+
+
       pb.cfg_update_el('uifontsize');
       pb.cfg_update_el('httpclient');
       pb.cfg_update_el('listprog');
@@ -6067,6 +6084,13 @@ const pb={
       else if (key=='compactlist'){
         // Update Home
         pb.cfg_data.compactlist=!pb.cfg_data.compactlist;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
+      }
+      else if (key=='showclock'){
+        // Update Home
+        pb.cfg_data.showclock=!pb.cfg_data.showclock;
         pb.cfg_update_el(key);
         pb.cfg_save();
         pb.updateanimation();
@@ -8926,6 +8950,15 @@ const home={
           },
           home.settings.styling.P,
           '<c class="check">clear</c><c>unfold_less</c> Compact List'
+        );
+        
+        home.settings.tools._s_showclock=$n(
+          'div','',{
+            action:'*showclock',
+            s_desc:"Show clock in homescreen"
+          },
+          home.settings.styling.P,
+          '<c class="check">clear</c><c>nest_clock_farsight_digital</c> Show Clock'
         );
 
 

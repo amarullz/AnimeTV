@@ -637,6 +637,9 @@ c.loader {
   font-weight: bold;
   font-size: var(--fs-20vw);
 }
+.animetv_noclock .animetv_header_banner #home_time{
+  display: none !important;
+} 
 .animetv_header_banner div.selected:before{
   content: '';
   width:60%;
@@ -1221,6 +1224,9 @@ c.loader {
   border-radius: .8vw;
   overflow: hidden;
   font-size:var(--fs-11vw);
+}
+.animetv_noclock #home_discord_info{
+  left:44vw;
 }
 @keyframes discord_message_keyframe {
   0% {
