@@ -4794,14 +4794,16 @@ const pb={
   },
   vid_event:function(c,v){
     if (c=='complete'){
-      vtt.playback.buffering_set(false);
-      pb.vid_stat.play=false;
-      pb.pb_track_ctl.innerHTML='replay';
-      pb.menu_show(1);
-      pb.next_ep(0);
-      try{
-        _JSAPI.playNextClear();
-      }catch(e){}
+      if (pb.pb_track_ctl.innerHTML!='replay'){
+        vtt.playback.buffering_set(false);
+        pb.vid_stat.play=false;
+        pb.pb_track_ctl.innerHTML='replay';
+        pb.menu_show(1);
+        pb.next_ep(0);
+        try{
+          _JSAPI.playNextClear();
+        }catch(e){}
+      }
     }
     else if (c=='ready'){
       pb.state=2;
@@ -8292,6 +8294,9 @@ const home={
             h._prev_sel=null;
             h._enter_cb=function(hel,hels){
               if (hel._sel){
+                if (h._prev_sel==hels){
+                  return false;
+                }
                 if (h._prev_sel){
                   h._prev_sel.classList.remove('tab_active');
                 }
@@ -8375,6 +8380,9 @@ const home={
             h._prev_sel=null;
             h._enter_cb=function(hel,hels){
               if (hel._sel){
+                if (h._prev_sel==hels){
+                  return false;
+                }
                 if (h._prev_sel){
                   h._prev_sel.classList.remove('tab_active');
                 }
@@ -8468,9 +8476,12 @@ const home={
                 disabling_ids=disabling_ids.concat(list_ids[hs[0]][5]);
               }
             }
-            list_ids[hs[0]][4]=true;
-            list_order.push([hs[0],hs[1]]);
           }
+          else{
+            hs[1]=false;
+          }
+          list_ids[hs[0]][4]=true;
+          list_order.push([hs[0],hs[1]]);
         }
       }
     }
@@ -8595,6 +8606,9 @@ const home={
           h._prev_sel=null;
           h._enter_cb=function(hel,hels){
             if (hel._sel){
+              if (h._prev_sel==hels){
+                return false;
+              }
               if (h._prev_sel){
                 h._prev_sel.classList.remove('tab_active');
               }
@@ -11388,7 +11402,7 @@ const _MAL={
           if (d.status=='NOT_YET_RELEASED'){
             if (d.startDate && d.startDate.year){
               if (d.startDate.month){
-                var m='Jan,Feb,Mar,Apr,Mei,Jun,Jul,Aug,Sep,Oct,Nov,Des'.split(',');
+                var m='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Des'.split(',');
                 binfotxt+='<span class="info_year"><c>event_upcoming</c>'+special(m[d.startDate.month-1]+' '+d.startDate.year)+'</span>';
               }
               else{
@@ -12374,7 +12388,7 @@ const _MAL={
       }
       function fuzD(f){
         if (!f) return '-';
-        var m='Jan,Feb,Mar,Apr,Mei,Jun,Jul,Aug,Sep,Oct,Nov,Des'.split(',');
+        var m='Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Des'.split(',');
         var o='';
         if (f.month){
           o+=m[f.month-1];
