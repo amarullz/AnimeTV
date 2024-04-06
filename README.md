@@ -31,7 +31,6 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 - **More Detail Information :** [https://amarullz.com/animetv/](https://amarullz.com/animetv/)
 - **Join Discussion on Discord :**  [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
 
-- **3.4.0 Release Information:** [https://amarullz.com/2024/03/25/animetv-version-3-4-0-has-been-released/](https://amarullz.com/2024/03/25/animetv-version-3-4-0-has-been-released/)
 
 ## Features
 - **NEW** - UI Interface with Trailer Video

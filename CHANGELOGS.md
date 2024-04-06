@@ -1,4 +1,33 @@
 # Changelogs
+- **4.0.4** 🍿
+  - Features
+    - Revamp Search UI
+      - Add in app Keyboard
+      - Add Search History
+      - Mute keyboard sound
+      - Add Voice Search on search page
+      - Add Search from AniList function
+      - Add Clear search history
+      - Add remove individual search history
+    - Add AniList tab list on Home - disabled by default
+    - Add AniList tab list on MyList
+    - Add MAL tab list on MyList
+  - UI & UX
+    - Add navigation sound (configurable at settings)
+    - Add MyList as Main Page settings
+    - Add show/hide clock in homescreen
+    - Online Based wallpaper
+    - Update synonym + other name icon
+    - Tweak slideshow pager indicator transition
+    - Fix home-list left position
+  - Networking, API and Sources
+    - Fix source 3/4 no-duration & (? eps) info
+    - Fix source 1 & 2 non-mirror stuck at Streaming Video
+    - Fix Animeflix Airing list
+    - Fix Animeflix intro and add outro skip time
+  - Others
+    - Fix video ending bug
+    - Fix month typo
 - **3.8.0** 🍓
   - Features
     - Add voice search
