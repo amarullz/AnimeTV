@@ -8270,6 +8270,84 @@ const home={
     home:[],
     mylist:[]
   },
+  tabbed_list:function(el, list_title, atype, atitle, listmenu, loader){
+    var par=el.parentElement;
+    el.setAttribute("list-title","");
+    el.classList.remove('home_list');
+    el.classList.remove('pb_menu');
+    var h=$n('div','pb_menu home_tabs', null, null, '');
+    par.insertBefore(h,el);
+    h._holder=el;
+    el.innerHTML='';
+
+    // home_list_notitle
+
+    h._midx=-1;
+    listmenu.push(h);
+    pb.menu_clear(h);
+    pb.menu_init(h);
+    h.P.setAttribute("list-title",list_title);
+    for (var i=0;i<atype.length;i++){
+      var title=atitle[i];
+      var gn=$n('div','',null,h.P,special(title));
+      var hp=$n('div',
+        'home_list pb_menu home_list_notitle',
+        null,
+        el,''
+      );
+      hp.style.display='none';
+      hp._atype=atype[i];
+      hp._page=1;
+      hp._intz=false;
+      gn._ctn=hp;
+      if (i==0){
+        h._sel=gn;
+      }
+    }
+    h._prev_sel=null;
+    el._keycb=function(g,c){
+      if (h._prev_sel){
+        return h._prev_sel._ctn._keycb(h._prev_sel._ctn,c);
+      }
+      return false;
+    };
+    el._activeCb=function(g,x){
+      var v=(x?'add':'remove');
+      h.classList[v]('active');
+      h.classList[v]('active_content');
+      for (var i=0;i<el.childElementCount;i++){
+        el.children[i].classList[v]('active');
+      }
+    };
+    h.__load=function(hels, force){
+      if (hels){
+        if (h._prev_sel){
+          h._prev_sel.classList.remove('tab_active');
+          h._prev_sel._ctn.style.display='none';
+        }
+        h._prev_sel=hels;
+        hels.classList.add('tab_active');
+        hels._ctn.style.display='';
+        if (!hels._ctn._intz || force){
+          console.warn(hels);
+          hels._ctn._intz=true;
+          pb.menu_clear(hels._ctn);
+          pb.menu_init(hels._ctn);
+          home.recent_init(hels._ctn, loader);
+        }
+        return true;
+      }
+      return false;
+    };
+    h.__selectcb=function(hel,hels){
+      return h.__load(hels, 0);
+    };
+    h._enter_cb=function(hel,hels){
+      return h.__load(hels, 1);
+    };
+    pb.menu_select(h,h._sel);
+    h.__selectcb(h,h._sel);
+  },
   mylist_el:{},
   mylist_initialized:false,
   init_mylist:function(force){
@@ -8283,59 +8361,26 @@ const home={
         [
           "maltab",
           function(el){
-            var par=el.parentElement;
-            el.setAttribute("list-title","");
-            el.classList.add('home_list_notitle');
-            var h=$n('div','pb_menu home_tabs', null, null, '');
-            par.insertBefore(h,el);
-            h._holder=el;
-            h._midx=1;
-            home.menus[1].push(h);
-            var atype=[
-              'watching',
-              'plan_to_watch',
-              'completed',
-              'dropped',
-              'on_hold'
-            ];
-            var atitle=[
-              'Watching',
-              'Planning',
-              'Completed',
-              'Dropped',
-              'On Hold'
-            ];
-            pb.menu_clear(h);
-            pb.menu_init(h);
-            h.P.setAttribute("list-title","MAL "+_MAL.auth.user);
-            for (var i=0;i<atype.length;i++){
-              var title=atitle[i];
-              var gn=$n('div','',null,h.P,special(title));
-              gn._atype=atype[i];
-              if (i==0){
-                h._sel=gn;
-              }
-            }
-            h._prev_sel=null;
-            h._enter_cb=function(hel,hels){
-              if (hel._sel){
-                if (h._prev_sel==hels){
-                  return false;
-                }
-                if (h._prev_sel){
-                  h._prev_sel.classList.remove('tab_active');
-                }
-                h._prev_sel=hels;
-                hels.classList.add('tab_active');
-                hel._holder._atype=hels._atype;
-                hel._holder._page=1;
-                home.recent_init(hel._holder, _MAL.home_loader);
-                return true;
-              }
-              return false;
-            };
-            pb.menu_select(h,h._sel);
-            h._enter_cb(h,h._sel);
+            home.tabbed_list(
+              el,
+              "MAL "+_MAL.auth.user,
+              [
+                'watching',
+                'plan_to_watch',
+                'completed',
+                'dropped',
+                'on_hold'
+              ],
+              [
+                'Watching',
+                'Planning',
+                'Completed',
+                'Dropped',
+                'On Hold'
+              ],
+              home.menus[1],
+              _MAL.home_loader
+            );
           },
           "MAL Tabbed "+_MAL.auth.user,
           true,
@@ -8375,53 +8420,28 @@ const home={
         [
           "anilisttab",
           function(el){
-            var par=el.parentElement;
-            el.setAttribute("list-title","");
-            el.classList.add('home_list_notitle');
-            var h=$n('div','pb_menu home_tabs', null, null, '');
-            par.insertBefore(h,el);
-            h._holder=el;
-            h._midx=1;
-            home.menus[1].push(h);
-            var atype=[
-              'CURRENT',
-              'PLANNING',
-              'COMPLETED',
-              'DROPPED',
-              'PAUSED',
-              'REPEATING'
-            ];
-            pb.menu_clear(h);
-            pb.menu_init(h);
-            h.P.setAttribute("list-title","AniList "+_MAL.alauth.user);
-            for (var i=0;i<atype.length;i++){
-              var title=ucfirst(atype[i],1);
-              var gn=$n('div','',null,h.P,special(title));
-              gn._atype=atype[i];
-              if (i==0){
-                h._sel=gn;
-              }
-            }
-            h._prev_sel=null;
-            h._enter_cb=function(hel,hels){
-              if (hel._sel){
-                if (h._prev_sel==hels){
-                  return false;
-                }
-                if (h._prev_sel){
-                  h._prev_sel.classList.remove('tab_active');
-                }
-                h._prev_sel=hels;
-                hels.classList.add('tab_active');
-                hel._holder._atype=hels._atype;
-                hel._holder._page=1;
-                home.recent_init(hel._holder, _MAL.alhome_loader);
-                return true;
-              }
-              return false;
-            };
-            pb.menu_select(h,h._sel);
-            h._enter_cb(h,h._sel);
+            home.tabbed_list(
+              el,
+              "AniList "+_MAL.alauth.user,
+              [
+                'CURRENT',
+                'PLANNING',
+                'COMPLETED',
+                'DROPPED',
+                'PAUSED',
+                'REPEATING'
+              ],
+              [
+                'Current',
+                'Planning',
+                'Completed',
+                'Dropped',
+                'Paused',
+                'Repeating'
+              ],
+              home.menus[1],
+              _MAL.alhome_loader
+            );
           },
           "AniList Tabbed "+_MAL.alauth.user,
           true,
@@ -8598,56 +8618,24 @@ const home={
       [
         "altab",
         function(el){
-          var par=el.parentElement;
-          el.setAttribute("list-title","");
-          el.classList.add('home_list_notitle');
-          var h=$n('div','pb_menu home_tabs', null, null, '');
-          par.insertBefore(h,el);
-          h._holder=el;
-          h._midx=1;
-          home.menus[0].push(h);
-          var atype=[
-            'top',
-            'popular',
-            'year',
-            'upcomming'
-          ];
-          var atitle=[
-            'Top Anime',
-            'All Time Popular',
-            'Top '+_MAL.allist_year(),
-            'Upcoming'
-          ];
-          pb.menu_clear(h);
-          pb.menu_init(h);
-          h.P.setAttribute("list-title","AniList");
-          for (var i=0;i<atype.length;i++){
-            var gn=$n('div','',null,h.P,special(atitle[i]));
-            gn._atype=atype[i];
-            if (i==0){
-              h._sel=gn;
-            }
-          }
-          h._prev_sel=null;
-          h._enter_cb=function(hel,hels){
-            if (hel._sel){
-              if (h._prev_sel==hels){
-                return false;
-              }
-              if (h._prev_sel){
-                h._prev_sel.classList.remove('tab_active');
-              }
-              h._prev_sel=hels;
-              hels.classList.add('tab_active');
-              hel._holder._alsort=hels._atype;
-              hel._holder._page=1;
-              home.recent_init(hel._holder, _MAL.allist_list_loader);
-              return true;
-            }
-            return false;
-          };
-          pb.menu_select(h,h._sel);
-          h._enter_cb(h,h._sel);
+          home.tabbed_list(
+            el,
+            "AniList",
+            [
+              'top',
+              'popular',
+              'year',
+              'upcomming'
+            ],
+            [
+              'Top Anime',
+              'All Time Popular',
+              'Top '+_MAL.allist_year(),
+              'Upcoming'
+            ],
+            home.menus[0],
+            _MAL.allist_list_loader
+          );
         },
         "AniList Tabbed List",
         false
@@ -8655,25 +8643,25 @@ const home={
     );
     homepage.push(
       ["altop",function(el){
-        el._alsort='top';
+        el._atype='top';
         home.recent_init(el, _MAL.allist_list_loader);
       }, "Top Anime - AniList", false]
     );
     homepage.push(
       ["alpopular",function(el){
-        el._alsort='popular';
+        el._atype='popular';
         home.recent_init(el, _MAL.allist_list_loader);
       }, "All Time Popular - AniList", false]
     );
     homepage.push(
       ["alyear",function(el){
-        el._alsort='year';
+        el._atype='year';
         home.recent_init(el, _MAL.allist_list_loader);
       }, "Top "+_MAL.allist_year()+" - AniList", false]
     );
     homepage.push(
       ["alupcoming",function(el){
-        el._alsort='upcomming';
+        el._atype='upcomming';
         home.recent_init(el, _MAL.allist_list_loader);
       }, "Upcoming - AniList", false]
     );
@@ -10970,7 +10958,7 @@ const home={
       var inactiveItem=home.list_select(pc,ac);
       inactiveItem.classList.remove('active');
       if (inactiveItem._activeCb){
-        inactiveItem._activeCb(inactiveItem,true);
+        inactiveItem._activeCb(inactiveItem,false);
       }
       var activeItem=home.list_select(pc,nc);
       activeItem.classList.add('active');
@@ -11506,7 +11494,7 @@ const _MAL={
   },
   allist_list_loader:function(g){
     g._onload=1;
-    _MAL.allist_list(g._alsort,g._page,12,function(v){
+    _MAL.allist_list(g._atype,g._page,12,function(v){
       if (v){
         try{
           _MAL.allist_list_parser(g,v);
