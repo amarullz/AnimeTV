@@ -5476,7 +5476,8 @@ const pb={
               ERROR:3
             };
             eval(iscript+`
-            play_data.pos[0]=[starttime,endtime];
+            play_data.pos[0]=[introstart?introstart:0,introend?introend:0];
+            play_data.pos[1]=[outrostart?outrostart:0,outroend?outroend:0];
             `);
             delete window.Hls;
             delete window.hls;
