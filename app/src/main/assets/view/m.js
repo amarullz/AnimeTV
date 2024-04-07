@@ -6132,7 +6132,7 @@ const pb={
         var opt=[
           5,10,20,30,50,80,100,120,150
         ];
-        var opttxt=[];
+        var opttxt=["Clear Cache"];
         for (var i=0;i<opt.length;i++){
           if (opt[i]==csz){
             sel=i;
@@ -6146,9 +6146,16 @@ const pb={
           sel
         );
         if (chval!=null){
-          var newsz=opt[chval]
-          _JSAPI.setCacheSz(newsz);
-          pb.cfg_update_el(key);
+          if (chval>0){
+            var newsz=opt[chval-1]
+            _JSAPI.setCacheSz(newsz);
+            pb.cfg_update_el(key);
+          }
+          else{
+            if (confirm("Clear AnimeTV Cache?")){
+              _JSAPI.clearCache();
+            }
+          }
         }
       }
       else if (key=='performance'){
@@ -9097,7 +9104,7 @@ const home={
             s_desc:"Set maximum disk cache size for HTTP Client. Only works for okHttp and Cronet"
           },
           home.settings.networks.P,
-          '<c>disc_full</c> Max Cache Size<span class="value"></span>'
+          '<c>disc_full</c> Cache Size<span class="value"></span>'
         );
 
         home.settings.tools._s_progcache=$n(

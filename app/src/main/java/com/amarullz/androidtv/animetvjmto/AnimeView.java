@@ -1080,6 +1080,14 @@ import javax.crypto.spec.SecretKeySpec;
     }
 
     @JavascriptInterface
+    public void clearCache(){
+      activity.runOnUiThread(()->{
+        webView.clearCache(true);
+      });
+      aApi.clearCache();
+    }
+
+    @JavascriptInterface
     public String dnsver(){
       return Conf.SERVER_VER;
     }

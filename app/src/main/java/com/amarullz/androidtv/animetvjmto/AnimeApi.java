@@ -498,6 +498,13 @@ public class AnimeApi extends WebViewClient {
   public static OkHttpClient httpClient=null;
   public static Cache appCache=null;
 
+
+  public static boolean reqClearCache=false;
+  public void clearCache(){
+    reqClearCache=true;
+    initHttpEngine(activity);
+  }
+
   public static void initHttpEngine(Context c){
     long disk_cache_size = ((long) Conf.CACHE_SIZE_MB) * 1024 * 1024;
     if (cronetClient!=null){
@@ -510,6 +517,10 @@ public class AnimeApi extends WebViewClient {
     if (Conf.HTTP_CLIENT==2) {
       try {
         File ccache=new File((okCacheDir!=null)?okCacheDir:"cacheDir","cronet");
+        if (reqClearCache) {
+          //noinspection ResultOfMethodCallIgnored
+          ccache.delete();
+        }
         //noinspection ResultOfMethodCallIgnored
         ccache.mkdir();
         CronetEngine.Builder myBuilder =
@@ -533,6 +544,12 @@ public class AnimeApi extends WebViewClient {
     appCache = new Cache(new File((okCacheDir!=null)?okCacheDir:"cacheDir",
         "okhttpcache"), disk_cache_size);
 
+    if (reqClearCache) {
+      try {
+        appCache.evictAll();
+      } catch (IOException ignored) {}
+    }
+
     bootstrapClient = new OkHttpClient.Builder().cache(appCache).build();
     dohClient = new DnsOverHttps.Builder().client(bootstrapClient)
         .url(Objects.requireNonNull(HttpUrl.parse("https://1.1.1.1/dns-query")))
@@ -544,6 +561,7 @@ public class AnimeApi extends WebViewClient {
     else{
       httpClient = bootstrapClient.newBuilder().build();
     }
+    reqClearCache=false;
   }
   public static class Http{
     private HttpURLConnection http=null;
