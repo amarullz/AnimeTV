@@ -1093,6 +1093,7 @@ c.loader {
   padding: .2vw 1.4vw .2vw 1.4vw;
   transition: background-color var(--tim-3s) var(--interpolation);
   margin-right: 1.5vw;
+  border: .2vw solid transparent;
 }
 .home_slideshow.active p div.active span.infobox span.infovalue span.info:before{
   background-color: #060;
@@ -1130,11 +1131,11 @@ c.loader {
 }
 @keyframes home_play_ani {
   0% {
-    outline: .2vw solid #040;
+    border-color: #040;
   }
 
   100% {
-    outline: .2vw solid #fff;
+    border-color: #fff;
   }
 }
 
@@ -1960,10 +1961,12 @@ c.loader {
 }
 
 #pb_track_ctl {
-  font-size: var(--fs-20vw);
+  font-size: 2vw;
   line-height: 2vw;
   width: 2vw;
   height: 2vw;
+  padding: 0;
+  text-align: center;
   vertical-align: middle;
   transition: all var(--tim-2s) var(--interpolation);
   text-shadow: 0 0 .2vw #000 !important;

@@ -4824,7 +4824,7 @@ const pb={
     }
     else if (c=='ready'){
       pb.state=2;
-      pb.pb_track_ctl.innerHTML='play_circle';
+      pb.pb_track_ctl.innerHTML='pause';
       pb.pb_track_ctl.className='';
       console.log("EVENT VID READY");
       if (pb.startpos_val>0){
@@ -4837,7 +4837,7 @@ const pb={
     }
     else if (c=='play'){
       pb.vid_stat.play=true;
-      pb.pb_track_ctl.innerHTML='play_circle';
+      pb.pb_track_ctl.innerHTML='pause';
       pb.menu_autohide();
       pb.setskip_track(1);
       vtt.playback.play();
@@ -4849,7 +4849,7 @@ const pb={
     else if (c=='pause'){
       vtt.playback.pause();
       pb.vid_stat.play=false;
-      pb.pb_track_ctl.innerHTML='pause';
+      pb.pb_track_ctl.innerHTML='play_arrow';
     }
     else if (c=='time'){
       pb.vid_stat.pos=v.position;
@@ -5260,7 +5260,7 @@ const pb={
     requestAnimationFrame(function(){
       pb.state=1;
       pb.track_update_pos();
-      pb.pb_track_ctl.innerHTML='change_circle';
+      pb.pb_track_ctl.innerHTML='progress_activity';
       pb.pb_track_ctl.className='loader';
       pb.pb_track_pos.innerHTML='LOADING SERVER';
       pb.pb_track_dur.innerHTML='';
@@ -6624,6 +6624,18 @@ const pb={
             pb.vid_cmd('seek',pb.skip_val);
             return true;
           }
+        }
+        else{
+          clk();
+          if (!pb.vid_stat.play)
+            pb.vid_cmd('play',0);
+          else{
+            pb.vid_cmd('pause',0);
+            if (!pb.pb_actions.classList.contains('active')){
+              pb.menu_show(2);
+            }
+          }
+          return true;
         }
       }
       if (c==KLEFT||c==KRIGHT||c==KUP||c==KDOWN||c==KENTER){
