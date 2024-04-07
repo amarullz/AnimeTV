@@ -8,10 +8,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.0-240330",
 
-  "appnum": 404,
-  "appver": "4.0.4",
+  "appnum": 405,
+  "appver": "4.0.5",
   "appsize": "5.91 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/4.0.4/animetv-4.0.4.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/4.0.5/animetv-4.0.5.apk",
   "appnote": 
-    "- Revamp Search UI\n- Add Tabbed list for AniList and MAL\n- Add nav sound, clock settings, MyList config\n- Fix sources & video streaming"
+    "- Fix crash on old Android when selecting Check for Nightly Build\n- Update subtitle style with Bold & Bolder font-weight\n- Revamp Search UI\n- Add Tabbed list for AniList and MAL"
 }
