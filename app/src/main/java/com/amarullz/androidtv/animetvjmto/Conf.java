@@ -26,6 +26,8 @@ public class Conf {
     return DOMAIN;
   }
 
+  public static int CACHE_SIZE_MB=100;
+
 
   // History
   // * vidplay.site

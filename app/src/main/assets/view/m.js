@@ -4482,6 +4482,9 @@ const pb={
       if (key=='speed'){
         el.lastElementChild.innerHTML="SPEED "+_API.vidSpeed.toFixed(2)+"x";
       }
+      else if (key=='cachesz'){
+        el.lastElementChild.innerHTML=_JSAPI.getCacheSz()+" MB";
+      }
       else if (key=='ccstyle'){
         el.lastElementChild.innerHTML=vtt.stylename(pb.cfg_data.ccstyle);
       }
@@ -4635,6 +4638,8 @@ const pb={
       pb.cfg_update_el('dub');
 
       pb.cfg_update_el('lang');
+
+      pb.cfg_update_el('cachesz');
     }
   },
   cfg:function(v){
@@ -6119,6 +6124,31 @@ const pb={
               _API.reload();
             },200);
           }
+        }
+      }
+      else if (key=='cachesz'){
+        var csz=_JSAPI.getCacheSz();
+        var sel=6;
+        var opt=[
+          5,10,20,30,50,80,100,120,150
+        ];
+        var opttxt=[];
+        for (var i=0;i<opt.length;i++){
+          if (opt[i]==csz){
+            sel=i;
+          }
+          opttxt.push((opt[i])+" MB");
+        }
+        // Update Home
+        var chval=_API.listPrompt(
+          "Cache Size",
+          opttxt,
+          sel
+        );
+        if (chval!=null){
+          var newsz=opt[chval]
+          _JSAPI.setCacheSz(newsz);
+          pb.cfg_update_el(key);
         }
       }
       else if (key=='performance'){
@@ -9043,22 +9073,6 @@ const home={
           home.settings.networks.P,
           '<c>database</c> Source Server<span class="value">Source '+__SD+"</span>"
         );
-        home.settings.tools._s_progcache=$n(
-          'div','',{
-            action:'*progcache',
-            s_desc:"Cache content progressively for better performance. Turn off if image or playback not working"
-          },
-          home.settings.networks.P,
-          '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
-        );
-        home.settings.tools._s_usedoh=$n(
-          'div','',{
-            action:'*usedoh',
-            s_desc:"Use dns over https for securely resolving domain name. Enable if your ISP blocked source domain (Only works with OkHttp)"
-          },
-          home.settings.networks.P,
-          '<c class="check">clear</c><c>encrypted</c> Use DoH'
-        );
         home.settings.tools._s_httpclient=$n(
           'div','',{
             action:'*httpclient',
@@ -9067,6 +9081,41 @@ const home={
           home.settings.networks.P,
           '<c>public</c> HTTP Client<span class="value"></span>'
         );
+
+        home.settings.tools._s_usedoh=$n(
+          'div','',{
+            action:'*usedoh',
+            s_desc:"Use dns over https for securely resolving domain name. Enable if your ISP blocked source domain (Only works with OkHttp)"
+          },
+          home.settings.networks.P,
+          '<c class="check">clear</c><c>encrypted</c> Use DoH'
+        );
+
+        home.settings.tools._s_cachesz=$n(
+          'div','',{
+            action:'*cachesz',
+            s_desc:"Set maximum disk cache size for HTTP Client. Only works for okHttp and Cronet"
+          },
+          home.settings.networks.P,
+          '<c>disc_full</c> Max Cache Size<span class="value"></span>'
+        );
+
+        home.settings.tools._s_progcache=$n(
+          'div','',{
+            action:'*progcache',
+            s_desc:"Cache content progressively for better performance. Turn off if image or playback not working"
+          },
+          home.settings.networks.P,
+          '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
+        );
+
+        
+
+        
+
+
+        
+        
 
         /* Integrations */
         home.settings.tools._s_malaccount=$n(

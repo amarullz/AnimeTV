@@ -1071,6 +1071,15 @@ import javax.crypto.spec.SecretKeySpec;
     }
 
     @JavascriptInterface
+    public int getCacheSz(){
+      return Conf.CACHE_SIZE_MB;
+    }
+    @JavascriptInterface
+    public void setCacheSz(int s){
+      aApi.setCacheSize(s);
+    }
+
+    @JavascriptInterface
     public String dnsver(){
       return Conf.SERVER_VER;
     }

@@ -264,6 +264,8 @@ public class AnimeApi extends WebViewClient {
       }catch(Exception ignored){}
     }
     Conf.SOURCE_DOMAIN=pref.getInt("source-domain",Conf.SOURCE_DOMAIN);
+    Conf.CACHE_SIZE_MB=pref.getInt("cache-size",Conf.CACHE_SIZE_MB);
+
     Conf.updateSource(Conf.SOURCE_DOMAIN);
     Log.d(_TAG,"DOMAIN = "+Conf.getDomain()+" / STREAM = "+Conf.STREAM_DOMAIN+" / " +
         "UPDATE = "+Conf.SERVER_VER+" / Source-ID: "+Conf.SOURCE_DOMAIN);
@@ -276,6 +278,17 @@ public class AnimeApi extends WebViewClient {
       ed.apply();
       Conf.updateSource(i);
     }
+  }
+
+  public void setCacheSize(int i){
+    if ((i<5) || (i>150)){
+      i=100;
+    }
+    Conf.CACHE_SIZE_MB=i;
+    SharedPreferences.Editor ed = pref.edit();
+    ed.putInt("cache-size", i);
+    ed.apply();
+    initHttpEngine(activity);
   }
 
   @SuppressLint("SetJavaScriptEnabled")
@@ -486,7 +499,7 @@ public class AnimeApi extends WebViewClient {
   public static Cache appCache=null;
 
   public static void initHttpEngine(Context c){
-    long disk_cache_size = 100 * 1024 * 1024;
+    long disk_cache_size = ((long) Conf.CACHE_SIZE_MB) * 1024 * 1024;
     if (cronetClient!=null){
       try {
         cronetClient.shutdown();
