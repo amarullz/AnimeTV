@@ -921,7 +921,7 @@ import javax.crypto.spec.SecretKeySpec;
     public void videoSetSpeed(float speed){
       activity.runOnUiThread(()-> {
         try {
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+          if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             videoPlayer.setPlaybackSpeed(speed);
           }
         }catch(Exception ignored){}
