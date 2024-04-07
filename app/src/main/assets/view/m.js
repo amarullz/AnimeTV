@@ -3618,20 +3618,20 @@ const vtt={
   ],
   stylename:function(id){
     var fname=[
-      'Large, Serif',
-      'Large, Sans-Serif',
-      'Small, Serif',
-      'Small, Sans-Serif',
+      'Serif Large',
+      'Proportional Large',
+      'Serif Small',
+      'Proportional Small',
     ];
     var sname=[
-      'White',
-      'White+BG',
-      'Black',
-      'Primary',
+      'Normal',
+      'With Background',
+      'Bold',
+      'Bolder',
     ];
     var fnt=fname[id%4];
     var sty=sname[Math.floor(id / 4)];
-    return sty+', '+fnt;
+    return fnt+' '+sty;
   },
   init:function(subs){
     if (pb.cfg_data.lang=='nosub'){
