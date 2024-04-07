@@ -6554,8 +6554,10 @@ const pb={
     if (c==KLEFT||c==KRIGHT){
       if ((_API.last_key_source==1&&c==KLEFT)||(_API.last_key_source!=1&&c==KRIGHT))
         pb.vid_cmd('seek',pb.vid_get_time().position+10);
-      else
+      else{
         pb.vid_cmd('seek',pb.vid_get_time().position-10);
+        vtt.set('');
+      }
       pb.track_update_pos();
     }
     else if (c==KENTER){
