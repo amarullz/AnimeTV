@@ -6135,7 +6135,7 @@ const pb={
         var opttxt=["Clear Cache"];
         for (var i=0;i<opt.length;i++){
           if (opt[i]==csz){
-            sel=i;
+            sel=i+1;
           }
           opttxt.push((opt[i])+" MB");
         }
