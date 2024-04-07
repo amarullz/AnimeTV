@@ -1588,7 +1588,8 @@ c.loader {
 #vtt_subtitle.vtt_style_11,
 #vtt_subtitle.vtt_style_13,
 #vtt_subtitle.vtt_style_15{
-  font-family: robotoc, Arial, Helvetica, sans-serif !important;
+  font-family: Roboto, sans-serif !important;
+  font-weight: 500;
 }
 
 #vtt_subtitle.vtt_style_2,

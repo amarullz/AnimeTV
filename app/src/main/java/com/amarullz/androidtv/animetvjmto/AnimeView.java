@@ -226,6 +226,7 @@ import javax.crypto.spec.SecretKeySpec;
       public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
         try{
           JSONObject jo=new JSONObject(message);
+          Log.d(_TAG,"PROMPT: "+jo);
           String type=jo.getString("type");
           String title=jo.getString("title");
           if (type.equals("list")){
@@ -233,8 +234,15 @@ import javax.crypto.spec.SecretKeySpec;
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(title);
             String[] list = new String[ja.length()];
-            for (int i=0;i<ja.length();i++){
-              list[i]=ja.getString(i);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+              for (int i = 0; i < ja.length(); i++) {
+                list[i] = ja.getString(i);
+              }
+            }
+            else {
+              for (int i = 0; i < ja.length(); i++) {
+                list[i] = ja.getString(i).replaceAll("\t", " ");
+              }
             }
             if (jo.has("sel")) {
               final int selVal=jo.getInt("sel");
