@@ -12362,7 +12362,7 @@ const _MAL={
           _MAL.pop.mv.classList.remove('active');
           _MAL.popup_close();
         }
-        _API.showToast("Matching AnimeList Not Found.");
+        _API.showToast("Matching AniList Not Found.");
         return;
       }
       console.log(["pop_opendetail", v]);
