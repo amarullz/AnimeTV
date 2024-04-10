@@ -5770,12 +5770,15 @@ const pb={
   next_ep:function(fn){
     /* autonext */
     if (pb.cfg('autonext')||fn){
-      if (pb.ep_index<pb.data.ep.length-1){
-        var next_id=pb.ep_index+1;
+      if (!fn){
+        fn=1;
+      }
+      var next_id = pb.ep_index + fn; 
+      if (next_id>=0 && next_id<pb.data.ep.length){
         var sel_id=-1;
         /* skip filler */
         if (pb.cfg('skipfiller')){
-          for (var i=next_id;i<pb.data.ep.length;i++){
+          for (var i=next_id;(((fn<0)&&i>=0)||((fn>0)&&i<pb.data.ep.length));i+=fn){
             if (!pb.data.ep[i].filler){
               sel_id=i;
               break;
@@ -6608,21 +6611,24 @@ const pb={
             pb.menu_show(2);
           }
         }
+        return true;
       }
       // pb.menu_show(c==KUP?1:2);
     }
-    else if (c==KNEXT||c==KPREV){
+    else if (c==KNEXT||c==KPREV||c==KPGUP||c==KPGDOWN){
       if (pb.state){
-        if (!pb.pb_actions.classList.contains('active')){
+        if (!pb.pb_actions.classList.contains('active') || (pb.menusel==2)){
           pb.menu_show(3);
           var vl=pb.menus[3];
-          if (c==KNEXT){
-            vl._keycb(vl,KRIGHT);
+          if (c==KNEXT||c==KPGUP){
+            // vl._keycb(vl,KRIGHT);
+            pb.next_ep(1);
           }
           else{
-            vl._keycb(vl,KLEFT);
+            // vl._keycb(vl,KLEFT);
+            pb.next_ep(-1);
           }
-          return;
+          return true;
         }
       }
     }
