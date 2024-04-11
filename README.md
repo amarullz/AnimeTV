@@ -94,6 +94,20 @@ Here only a couple screenshot:
 
 ![Popup](https://cdn.discordapp.com/attachments/1221532077699108994/1221532536413491370/5-animetv-popup.jpg?ex=6612ebd3&is=660076d3&hm=a0522ca71fab612ad5de4b6604ac8ec203ebdba20647e4424ac1c69bae6fc717&&)
 
+## DISCLAIMER
+
+* AnimeTV only scrapes links from various websites and makes it easier for users to find anime.
+
+* AnimeTV or any of its developer doesn't host any of the contents found inside the app. Any and all images and anime/manga information found in the app are taken from various public APIs.
+
+* All anime found in AnimeTV are taken from various 3rd party anime hosting websites.
+
+* AnimeTV or it's owners aren't liable for any misuse of any of the contents found inside or outside of the app and cannot be held accountable for the distribution of any of the contents found inside the app.
+
+* By using AnimeTV, you comply to the fact that the developer of the app is not responsible for any of the contents found in the app; nonetheless they may or may not be from their legitimate sources.
+
+* If the internet infringement issues are involved, please contact the source website. The developer does not assume any legal responsibility.
+
 ## License
 **Copyright 2023 Ahmad Amarullah (https://amarullz.com)**
 
