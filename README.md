@@ -84,15 +84,19 @@ But the good news is **AnimeTV** will block any analytics and ads domain (dns) w
 More screenshot is available in my website: https://amarullz.com/animetv/
 Here only a couple screenshot:
 
-![Main Home Screen](https://cdn.discordapp.com/attachments/1221532077699108994/1221532534488301609/1-animetv-home.jpg?ex=6612ebd3&is=660076d3&hm=010c36ea9812b97a81ba2930e7f9eb1c26769a32528bf7314516cbcdc8a6a195&)
+![Homescreen](https://github.com/amarullz/AnimeTV/assets/1386831/d05c7e5d-8abc-4fed-9183-0c58aa815c44)
 
-![MyList](https://cdn.discordapp.com/attachments/1221532077699108994/1221532534916255955/2-animetv-mylist.jpg?ex=6612ebd3&is=660076d3&hm=32f30579203d346b84d12c06cee214021270e7f1db05e654b42ce01ead35f692&)
+![Settings](https://github.com/amarullz/AnimeTV/assets/1386831/68686765-a7eb-4fe8-bc69-f69996053a5d)
 
-![Airing Schedule](https://cdn.discordapp.com/attachments/1221532077699108994/1221532535251664897/3-animetv-schedule.jpg?ex=6612ebd3&is=660076d3&hm=73cf79d25d7386544337721e1cf68147aa2c6f1ffcb19e941cc0f41dc01048c1&)
+![Anime Popup](https://github.com/amarullz/AnimeTV/assets/1386831/c8854596-1984-4c54-993d-d358d9943e7d)
 
-![Settings](https://cdn.discordapp.com/attachments/1221532077699108994/1221532535880945755/4-animetv-settings.jpg?ex=6612ebd3&is=660076d3&hm=eebdb348f9aaa4fe56293ae7e38a7fe92f8360871ee088c1692fe37d6f8f61ad&)
+![MyList](https://github.com/amarullz/AnimeTV/assets/1386831/9d8a9e51-c3a0-43c0-a487-c9fb36949c43)
 
-![Popup](https://cdn.discordapp.com/attachments/1221532077699108994/1221532536413491370/5-animetv-popup.jpg?ex=6612ebd3&is=660076d3&hm=a0522ca71fab612ad5de4b6604ac8ec203ebdba20647e4424ac1c69bae6fc717&&)
+![Customize & Ordering](https://github.com/amarullz/AnimeTV/assets/1386831/b1c86f23-5ca3-4008-95f6-c3107e062f07)
+
+![TV friendly search](https://github.com/amarullz/AnimeTV/assets/1386831/59e722d8-f695-4245-8783-1d1675906c98)
+
+![Playback](https://github.com/amarullz/AnimeTV/assets/1386831/ff1c0363-746d-4216-831b-cf60f4dce243)
 
 ## DISCLAIMER
 
