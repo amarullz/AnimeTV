@@ -9642,7 +9642,7 @@ const home={
       home.search.kw.value=home.search.kw.value.trim();
 
       if (home.search.kw.value!=''||home.search.genreval.length>0){
-        if (home.search.src.cfg.anilist){
+        if (home.search.src.cfg.anilist&&!home.search.noanilist){
           home.search.res.setAttribute('list-title','AniList Search Result');
           var kw=home.search.kw.value;
           var gnr=[];
@@ -10409,6 +10409,7 @@ const home={
           }
           else if (el==$('search_anilist')){
             home.search.src.cfg.anilist=!home.search.src.cfg.anilist;
+            home.search.noanilist=false;
             home.search.history.cfgsave();
             clk();
             home.search.init_search();
@@ -10429,7 +10430,7 @@ const home={
       var s=home.search.src;
       var isAnilist = s.cfg.anilist;
       var anilist_el = $('search_anilist');
-      if (!isAnilist){
+      if (!isAnilist||home.search.noanilist){
         anilist_el.firstElementChild.innerHTML='close';
       }
       else{
@@ -10481,6 +10482,7 @@ const home={
       return vsel;
     },
     srcgenre:'',
+    noanilist:false,
     open:function(arg){
       var s=home.search.src;
       home.search.history.load();
@@ -10493,6 +10495,7 @@ const home={
       home.search.srcgenre='';
 
       var havekw=false;
+      home.search.noanilist=false;
       if (arg){
         if (arg.kw){
           home.search.kw.value=arg.kw;
@@ -10500,6 +10503,7 @@ const home={
         }
         else if (arg.genre){
           home.search.srcgenre=arg.genre;
+          home.search.noanilist=true;
         }
       }
 
@@ -11103,7 +11107,7 @@ const _MAL={
     genres:{
       "_tv":"TV","_tv_short":"TV_SHORT","_movie":"MOVIE","_special":"SPECIAL","_ova":"OVA","_ona":"ONA",
       "Action":"Action","Adventure":"Adventure","Comedy":"Comedy","Drama":"Drama","Ecchi":"Ecchi",
-      "Fantasy":"Fantasy","Hentai":"Hentai","Horror":"Horror","Mahou Shoujo":"Mahou Shoujo","Mecha":"Mecha",
+      "Fantasy":"Fantasy","Horror":"Horror","Mahou Shoujo":"Mahou Shoujo","Mecha":"Mecha",
       "Music":"Music","Mystery":"Mystery","Psychological":"Psychological","Romance":"Romance","Sci-Fi":"Sci-Fi",
       "Slice of Life":"Slice of Life","Sports":"Sports","Supernatural":"Supernatural","Thriller":"Thriller"
     }
