@@ -102,7 +102,7 @@ Here only a couple screenshot:
 
 * AnimeTV only scrapes links from various websites and makes it easier for users to find anime.
 
-* AnimeTV or any of its developer doesn't host any of the contents found inside the app. Any and all images and anime/manga information found in the app are taken from various public APIs.
+* AnimeTV or any of its developer doesn't host any of the contents found inside the app. All images and anime information found in the app are taken from various public APIs.
 
 * All anime found in AnimeTV are taken from various 3rd party anime hosting websites.
 
