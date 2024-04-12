@@ -3548,7 +3548,7 @@ const list={
       o.list.push(id);
     }
     o.detail[id]=val;
-    if (o.list.length>30){
+    if (o.list.length>200){
       var todel=o.list.shift();
       delete o.detail[todel];
     }
