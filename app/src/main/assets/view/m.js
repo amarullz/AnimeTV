@@ -11655,6 +11655,8 @@ const _MAL={
     if (!stype){
       stype='CURRENT';
     }
+    var sortv="ADDED_TIME_DESC";
+    sortv="UPDATED_TIME_DESC";
     _MAL.alreq(`query ($user: String, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -11662,7 +11664,7 @@ const _MAL={
           hasNextPage
           currentPage
         }
-        mediaList(userName:$user,type:ANIME,status:`+stype+`,sort:ADDED_TIME_DESC){
+        mediaList(userName:$user,type:ANIME,status:`+stype+`,sort:`+sortv+`){
           id
           progress
           media{
@@ -11704,9 +11706,10 @@ const _MAL={
     _MAL.req(uri,"GET",cb);
   },
   list:function(type,offset,cb){
+    var sortv="&sort=list_updated_at";
     var uri='/v2/users/@me/animelist?nsfw=false&'+
       'fields=list_status,start_season,num_episodes,media_type,mean,alternative_titles,studios&'+
-      'status='+enc(type)+'&'+
+      'status='+enc(type)+sortv+'&'+
       'limit='+_MAL.limit;
     if (offset){
       uri+='&offset='+offset;
@@ -11923,6 +11926,17 @@ const _MAL={
     }
 
     if (d){
+      if (true){
+        if (_MAL.uepto){
+          clearTimeout(_MAL.uepto);
+        }
+        _MAL.uepto=setTimeout(
+          function(){
+            home.init_mylist(true);
+          },1000
+        );
+        return;
+      }
       try{
         if (d._elm && d._elm._ep){
           var sp=d._elm._ep.querySelector("span.info_ep");

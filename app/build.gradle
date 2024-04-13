@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 34
         versionCode 405
-        versionName "4.1.8-Nightly"
+        versionName "4.1.9-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
