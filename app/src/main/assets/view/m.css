@@ -1528,8 +1528,8 @@ c.loader {
   right:3vw;
   text-align: center;
   color: #fff;
-  font-size: var(--fs-30vw);
-  font-family: Times, serif;
+  /* font-size: var(--fs-30vw);
+  font-family: Times, serif; */
   z-index:1;
 }
 /* #pb.onsettings #vtt_subtitle{
@@ -1547,49 +1547,39 @@ c.loader {
   display: inline !important;
 }
 
-/* CC STYLES */
-#vtt_subtitle.vtt_style_4 .vtt_obj,
-#vtt_subtitle.vtt_style_5 .vtt_obj,
-#vtt_subtitle.vtt_style_6 .vtt_obj,
-#vtt_subtitle.vtt_style_7 .vtt_obj {
+/* SUBTITLE STYLE */
+#vtt_subtitle.vtt_style_with_background .vtt_obj{
   background:rgba(0,0,0,.3);
 }
-
-#vtt_subtitle.vtt_style_1,
-#vtt_subtitle.vtt_style_3,
-#vtt_subtitle.vtt_style_5,
-#vtt_subtitle.vtt_style_7,
-#vtt_subtitle.vtt_style_9,
-#vtt_subtitle.vtt_style_11,
-#vtt_subtitle.vtt_style_13,
-#vtt_subtitle.vtt_style_15{
-  font-family: Roboto, sans-serif !important;
-  font-weight: 500;
+#vtt_subtitle.vtt_style_thin{
+  font-weight: 300 !important;
 }
-
-#vtt_subtitle.vtt_style_2,
-#vtt_subtitle.vtt_style_3,
-#vtt_subtitle.vtt_style_6,
-#vtt_subtitle.vtt_style_7,
-#vtt_subtitle.vtt_style_10,
-#vtt_subtitle.vtt_style_11,
-#vtt_subtitle.vtt_style_14,
-#vtt_subtitle.vtt_style_15{
+#vtt_subtitle.vtt_style_normal{
+  font-weight: 500 !important;
+}
+#vtt_subtitle.vtt_style_bold{
+  font-weight: 700 !important;
+}
+#vtt_subtitle.vtt_style_bolder{
+  font-weight: 900 !important;
+}
+#vtt_subtitle.vtt_style_small{
+  font-size: var(--fs-20vw);
+}
+#vtt_subtitle.vtt_style_medium{
   font-size: var(--fs-25vw);
 }
-
-#vtt_subtitle.vtt_style_8 *,
-#vtt_subtitle.vtt_style_9 *,
-#vtt_subtitle.vtt_style_10 *,
-#vtt_subtitle.vtt_style_11 *{
-  font-weight:700 !important;
+#vtt_subtitle.vtt_style_large{
+  font-size: var(--fs-30vw);
 }
-
-#vtt_subtitle.vtt_style_12 *,
-#vtt_subtitle.vtt_style_13 *,
-#vtt_subtitle.vtt_style_14 *,
-#vtt_subtitle.vtt_style_15 *{
-  font-weight:900 !important;
+#vtt_subtitle.vtt_style_proportional{
+  font-family: Roboto, sans-serif !important;
+}
+#vtt_subtitle.vtt_style_serif{
+  font-family: Times, serif;
+}
+#vtt_subtitle.vtt_style_condensed{
+  font-family: robotoc, Arial, Helvetica, sans-serif;
 }
 
 #pb_action_streamtype{

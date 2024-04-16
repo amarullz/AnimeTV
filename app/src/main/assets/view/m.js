@@ -3608,7 +3608,12 @@ const list={
 const vtt={
   h:$('vtt_subtitle'),
   set_style:function(n){
-    vtt.h.className=(n?("vtt_style_"+n):"");
+    var stn=[];
+    for (var i=0;i<=3;i++){
+      stn.push(vtt.style_get(n,i,2));
+    }
+    cn=stn.join(' ');
+    vtt.h.className=cn;
   },
   sel:0,
   substyle:0,
@@ -3616,22 +3621,95 @@ const vtt={
     'english','portuguese (brazil)','spanish (latin_america)',
     'Spanish','Arabic','French','German','Italian','Russian'
   ],
+  style_type:[
+    'Font',
+    'Size',
+    'Weight',
+    'Style'
+  ],
+  style_order:[
+    [
+      "Serif",
+      "Proportional",
+      "Condensed"
+    ],
+    [
+      "Large",
+      "Medium",
+      "Small",
+    ],
+    [
+      "Normal",
+      "Bold",
+      "Bolder",
+      "Thin"
+    ],
+    [
+      "No Background",
+      "With Background"
+    ]
+  ],
+  style_divs:[
+    1,10,100,1000,10000
+  ],
+  style_get:function(v, t, sl){
+    if (t<0 || t>3){
+      return null;
+    }
+    var d=Math.floor(v / vtt.style_divs[t]) % 10;
+    var g=vtt.style_order[t];
+    if (g.length<=d){
+      d=0;
+    }
+    if (sl==3){
+      return d;
+    }
+    var out = g[d];
+    if (sl){
+      out = slugString(out,'_');
+      if (sl==2){
+        out="vtt_style_"+out;
+      }
+    }
+    return out;
+  },
+  changestyle:function(){
+    setTimeout(function(){
+      var sel=[];
+      for (var i=0;i<=3;i++){
+        var val=vtt.style_get(pb.cfg_data.ccstyle,i);
+        sel.push(vtt.style_type[i]+': '+val);
+      }
+      var chval=_API.listPrompt(
+        "Subtitle Style",
+        sel
+      );
+      if (chval!=null){
+        var ssel=vtt.style_get(pb.cfg_data.ccstyle,chval,3);
+        var ssval=_API.listPrompt(
+          vtt.style_type[chval],
+          vtt.style_order[chval],
+          ssel
+        );
+        if (ssval!=null){
+          var k=pb.cfg_data.ccstyle;
+          k-=(Math.floor(k / vtt.style_divs[chval]) % 10) * vtt.style_divs[chval];
+          k+=ssval * vtt.style_divs[chval];
+          pb.cfg_data.ccstyle=k;
+          pb.cfg_update_el('ccstyle');
+          vtt.set_style(pb.cfg_data.ccstyle);
+          pb.cfg_save();
+        }
+        vtt.changestyle();
+      }
+    },10);
+  },
   stylename:function(id){
-    var fname=[
-      'Serif Large',
-      'Proportional Large',
-      'Serif Small',
-      'Proportional Small',
-    ];
-    var sname=[
-      'Normal',
-      'With Background',
-      'Bold',
-      'Bolder',
-    ];
-    var fnt=fname[id%4];
-    var sty=sname[Math.floor(id / 4)];
-    return fnt+' '+sty;
+    var stn=[];
+    for (var i=0;i<=3;i++){
+      stn.push(vtt.style_get(id,i));
+    }
+    return stn.join(', ');
   },
   init:function(subs){
     if (pb.cfg_data.lang=='nosub'){
@@ -5999,24 +6077,7 @@ const pb={
         }
       }
       else if (key=="ccstyle"){
-        var stn=[];
-        for (var i=0;i<16;i++){
-          stn.push(vtt.stylename(i));
-        }
-        var chval=_API.listPrompt(
-          "Subtitle Style",
-          stn,
-          pb.cfg_data.ccstyle
-        );
-        if (chval!=null){
-          var vv=toInt(chval);
-          if (vv!=pb.cfg_data.ccstyle){
-            pb.cfg_data.ccstyle=vv;
-            pb.cfg_update_el(key);
-            pb.cfg_save();
-            vtt.set_style(pb.cfg_data.ccstyle);
-          }
-        }
+        vtt.changestyle();
       }
       else if (key=="bgimg"){
         // pb.state=0;
