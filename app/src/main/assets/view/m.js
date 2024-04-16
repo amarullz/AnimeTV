@@ -4952,7 +4952,9 @@ const pb={
       if (sk>0){
         if (!pb.onskip){
           pb.skip_val=sk;
-          pb.setskip(true,skid);
+          if (pb.vid_stat.pos>3){
+            pb.setskip(true,skid);
+          }
         }
       }else if (pb.onskip){
         pb.setskip(false);
