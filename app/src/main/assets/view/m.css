@@ -2168,7 +2168,7 @@ c.loader {
   padding: 0 5vw 1vw 5vw;
   position: relative;
   transition: all var(--tim-2s) var(--interpolation);
-  opacity: .8;
+  /* opacity: .8; */
   will-change: transform, opacity;
 }
 
@@ -2300,6 +2300,7 @@ c.loader {
   outline: .01vw solid #333 !important;
   width: 12vw;
   height: 17vw;
+  opacity:1;
 }
 .home_list>p>div.active{
   background-color: var(--primary-1);
@@ -2315,14 +2316,14 @@ c.loader {
 }
 
 .home_list>p>div img {
-  opacity: .8;
+  /* opacity: .8; */
   transition: all var(--tim-2s) var(--interpolation);
-  will-change: opacity;
+  /* will-change: opacity; */
 }
 
-.home_list>p>div.active img {
+/* .home_list>p>div.active img {
   opacity: 1;
-}
+} */
 
 .home_list>p>div b {
   position: absolute;
