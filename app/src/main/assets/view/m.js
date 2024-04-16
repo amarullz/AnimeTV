@@ -10027,7 +10027,9 @@ const home={
           if (ret){
             return s.value.substring(0,s.value.length-1);
           }
+          s._noinput=true;
           s.value=s.value.substring(0,s.value.length-1);
+          s._noinput=false;
         }
         if (ret){
           return s.value;
@@ -10142,7 +10144,9 @@ const home={
                 return true;
               }
 
+              
               s.kwclean();
+              s._noinput=true;
               if (k=='space'){
                 s.keyword.value+=' ';
               }
@@ -10168,6 +10172,7 @@ const home={
                 s.update_history();
               }
               s.keyword.value+='_';
+              s._noinput=false;
               return true;
             }
           }
@@ -10500,7 +10505,15 @@ const home={
         }
       }
     },
+    kwinput:function(){
+      var s=home.search.src.keyword;
+      if (!s._noinput){
+        s.value=slugString(s.value+'');
+        home.search.src.update_history();
+      }
+    },
     init_search:function(){
+      home.search.kw.oninput=home.search.kwinput;
       var s=home.search.src;
       var isAnilist = s.cfg.anilist;
       var anilist_el = $('search_anilist');
