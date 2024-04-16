@@ -8622,6 +8622,17 @@ const home={
         );
       }
     }
+
+    /* Reinit active class */
+    if (force){
+      if ((home.row_selected>0) && (home.col_selected==1)){
+        var activeItem=home.list_select(home.col_selected,home.row_selected);
+        activeItem.classList.add('active');
+        if (activeItem._activeCb){
+          activeItem._activeCb(activeItem,true);
+        }
+      }
+    }
   },
   homepage_initialized:false,
   init_homepage:function(force){
@@ -11065,25 +11076,6 @@ const home={
         home.home_header.classList.remove('scrolled');
         home.home_scroll.style.transform="";
       }
-
-      // if (pr>1){
-      //   var ty=0;
-      //   if (pr==home.menus[pc].length){
-      //     ty=home.home_scroll.offsetHeight-window.outerHeight;
-      //   }
-      //   else{
-      //     var ty=(home.menus[pc][1].offsetTop+(home.menus[pc][1].offsetHeight*pr)) - (window.outerHeight + (window.outerWidth*0.14));
-      //     if (ty<0) ty=0;
-      //   }
-      //   home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
-      // }
-      // else{
-      //   home.home_scroll.style.transform="";
-      // }
-      // if (pr>1)
-      //   home.home_header.classList.add('scrolled');
-      // else
-      //   home.home_header.classList.remove('scrolled');
     }
   },
 
@@ -11401,6 +11393,10 @@ const _MAL={
                 }
               }
             }
+          }
+          /* force first result */
+          if (!v.match && mywatch && (v.data.Page.media.length>0)){
+            v.match=JSON.parse(JSON.stringify(v.data.Page.media[0]));
           }
         }
         cb(v);
@@ -12576,7 +12572,7 @@ const _MAL={
       _MAL.pop.detail_holder.scrollTop=0;
       _MAL.pop.mv.classList.remove('loading');
       _MAL.pop.mv.classList.add('anilist_detail');
-    },1,5,false,true);
+    },1,2,false,true);
   },
   pop_detail_youtube_cb:function(vcmd){
     var hl=_MAL.pop.detail_holder._el;
