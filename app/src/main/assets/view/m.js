@@ -15,52 +15,135 @@ const __SOURCE_DOMAINS=[
   ['aniwave.to','aniwave.li','aniwave.vc'],
   ['anix.to','anix.ac','anix.vc'],
   ['hianime.to'],
-  ['aniwatchtv.to','aniwatch.nz','aniwatch.se'],
+  ['aniwatchtv.to','aniwatch.se','aniwatch.nz'],
   ['animeflix.live','animeflix.gg','animeflix.li'],
   ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx']
 ];
 
 const __SD_NAME = __SD+". "+(__SOURCE_NAME[__SD-1]);
 var __SD_DOMAIN = "";
-
+function SD_CHECK_DOMAIN(sd,cb){
+  var sm=sd-1;
+  if (sm<0 || sd>6){
+    return false;
+  }
+  var chk_url='/manifest.json';
+  var chk_json='name';
+  if (sd==6){
+    chk_url='/api/home_data';
+    chk_json='recent_update';
+  }
+  var res=[];
+  var num=__SOURCE_DOMAINS[sm].length;
+  function do_test(dm,u,c,i,tstart){
+    res[i]={
+      dn:dm,
+      st:0,
+      tm:-1
+    };
+    $ap(u,function(r){
+      var rv={
+        dn:dm,
+        st:1,
+        tm:$tick()-tstart
+      };
+      if (r.ok){
+        try{
+          var jv=JSON.parse(r.responseText);
+          if (c in jv){
+            rv.st=2;
+          }
+        }catch(e){}
+      }
+      res[i]=rv;
+      if (--num<1){
+        if (cb){
+          cb(JSON.parse(JSON.stringify(res)));
+        }
+        console.log(["TEST RESULT", res]);
+      }
+    },{"X-Fixdomain-Prox":"1"}).timeout=4000;
+  }
+  for (var i=0;i<__SOURCE_DOMAINS[sm].length;i++){
+    do_test(__SOURCE_DOMAINS[sm][i],"https://"+__SOURCE_DOMAINS[sm][i]+chk_url,chk_json,i,$tick());
+  }
+  return true;
+}
 function SD_CFGNAME(n){
   return _API.user_prefix+'sdomain_'+n;
 }
-function SD_CHANGE(n){
-  var nx=n-1;
-  var sid=__SOURCE_DOMAINS[nx].indexOf(__SD_DOMAIN);
-  if (sid<0){
-    sid=0;
-  }
-  var chval=_API.listPrompt(
-    "Select Source Domain",__SOURCE_DOMAINS[nx],
-    sid,
+function SD_CHANGE(){
+  var nxe=_API.listPrompt(
+    "Source Server",
+    __SOURCE_NAME,
+    __SD-1,
     true
   );
-  if (chval!=null){
-    var sdomain="";
-    if (chval>0){
-      sdomain=__SOURCE_DOMAINS[nx][chval];
-    }
-    if (_API.confirmDialog("Change Source",
-      "<b>You are about to change the source server.</b><br><br>"+
-      "SOURCE TARGET : <b>"+n+". "+(__SOURCE_NAME[nx])+"</b><br>"+
-      "SOURCE DOMAIN : <b>"+(__SOURCE_DOMAINS[nx][chval])+"</b><br>"+
-      "<br>"+
-      "<b>NOTE:</b> <u>Watchlist & history contents will be changed...</u><br>"+
-      "Change Source Server Now ?",
-      true)){
-      _JSAPI.setSd(n);
-      _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
-
-      if (pb.status){
-        pb.reset(1,0);
-      }
-      setTimeout(function(){
-        _API.reload();
-      },200);
-    }
+  if (nxe==null){
+    return;
   }
+  $('popupcontainer').className='active';
+  $('aboutpopup').className='active'; 
+  $('popup_qrcode').innerHTML='Benchmarking...';
+  $('popup_qrcode').style.display='';
+  var n=toInt(nxe)+1;
+  SD_CHECK_DOMAIN(n,function(r){
+    home.settings.close_qrcode();
+    $('popup_qrcode').innerHTML='';
+    var list_info=[];
+    var sid=0;
+    var sid_time=60000;
+    for (var i=0;i<r.length;i++){
+      var w=r[i];
+      var tx=w.dn+" "+(w.st==2?("[OK: "+w.tm+"ms]"):"[ERROR]");
+      if (w.st==2){
+        if (w.tm<sid_time){
+          sid=i;
+          sid_time=w.tm;
+        }
+      }
+      list_info.push(tx);
+    }
+    var nx=n-1;
+    var chval=_API.listPrompt(
+      "Select Source Domain",list_info,
+      sid,
+      true
+    );
+    if (chval!=null){
+      var wsel=r[chval];
+      if (wsel.st!=2){
+        if (!_API.confirmDialog("Domain Warning!!",
+        "Target Domain <b>"+wsel.dn+"</b> is failed in benchmark!!!<br>"+
+        "Do you want to continue?",
+        true)){
+          return;
+        }
+      }
+      var sdomain="";
+      if (chval>0){
+        sdomain=__SOURCE_DOMAINS[nx][chval];
+      }
+      if (_API.confirmDialog("Change Source",
+        "<b>You are about to change the source server.</b><br><br>"+
+        "SOURCE TARGET : <b>"+n+". "+(__SOURCE_NAME[nx])+"</b><br>"+
+        "SOURCE DOMAIN : <b>"+(__SOURCE_DOMAINS[nx][chval])+"</b><br>"+
+        "<br>"+
+        "<b>NOTE:</b> <u>Watchlist & history contents will be changed...</u><br>"+
+        "Change Source Server Now ?",
+        true)){
+        _JSAPI.setSd(n);
+        _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
+
+        if (pb.status){
+          pb.reset(1,0);
+        }
+        setTimeout(function(){
+          _API.reload();
+        },200);
+      }
+    }
+  });
 }
 function SD_LOAD_DOMAIN(){
     __SD_DOMAIN=_JSAPI.storeGet(SD_CFGNAME(__SD),"");
@@ -1563,6 +1646,7 @@ function $a(uri, cb, hdr, pd){
     xhttp.ok=true;
     cb(xhttp);
   };
+  xhttp.ontimeout =
   xhttp.onerror = function() {
       xhttp.ok=false;
       cb(xhttp);
@@ -1602,11 +1686,12 @@ function $a(uri, cb, hdr, pd){
   else{
     xhttp.send();
   }
+  return xhttp;
 }
 
 /* proxy ajax */
 function $ap(uri, cb, hdr){
-  $a("/__proxy/"+uri,cb, hdr);
+  return $a("/__proxy/"+uri,cb, hdr);
 }
 
 /* proxy image */
@@ -6230,32 +6315,7 @@ const pb={
         pb.updateanimation();
       }
       else if (key=='sourcesvr'){
-        // Update Home
-        var chval=_API.listPrompt(
-          "Source Server",
-          __SOURCE_NAME,
-          __SD-1,
-          true
-        );
-        if (chval!=null){
-          chval=toInt(chval)+1;
-          SD_CHANGE(chval);
-          /*
-          if (_API.confirmDialog("Change Source",
-            "<b>You are about to change the source server.</b><br><br>"+
-            "SOURCE SERVER TARGET : <b>"+chval+". "+(__SOURCE_NAME[chval-1])+"</b><br><br>"+
-            "<b>NOTE:</b> <u>Watchlist & history contents will be changed...</u><br>"+
-            "Change Source Server Now ?",
-            true)){
-            _JSAPI.setSd(chval);
-            if (pb.status){
-              pb.reset(1,0);
-            }
-            setTimeout(function(){
-              _API.reload();
-            },200);
-          }*/
-        }
+        SD_CHANGE();
       }
       else if (key=='cachesz'){
         var csz=_JSAPI.getCacheSz();
