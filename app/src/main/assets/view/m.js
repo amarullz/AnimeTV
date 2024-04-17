@@ -12262,13 +12262,15 @@ const _MAL={
             hl._title=$n('b','',{jp:d.node.title},hl,tspecial(title)); /* d.node.title */
             var infotxt='';
             var numep=d.list_status.num_episodes_watched;
+            var sumep=d.node.num_episodes;
             var mtp=d.node.media_type;
             if (mtp&&(mtp!='unknown')){
               infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
             }
-            if (numep){
-              infotxt+='<span class="info_ep"><c>avg_pace</c>'+special(numep+"")+'</span>';
+            if (sumep){
+              infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(sumep+"")+'</span>';
             }
+            infotxt+='<span class="info_ep"><c>avg_pace</c>'+special((numep?numep:"-")+"")+'</span>'; 
             hl._ep=$n('span','info',null,hl,infotxt);
           }
           while (g.P.childElementCount>30){
