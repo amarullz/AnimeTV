@@ -15,7 +15,7 @@ const __SOURCE_DOMAINS=[
   ['aniwave.to','aniwave.li','aniwave.vc'],
   ['anix.to','anix.ac','anix.vc'],
   ['hianime.to'],
-  ['aniwatchtv.to','aniwatch.se','aniwatch.nz'],
+  ['aniwatchtv.to','aniwatch.se'],
   ['animeflix.live','animeflix.gg','animeflix.li'],
   ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx']
 ];
