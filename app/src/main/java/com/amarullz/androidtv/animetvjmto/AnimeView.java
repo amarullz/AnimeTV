@@ -246,9 +246,10 @@ import javax.crypto.spec.SecretKeySpec;
             }
             if (jo.has("sel")) {
               final int selVal=jo.getInt("sel");
+              final int selCurr=jo.has("allowsel")?-1:selVal;
               builder.setSingleChoiceItems(list, selVal,
                       (dialog, which) -> {
-                        if (which!=selVal) {
+                        if (which!=selCurr) {
                           result.confirm(String.valueOf(which));
                           dialog.cancel();
                         }
@@ -496,6 +497,12 @@ import javax.crypto.spec.SecretKeySpec;
         /* Proxy */
         try {
           String proxy_url=url.replace("https://"+host+"/__proxy/","");
+          String fixdomain = request.getRequestHeaders().get("X-Fixdomain-Prox");
+          if (!Conf.SOURCE_DOMAIN_USED.isEmpty() && (fixdomain==null)) {
+            proxy_url=proxy_url.replace("://"+host,"://"+Conf.SOURCE_DOMAIN_USED);
+            Log.d(_TAG,"CH-PROXY: "+proxy_url);
+          }
+
           String method=request.getMethod();
           boolean isPost=method.equals("POST")||method.equals("PUT");
           boolean isPostBody=false;
@@ -595,7 +602,14 @@ import javax.crypto.spec.SecretKeySpec;
         } catch (Exception ignored) {}
         return aApi.badRequest;
       }
-      WebResourceResponse wr=aApi.defaultRequest(view,request);
+      WebResourceResponse wr=null;
+      if (!Conf.SOURCE_DOMAIN_USED.isEmpty()){
+        wr = aApi.defaultRequest(view, request,null,null,
+                Conf.SOURCE_DOMAIN_USED);
+      }
+      else {
+        wr = aApi.defaultRequest(view, request);
+      }
       if (wr!=null){
         return wr;
       }
@@ -1068,6 +1082,16 @@ import javax.crypto.spec.SecretKeySpec;
     public void setSd(int s){
       aApi.setSourceDomain(s);
       activity.runOnUiThread(AnimeView.this::initVideoView);
+    }
+
+    @JavascriptInterface
+    public void setSdomain(String s){
+      Conf.SOURCE_DOMAIN_USED=s;
+      Log.d(_TAG,"Change Source Domain: "+s);
+    }
+    @JavascriptInterface
+    public String getSdomain(){
+      return Conf.SOURCE_DOMAIN_USED;
     }
 
     @JavascriptInterface

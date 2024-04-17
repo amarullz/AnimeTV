@@ -35,6 +35,8 @@ public class Conf {
   public static String STREAM_DOMAIN1 = "ea1928580f.site";
   public static String STREAM_DOMAIN2 = "mcloud.bz";
 
+  public static String SOURCE_DOMAIN_USED = "";
+
 
 
   public static String STREAM_DOMAIN3 = "megacloud.tv";

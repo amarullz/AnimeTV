@@ -710,15 +710,29 @@ public class AnimeApi extends WebViewClient {
   /* Default Fallback HTTP Request */
   public WebResourceResponse defaultRequest(final WebView ignoredView,
                                                     WebResourceRequest request,
-                                            String inject, String injectContentType) {
+                                            String inject, String injectContentType,
+                                            String changeDomain) {
     Uri uri = request.getUrl();
     String url = uri.toString();
+    if (changeDomain!=null) {
+      url = url.replace("://" + uri.getHost(), "://" + changeDomain);
+      Log.d(_TAG,"CH-DOMAIN: "+url);
+    }
     try {
       Http http=new Http(url);
 
       for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {
-        http.addHeader(entry.getKey(), entry.getValue());
+        if (changeDomain!=null &&
+                (entry.getKey().equalsIgnoreCase("referer")||
+                        entry.getKey().equalsIgnoreCase("origin"))) {
+          String ref=entry.getValue();
+          ref=ref.replace("://" + uri.getHost(), "://" + changeDomain);
+          http.addHeader(entry.getKey(), ref);
+        }
+        else {
+          http.addHeader(entry.getKey(), entry.getValue());
+        }
       }
       http.execute();
 
@@ -745,9 +759,15 @@ public class AnimeApi extends WebViewClient {
     }
     return null;
   }
+
+  public WebResourceResponse defaultRequest(final WebView view,
+                                            WebResourceRequest request,
+                                            String inject, String injectContentType) {
+    return defaultRequest(view,request,inject,injectContentType, null);
+  }
   public WebResourceResponse defaultRequest(final WebView view,
                                             WebResourceRequest request){
-    return defaultRequest(view,request,null,null);
+    return defaultRequest(view,request,null,null, null);
   }
 
 //  public String getMp4Video(String url){

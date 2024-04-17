@@ -9,9 +9,64 @@ const __SD6=(__SD==6);
 
 const __SOURCE_NAME=[
   'Anime-Wave', 'Anix', 'Hi-Anime', 'Anime-WatchTV', 'Animeflix', 'KickAss'
-]
+];
 
-const __SD_NAME = __SD+"/"+(__SOURCE_NAME[__SD-1]);
+const __SOURCE_DOMAINS=[
+  ['aniwave.to','aniwave.li','aniwave.vc'],
+  ['anix.to','anix.ac','anix.vc'],
+  ['hianime.to'],
+  ['aniwatchtv.to','aniwatch.nz','aniwatch.se'],
+  ['animeflix.live','animeflix.gg','animeflix.li'],
+  ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx']
+];
+
+const __SD_NAME = __SD+". "+(__SOURCE_NAME[__SD-1]);
+var __SD_DOMAIN = "";
+
+function SD_CFGNAME(n){
+  return _API.user_prefix+'sdomain_'+n;
+}
+function SD_CHANGE(n){
+  var nx=n-1;
+  var sid=__SOURCE_DOMAINS[nx].indexOf(__SD_DOMAIN);
+  if (sid<0){
+    sid=0;
+  }
+  var chval=_API.listPrompt(
+    "Select Source Domain",__SOURCE_DOMAINS[nx],
+    sid,
+    true
+  );
+  if (chval!=null){
+    var sdomain="";
+    if (chval>0){
+      sdomain=__SOURCE_DOMAINS[nx][chval];
+    }
+    if (_API.confirmDialog("Change Source",
+      "<b>You are about to change the source server.</b><br><br>"+
+      "SOURCE TARGET : <b>"+n+". "+(__SOURCE_NAME[nx])+"</b><br>"+
+      "SOURCE DOMAIN : <b>"+(__SOURCE_DOMAINS[nx][chval])+"</b><br>"+
+      "<br>"+
+      "<b>NOTE:</b> <u>Watchlist & history contents will be changed...</u><br>"+
+      "Change Source Server Now ?",
+      true)){
+      _JSAPI.setSd(n);
+      _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
+
+      if (pb.status){
+        pb.reset(1,0);
+      }
+      setTimeout(function(){
+        _API.reload();
+      },200);
+    }
+  }
+}
+function SD_LOAD_DOMAIN(){
+    __SD_DOMAIN=_JSAPI.storeGet(SD_CFGNAME(__SD),"");
+    _JSAPI.setSdomain(__SD_DOMAIN);
+    console.log("SD Domain: "+__SD_DOMAIN);
+}
 
 /* getId */
 function $(i){
@@ -1991,7 +2046,7 @@ const _API={
     }
   },
 
-  listPrompt:function(title,list,sel){
+  listPrompt:function(title,list,sel,allowsel){
     var d={
       'type':'list',
       'title':title,
@@ -1999,6 +2054,9 @@ const _API={
     };
     if (sel!=undefined){
       d.sel=sel;
+    }
+    if (allowsel!=undefined){
+      d.allowsel=true;
     }
     return prompt(JSON.stringify(d));
   },
@@ -2730,6 +2788,10 @@ const _API={
     if (get_ep_s.length>1){
       get_ep=toInt(get_ep_s[1]);
     }
+    var ajax_url = '/ajax/v2';
+    // if (__SD_DOMAIN=="kaido.to"){
+    //   ajax_url='/ajax';
+    // }
 
     function runCb(d){
       if (_API.hi_last_view.data==null){
@@ -2753,7 +2815,7 @@ const _API={
       var srv_c=0;
       for (var i=0;i<srv_d.length;i++){
         var sd=srv_d[i];
-        $a('/ajax/v2/episode/sources?id='+enc(sd[0]),function(r2){
+        $a(ajax_url+'/episode/sources?id='+enc(sd[0]),function(r2){
           if (r2.ok){
             try{
               var jj=JSON.parse(r2.responseText);
@@ -2780,7 +2842,7 @@ const _API={
     }
 
     function getEpServer(d,eid){
-      $a('/ajax/v2/episode/servers?episodeId='+enc(eid),function(r){
+      $a(ajax_url+'/episode/servers?episodeId='+enc(eid),function(r){
         if (r.ok){
           try{
             var v=JSON.parse(r.responseText);
@@ -2848,7 +2910,7 @@ const _API={
     }
 
     // Get Episodes
-    $a('/ajax/v2/episode/list/'+home.hi_animeid(url),function(r){
+    $a(ajax_url+'/episode/list/'+home.hi_animeid(url),function(r){
       if (r.ok){
         try{
           var v=JSON.parse(r.responseText);
@@ -3258,8 +3320,8 @@ const _API={
 
             o.info={
                 type:{
-                  val:o.type.toLowerCase(),
-                  name:o.type,
+                  val:(o.type+'').toLowerCase(),
+                  name:o.type+'',
                 },
                 rating:o.rating,
                 quality:o.quality
@@ -4581,7 +4643,7 @@ const pb={
         el.lastElementChild.innerHTML=pb.cfgtrailer_name[pb.cfg_data.trailer];
       }
       else if (key=='sourcesvr'){
-        el.lastElementChild.innerHTML="Source "+__SD_NAME;
+        el.lastElementChild.innerHTML=__SD_NAME+(__SD_DOMAIN?" @"+__SD_DOMAIN:"");
       }
       else if (key=='theme'){
         el.lastElementChild.innerHTML=pb.cfgtheme_name[_API.theme_sel];
@@ -6172,10 +6234,13 @@ const pb={
         var chval=_API.listPrompt(
           "Source Server",
           __SOURCE_NAME,
-          __SD-1
+          __SD-1,
+          true
         );
         if (chval!=null){
           chval=toInt(chval)+1;
+          SD_CHANGE(chval);
+          /*
           if (_API.confirmDialog("Change Source",
             "<b>You are about to change the source server.</b><br><br>"+
             "SOURCE SERVER TARGET : <b>"+chval+". "+(__SOURCE_NAME[chval-1])+"</b><br><br>"+
@@ -6189,7 +6254,7 @@ const pb={
             setTimeout(function(){
               _API.reload();
             },200);
-          }
+          }*/
         }
       }
       else if (key=='cachesz'){
@@ -13480,12 +13545,6 @@ const listOrder={
   }
 };
 
-window.__ARGUPDATE();
-_MAL.init();
-home.init();
-_API.bgimg_update();
-body.classList.remove('notready');
-
 (function(){
   var xDown = null;
   var yDown = null;
@@ -13555,4 +13614,15 @@ body.classList.remove('notready');
   document.addEventListener('touchmove', handleTouchMove, false);
   document.addEventListener('touchend', handleTouchEnd, false);
   
+})();
+
+
+/* START */
+(function(){
+  SD_LOAD_DOMAIN();
+  window.__ARGUPDATE();
+  _MAL.init();
+  home.init();
+  _API.bgimg_update();
+  body.classList.remove('notready');
 })();
