@@ -46,10 +46,13 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
 import com.devbrackets.android.exomedia.core.source.data.DataSourceFactoryProvider;
 import com.devbrackets.android.exomedia.core.video.scale.MatrixManager;
@@ -382,6 +385,20 @@ import javax.crypto.spec.SecretKeySpec;
     videoPlayer.setSurface(videoView.getHolder().getSurface());
     videoPlayer.setVideoSizeListener(videoSize -> videoViewEnvelope.setVideoSize(videoSize.width, videoSize.height,
         videoSize.pixelWidthHeightRatio));
+    videoPlayer.addAnalyticsListener(new AnalyticsListener() {
+      @Override
+      public void onPlaybackStateChanged(EventTime eventTime, int state) {
+        AnalyticsListener.super.onPlaybackStateChanged(eventTime, state);
+        Log.d(_TAG, "ANL: onPlaybackStateChanged="+state);
+      }
+
+      @Override
+      public void onTracksChanged(EventTime eventTime, Tracks tracks) {
+        AnalyticsListener.super.onTracksChanged(eventTime, tracks);
+
+        Log.d(_TAG, "ANL: TrackChanged="+tracks);
+      }
+    });
   }
 
   public void videoSetSource(String url){
@@ -395,6 +412,14 @@ import javax.crypto.spec.SecretKeySpec;
               new DashMediaSource.Factory(videoDataSourceFactory.provide(""
                   , null))
                   .createMediaSource(MediaItem.fromUri(url));
+          videoPlayer.setMediaSource(mediaSource);
+        }
+        else if (url.endsWith(".mkv")) {
+          Log.d(_TAG,"VIDEO-SET-SOURCE (MKV) : "+url);
+          MediaSource mediaSource =
+                  new ProgressiveMediaSource.Factory(videoDataSourceFactory.provide(""
+                          , null))
+                          .createMediaSource(MediaItem.fromUri(url));
           videoPlayer.setMediaSource(mediaSource);
         }
         else {
