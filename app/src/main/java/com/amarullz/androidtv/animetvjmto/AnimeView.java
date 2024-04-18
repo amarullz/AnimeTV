@@ -1011,6 +1011,20 @@ import javax.crypto.spec.SecretKeySpec;
     }
 
     @JavascriptInterface
+    public void openIntentUri(String s){
+      activity.runOnUiThread(()-> {
+        try {
+          activity.startActivity(
+                  new Intent(
+                          Intent.ACTION_VIEW,
+                          Uri.parse(s)
+                  )
+          );
+        }catch(Exception ignored){}
+      });
+    }
+
+    @JavascriptInterface
     public void videoSetPosition(int pos){
       activity.runOnUiThread(()-> {
         try {

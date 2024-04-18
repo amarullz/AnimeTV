@@ -249,7 +249,7 @@ ttl{
 
 .ui_performance *{
   box-shadow: none !important;
-  -webkit-mask-image: none !important;
+  /* -webkit-mask-image: none !important; */
   text-shadow: none;
 }
 
@@ -484,7 +484,7 @@ c.loader {
   padding-right:0;
   line-height:var(--fs-20vw);
   font-size: var(--fs-20vw);
-  color:rgba(255,255,255,.6);
+  color:#999;
   font-weight: bold;
 }
 .animetv_header_banner .item_right,
@@ -1997,7 +1997,9 @@ c.loader {
   transition: all var(--tim-2s) var(--interpolation);
   visibility: hidden;
   opacity: 0;
-  
+}
+#pb_event_skip *{
+  text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000 !important;
 }
 @keyframes pb_event_skip_keyframe {
   0% {

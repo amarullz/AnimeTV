@@ -6119,6 +6119,11 @@ const pb={
           home.settings.open_donation(1);
         }
       }
+      else if (key=='ytchannel'){
+        if (home.onsettings){
+          _JSAPI.openIntentUri('https://www.youtube.com/@amarullz');
+        }
+      }
       else if (key=='discord'){
         if (home.onsettings){
           home.settings.open_donation(0);
@@ -9428,6 +9433,13 @@ const home={
           },
           home.settings.about.P,
           "<c>volunteer_activism</c> Donation"
+        );
+        home.settings.tools._s_ytchannel=$n(
+          'div','',{
+            action:'*ytchannel'
+          },
+          home.settings.about.P,
+          "<c>youtube_activity</c> Youtube Channel"
         );
         home.settings.tools._s_discord=$n(
           'div','',{
