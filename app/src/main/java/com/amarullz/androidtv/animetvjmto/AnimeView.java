@@ -269,6 +269,10 @@ import javax.crypto.spec.SecretKeySpec;
             }
             builder.setOnDismissListener(dialogInterface -> result.cancel());
             AlertDialog dialog = builder.create();
+
+            if (jo.has("nodim")) {
+              Objects.requireNonNull(dialog.getWindow()).clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            }
             dialog.show();
 
           }
