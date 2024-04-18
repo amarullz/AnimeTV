@@ -14,7 +14,7 @@ const __SOURCE_NAME=[
 const __SOURCE_DOMAINS=[
   ['aniwave.to','aniwave.li','aniwave.vc'],
   ['anix.to','anix.ac','anix.vc'],
-  ['hianime.to'],
+  ['hianime.to','kaido.to'],
   ['aniwatchtv.to','aniwatch.se'],
   ['animeflix.live','animeflix.gg','animeflix.li'],
   ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx']
@@ -2874,9 +2874,9 @@ const _API={
       get_ep=toInt(get_ep_s[1]);
     }
     var ajax_url = '/ajax/v2';
-    // if (__SD_DOMAIN=="kaido.to"){
-    //   ajax_url='/ajax';
-    // }
+    if (__SD_DOMAIN=="kaido.to"){
+      ajax_url='/ajax';
+    }
 
     function runCb(d){
       if (_API.hi_last_view.data==null){
@@ -3004,6 +3004,7 @@ const _API={
               ep:[]
             };
             var active_ep_id=0;
+            var first_s=null;
             var hd=$n('d','','',null,v.html);
             var epel=hd.querySelectorAll('#detail-ss-list .ss-list a.ep-item');
             for (var i=0;i<epel.length;i++){
@@ -3020,11 +3021,21 @@ const _API={
                 d.active_ep=active_ep_id;
                 d.active_ep_index=i;
               }
+              if (!first_s){
+                first_s=s;
+              }
               d.ep.push(s);
             }
 
             /* Execute Callbacks */
             hd.innerHTML='';
+            /* kaido fix */
+            if (!active_ep_id && first_s){
+              first_s.active=true;
+              active_ep_id=first_s.ep_id;
+              d.active_ep=active_ep_id;
+              d.active_ep_index=0;
+            }
             if (active_ep_id){
               getEpServer(d,active_ep_id);
               return;
@@ -5935,7 +5946,12 @@ const pb={
       }
 
       var seld = dt.ep_servers[ut][uid];
-      dt.stream_vurl = seld.link;
+      if (__SD_DOMAIN){
+        dt.stream_vurl = "https://"+__SD_DOMAIN+"/__REDIRECT#"+seld.link;
+      }
+      else{
+        dt.stream_vurl = seld.link;
+      }
       dt.ep_stream_sel = seld;
       var subld = dt.ep_servers[subut][subuid];
       console.log("GOT-VIDEO-IFRAME-URL : "+seld.link);

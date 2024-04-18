@@ -40,6 +40,7 @@ public class Conf {
 
 
   public static String STREAM_DOMAIN3 = "megacloud.tv";
+  public static String STREAM_DOMAIN4 = "rapid-cloud.co";
 
   public static String SERVER_VER = "1.0-APK";
 

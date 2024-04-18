@@ -79,6 +79,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -354,6 +355,9 @@ import javax.crypto.spec.SecretKeySpec;
           else if (host.contains(Conf.STREAM_DOMAIN3)){
             settings.put("Origin", "https://" + Conf.STREAM_DOMAIN3);
           }
+          else if (host.contains(Conf.STREAM_DOMAIN4)){
+            settings.put("Origin", "https://"+Conf.STREAM_DOMAIN4);
+          }
           else{
             String[] h=host.split("\\.");
             String h2=h[h.length-2]+"."+h[h.length-1];
@@ -469,7 +473,6 @@ import javax.crypto.spec.SecretKeySpec;
     String accept = request.getRequestHeaders().get("Accept");
 
     if (host==null||accept==null) return aApi.badRequest;
-    // youtube-nocookie.com
     if (url.startsWith("https://www.youtube.com/embed/")||url.startsWith("https://www.youtube-nocookie.com/embed/")){
       return aApi.defaultRequest(view,request,
           aApi.assetsString("inject/yt.html"),"inject-html"
@@ -490,6 +493,9 @@ import javax.crypto.spec.SecretKeySpec;
         return aApi.badRequest;
       }
       return super.shouldInterceptRequest(view, request);
+    }
+    else if (Objects.equals(uri.getPath(), "/__REDIRECT")){
+      return aApi.assetsRequest("inject/redirect.html");
     }
     else if (isSourceDomain(host)) {
       String path=uri.getPath();
@@ -640,7 +646,7 @@ import javax.crypto.spec.SecretKeySpec;
       }
       return super.shouldInterceptRequest(view, request);
     }
-    else if (host.contains(Conf.STREAM_DOMAIN3)){
+    else if (host.contains(Conf.STREAM_DOMAIN3)||host.contains(Conf.STREAM_DOMAIN4)){
       if (accept.startsWith("text/css")||accept.startsWith("image/")){
         return aApi.badRequest;
       }
