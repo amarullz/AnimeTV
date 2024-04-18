@@ -2098,13 +2098,28 @@ c.loader {
   transition: all var(--tim-2s) var(--interpolation);
   visibility: hidden;
   opacity: 0;
+  
 }
-
+@keyframes pb_event_skip_keyframe {
+  0% {
+    opacity:1
+  }
+  80% {
+    opacity:1
+  }
+  100% {
+    opacity:0
+  }
+}
 #pb_event_skip.active {
   visibility: visible;
-  opacity: 1;
+  opacity: 0;
+  animation: none;
 }
-
+#pb:not(.menushow) #pb_event_skip.active{
+  opacity:1;
+  animation: pb_event_skip_keyframe 4s linear forwards;
+}
 #pb_event_skip span {
   position: relative;
   z-index: 10;
