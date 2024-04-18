@@ -2131,7 +2131,7 @@ const _API={
     }
   },
 
-  listPrompt:function(title,list,sel,allowsel,nodim){
+  listPrompt:function(title,list,sel,allowsel,nodim,selpos){
     var d={
       'type':'list',
       'title':title,
@@ -2145,6 +2145,9 @@ const _API={
     }
     if (nodim){
       d.nodim=true;
+    }
+    if (selpos!=undefined){
+      d.selpos=selpos;
     }
     return prompt(JSON.stringify(d));
   },
@@ -3851,9 +3854,12 @@ const vtt={
     }
     return out;
   },
-  changestyle:function(){
+  changestyle:function(prev_selpos){
     $('popupcontainer').className='active';
     $('vtt_subtitle_preview').style.display='';
+    if (!prev_selpos){
+      prev_selpos=0;
+    }
     setTimeout(function(){
       var sel=[];
       for (var i=0;i<vtt.style_order.length;i++){
@@ -3862,7 +3868,7 @@ const vtt={
       }
       var chval=_API.listPrompt(
         "Subtitle Style",
-        sel, undefined, false, true
+        sel, undefined, false, true, prev_selpos
       );
       if (chval!=null){
         var ssel=vtt.style_get(pb.cfg_data.ccstyle,chval,3);
@@ -3880,13 +3886,14 @@ const vtt={
           vtt.set_style(pb.cfg_data.ccstyle);
           pb.cfg_save();
         }
-        vtt.changestyle();
+        prev_selpos=chval;
+        vtt.changestyle(prev_selpos);
       }
       else{
         $('popupcontainer').className='';
         $('vtt_subtitle_preview').style.display='none';
       }
-    },200);
+    },50);
   },
   stylename:function(id){
     var stn=[];
@@ -9168,15 +9175,14 @@ const home={
             s_desc:"Select language priority for video subtitle and audio"
           },
           home.settings.slang.P,
-          '<c>closed_caption</c> Subtitle<span class="value"></span>'
+          '<c>closed_caption</c> Subtitle Language<span class="value"></span>'
         );
-        home.settings.tools._s_dubaudio=$n(
+        home.settings.tools._s_ccstyle=$n(
           'div','',{
-            action:'*dubaudio',
-            s_desc:"Always use DUB audio stream with subtitle if available. Only work with source 3 and 4"
+            action:'*ccstyle'
           },
           home.settings.slang.P,
-          '<c class="check">check</c><c>speech_to_text</c> Use DUB Stream'
+          '<c>brand_family</c> Subtitle Style <span class="value">Style 1</span>'
         );
 
         /* Video */
@@ -9201,7 +9207,6 @@ const home={
           home.settings.video.P,
           '<c class="check">clear</c><c>move_selection_left</c> Skip Filler'
         );
-        
         home.settings.tools._s_scale=$n(
           'div','',{
             action:'*scale'
@@ -9209,7 +9214,6 @@ const home={
           home.settings.video.P,
           '<c>aspect_ratio</c> Video Scaling<span class="value">-</span>'
         );
-
         home.settings.tools._s_quality=$n(
           'div','',{
             action:'*quality',
@@ -9227,17 +9231,17 @@ const home={
           home.settings.video.P,
           '<c class="check">clear</c><c>cloud_download</c> Preload Next Episode'
         );
+        home.settings.tools._s_dubaudio=$n(
+          'div','',{
+            action:'*dubaudio',
+            s_desc:"Always use DUB audio stream with subtitle if available. Only work with source 3 and 4"
+          },
+          home.settings.video.P,
+          '<c class="check">check</c><c>speech_to_text</c> Use DUB Stream'
+        );
         
 
         /* Style */
-        home.settings.tools._s_ccstyle=$n(
-          'div','',{
-            action:'*ccstyle'
-          },
-          home.settings.styling.P,
-          '<c>brand_family</c> Subtitle Style <span class="value">Style 1</span>'
-        );
-
         home.settings.tools._s_uifontsize=$n(
           'div','',{
             action:'*uifontsize'
@@ -9495,7 +9499,7 @@ const home={
     lang_action:function(){
       var selid=_API.tlangs_id(pb.cfg_data.lang,1);
       var chval=_API.listPrompt(
-        "Subtitle",
+        "Subtitle Language",
         _API.lang_titles,
         selid
       );

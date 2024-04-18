@@ -275,6 +275,11 @@ import javax.crypto.spec.SecretKeySpec;
             }
             dialog.show();
 
+            if (jo.has("selpos")) {
+              int selPos=jo.getInt("selpos");
+              dialog.getListView().setSelection(selPos);
+            }
+
           }
           return true;
         }catch(Exception ignored){}
