@@ -1,4 +1,38 @@
 # Changelogs
+- **4.2.5** 🫧
+  - Features
+    - New subtitle style config selection
+    - Add search history support for built in keyboard
+    - Add Multi domain name for sources
+      - Add domain check and benchmark
+      - Source 1: aniwave.to, aniwave.li, aniwave.vc
+      - Source 2: anix.to, anix.ac, anix.vc
+      - Source 3: hianime.to
+      - Source 4: aniwatchtv.to, aniwatch.se
+      - Source 5: animeflix.live, animeflix.gg, animeflix.li
+      - Source 6: kaas.to, kickassanimes.io, kaas.ro, www1.kickassanime.mx
+  - UI & UX
+    - OK key will directly does pause/play without needed to show menu first
+    - Change outline to border on slideshow watch now button
+    - Switch pause/play icon according actions
+    - Update playback progress icon
+    - Add next/prev action in playback use ch+/-
+    - Fix typo AnimeList to AniList
+    - Change search to source when selecting genre from playback
+    - Set max watchlist & history size to 200
+    - Order AniList&MAL user list by updated time
+    - Disable list opacity when inactive, should make performance a bit better
+    - Fix list lost active class when myist updated
+    - Show total EP on MAL list
+  - Networking, API and Sources
+    - Add Cache Size settings
+    - Add clear cache function in settings
+    - Fix some title not match with AniList on some source
+  - Others
+    - Add support for playback speed on Android 9+
+    - Clear subtitle display when seeking backward
+    - Remove nsfw genre from AniList search
+    - Fix time progress not work when skip intro start from 0 seconds
 - **4.0.4** 🍿
   - Features
     - Revamp Search UI

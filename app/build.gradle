@@ -10,8 +10,8 @@ android {
         applicationId "com.amarullz.androidtv.animetvjmto"
         minSdk 22
         targetSdk 34
-        versionCode 405
-        versionName "4.2.1-Nightly"
+        versionCode 425
+        versionName "4.2.5"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
