@@ -6783,6 +6783,9 @@ const pb={
 
   /* Root Key Callback */
   keycb:function(c){
+    if (_MAL.onpopup){
+      return _MAL.pop_keycb(c);
+    }
     if (home.onsettings){
       return home.settings_keycb(c);
     }
@@ -7257,10 +7260,22 @@ const pb={
       for (var i=0;i<pb.data.seasons.length;i++){
         var d=pb.data.seasons[i];
         var action_value=d.url;
-        if (__SD3||__SD5||__SD6){
-          action_value='>'+d.url;
-        }
-        var hl=$n('div',d.active?'playing':'',{action:action_value},pb.pb_seasons.P,'');
+        // if (__SD3||__SD5||__SD6){
+        //   action_value='>'+d.url;
+        // }
+        // var hl=$n('div',d.active?'playing':'',{action:action_value},pb.pb_seasons.P,'');
+        var argv={
+          url:d.url,
+          img:d.poster,
+          ttip:d.tip,
+          sp:0,
+          tp:0,
+          ep:0,
+          title:d.title
+        };
+        var hl=$n('div',d.active?'playing':'',
+          {action:"$"+JSON.stringify(argv),arg:""},pb.pb_seasons.P,'');
+
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
         if (d.active) act=hl;
@@ -7283,11 +7298,22 @@ const pb={
         try{
           d.poster=$imgcdn(d.poster);
         }catch(e4){}
-        var action_value=d.url;
-        if (__SD3||__SD5||__SD6){
-          action_value='>'+d.url;
-        }
-        var hl=$n('div','',{action:action_value,arg:(d.tip?d.tip:'')+';0'},pb.pb_related.P,'');
+        // var action_value=d.url;
+        // if (__SD3||__SD5||__SD6){
+        //   action_value='>'+d.url;
+        // }
+        var argv={
+          url:d.url,
+          img:d.poster,
+          ttip:d.tip,
+          sp:0,
+          tp:0,
+          ep:0,
+          title:d.title
+        };
+        var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:""},pb.pb_related.P,'');
+
+        // var hl=$n('div','',{action:action_value,arg:(d.tip?d.tip:'')+';0'},pb.pb_related.P,'');
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
       }
@@ -7307,11 +7333,22 @@ const pb={
         try{
           d.poster=$imgcdn(d.poster);
         }catch(e4){}
-        var action_value=d.url;
-        if (__SD3||__SD5||__SD6){
-          action_value='>'+d.url;
-        }
-        var hl=$n('div','',{action:action_value,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs.P,'');
+        // var action_value=d.url;
+        // if (__SD3||__SD5||__SD6){
+        //   action_value='>'+d.url;
+        // }
+        // var hl=$n('div','',{action:action_value,arg:(d.tip?d.tip:'')+';0'},pb.pb_recs.P,'');
+        var argv={
+          url:d.url,
+          img:d.poster,
+          ttip:d.tip,
+          sp:0,
+          tp:0,
+          ep:0,
+          title:d.title
+        };
+        var hl=$n('div','',{action:"$"+JSON.stringify(argv),arg:""},pb.pb_recs.P,'');
+
         hl._img=$n('img','',{loading:'lazy',src:$img(d.poster)},hl,'');
         hl._title=$n('b','',{jp:d.title_jp?d.title_jp:d.title},hl,tspecial(d.title));
       }

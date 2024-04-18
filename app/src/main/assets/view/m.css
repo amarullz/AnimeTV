@@ -1638,28 +1638,12 @@ c.loader {
 }
 
 /**** EPISODES & SEASONS ****/
-#pb_related,
-#pb_recs,
-#pb_episodes,
-#pb_seasons {
-  padding: .2vw 5vw 1.5vw 5vw;
+#pb_episodes{
+  padding: .2vw 5vw 2.5vw 5vw;
   position: relative;
-  /* transition: all var(--tim-2s) var(--interpolation); */
-  /* opacity: .8; */
 }
-
-/* #pb_recs.active,
-#pb_related.active,
-#pb_episodes.active,
-#pb_seasons.active {
-  opacity: 1;
-} */
-
-#pb_recs:before,
-#pb_related:before,
-#pb_episodes:before,
-#pb_seasons:before,
-#pb_episodes[data-eps]:after {
+#pb_episodes[data-eps]:after,
+#pb_episodes:before {
   display: block;
   font-size: var(--fs-12vw);
   font-weight: bold;
@@ -1669,22 +1653,15 @@ c.loader {
   color: #ccc;
   height: 1.5vw;
 }
-
-#pb_recs.active:before,
-#pb_related.active:before,
-#pb_episodes.active:before,
-#pb_seasons.active:before {
-  color: #fff;
-}
-
 #pb_episodes:before {
   content: "Episodes";
 }
-
+#pb_episodes.active:before{
+  color: #fff;
+}
 #pb_episodes[data-eps]:before {
   content: attr(data-eps);
 }
-
 #pb_episodes[data-eps]:after {
   content: "USE PROG+ / PROG- FOR PAGING";
   position: absolute;
@@ -1715,19 +1692,19 @@ c.loader {
 #pb_seasons:before {
   content: "Seasons";
 }
-
 #pb_related:before {
   content: "Related";
 }
-
 #pb_recs:before {
   content: "Recommendation";
 }
 
 #pb_episodes div {
   font-size: var(--fs-30vw);
-  min-width: 6vw;
-  line-height: 5.4vw;
+  /* min-width: 6vw; */
+  width:10vw;
+  height: 6vw;
+  line-height: 6vw;
   text-align: center;
 }
 
@@ -1819,96 +1796,18 @@ c.loader {
   color: #fff;
   z-index: 100;
 }
-
+#pb_seasons div.playing:after{
+  bottom: auto;
+  top: 13vw;
+  left: 1vw;
+  right: 1vw;
+  height:3vw;
+  line-height: 3vw;
+  border-radius: .4vw;
+  background-color: rgba(0,0,0,.5);
+}
 #pb_episodes div.playing:after {
   bottom: -.5vw;
-}
-
-/**** RELATED ****/
-#pb_recs div,
-#pb_seasons div,
-#pb_related div {
-  padding: 0 !important;
-  padding-bottom: 0 !important;
-  position: relative;
-  border-radius: .3vw;
-  overflow: hidden;
-  width: 12vw;
-  height: 17vw;
-  background-color: #333 !important;
-  outline: .01vw solid #333 !important
-}
-
-#pb_seasons div img {
-  width: 12vw;
-  height: 17vw;
-}
-
-#pb_recs div img,
-#pb_related div img {
-  width: 12vw;
-  height: 17vw;
-}
-
-#pb_recs div img,
-#pb_related div img,
-#pb_seasons div img {
-  opacity: .8;
-  /* filter: grayscale(80%); */
-  transition: all var(--tim-2s) var(--interpolation);
-  will-change: opacity;
-}
-
-#pb_recs div.active img,
-#pb_related div.active img,
-#pb_seasons div.active img {
-  /* filter: grayscale(0%); */
-  opacity: 1;
-}
-
-#pb_seasons div b {
-  position: absolute;
-  text-align: center;
-  z-index: 10;
-  font-size: var(--fs-20vw);
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 2vw 0 2vw;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, .8) 100%);
-  width: 12vw;
-  display: block;
-  margin: 0;
-}
-
-#pb_recs div b,
-#pb_related div b {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  font-size: var(--fs-14vw);
-  display: block;
-  font-weight: normal;
-  margin: 0;
-  overflow: hidden;
-  word-break: normal;
-  width: 12vw;
-  padding: .4vw .2vw .4vw .2vw;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, .65) 100%);
-  text-align: center;
-  white-space: break-spaces;
-  word-wrap: break-word;
-  box-sizing: border-box;
-  line-height: 1.2;
-}
-
-#pb_recs.pb_menu.active div.active,
-#pb_seasons.pb_menu.active div.active,
-#pb_related.pb_menu.active div.active {
-  background-color: #fff !important;
-  outline: .25vw solid #fff !important;
 }
 
 /**** TRACK ****/
