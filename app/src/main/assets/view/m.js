@@ -2148,7 +2148,12 @@ const _API={
       'list':list
     };
     if (sel!=undefined){
-      d.sel=sel;
+      if (Array.isArray(sel)){
+        d.multi=sel;
+      }
+      else{
+        d.sel=sel;
+      }
     }
     if (allowsel){
       d.allowsel=true;

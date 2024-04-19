@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -65,6 +66,7 @@ import com.devbrackets.android.exomedia.nmp.config.PlayerConfigBuilder;
 import com.google.common.base.Charsets;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
@@ -165,6 +167,7 @@ import javax.crypto.spec.SecretKeySpec;
       String type=jo.getString("type");
       String title=jo.getString("title");
       if (type.equals("list")){
+        int selPos=0;
         JSONArray ja=jo.getJSONArray("list");
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(title);
@@ -182,6 +185,7 @@ import javax.crypto.spec.SecretKeySpec;
         if (jo.has("sel")) {
           final int selVal=jo.getInt("sel");
           final int selCurr=jo.has("allowsel")?-1:selVal;
+          selPos=selVal;
           builder.setSingleChoiceItems(list, selVal,
                   (dialog, which) -> {
                     if (which!=selCurr) {
@@ -194,11 +198,47 @@ import javax.crypto.spec.SecretKeySpec;
                     }
                   }
           );
+          builder.setOnDismissListener(dialogInterface -> result.cancel());
+        }
+        else if (jo.has("multi")) {
+          JSONArray jm=jo.getJSONArray("multi");
+          final boolean[] multisel = new boolean[jm.length()];
+          final boolean[] firstval = new boolean[jm.length()];
+          for (int i = 0; i < jm.length(); i++) {
+            multisel[i] = jm.getBoolean(i);
+            firstval[i] = multisel[i];
+          }
+          builder.setMultiChoiceItems(list, multisel, (dialog, which, isChecked) -> {
+            multisel[which]=isChecked;
+          });
+          builder.setOnDismissListener(dialogInterface -> {
+            boolean changed=false;
+            String out="";
+            try {
+              JSONArray outarr=new JSONArray("[]");
+              for (int i=0;i<firstval.length;i++){
+                if (firstval[i]!=multisel[i]){
+                  changed=true;
+                }
+                outarr.put(i,multisel[i]);
+              }
+              out=outarr.toString();
+            } catch (JSONException ignored) {
+              changed=false;
+            }
+            if (changed){
+              result.confirm(out);
+            }
+            else{
+              result.cancel();
+            }
+          });
         }
         else {
           builder.setItems(list, (dialog, which) -> result.confirm(String.valueOf(which)));
+          builder.setOnDismissListener(dialogInterface -> result.cancel());
         }
-        builder.setOnDismissListener(dialogInterface -> result.cancel());
+
         AlertDialog dialog = builder.create();
 
         if (jo.has("nodim")) {
@@ -207,10 +247,9 @@ import javax.crypto.spec.SecretKeySpec;
         dialog.show();
 
         if (jo.has("selpos")) {
-          int selPos=jo.getInt("selpos");
-          dialog.getListView().setSelection(selPos);
+          selPos=jo.getInt("selpos");
         }
-
+        dialog.getListView().setSelection(selPos);
       }
       return true;
     }catch(Exception ignored){}
