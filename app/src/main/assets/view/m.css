@@ -3660,6 +3660,7 @@ c.loader {
 .view-informative .home_list:not(#home_slide).active>p>div.active img {
   /* border: .5vw solid var(--accent-1) !important; */
   border: .4vw solid #fff !important;
+  padding: .1vw;
 }
 /* .view-informative .home_list:not(#home_slide).active>p>div.active{
   background-color: rgba(255,255,255,.5) !important;
