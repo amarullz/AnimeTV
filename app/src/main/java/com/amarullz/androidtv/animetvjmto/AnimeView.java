@@ -153,6 +153,70 @@ import javax.crypto.spec.SecretKeySpec;
     wv.setLayerType(View.LAYER_TYPE_HARDWARE, null);
   }
 
+  public WebChromeClient chromeClient=null;
+  public interface ChromePromptCallback {
+    void confirm(String res);
+    void cancel();
+  }
+  public boolean listPrompt(String message, ChromePromptCallback result){
+    try{
+      JSONObject jo=new JSONObject(message);
+      Log.d(_TAG,"PROMPT: "+jo);
+      String type=jo.getString("type");
+      String title=jo.getString("title");
+      if (type.equals("list")){
+        JSONArray ja=jo.getJSONArray("list");
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle(title);
+        String[] list = new String[ja.length()];
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+          for (int i = 0; i < ja.length(); i++) {
+            list[i] = ja.getString(i);
+          }
+        }
+        else {
+          for (int i = 0; i < ja.length(); i++) {
+            list[i] = ja.getString(i).replaceAll("\t", " ");
+          }
+        }
+        if (jo.has("sel")) {
+          final int selVal=jo.getInt("sel");
+          final int selCurr=jo.has("allowsel")?-1:selVal;
+          builder.setSingleChoiceItems(list, selVal,
+                  (dialog, which) -> {
+                    if (which!=selCurr) {
+                      result.confirm(String.valueOf(which));
+                      dialog.cancel();
+                    }
+                    else{
+                      result.cancel();
+                      dialog.cancel();
+                    }
+                  }
+          );
+        }
+        else {
+          builder.setItems(list, (dialog, which) -> result.confirm(String.valueOf(which)));
+        }
+        builder.setOnDismissListener(dialogInterface -> result.cancel());
+        AlertDialog dialog = builder.create();
+
+        if (jo.has("nodim")) {
+          Objects.requireNonNull(dialog.getWindow()).clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        }
+        dialog.show();
+
+        if (jo.has("selpos")) {
+          int selPos=jo.getInt("selpos");
+          dialog.getListView().setSelection(selPos);
+        }
+
+      }
+      return true;
+    }catch(Exception ignored){}
+    return false;
+  }
+
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
@@ -177,7 +241,7 @@ import javax.crypto.spec.SecretKeySpec;
     audioManager =
         (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
 
-    webView.setWebChromeClient(new WebChromeClient() {
+    chromeClient=new WebChromeClient() {
       @Override public Bitmap getDefaultVideoPoster() {
         final Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(bitmap);
@@ -228,64 +292,25 @@ import javax.crypto.spec.SecretKeySpec;
 
       @Override
       public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
-        try{
-          JSONObject jo=new JSONObject(message);
-          Log.d(_TAG,"PROMPT: "+jo);
-          String type=jo.getString("type");
-          String title=jo.getString("title");
-          if (type.equals("list")){
-            JSONArray ja=jo.getJSONArray("list");
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(title);
-            String[] list = new String[ja.length()];
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-              for (int i = 0; i < ja.length(); i++) {
-                list[i] = ja.getString(i);
-              }
-            }
-            else {
-              for (int i = 0; i < ja.length(); i++) {
-                list[i] = ja.getString(i).replaceAll("\t", " ");
-              }
-            }
-            if (jo.has("sel")) {
-              final int selVal=jo.getInt("sel");
-              final int selCurr=jo.has("allowsel")?-1:selVal;
-              builder.setSingleChoiceItems(list, selVal,
-                      (dialog, which) -> {
-                        if (which!=selCurr) {
-                          result.confirm(String.valueOf(which));
-                          dialog.cancel();
-                        }
-                        else{
-                          result.cancel();
-                          dialog.cancel();
-                        }
-                      }
-              );
-            }
-            else {
-              builder.setItems(list, (dialog, which) -> result.confirm(String.valueOf(which)));
-            }
-            builder.setOnDismissListener(dialogInterface -> result.cancel());
-            AlertDialog dialog = builder.create();
-
-            if (jo.has("nodim")) {
-              Objects.requireNonNull(dialog.getWindow()).clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            }
-            dialog.show();
-
-            if (jo.has("selpos")) {
-              int selPos=jo.getInt("selpos");
-              dialog.getListView().setSelection(selPos);
-            }
-
+        if (listPrompt(message, new ChromePromptCallback() {
+          @Override
+          public void confirm(String res) {
+            result.confirm(res);
           }
+
+          @Override
+          public void cancel() {
+            result.cancel();
+          }
+        })){
           return true;
-        }catch(Exception ignored){}
+        }
         return super.onJsPrompt(view,url,message,defaultValue,result);
       }
-    });
+    };
+
+    webView.setWebChromeClient(chromeClient);
+
     webView.setVerticalScrollBarEnabled(false);
     webView.setBackgroundColor(Color.TRANSPARENT);
 
@@ -1287,6 +1312,25 @@ import javax.crypto.spec.SecretKeySpec;
     public void voiceClose(){
       activity.runOnUiThread(()->{
         voiceSearchClose();
+      });
+    }
+
+    @JavascriptInterface
+    public void asyncPrompt(String message, int cbnum){
+      activity.runOnUiThread(()-> {
+        listPrompt(message, new ChromePromptCallback() {
+          @Override
+          public void confirm(String res) {
+            webView.evaluateJavascript(
+                    "_API.asyncPrompCb("+cbnum+","+res+");",null);
+          }
+
+          @Override
+          public void cancel() {
+            webView.evaluateJavascript(
+                    "_API.asyncPrompCb("+cbnum+",null);",null);
+          }
+        });
       });
     }
 

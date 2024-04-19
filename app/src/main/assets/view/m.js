@@ -2131,7 +2131,17 @@ const _API={
     }
   },
 
-  listPrompt:function(title,list,sel,allowsel,nodim,selpos){
+  asyncPrompCb:function(n,v){
+    var cbn="cb_"+n;
+    if (cbn in _API.asyncPrompCbs){
+      _API.asyncPrompCbs[cbn](v);
+      delete _API.asyncPrompCbs[cbn];
+    }
+  },
+  asyncPrompCbs:{},
+  asyncPrompCbn:0,
+
+  listPrompt:function(title,list,sel,allowsel,nodim,selpos, cb){
     var d={
       'type':'list',
       'title':title,
@@ -2148,6 +2158,13 @@ const _API={
     }
     if (selpos!=undefined){
       d.selpos=selpos;
+    }
+
+    if (cb){
+      var cb_n = ++_API.asyncPrompCbn;
+      _API.asyncPrompCbs["cb_"+cb_n]=cb;
+      _JSAPI.asyncPrompt(JSON.stringify(d),cb_n);
+      return;
     }
     return prompt(JSON.stringify(d));
   },
@@ -3866,34 +3883,37 @@ const vtt={
         var val=vtt.style_get(pb.cfg_data.ccstyle,i);
         sel.push(vtt.style_type[i]+': '+val);
       }
-      var chval=_API.listPrompt(
+      _API.listPrompt(
         "Subtitle Style",
-        sel, undefined, false, true, prev_selpos
-      );
-      if (chval!=null){
-        var ssel=vtt.style_get(pb.cfg_data.ccstyle,chval,3);
-        var ssval=_API.listPrompt(
-          vtt.style_type[chval],
-          vtt.style_order[chval],
-          ssel, false, true
-        );
-        if (ssval!=null){
-          var k=pb.cfg_data.ccstyle;
-          k-=(Math.floor(k / vtt.style_divs[chval]) % 10) * vtt.style_divs[chval];
-          k+=ssval * vtt.style_divs[chval];
-          pb.cfg_data.ccstyle=k;
-          pb.cfg_update_el('ccstyle');
-          vtt.set_style(pb.cfg_data.ccstyle);
-          pb.cfg_save();
+        sel, undefined, false, true, prev_selpos,
+        function(chval){
+          if (chval!=null){
+            var ssel=vtt.style_get(pb.cfg_data.ccstyle,chval,3);
+            prev_selpos=chval;
+            _API.listPrompt(
+              vtt.style_type[chval],
+              vtt.style_order[chval],
+              ssel, false, true, undefined, function(ssval){
+                if (ssval!=null){
+                  var k=pb.cfg_data.ccstyle;
+                  k-=(Math.floor(k / vtt.style_divs[chval]) % 10) * vtt.style_divs[chval];
+                  k+=ssval * vtt.style_divs[chval];
+                  pb.cfg_data.ccstyle=k;
+                  pb.cfg_update_el('ccstyle');
+                  vtt.set_style(pb.cfg_data.ccstyle);
+                  pb.cfg_save();
+                }
+                vtt.changestyle(prev_selpos);
+              }
+            );
+          }
+          else{
+            $('popupcontainer').className='';
+            $('vtt_subtitle_preview').style.display='none';
+          }
         }
-        prev_selpos=chval;
-        vtt.changestyle(prev_selpos);
-      }
-      else{
-        $('popupcontainer').className='';
-        $('vtt_subtitle_preview').style.display='none';
-      }
-    },50);
+      );
+    },1);
   },
   stylename:function(id){
     var stn=[];
