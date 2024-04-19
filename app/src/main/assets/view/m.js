@@ -3882,7 +3882,7 @@ const vtt={
     if (!prev_selpos){
       prev_selpos=0;
     }
-    setTimeout(function(){
+    requestAnimationFrame(function(){
       var sel=[];
       for (var i=0;i<vtt.style_order.length;i++){
         var val=vtt.style_get(pb.cfg_data.ccstyle,i);
@@ -3918,7 +3918,7 @@ const vtt={
           }
         }
       );
-    },1);
+    });
   },
   stylename:function(id){
     var stn=[];
@@ -4622,8 +4622,12 @@ const pb={
         if ('uifontsize' in j){
           var sv=parseInt(j.uifontsize);
           pb.cfg_data.uifontsize=0;
-          if (sv&&sv>0&&sv<=3)
+          if (sv&&sv>=0&&sv<=3){
             pb.cfg_data.uifontsize=sv;
+          }
+          else{
+            pb.cfg_data.uifontsize=2;
+          }
         }
         else{
           pb.cfg_data.uifontsize=2;
@@ -8615,7 +8619,8 @@ const home={
     $('home_homepage'),
     $('home_mylist'),
     $('home_schedule'),
-    $('home_settings')
+    $('home_settings'),
+    $('sidebar')
     
   ],
   home_time:$('home_time'),
