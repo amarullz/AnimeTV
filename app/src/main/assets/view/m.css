@@ -2636,8 +2636,8 @@ c.loader {
   display: block;
   position: absolute;
   z-index: 300;
-  top: .45vw;
-  right: .45vw;
+  top: .7vw;
+  right: .6vw;
   font-size: var(--fs-8vw);
   line-height: 1.4;
   padding: 0 !important;
@@ -2649,10 +2649,10 @@ c.loader {
   text-align: right;
 }
 .home_list p div span.info.info_bottom{
-  top: auto;
+  top: calc(16.2vw - calc(var(--fs-8vw) * 1.4));
   right:auto;
-  left: .45vw;
-  bottom: 4.5vw;
+  left: .6vw;
+  /* bottom: 4.6vw; */
   text-align: left;
 }
 
@@ -3643,10 +3643,10 @@ c.loader {
   transition: none !important;
   z-index: 1;
   position: relative;
-  top:.3vw;
-  left:.3vw;
-  width: 11.4vw;
-  height: 16.4vw;
+  top:.5vw;
+  left:.4vw;
+  width: 11.2vw;
+  height: 16vw;
   border-radius: .3vw;
   border: none !important;
   outline: none !important;
@@ -3658,13 +3658,13 @@ c.loader {
 .view-informative .home_list:not(#home_slide).active>p>div:before{
   content:' ';
   display: block;
-  width: 12vw;
+  width: 12.2vw;
   height: 17vw;
   position: absolute;
   background-color: #fff;
   border-radius: .5vw;
   top:0;
-  left:0;
+  left:-.1vw;
   z-index:0;
   visibility: hidden;
 }
