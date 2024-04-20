@@ -2636,7 +2636,7 @@ c.loader {
   display: block;
   position: absolute;
   z-index: 300;
-  top: .4vw;
+  top: .45vw;
   right: .45vw;
   font-size: var(--fs-8vw);
   line-height: 1.4;
@@ -2652,7 +2652,7 @@ c.loader {
   top: auto;
   right:auto;
   left: .45vw;
-  bottom: 4.8vw;
+  bottom: 4.5vw;
   text-align: left;
 }
 
@@ -3635,12 +3635,47 @@ c.loader {
   overflow: visible !important;
   transition: none !important;
   border-radius: .4vw !important;
+  margin-left: 0 !important;
 }
 .view-informative .home_list:not(#home_slide)>p>div img {
+  /* width: 12vw;
+  height: 17vw;
+  border-radius: .7vw; */
+  box-sizing: border-box;
+  background: transparent !important;
+  /* border: .3vw solid transparent; */
+  /* padding:.3vw; */
+  transition: none !important;
+  z-index: 1;
+  position: relative;
+  top:.3vw;
+  left:.3vw;
+  width: 11.4vw;
+  height: 16.4vw;
+  border-radius: .3vw;
+  border: none !important;
+  outline: none !important;
+  background-color: #000 !important;
+}
+/* .view-informative .home_list:not(#home_slide).active>p>div.active img {
+  border-radius: .3vw;
+  border-color:#fff !important;
+} */
+.view-informative .home_list:not(#home_slide).active>p>div:before{
+  content:' ';
+  display: block;
   width: 12vw;
   height: 17vw;
-  border-radius: .3vw;
-  box-sizing: border-box;
+  position: absolute;
+  background-color: #fff;
+  border-radius: .5vw;
+  top:0;
+  left:0;
+  z-index:0;
+  visibility: hidden;
+}
+.view-informative .home_list:not(#home_slide).active>p>div.active:before{
+  visibility: visible;
 }
 .view-informative .home_list:not(#home_slide)>p>div b {
   text-align: left;
@@ -3655,16 +3690,8 @@ c.loader {
   line-height: var(--fs-15vw);
   white-space: normal !important;
   background-color: transparent !important;
-  color: rgba(255,255,255,.4) !important;
+  color: rgba(255,255,255,.5) !important;
 }
-.view-informative .home_list:not(#home_slide).active>p>div.active img {
-  /* border: .5vw solid var(--accent-1) !important; */
-  border: .4vw solid #fff !important;
-  padding: .1vw;
-}
-/* .view-informative .home_list:not(#home_slide).active>p>div.active{
-  background-color: rgba(255,255,255,.5) !important;
-} */
 .view-informative .home_list:not(#home_slide).active>p>div.active b {
   color: #fff !important;
 }
