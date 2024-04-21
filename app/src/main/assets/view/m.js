@@ -2185,7 +2185,7 @@ const _API={
       var o=prompt(JSON.stringify(d));
       try{
         var k=JSON.parse(o);
-        if (k.value){
+        if ('value' in k){
           return k.value;
         }
       }catch(e){}
@@ -9320,76 +9320,169 @@ const home={
         return false;
       }
       if (uid==_API.user_prefix){
-
+        if (usr.p){
+          var cp=_API.textPrompt(
+            "Input your current PIN",undefined,
+            true, 4, ''
+          );
+          if (cp!=usr.p){
+            _API.showToast("PIN is Invalid");
+            cb();
+            return false;
+          }
+        }
       }
-      _API.textPrompt(
-        "Set Pin","- Use 4 Numeric Pin\n- Leave empty to clear pin",
-        true, 4, '',
-        function(v){
+      while (true){
+        var v=_API.textPrompt(
+          "Set Pin","- Use 4 Numeric Pin\n- Leave empty to clear pin",
+          true, 4, ''
+        );
+        if (v!=null){
           if (v){
-            if (v.value){
-              if (v.value.length==4){
-                usr.p=v.value;
+            if (v.length==4){
+              var v2=_API.textPrompt(
+                "Confirm Pin","- Input PIN again to confirm",
+                true, 4, ''
+              );
+              if (v2==v){
+                usr.p=v;
                 home.profiles.save();
+                _API.showToast("PIN has been changed");
               }
-              else{
-                alert('Change PIN Failed.\nPlease use 4 numeric for pin')
+              else if (confirm('Change PIN Failed.\nPIN Confirmation not match\n\nTry Again?')){
+                continue;
               }
             }
-            else if (usr.p){
-              if (confirm("Remove PIN?")){
-                usr.p='';
-                home.profiles.save();
-              }
+            else if (confirm('Change PIN Failed.\nPlease use 4 numeric for pin\n\nTry Again?')){
+              continue;
             }
           }
-          cb();
+          else if (usr.p){
+            if (confirm("Remove PIN?")){
+              usr.p='';
+              home.profiles.save();
+              _API.showToast("PIN has been removed");
+            }
+          }
         }
-      );
+        break;
+      }
+      cb();
       return true;
     },
-    open:function(uid,sel){
+    open:function(uid,sel,endcb){
       var menu=[];
       if (uid==_API.user_prefix){
         if (home.profiles.users.length>1){
           menu.push('Switch User');
         }
       }
+      var pretitle='';
       var usr=home.profiles.find(uid,false);
       if (!usr){
         return false;
       }
       menu.push('Display Name: '+usr.n);
       menu.push('Profile Picture: '+(home.profiles.pp[usr.i]));
-      menu.push('Change Pin');
+      menu.push('PIN: '+(usr.p?'Have PIN':'No PIN'));
       if (!sel){
         sel=0;
       }
-      if (uid==''){
+      if ((uid=='') && (_API.user_prefix=='')){
         menu.push('Manage Users');
       }
       else if (_API.user_prefix==''){
         menu.push('Delete Users');
+        pretitle='Edit User: ';
       }
       _API.listPrompt(
-        usr.n,
+        pretitle+usr.n,
         menu, undefined, false, false, sel,
         function(v){
           if (v!=null){
             if (menu[v].indexOf("Profile Picture")==0){
               home.profiles.set_pp(uid,function(){
-                home.profiles.open(uid,v);
+                home.profiles.open(uid,v,endcb);
               });
+              return;
             }
             else if (menu[v].indexOf("Display Name")==0){
               home.profiles.set_name(uid,function(){
-                home.profiles.open(uid,v);
+                home.profiles.open(uid,v,endcb);
+              });
+              return;
+            }
+            else if (menu[v].indexOf("PIN:")==0){
+              home.profiles.set_pin(uid,function(){
+                home.profiles.open(uid,v,endcb);
+              });
+              return;
+            }
+            else if (menu[v].indexOf("Manage Users")==0){
+              home.profiles.manage(0,function(){
+                home.profiles.open(uid,v,endcb);
+              });
+              return;
+            }
+            else if (menu[v].indexOf("Delete Users")==0){
+              if (confirm("Are you sure you want to delete user '"+usr.n+"'?")){
+                var un=home.profiles.find(uid,true);
+                if (un>0){
+                  home.profiles.users.splice(un,1);
+                  home.profiles.save();
+                  _API.showToast("User has been deleted");
+                  if (endcb){
+                    endcb(true);
+                  }
+                }
+              }
+              return;
+            }
+          }
+          if (endcb){
+            endcb();
+          }
+        }
+      );
+    },
+    manage:function(sel,endcb){
+      var usrs=[];
+      var start_u=0;
+      if (home.profiles.users.length<4){
+        usrs.push("+ Add New User");
+        start_u=1;
+      }
+      for (var i=1;i<home.profiles.users.length;i++){
+        usrs.push(home.profiles.users[i].n);
+      }
+      _API.listPrompt(
+        "Manage Users",
+        usrs, undefined, false, false, sel,
+        function(v){
+          if (v!=null){
+            if (v==0 && start_u==1){
+              var un="u"+$tick();
+              var nu=home.profiles.user_row(un,'User '+(home.profiles.users.length+1),0,'');
+              home.profiles.users.push(nu);
+              home.profiles.save();
+              _API.showToast("New user has been created");
+              requestAnimationFrame(function(){
+                home.profiles.manage(0);
               });
             }
-            else if (menu[v].indexOf("Change Pin")==0){
-              home.profiles.set_pin(uid,function(){
-                home.profiles.open(uid,v);
+            else{
+              var selu=v;
+              if (start_u==0){
+                selu++;
+              }
+              home.profiles.open(home.profiles.users[selu].u,0,function(isdel){
+                home.profiles.manage(isdel?0:v);
               });
+            }
+          }
+          else{
+            if (endcb){
+              endcb();
             }
           }
         }
