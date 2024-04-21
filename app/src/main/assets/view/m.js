@@ -9295,7 +9295,7 @@ const home={
       }
       _API.textPrompt(
         "Set Display Name","Please insert new display name",
-        false, 10, usr.n,
+        false, 20, usr.n,
         function(v){
           if (v){
             if (v.value){
@@ -9467,7 +9467,7 @@ const home={
               home.profiles.save();
               _API.showToast("New user has been created");
               requestAnimationFrame(function(){
-                home.profiles.manage(0);
+                home.profiles.manage(0,endcb);
               });
             }
             else{
@@ -9476,7 +9476,7 @@ const home={
                 selu++;
               }
               home.profiles.open(home.profiles.users[selu].u,0,function(isdel){
-                home.profiles.manage(isdel?0:v);
+                home.profiles.manage(isdel?0:v,endcb);
               });
             }
           }
