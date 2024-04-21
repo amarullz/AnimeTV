@@ -2769,8 +2769,8 @@ c.loader {
   width: 34vw;
   box-sizing: border-box;
   background: #222;
-  transition: all var(--tim-4s) var(--interpolation);
-  transform: translateX(100%);
+  transition: all var(--tim-3s) var(--interpolation);
+  transform: translateX(50%);
   opacity: 0;
   visibility: hidden;
   z-index: 19999;
@@ -3638,7 +3638,6 @@ c.loader {
   margin-left: 0 !important;
 }
 .view-informative .home_list:not(#home_slide)>p>div img {
-  box-sizing: border-box;
   background: transparent !important;
   transition: none !important;
   z-index: 1;
@@ -3651,9 +3650,10 @@ c.loader {
   border: none !important;
   outline: none !important;
   background-color: #000 !important;
+  box-sizing: border-box;
 }
 /* .view-informative .home_list:not(#home_slide).active>p>div.active img {
-  filter: none;
+  border: .1vw solid rgba(0,0,0,.5) !important;
 } */
 .view-informative .home_list:not(#home_slide).active>p>div:before{
   content:' ';
@@ -3806,44 +3806,61 @@ c.loader {
   );
   visibility: hidden;
   opacity: 0;
-  transform: translateX(-5vw);
   transition: all var(--tim-3s) var(--interpolation);
 }
 #sidebar.active{
   visibility: visible;
   opacity: 1;
-  transform: translateX(0);
 }
 #sidebar_contents{
-  position: relative;
-  width:20vw;
-  padding:2vw;
+  position: absolute;
+  width:18vw;
+  padding: 0 1vw 0 1vw;
+  bottom:0;
+  left:0;
+  top:0;
+  padding-top: 2vw;
+  overflow-y: hidden;
+  transform: translateX(-5vw);
+  transition: all var(--tim-3s) var(--interpolation);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0,#000 2vw);
 }
-#sidebar_profile{
-  border-radius: 1vw;
+#sidebar.active #sidebar_contents{
+  transform: translateX(0);
+}
+.sidebar_profile{
+  border-radius: 8vw;
   padding: 1vw;
   margin-bottom: 2vw;
+  color:#fff;
 }
-#sidebar_profile img{
+.sidebar_profile.hide{
+  display: none;
+}
+.sidebar_profile.active{
+  background-color: #fff;
+  color:#000;
+}
+.sidebar_profile img{
   width:4vw;
   height:4vw;
   border-radius: 4vw;
   margin-right: 1vw;
   vertical-align: middle;
 }
-#sidebar_profile span{
+.sidebar_profile span{
   display: inline-block;
   vertical-align: middle;
   font-size: var(--fs-10vw);
-  color:#999;
 }
-#sidebar_profile span b{
+.sidebar_profile span b{
   display: block;
   font-size: var(--fs-15vw);
-  color:#fff;
   font-weight: 800;
 }
-
+.sidebar_profile span i{
+  font-style: normal;
+}
 .sidebar_group{
   margin-bottom: 2vw;
 }
@@ -3854,24 +3871,69 @@ c.loader {
   font-weight: 800;
   font-size: var(--fs-11vw);
   line-height: 1.4;
-  padding-left: 2vw;
+  padding-left: 1vw;
   padding-bottom: .5vw;
 }
 .sidebar_group .sidebar_item{
   display: block;
   line-height: var(--fs-14vw);
   font-size: var(--fs-14vw);
-  padding: 1vw 2vw 1vw 2vw;
+  padding: 1vw;
   border-radius: 5vw;
+  margin-bottom: .2vw;
+  color:#fff;
 }
 .sidebar_group .sidebar_item c{
   line-height: var(--fs-14vw);
   font-size: var(--fs-14vw);
   width: var(--fs-14vw);
-  margin-right: 1vw;
-  margin-top:-.5vw;
+  margin: -.5vw;
+  margin-right: .5vw;
+  text-align: center;
+  vertical-align: middle;
+  padding: .5vw;
+  border-radius: 5vw;
+}
+.sidebar_group .sidebar_item c.items{
+  color:var(--primary-3);
+}
+.sidebar_group .sidebar_item c.items.active{
+  background-color:var(--primary-3);
+  color:#fff;
+}
+.sidebar_group .sidebar_item span{
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+.sidebar_group .sidebar_item span i{
+  display: none;
+  font-size: var(--fs-7vw);
+  line-height: var(--fs-7vw);
+  font-style: normal;
+  color:#888;
+  position: absolute;
+}
+.sidebar_group .sidebar_item.active span i{
+  display:block;
+  color:var(--primary-1);
+}
+.sidebar_group .sidebar_item.checked{
+  color:var(--accent-1);
 }
 .sidebar_group .sidebar_item.active{
   background-color: #fff;
   color: #000;
+}
+.sidebar_source.sidebar_group .sidebar_item.active span{
+  margin-top: calc(0vw - var(--fs-7vw));
+}
+.sidebar_source.sidebar_group .sidebar_item c.items{
+  display: none;
+}
+.sidebar_source.sidebar_group .sidebar_item.active c.items{
+  display: inline-block;
+}
+.sidebar_source.sidebar_group .sidebar_item.active c:not(.items){
+  display: none;
 }

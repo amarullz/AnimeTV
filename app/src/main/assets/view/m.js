@@ -8,7 +8,7 @@ const __SD5=(__SD==5);
 const __SD6=(__SD==6);
 
 const __SOURCE_NAME=[
-  'Anime-Wave', 'Anix', 'Hi-Anime', 'Anime-WatchTV', 'Animeflix', 'KickAss'
+  'Aniwave', 'Anix', 'Hianime', 'Aniwatch', 'Animeflix', 'KickAss'
 ];
 
 const __SOURCE_DOMAINS=[
@@ -82,11 +82,13 @@ function SD_CHANGE(){
   if (nxe==null){
     return;
   }
+  SD_SETTINGS(toInt(nxe)+1);
+}
+function SD_SETTINGS(n, cb){
   $('popupcontainer').className='active';
   $('aboutpopup').className='active'; 
   $('popup_qrcode').innerHTML='Benchmarking...';
   $('popup_qrcode').style.display='';
-  var n=toInt(nxe)+1;
   SD_CHECK_DOMAIN(n,function(r){
     home.settings.close_qrcode();
     $('popup_qrcode').innerHTML='';
@@ -124,24 +126,14 @@ function SD_CHANGE(){
       if (chval>0){
         sdomain=__SOURCE_DOMAINS[nx][chval];
       }
-      if (_API.confirmDialog("Change Source",
-        "<b>You are about to change the source server.</b><br><br>"+
-        "SOURCE TARGET : <b>"+n+". "+(__SOURCE_NAME[nx])+"</b><br>"+
-        "SOURCE DOMAIN : <b>"+(__SOURCE_DOMAINS[nx][chval])+"</b><br>"+
-        "<br>"+
-        "<b>NOTE:</b> <u>Watchlist & history contents will be changed...</u><br>"+
-        "Change Source Server Now ?",
-        true)){
-        _JSAPI.setSd(n);
-        _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
-
-        if (pb.status){
-          pb.reset(1,0);
-        }
-        setTimeout(function(){
-          _API.reload();
-        },200);
+      _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
+      if (cb){
+        cb(__SOURCE_DOMAINS[nx][chval]);
       }
+      return;
+    }
+    if (cb){
+      cb(null);
     }
   });
 }
@@ -2172,6 +2164,36 @@ const _API={
       return;
     }
     return prompt(JSON.stringify(d));
+  },
+
+  textPrompt:function(title,message,ispin,maxlen,dv,cb){
+    var d={
+      'type':'text',
+      'title':title,
+      'message':message
+    };
+    if (ispin){
+      d.ispin=true;
+    }
+    if (maxlen){
+      d.maxlen=maxlen;
+    }
+    if (dv){
+      d.deval=dv;
+    }
+    if (!cb){
+      var o=prompt(JSON.stringify(d));
+      try{
+        var k=JSON.parse(o);
+        if (k.value){
+          return k.value;
+        }
+      }catch(e){}
+      return null;
+    }
+    var cb_n = ++_API.asyncPrompCbn;
+    _API.asyncPrompCbs["cb_"+cb_n]=cb;
+    _JSAPI.asyncPrompt(JSON.stringify(d),cb_n);
   },
 
   confirmDialog:function(title,text,ishtml){
@@ -4621,8 +4643,8 @@ const pb={
 
         if ('uifontsize' in j){
           var sv=parseInt(j.uifontsize);
-          pb.cfg_data.uifontsize=0;
-          if (sv&&sv>=0&&sv<=3){
+          pb.cfg_data.uifontsize=2;
+          if (sv>=0&&sv<=3){
             pb.cfg_data.uifontsize=sv;
           }
           else{
@@ -9098,6 +9120,322 @@ const home={
     }
     home.home_load();
   },
+  sidebar:{
+    contents:$('sidebar_contents'),
+    sel:0,
+    onsidebar:false,
+    profile:null,
+    items:[],
+    keycb:function(c){
+      var pc=home.sidebar.sel;
+      var elm=home.sidebar.items[pc];
+      if (c==KBACK){
+        if (pc==0){
+          return false;
+        }
+        pc=0;
+      }
+      else if (c==KUP){
+        if (--pc<0) pc=0;
+      }
+      else if (c==KDOWN){
+        if (++pc>=home.sidebar.items.length) pc=home.sidebar.items.length-1;
+      }
+      else if (c==KLEFT||c==KRIGHT){
+        if (elm._items){
+          if (c==KLEFT){
+            if (!elm._items.classList.contains('active')){
+              clk();
+              elm._items.classList.add('active');
+            }
+          }
+          else if (c==KRIGHT){
+            if (elm._items.classList.contains('active') && !elm._checked){
+              clk();
+              elm._items.classList.remove('active');
+            }
+          }
+          return true;
+        }
+        return false;
+      }
+      else if (c==KENTER){
+        if (elm._action=='source'){
+          clk();
+          if (elm._items.classList.contains('active')){
+            SD_SETTINGS(elm._arg,function(newdomain){
+              if (newdomain){
+                if (elm._checked){
+                  setTimeout(function(){
+                    _API.reload();
+                  },10);
+                }
+                else{
+                  elm._domain.innerHTML='@'+newdomain;
+                }
+              }
+            });
+          }
+          else{
+            _JSAPI.setSd(elm._arg);
+            setTimeout(function(){
+              _API.reload();
+            },10);
+          }
+          return true;
+        }
+        else if (elm._action=='playlist'){
+          clk();
+          _API.showToast("Under constructions...");
+          return true;
+        }
+        else if (elm._action=='profile'){
+          clk();
+          home.profiles.open(_API.user_prefix,0);
+          return true;
+        }
+      }
+      if (pc!=home.sidebar.sel){
+        clk();
+        elm.classList.remove('active');
+        elm=home.sidebar.items[pc];
+        elm.classList.add('active');
+        if (elm._items){
+          if (!elm._checked){
+            elm._items.classList.remove('active');
+          }
+        }
+        home.sidebar.sel=pc;
+      }
+      return true;
+    }
+  },
+  profiles:{
+    user_row:function(prefix,name,pp,pin){
+      return {
+        u:prefix,
+        n:name,
+        i:pp,
+        p:pin
+      };
+    },
+    find:function(prefix, retidx){
+      for (var i=0;i<home.profiles.users.length;i++){
+        if (home.profiles.users[i].u==prefix){
+          return retidx?i:home.profiles.users[i];
+        }
+      }
+      return retidx?-1:null;
+    },
+    save:function(){
+      _JSAPI.storeSet("users",JSON.stringify(home.profiles.users));
+    },
+    init:function(){
+      var userdata=_JSAPI.storeGet("users","");
+      var defuser=[home.profiles.user_row('','Default User',0,'')];
+      if (userdata){
+        try{
+          var ud=JSON.parse(userdata);
+          defuser=ud;
+        }catch(e){}
+      }
+      home.profiles.users=defuser;
+      home.profiles.me=home.profiles.find(_API.user_prefix,false);
+    },
+    users:[],
+    me:null,
+    pp:[
+      'Anymoe',
+      'Umaru-chan',
+      'Luffy'
+    ],
+    ppimg:function(uid){
+      var usr=home.profiles.find(uid,false);
+      if (usr){
+        return '/__view/profile/'+(usr.i)+'.png';
+      }
+      return '/__view/profile/0.png';
+    },
+    ppname:function(uid){
+      var usr=home.profiles.find(uid,false);
+      if (usr){
+        return usr.n;
+      }
+      return 'Default User';
+    },
+    set_pp:function(uid, cb){
+      var usr=home.profiles.find(uid,false);
+      if (!usr){
+        cb();
+        return false;
+      }
+      _API.listPrompt(
+        "Set Profile Picture",
+        home.profiles.pp, usr.i, false, false, undefined,
+        function(v){
+          if (v!=null){
+            usr.i=v;
+            if (uid==_API.user_prefix){
+              if (home.sidebar.profile){
+                home.sidebar.profile._img.src=home.profiles.ppimg(uid);
+              }
+            }
+            home.profiles.save();
+          }
+          cb();
+        }
+      );
+      return true;
+    },
+    set_name:function(uid, cb){
+      var usr=home.profiles.find(uid,false);
+      if (!usr){
+        cb();
+        return false;
+      }
+      _API.textPrompt(
+        "Set Display Name","Please insert new display name",
+        false, 10, usr.n,
+        function(v){
+          if (v){
+            if (v.value){
+              usr.n=v.value;
+              if (uid==_API.user_prefix){
+                if (home.sidebar.profile){
+                  home.sidebar.profile._displayname.innerHTML=special(home.profiles.ppname(uid));
+                }
+              }
+              home.profiles.save();
+            }
+          }
+          cb();
+        }
+      );
+      return true;
+    },
+    set_pin:function(uid, cb){
+      var usr=home.profiles.find(uid,false);
+      if (!usr){
+        cb();
+        return false;
+      }
+      if (uid==_API.user_prefix){
+
+      }
+      _API.textPrompt(
+        "Set Pin","- Use 4 Numeric Pin\n- Leave empty to clear pin",
+        true, 4, '',
+        function(v){
+          if (v){
+            if (v.value){
+              if (v.value.length==4){
+                usr.p=v.value;
+                home.profiles.save();
+              }
+              else{
+                alert('Change PIN Failed.\nPlease use 4 numeric for pin')
+              }
+            }
+            else if (usr.p){
+              if (confirm("Remove PIN?")){
+                usr.p='';
+                home.profiles.save();
+              }
+            }
+          }
+          cb();
+        }
+      );
+      return true;
+    },
+    open:function(uid,sel){
+      var menu=[];
+      if (uid==_API.user_prefix){
+        if (home.profiles.users.length>1){
+          menu.push('Switch User');
+        }
+      }
+      var usr=home.profiles.find(uid,false);
+      if (!usr){
+        return false;
+      }
+      menu.push('Display Name: '+usr.n);
+      menu.push('Profile Picture: '+(home.profiles.pp[usr.i]));
+      menu.push('Change Pin');
+      if (!sel){
+        sel=0;
+      }
+      if (uid==''){
+        menu.push('Manage Users');
+      }
+      else if (_API.user_prefix==''){
+        menu.push('Delete Users');
+      }
+      _API.listPrompt(
+        usr.n,
+        menu, undefined, false, false, sel,
+        function(v){
+          if (v!=null){
+            if (menu[v].indexOf("Profile Picture")==0){
+              home.profiles.set_pp(uid,function(){
+                home.profiles.open(uid,v);
+              });
+            }
+            else if (menu[v].indexOf("Display Name")==0){
+              home.profiles.set_name(uid,function(){
+                home.profiles.open(uid,v);
+              });
+            }
+            else if (menu[v].indexOf("Change Pin")==0){
+              home.profiles.set_pin(uid,function(){
+                home.profiles.open(uid,v);
+              });
+            }
+          }
+        }
+      );
+    }
+  },
+  init_sidebar:function(){
+    home.sidebar.contents.innerHTML='';
+    home.sidebar.sel=0;
+
+    /* Init Profile */
+    var profile=$n('div','sidebar_profile',null,home.sidebar.contents,'');
+    profile._action='profile';
+    profile._img=$n('img','',{src:home.profiles.ppimg(_API.user_prefix)},profile,'');
+    profile._txt=$n('span','',null,profile,'');
+    profile._displayname=$n('b','',null,profile._txt,special(home.profiles.ppname(_API.user_prefix)));
+    profile._username=$n('i','',null,profile._txt,(_API.user_prefix=='')?'admin':'user');
+    profile.classList.add('active');
+    home.sidebar.profile=profile;
+    home.sidebar.items=[profile];
+
+    /* Init Sources */
+    var sources=$n('div','sidebar_source sidebar_group',{title:'Sources'},home.sidebar.contents,'');
+    for (var i=0;i<__SOURCE_NAME.length;i++){
+      var active=(__SD==i+1);
+      var seldomain=_JSAPI.storeGet(SD_CFGNAME(i+1),"");
+      if (!seldomain){
+        seldomain=__SOURCE_DOMAINS[i][0];
+      }
+      var hl=$n('div',active?'sidebar_item checked':'sidebar_item',null,sources,'');
+      hl._action='source';
+      hl._arg=i+1;
+      hl._checked=active;
+      hl._icon=$n('c','',null,hl,'cloud');
+      hl._items=$n('c',active?'items active':'items',null,hl,'settings');
+      hl._txt=$n('span','',null,hl,special(__SOURCE_NAME[i]));
+      hl._domain=$n('i','',null,hl._txt,'@'+seldomain);
+      home.sidebar.items.push(hl);
+    }
+
+    /* Playlist */
+    var tools=$n('div','sidebar_group',{title:'Tools'},home.sidebar.contents,'');
+    var playlist=$n('div','sidebar_item',null,tools,'<c>playlist_play</c>Playlist');
+    playlist._action='playlist';
+    home.sidebar.items.push(playlist);    
+  },
   init:function(){
     pb.cfg_load();
     _API.setUri("/home");
@@ -9127,6 +9465,7 @@ const home={
 
     home.update_homepages(pb.cfg_data.homylist?1:0);
     home.init_discord_message();
+    home.init_sidebar();
   },
   init_discord_message:function(){
     // Discord Info & Announchments
@@ -11068,6 +11407,7 @@ const home={
       if (hsel>=1 && hsel<=3){
         home.update_homepages(hsel-1);
       }
+      home.sidebar.onsidebar=(hsel==5);
       home.header_items_selected=hsel;
     }
     else if (c==KENTER){
@@ -11150,6 +11490,10 @@ const home={
         home.settings.open(0);
       }
       else if (sel==5){
+        // home.search.voiceSearch(1);
+        // Sidebar
+      }
+      else if (sel==6){
         home.search.voiceSearch(1);
       }
     }
@@ -11335,6 +11679,12 @@ const home={
     }
     if (home.onsettings){
       return home.settings_keycb(c);
+    }
+
+    if (home.sidebar.onsidebar){
+      if (home.sidebar.keycb(c)){
+        return true;
+      }
     }
     
     var pc=home.col_selected;
@@ -13806,6 +14156,8 @@ const listOrder={
 
 /* START */
 (function(){
+  home.profiles.init();
+
   SD_LOAD_DOMAIN();
   window.__ARGUPDATE();
   _MAL.init();

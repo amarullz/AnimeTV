@@ -21,6 +21,8 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.text.Html;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +43,7 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -100,7 +103,7 @@ import javax.crypto.spec.SecretKeySpec;
   public final AnimeApi aApi;
   public String playerInjectString;
   public boolean webViewReady=false;
-  public static boolean USE_WEB_VIEW_ASSETS=false;
+  public static boolean USE_WEB_VIEW_ASSETS=true;
 
   public AudioManager audioManager;
 
@@ -159,6 +162,11 @@ import javax.crypto.spec.SecretKeySpec;
   public interface ChromePromptCallback {
     void confirm(String res);
     void cancel();
+  }
+
+  public int dp2px(float dpValue) {
+    final float scale = activity.getResources().getDisplayMetrics().density;
+    return (int) (dpValue * scale + 0.5f);
   }
   public boolean listPrompt(String message, ChromePromptCallback result){
     try{
@@ -238,18 +246,63 @@ import javax.crypto.spec.SecretKeySpec;
           builder.setItems(list, (dialog, which) -> result.confirm(String.valueOf(which)));
           builder.setOnDismissListener(dialogInterface -> result.cancel());
         }
-
         AlertDialog dialog = builder.create();
-
         if (jo.has("nodim")) {
           Objects.requireNonNull(dialog.getWindow()).clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         }
         dialog.show();
-
         if (jo.has("selpos")) {
           selPos=jo.getInt("selpos");
         }
         dialog.getListView().setSelection(selPos);
+      }
+      else if (type.equals("text")){
+        final EditText input = new EditText(activity);
+        input.setSingleLine(true);
+        input.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+        if (jo.has("deval")){
+          input.setText(jo.getString("deval"));
+        }
+        if (jo.has("ispin")) {
+          input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+          input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
+        }
+        else if (jo.has("maxlen")){
+          input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(jo.getInt("maxlen"))});
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle(title);
+        if (jo.has("message")){
+          builder.setMessage(jo.getString("message"));
+        }
+
+        FrameLayout container = new FrameLayout(activity);
+        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = dp2px(24);
+        params.rightMargin = dp2px(24);
+        input.setLayoutParams(params);
+        container.addView(input);
+        builder.setView(container);
+
+        builder.setPositiveButton("OK", (dialog, whichButton) -> {
+          dialog.cancel();
+          try {
+            JSONObject out = new JSONObject("{}");
+            out.put("value",input.getText().toString());
+            Log.d(_TAG,"TEXT OUT: "+out.toString());
+            result.confirm(out.toString());
+          } catch (JSONException ignored) {
+            result.cancel();
+          }
+        });
+        builder.setNegativeButton("Cancel", (dialog, whichButton) -> {
+          dialog.cancel();
+          result.cancel();
+        });
+        builder.setOnDismissListener(dialogInterface -> result.cancel());
+        builder.show();
+        input.requestFocus();
       }
       return true;
     }catch(Exception ignored){}
