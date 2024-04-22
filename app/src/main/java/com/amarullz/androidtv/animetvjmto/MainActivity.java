@@ -135,6 +135,10 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: c=402; break;
       case KeyEvent.KEYCODE_MEDIA_NEXT: c=403; break;
       case KeyEvent.KEYCODE_MEDIA_PREVIOUS: c=401; break;
+      case KeyEvent.KEYCODE_FORWARD_DEL: c=8; break;
+    }
+    if (code>=KeyEvent.KEYCODE_0 && code<=KeyEvent.KEYCODE_9){
+      c=48+(code-KeyEvent.KEYCODE_0);
     }
 //    Log.d("KEYEV","Code = "+code);
     if (c>0&&aView.webViewReady) {
