@@ -1,0 +1,83 @@
+@font-face {
+    font-family: 'robotoc';
+    src: url(/__view/firac.ttf) format('truetype');
+}
+@font-face {
+    font-family: 'icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(/__view/icon.woff2) format('woff2');
+}
+c {
+    font-family: 'icons';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    vertical-align: middle;
+    -webkit-font-feature-settings: 'liga';
+}  
+body,
+html {
+    margin: 0;
+    padding: 0;
+    font-family: robotoc, Arial, Helvetica, sans-serif;
+    font-size: var(--fs-10vw);
+    font-weight: normal;
+    background: transparent !important;
+    color: #fff;
+    overflow: hidden;
+}
+#animetv{
+    text-align: center;
+}
+.login_logo{
+    width: 50vw;
+    height: 15vw;
+    object-fit: cover;
+}
+
+/* User sel */
+.user_sel{
+    text-align: center;
+}
+.user_sel:before{
+    content:"Who's Watching?";
+    display: block;
+    font-size:3.5vw;
+    margin-bottom: 2vw;
+    color:#999;
+}
+.user_item {
+    display: inline-block;
+    margin:1vw;
+    color:#999;
+    text-align: center;
+    font-size:2.5vw;
+    width:18vw;
+}
+.user_item img{
+    width: 15vw;
+    height: 15vw;
+    border-radius: 15vw;
+    border: .8vw solid transparent;
+    margin-bottom: .5vw;
+    opacity: .6;
+    transition: transform .5s cubic-bezier(.25, .8, .25, 1);
+}
+.user_item.active img{
+    border-color:#fff;
+    opacity: 1;
+}
+.user_item.clicked img{
+    transform: scale(1.2);
+}
+.user_item.active{
+    color:#fff;
+}

@@ -368,6 +368,8 @@ public class AnimeApi extends WebViewClient {
     if (extpos>=0) {
       String ex = fn.substring(extpos);
       switch (ex) {
+        case ".svg":
+          return "image/svg+xml";
         case ".css":
           return "text/css";
         case ".js":

@@ -9173,6 +9173,7 @@ const home={
             });
           }
           else{
+            _JSAPI.storeSet(_API.user_prefix+"sd",elm._arg+"");
             _JSAPI.setSd(elm._arg);
             setTimeout(function(){
               _API.reload();
@@ -9226,7 +9227,18 @@ const home={
     save:function(){
       _JSAPI.storeSet("users",JSON.stringify(home.profiles.users));
     },
+    logout:function(){
+      _JSAPI.profileSetSel(-1);
+      _JSAPI.profileSetPrefix("");
+      location='/__view/login/login.html';
+    },
     init:function(){
+      if (_JSAPI.profileGetSel()==-1){
+        home.profiles.logout();
+        return false;
+      }
+      _API.user_prefix=_JSAPI.profileGetPrefix();
+
       var userdata=_JSAPI.storeGet("users","");
       var defuser=[home.profiles.user_row('','Default User',0,'')];
       if (userdata){
@@ -9237,6 +9249,7 @@ const home={
       }
       home.profiles.users=defuser;
       home.profiles.me=home.profiles.find(_API.user_prefix,false);
+      return true;
     },
     users:[],
     me:null,
@@ -9398,7 +9411,11 @@ const home={
         menu, undefined, false, false, sel,
         function(v){
           if (v!=null){
-            if (menu[v].indexOf("Profile Picture")==0){
+            if (menu[v].indexOf("Switch User")==0){
+              home.profiles.logout();
+              return;
+            }
+            else if (menu[v].indexOf("Profile Picture")==0){
               home.profiles.set_pp(uid,function(){
                 home.profiles.open(uid,v,endcb);
               });
@@ -9443,6 +9460,9 @@ const home={
                     _JSAPI.storeDel(uid+"search_history");
                     _JSAPI.storeDel(uid+"search_config");
                     _JSAPI.storeDel(uid+"_listorder_mylist");
+
+                    /* SD */
+                    _JSAPI.storeDel(uid+"sd");
                     for (var i=1;i<=6;i++){
                       _JSAPI.storeDel(uid+"sdomain_"+i);
                     }
@@ -14229,12 +14249,12 @@ const listOrder={
 
 /* START */
 (function(){
-  home.profiles.init();
-
-  SD_LOAD_DOMAIN();
-  window.__ARGUPDATE();
-  _MAL.init();
-  home.init();
-  _API.bgimg_update();
-  body.classList.remove('notready');
+  if (home.profiles.init()){
+    SD_LOAD_DOMAIN();
+    window.__ARGUPDATE();
+    _MAL.init();
+    home.init();
+    _API.bgimg_update();
+    body.classList.remove('notready');
+  }
 })();

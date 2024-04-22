@@ -304,10 +304,6 @@ import javax.crypto.spec.SecretKeySpec;
             result.cancel();
           }
         });
-        builder.setNegativeButton("Cancel", (dialog, whichButton) -> {
-          dialog.cancel();
-          result.cancel();
-        });
         builder.setOnDismissListener(dialogInterface -> result.cancel());
         builder.show();
         input.requestFocus();
@@ -419,7 +415,8 @@ import javax.crypto.spec.SecretKeySpec;
 
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
-    webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
+//    webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
+    webView.loadUrl("https://"+Conf.getDomain()+"/__view/login/login.html");
 
     // Init Channel Provider
     AnimeProvider.executeJob(activity);
@@ -1438,7 +1435,28 @@ import javax.crypto.spec.SecretKeySpec;
     public boolean haveMic(boolean checkSpeech){
       return voiceHaveMic(checkSpeech);
     }
+
+    @JavascriptInterface
+    public int profileGetSel(){
+      return profile_sel;
+    }
+    @JavascriptInterface
+    public String profileGetPrefix(){
+      return profile_prefix;
+    }
+
+    @JavascriptInterface
+    public void profileSetSel(int v){
+      profile_sel=v;
+    }
+    @JavascriptInterface
+    public void profileSetPrefix(String v){
+      profile_prefix=v;
+    }
   }
+
+  public int profile_sel=-1;
+  public String profile_prefix="";
 
   public SpeechRecognizer voiceRecognizer=null;
   public RecognitionListener voiceListener=new RecognitionListener() {
