@@ -3859,6 +3859,10 @@ c.loader {
   display: block;
   font-size: var(--fs-15vw);
   font-weight: 800;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 10vw;
 }
 .sidebar_profile span i{
   font-style: normal;

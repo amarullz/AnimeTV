@@ -76,7 +76,7 @@ html {
     margin:1vw;
     color:#666;
     text-align: center;
-    font-size:2.5vw;
+    font-size:2.2vw;
     width:15vw;
 }
 .user_item img{
@@ -87,6 +87,14 @@ html {
     margin-bottom: .5vw;
     opacity: .6;
     transition: transform .5s cubic-bezier(.25, .8, .25, 1);
+}
+.user_name{
+    position: absolute;
+    text-align: center;
+    width:15vw;
+    white-space: break-spaces;
+    word-wrap: break-word;
+    box-sizing: border-box;
 }
 .user_item.active img{
     border-color:#fff;

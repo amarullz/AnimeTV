@@ -9306,7 +9306,7 @@ const home={
       }
       _API.textPrompt(
         "Set Display Name","Please insert new <b>Display Name</b>",
-        false, 20, usr.n,
+        false, 18, usr.n,
         function(v){
           if (v){
             if (v.value.trim()){
