@@ -38,33 +38,50 @@ html {
     text-align: center;
 }
 .login_logo{
-    width: 50vw;
-    height: 15vw;
+    width: 15vw;
+    height: 7vw;
     object-fit: cover;
+    position: absolute;
+    bottom: .5vw;
+    right: .5vw;
+    opacity: .5;
+}
+.flexhold{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top:0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #000, #102 100%);
 }
 
 /* User sel */
 .user_sel{
     text-align: center;
+    padding-bottom:5.5vw;
 }
 .user_sel:before{
     content:"Who's Watching?";
     display: block;
     font-size:3.5vw;
     margin-bottom: 2vw;
+    line-height: 1;
     color:#999;
 }
 .user_item {
     display: inline-block;
     margin:1vw;
-    color:#999;
+    color:#666;
     text-align: center;
     font-size:2.5vw;
-    width:18vw;
+    width:15vw;
 }
 .user_item img{
-    width: 15vw;
-    height: 15vw;
+    width: 14vw;
+    height: 14vw;
     border-radius: 15vw;
     border: .8vw solid transparent;
     margin-bottom: .5vw;

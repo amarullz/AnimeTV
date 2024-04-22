@@ -9486,7 +9486,7 @@ const home={
     manage:function(sel,endcb){
       var usrs=[];
       var start_u=0;
-      if (home.profiles.users.length<4){
+      if (home.profiles.users.length<5){
         usrs.push("+ Add New User");
         start_u=1;
       }

@@ -141,8 +141,9 @@ const login = {
     },
     user_select: function () {
         login.h.innerHTML = '';
+        var flexhold = $n('div', 'flexhold', null, login.h, '');
+        var hold = $n('div', 'user_sel', null, flexhold, '');
         var logo = $n('img', 'login_logo', {src:'/__view/logo.svg'}, login.h, '');
-        var hold = $n('div', 'user_sel', null, login.h, '');
         login.usersel = [];
         for (var i = 0; i < login.users.length; i++) {
             var hl = $n('div', 'user_item', null, hold, '');
@@ -167,11 +168,10 @@ const login = {
         if (login.users.length > 1) {
             login.stat = 2;
             login.user_select();
-
         }
         else if (login.users[0].p) {
-            login.stat = 1;
-            login.h.innerHTML = 'HAVEPIN';
+            login.stat = 2;
+            login.user_select();
         }
         else {
             _JSAPI.profileSetSel(0);
