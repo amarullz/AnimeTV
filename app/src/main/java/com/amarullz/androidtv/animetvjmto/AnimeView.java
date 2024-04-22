@@ -30,6 +30,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsPromptResult;
@@ -174,6 +175,7 @@ import javax.crypto.spec.SecretKeySpec;
       Log.d(_TAG,"PROMPT: "+jo);
       String type=jo.getString("type");
       String title=jo.getString("title");
+
       if (type.equals("list")){
         int selPos=0;
         JSONArray ja=jo.getJSONArray("list");
@@ -260,6 +262,7 @@ import javax.crypto.spec.SecretKeySpec;
         final EditText input = new EditText(activity);
         input.setSingleLine(true);
         input.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        input.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         if (jo.has("deval")){
           input.setText(jo.getString("deval"));
@@ -274,7 +277,13 @@ import javax.crypto.spec.SecretKeySpec;
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(title);
         if (jo.has("message")){
-          builder.setMessage(jo.getString("message"));
+          String msg=jo.getString("message");
+          if (jo.has("html")){
+            builder.setMessage(Html.fromHtml(msg));
+          }
+          else {
+            builder.setMessage(msg);
+          }
         }
 
         FrameLayout container = new FrameLayout(activity);
@@ -290,7 +299,6 @@ import javax.crypto.spec.SecretKeySpec;
           try {
             JSONObject out = new JSONObject("{}");
             out.put("value",input.getText().toString());
-            Log.d(_TAG,"TEXT OUT: "+out.toString());
             result.confirm(out.toString());
           } catch (JSONException ignored) {
             result.cancel();

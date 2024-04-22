@@ -2166,12 +2166,15 @@ const _API={
     return prompt(JSON.stringify(d));
   },
 
-  textPrompt:function(title,message,ispin,maxlen,dv,cb){
+  textPrompt:function(title,message,ispin,maxlen,dv,cb,nohtml){
     var d={
       'type':'text',
       'title':title,
       'message':message
     };
+    if (!nohtml){
+      d.html=true;
+    }
     if (ispin){
       d.ispin=true;
     }
@@ -9247,7 +9250,9 @@ const home={
     pp:[
       'Anymoe',
       'Umaru-chan',
-      'Luffy'
+      'Luffy',
+      'Gintoki',
+      'Onizuka'
     ],
     ppimg:function(uid){
       var usr=home.profiles.find(uid,false);
@@ -9294,12 +9299,12 @@ const home={
         return false;
       }
       _API.textPrompt(
-        "Set Display Name","Please insert new display name",
+        "Set Display Name","Please insert new <b>Display Name</b>",
         false, 20, usr.n,
         function(v){
           if (v){
-            if (v.value){
-              usr.n=v.value;
+            if (v.value.trim()){
+              usr.n=v.value.trim();
               if (uid==_API.user_prefix){
                 if (home.sidebar.profile){
                   home.sidebar.profile._displayname.innerHTML=special(home.profiles.ppname(uid));
@@ -9334,14 +9339,14 @@ const home={
       }
       while (true){
         var v=_API.textPrompt(
-          "Set Pin","- Use 4 Numeric Pin\n- Leave empty to clear pin",
+          "Set Pin","&bull; Use <b>4 Numeric</b> as PIN<br>&bull; Leave <b>empty</b> to clear pin",
           true, 4, ''
         );
         if (v!=null){
           if (v){
             if (v.length==4){
               var v2=_API.textPrompt(
-                "Confirm Pin","- Input PIN again to confirm",
+                "Confirm Pin","&bull; Input PIN again to confirm",
                 true, 4, ''
               );
               if (v2==v){

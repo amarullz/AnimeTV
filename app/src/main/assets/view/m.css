@@ -3841,12 +3841,14 @@ c.loader {
   background-color: #fff;
   color:#000;
 }
+.ui_performance .sidebar_profile img,
 .sidebar_profile img{
   width:4vw;
   height:4vw;
-  border-radius: 4vw;
+  border-radius: 5vw;
   margin-right: 1vw;
   vertical-align: middle;
+  box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22) !important;
 }
 .sidebar_profile span{
   display: inline-block;
