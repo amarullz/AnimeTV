@@ -4825,9 +4825,6 @@ const pb={
       else if (key=='trailer'){
         el.lastElementChild.innerHTML=pb.cfgtrailer_name[pb.cfg_data.trailer];
       }
-      else if (key=='sourcesvr'){
-        el.lastElementChild.innerHTML=__SD_NAME+(__SD_DOMAIN?" @"+__SD_DOMAIN:"");
-      }
       else if (key=='theme'){
         el.lastElementChild.innerHTML=pb.cfgtheme_name[_API.theme_sel];
       }
@@ -4927,7 +4924,6 @@ const pb={
       
       pb.cfg_update_el('nonjapan');
       pb.cfg_update_el('alisthomess');
-      pb.cfg_update_el('sourcesvr');
 
       pb.cfg_update_el('trailer');
       
@@ -6421,9 +6417,6 @@ const pb={
         pb.cfg_update_el(key);
         pb.cfg_save();
         pb.updateanimation();
-      }
-      else if (key=='sourcesvr'){
-        SD_CHANGE();
       }
       else if (key=='cachesz'){
         var csz=_JSAPI.getCacheSz();
@@ -9432,10 +9425,30 @@ const home={
             else if (menu[v].indexOf("Delete Users")==0){
               if (confirm("Are you sure you want to delete user '"+usr.n+"'?")){
                 var un=home.profiles.find(uid,true);
-                if (un>0){
+                if ((un>0)&&(uid!='')){
                   home.profiles.users.splice(un,1);
                   home.profiles.save();
                   _API.showToast("User has been deleted");
+
+                  /* delete all pref */
+                  try{
+                    _JSAPI.storeDel(uid+"pb_cfg");
+                    _JSAPI.storeDel(uid+"mal_auth");
+                    _JSAPI.storeDel(uid+"anilist_auth");
+                    _JSAPI.storeDel(uid+"theme");
+                    _JSAPI.storeDel(uid+"list_history");
+                    _JSAPI.storeDel(uid+"list_fav");
+                    _JSAPI.storeDel(uid+"_anix_list_history");
+                    _JSAPI.storeDel(uid+"_anix_list_fav");
+                    _JSAPI.storeDel(uid+"search_history");
+                    _JSAPI.storeDel(uid+"search_config");
+                    _JSAPI.storeDel(uid+"_listorder_mylist");
+                    for (var i=1;i<=6;i++){
+                      _JSAPI.storeDel(uid+"sdomain_"+i);
+                    }
+                  }catch(e){}
+                  
+
                   if (endcb){
                     endcb(true);
                   }
@@ -9832,16 +9845,7 @@ const home={
           '<c class="check">check</c><c>live_tv</c> Use HTML5 Video Player'
         );
 
-
         /* Networks */
-        home.settings.tools._s_sourcesvr=$n(
-          'div','',{
-            action:'*sourcesvr',
-            s_desc:"Select source website server, Try change it if source is down."
-          },
-          home.settings.networks.P,
-          '<c>database</c> Source Server<span class="value">Source '+__SD+"</span>"
-        );
         home.settings.tools._s_httpclient=$n(
           'div','',{
             action:'*httpclient',
@@ -12706,35 +12710,6 @@ const _MAL={
           },1000
         );
         return;
-      }
-      try{
-        if (d._elm && d._elm._ep){
-          var sp=d._elm._ep.querySelector("span.info_ep");
-          if (!sp){
-            d._elm._ep.innerHTML+='<span class="info_ep"><c>avg_pace</c>'+special(cep+"")+'</span>';
-          }
-          else{
-            sp.innerHTML='<c>avg_pace</c>'+special(cep+"");
-          }
-          if (isanilist){
-            sp=d._elm._ep.querySelector("span.info_ep");
-            var vep=0;
-            if (d.media.nextAiringEpisode){
-              vep=d.media.nextAiringEpisode.episode-1;
-              if (vep<1){
-                vep=0;
-              }
-            }
-            if (vep>cep){
-              sp.classList.add('info_ep_havenext');
-            }
-            else{
-              sp.classList.remove('info_ep_havenext');
-            }
-          }
-        }
-      }catch(ee){
-        console.log("ERR: "+ee);
       }
     }
   },
