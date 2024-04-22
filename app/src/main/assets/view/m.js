@@ -9258,7 +9258,9 @@ const home={
       'Umaru-chan',
       'Luffy',
       'Gintoki',
-      'Onizuka'
+      'Onizuka',
+      'Gojo Satoru',
+      'Asa Mitaka'
     ],
     ppimg:function(uid){
       var usr=home.profiles.find(uid,false);
