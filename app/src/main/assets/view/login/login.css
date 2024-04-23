@@ -59,12 +59,12 @@
     --accent-1: #b44;
 }
 :root.theme_grey {
-    --primary-bg: #222;
+    --primary-bg: #333;
     --primary-1: #123;
     --accent-1: #33bb7c;
 }
 :root.theme_dark {
-    --primary-bg: #111;
+    --primary-bg: #22262f;
     --primary-1: #046;
     --accent-1: #e83;
 }
