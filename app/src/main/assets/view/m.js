@@ -12381,6 +12381,47 @@ const _MAL={
   allist_year:function(){
     return (new Date(new Date().getTime()-2592000000)).getFullYear();
   },
+  getAvatar:function(isAnilist,cb){
+    if (isAnilist){
+      if (_MAL.alauth){
+        _MAL.alreq(`query($usr: String){
+          User(name:$usr){
+            avatar {
+              large
+            }
+          }
+        }`,{
+          "usr":_MAL.alauth.user
+        },function(v){
+          if (v){
+            try{
+              cb(v.data.User.avatar.large);
+              return;
+            }catch(e){}
+          }
+          cb(null);
+        }, true);
+        return;
+      }
+    }else{
+      if (_MAL.auth){
+        var uri='/v2/users/@me?fields=picture';
+        _MAL.req(uri,"GET",function(v){
+          if (v.ok){
+            try{
+              var k=JSON.parse(v.responseText);
+              cb(k.picture);
+            }catch(e){}
+          }
+          cb(null);
+        });
+        return;
+      }
+    }
+    requestAnimationFrame(function(){
+      cb(null);
+    });
+  },
   allist_list:function(sort,page,perpage,cb){
     var sr='POPULARITY_DESC';
     var blk='status_not_in:[HIATUS,CANCELLED,NOT_YET_RELEASED]';
