@@ -110,9 +110,7 @@ const login = {
             login.openpin(el._id);
         }
         else{
-            _JSAPI.profileSetSel(el._id);
-            _JSAPI.profileSetPrefix(el._data.u);
-            _JSAPI.reloadHome();
+            login.go(el._id,el._data.u);
         }
     },
     user_select_setpc:function(pc){
@@ -164,11 +162,7 @@ const login = {
                 if (login.pin_value==login.pin_user.p){
                     /* OK AND LOGIN */
                     login.pin.classList.remove('active');
-                    _JSAPI.profileSetSel(login.pin_uid);
-                    _JSAPI.profileSetPrefix(login.pin_user.u);
-                    setTimeout(function(){
-                        _JSAPI.reloadHome();
-                    },1);
+                    login.go(login.pin_uid,login.pin_user.u);
                 }
                 else{
                     login.pin._pin._pinvalue.classList.add('error');
@@ -360,6 +354,16 @@ const login = {
         }
         /* PIN */
     },
+    go:function(id,prefix){
+        _JSAPI.profileSetSel(id);
+        _JSAPI.profileSetPrefix(prefix);
+        var sdval = parseInt(_JSAPI.storeGet(prefix+"sd","1"));
+        sdval=isNaN(sdval)?1:sdval;
+        _JSAPI.setSd(sdval);
+        setTimeout(function(){
+            _JSAPI.reloadHome();
+        },1);
+    },
     start: function () {
         if (login.users.length > 1) {
             login.stat = 1;
@@ -370,9 +374,7 @@ const login = {
             login.user_select();
         }
         else {
-            _JSAPI.profileSetSel(0);
-            _JSAPI.profileSetPrefix("");
-            _JSAPI.reloadHome();
+            login.go(0,"");
         }
     }
 };
