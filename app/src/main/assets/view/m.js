@@ -2101,7 +2101,7 @@ const _API={
   ],
   theme_sel:0,
   theme_update:function(){
-    var itm=_JSAPI.storeGet(_API.user_prefix+"theme","");
+    var itm=_JSAPI.storeGet(_API.user_prefix+"theme","theme_dark");
     if (itm){
       document.documentElement.className=itm+' '+_API.html_class;
       _API.theme_sel=_API.theme_list.indexOf(itm);
@@ -4497,6 +4497,7 @@ const pb={
     if (pb.cfg_data.performance){
       _API.html_class+=' ui_performance'
     }
+
     switch(pb.cfg_data.uifontsize){
       case 1:
         _API.html_class+=' view-bigfont';
@@ -4647,11 +4648,8 @@ const pb={
         if ('uifontsize' in j){
           var sv=parseInt(j.uifontsize);
           pb.cfg_data.uifontsize=2;
-          if (sv>=0&&sv<=3){
+          if (!isNaN(sv)&&(sv!=null)&&sv>=0&&sv<=3){
             pb.cfg_data.uifontsize=sv;
-          }
-          else{
-            pb.cfg_data.uifontsize=2;
           }
         }
         else{
@@ -4671,8 +4669,6 @@ const pb={
         }
 
         _JSAPI.setHttpClient(pb.cfg_data.httpclient);
-
-        
         pb.updateanimation();
         return;
       }
@@ -4714,6 +4710,13 @@ const pb={
     pb.cfg_data.ccstyle=0;
     pb.cfg_data.bgimg={};
     pb.cfg_data.quality=0;
+
+    _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
+    _API.setStreamType(0,0);
+    vtt.set_style(pb.cfg_data.ccstyle);
+    _API.bgimg_update();
+    _JSAPI.setHttpClient(pb.cfg_data.httpclient);
+    pb.updateanimation();
   },
   cfgserver_name:[
     'VIZCLOUD M3U8',
