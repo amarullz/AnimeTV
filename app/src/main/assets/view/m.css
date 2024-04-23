@@ -2723,17 +2723,23 @@ c.loader {
   background-color: var(--primary-1);
   font-weight: bold;
 }
-.home_list p div span.info span.info_ep.info_ep_havenext:before{
+.home_list p div span.info_ep_havenext:before{
   content: '✨';
-  font-size:var(--fs-7vw) !important;
-  font-weight: normal !important;
-  float: right;
+}
+.home_list p div span.info_ep_havenext{
   display: block;
-  margin:0;
-  margin-left: .1vw;
-  margin-right: -.2vw;
-  margin-top:.1vw;
-  padding:0;
+  position: absolute;
+  z-index: 300;
+  top: 13.5vw;
+  left: .4vw;
+  font-size: var(--fs-8vw);
+  line-height: 2vw;
+  width: 3vw;
+  border-radius: 0 .5vw .5vw 0;
+  background-color: var(--dimm-1);
+  border:.15vw solid var(--accent-1);
+  border-left: none;
+  text-align: center;
 }
 .home_list p div span.info span.info_sumep {
   background-color: var(--primary-2);

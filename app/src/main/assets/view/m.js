@@ -12878,9 +12878,13 @@ const _MAL={
           else if (sumep){
             infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(sumep+"")+'</span>';
           }
-          infotxt+='<span class="info_ep'+((numep<vep)?' info_ep_havenext':'')+'"><c>avg_pace</c>'+
-            special((numep?numep:"-")+"")+'</span>';
+          // infotxt+='<span class="info_ep'+((numep<vep)?' info_ep_havenext':'')+'"><c>avg_pace</c>'+
+          //   special((numep?numep:"-")+"")+'</span>';
+          infotxt+='<span class="info_ep"><c>avg_pace</c>'+special((numep?numep:"-")+"")+'</span>';
           hl._ep=$n('span','info',null,hl,infotxt);
+          if (numep<vep){
+            hl._ep=$n('span','info_ep_havenext',null,hl,'');
+          }
         }
         while (g.P.childElementCount>30){
           g._spre.push(g.P.firstElementChild.nextElementSibling);
