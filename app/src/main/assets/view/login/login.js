@@ -62,6 +62,8 @@ document.addEventListener('keydown', function (e) {
 
 
 const login = {
+    wallpaper_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/wallpaper/',
+    dynamic_wallpaper: true,
     h: $('animetv'),
     users: [],
     usersel: [],
@@ -71,6 +73,7 @@ const login = {
     onpin:false,
     pin_user:null,
     pin_uid:0,
+    usel:null,
     ppimg: function (id) {
         var usr = login.users[id];
         if (usr) {
@@ -118,6 +121,7 @@ const login = {
             login.usersel[login.sel].classList.remove('active');
             login.usersel[pc].classList.add('active');
             login.sel=pc;
+            document.documentElement.className=login.usersel[pc]._data.theme;
         }
     },
     openpin:function(uid){
@@ -277,9 +281,33 @@ const login = {
         }
         return false;
     },
+    load_user_config:function(u){
+        u.bg='';
+        u.theme='';
+        try{
+            var itm=_JSAPI.storeGet(u.u+'pb_cfg',"");
+            if (itm){
+                var j=JSON.parse(itm);
+                if (j){
+                    if ('bgimg' in j){
+                        if ('src' in j.bgimg){
+                            u.bg=j.bgimg.src;
+                        }
+                    }
+                }
+            }
+        }catch(e){}
+        try{
+            var itm=_JSAPI.storeGet(u.u+'theme',"theme_dark");
+            if (itm){
+                u.theme=itm;
+            }
+        }catch(e){}
+    },
     user_select: function () {
         login.h.innerHTML = '';
-        var flexhold = $n('div', 'flexhold', null, login.h, '');
+        var flexhold = $n('div', 'flexhold usersel', null, login.h, '');
+        login.usel=flexhold;
         var pinhold = $n('div', 'flexhold pinhold', null, login.h, '');
 
         var hold = $n('div', 'user_sel', null, flexhold, '');
@@ -299,9 +327,11 @@ const login = {
                 login.user_select_setpc(this._id);
             };
             login.usersel.push(hl);
+            login.load_user_config(login.users[i]);
         }
         login.sel=0;
         login.usersel[0].classList.add('active');
+        document.documentElement.className=login.usersel[0]._data.theme;
 
         _KEY_CB = login.user_select_keycb;
 

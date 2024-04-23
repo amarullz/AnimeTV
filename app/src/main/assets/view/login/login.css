@@ -8,6 +8,68 @@
     font-weight: 400;
     src: url(/__view/icon.woff2) format('woff2');
 }
+
+@property --primary-bg {
+    syntax: '<color>';
+    initial-value: #102;
+    inherits: true;
+}
+@property --primary-1 {
+    syntax: '<color>';
+    initial-value: #406;
+    inherits: true;
+}
+@property --accent-1 {
+    syntax: '<color>';
+    initial-value: #c5f;
+    inherits: true;
+}
+/* Themes */
+:root {
+    --primary-bg: #305;
+    --primary-1: #406;
+    --accent-1: #c5f;
+    transition: --primary-bg 2s cubic-bezier(.25, .8, .25, 1),
+        --primary-1 2s cubic-bezier(.25, .8, .25, 1),
+        --accent-1 2s cubic-bezier(.25, .8, .25, 1);
+}
+:root.theme_green {
+    --primary-bg: #030;
+    --primary-1: #040;
+    --accent-1: #3b3;
+}
+:root.theme_teal {
+    --primary-bg: #022;
+    --primary-1: #033;
+    --accent-1: #0aa;
+}
+:root.theme_blue {
+    --primary-bg: #000839;
+    --primary-1: #014;
+    --accent-1: #47b;
+}
+:root.theme_brown {
+    --primary-bg: #310;
+    --primary-1: #420;
+    --accent-1: #b70;
+}
+:root.theme_red {
+    --primary-bg: #300;
+    --primary-1: #400;
+    --accent-1: #b44;
+}
+:root.theme_grey {
+    --primary-bg: #222;
+    --primary-1: #123;
+    --accent-1: #33bb7c;
+}
+:root.theme_dark {
+    --primary-bg: #111;
+    --primary-1: #046;
+    --accent-1: #e83;
+}
+
+
 c {
     font-family: 'icons';
     font-weight: normal;
@@ -56,7 +118,9 @@ html {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(180deg, #000, #102 100%);
+}
+.flexhold.usersel{
+    background: linear-gradient(180deg, #000, var(--primary-bg) 100%);
 }
 
 /* User sel */
@@ -207,7 +271,7 @@ html {
     animation: horizontal-shaking 0.4s 1;
 }
 .pin .pin_keypad .pin_key.active{
-    background-color: #406;
+    background-color: var(--primary-1);
     box-shadow: 0 .03vw .06vw rgba(0, 0, 0, 0.16), 0 .03vw .06vw rgba(0, 0, 0, 0.23);
 }
 .pin .pin_keypad .pin_key.pin_key_fn.active{
