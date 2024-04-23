@@ -4547,6 +4547,7 @@ const pb={
     skipfiller:false,
     jptitle:false,
     compactlist:false,
+    directsidebar:false,
     showclock:true,
     progcache:true,
     usedoh:true,
@@ -4599,6 +4600,8 @@ const pb={
         
         pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.showclock=('showclock' in j)?(j.showclock?true:false):true;
+        pb.cfg_data.directsidebar=('directsidebar' in j)?(j.directsidebar?true:false):false;
+        
         
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
         pb.cfg_data.alisthomess=('alisthomess' in j)?(j.alisthomess?true:false):true;
@@ -4689,6 +4692,8 @@ const pb={
     pb.cfg_data.usedoh=true;
     
     pb.cfg_data.compactlist=false;
+    pb.cfg_data.directsidebar=false;
+    
     pb.cfg_data.showclock=true;
     
     pb.cfg_data.nonjapan=false;
@@ -4937,6 +4942,8 @@ const pb={
       pb.cfg_update_el('usedoh');
       
       pb.cfg_update_el('compactlist');
+      pb.cfg_update_el('directsidebar');
+      
       pb.cfg_update_el('showclock');
       
 
@@ -6413,6 +6420,13 @@ const pb={
         pb.cfg_update_el(key);
         pb.cfg_save();
         pb.updateanimation();
+      }
+      else if (key=='directsidebar'){
+        // Update Home
+        pb.cfg_data.directsidebar=!pb.cfg_data.directsidebar;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        home.init_sidebar_mode();
       }
       else if (key=='showclock'){
         // Update Home
@@ -8641,7 +8655,7 @@ const home={
     $('home_mylist'),
     $('home_schedule'),
     $('home_settings'),
-    $('sidebar')
+    $('home_logo')
     
   ],
   home_time:$('home_time'),
@@ -9129,10 +9143,20 @@ const home={
       var pc=home.sidebar.sel;
       var elm=home.sidebar.items[pc];
       if (c==KBACK){
-        if (pc==0){
-          return false;
+        if (pb.cfg_data.directsidebar){
+          if (pc==0){
+            $('sidebar').classList.remove('active');
+            home.sidebar.onsidebar=false;
+            return false;
+          }
+          pc=0;
         }
-        pc=0;
+        else{
+          clk();
+          $('sidebar').classList.remove('active');
+          home.sidebar.onsidebar=false;
+          return true;
+        }
       }
       else if (c==KUP){
         if (--pc<0) pc=0;
@@ -9211,6 +9235,9 @@ const home={
     }
   },
   profiles:{
+    isadmin:function(){
+      return (_API.user_prefix=="");
+    },
     user_row:function(prefix,name,pp,pin){
       return {
         u:prefix,
@@ -9532,9 +9559,23 @@ const home={
       );
     }
   },
+  init_sidebar_mode:function(){
+    home.sidebar.onsidebar=false;
+    if (pb.cfg_data.directsidebar){
+      $('sidebar').classList.remove('active');
+      home.header_items[5]=$('sidebar');
+    }
+    else{
+      $('home_logo').classList.remove("active");
+      home.header_items[5]=$('home_logo');
+    }
+  },
   init_sidebar:function(){
+    home.init_sidebar_mode();
     home.sidebar.contents.innerHTML='';
     home.sidebar.sel=0;
+
+    // $n('div','animetv_logo',null,home.sidebar.contents,'AnimeTV');
 
     /* Init Profile */
     var profile=$n('div','sidebar_profile',null,home.sidebar.contents,'');
@@ -9798,6 +9839,15 @@ const home={
           '<c class="check">clear</c><c>nest_clock_farsight_digital</c> Show Clock'
         );
 
+        home.settings.tools._s_directsidebar=$n(
+          'div','',{
+            action:'*directsidebar',
+            s_desc:"No need to press ok key to show sidebar"
+          },
+          home.settings.styling.P,
+          '<c class="check">clear</c><c>thumbnail_bar</c> Show sidebar directly'
+        );
+
 
         
         /* Performance */
@@ -9889,14 +9939,16 @@ const home={
           '<c class="check">clear</c><c>encrypted</c> Use DoH'
         );
 
-        home.settings.tools._s_cachesz=$n(
-          'div','',{
-            action:'*cachesz',
-            s_desc:"Set maximum disk cache size for HTTP Client. Only works for okHttp and Cronet"
-          },
-          home.settings.networks.P,
-          '<c>disc_full</c> Cache Size<span class="value"></span>'
-        );
+        if (home.profiles.isadmin()){
+          home.settings.tools._s_cachesz=$n(
+            'div','',{
+              action:'*cachesz',
+              s_desc:"Set maximum disk cache size for HTTP Client. Only works for okHttp and Cronet"
+            },
+            home.settings.networks.P,
+            '<c>disc_full</c> Cache Size<span class="value"></span>'
+          );
+        }
 
         home.settings.tools._s_progcache=$n(
           'div','',{
@@ -9907,12 +9959,6 @@ const home={
           '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
         );
 
-        
-
-        
-
-
-        
         
 
         /* Integrations */
@@ -9974,20 +10020,22 @@ const home={
           home.settings.about.P,
           "<c>sports_esports</c> Discord Server"
         );
-        home.settings.tools._s_checknightly=$n(
-          'div','',{
-            action:'*checknightly'
-          },
-          home.settings.about.P,
-          "<c>partly_cloudy_night</c> Check for Nightly Build"
-        );
-        home.settings.tools._s_checkupdate=$n(
-          'div','',{
-            action:'*checkupdate'
-          },
-          home.settings.about.P,
-          "<c>update</c> Check for Update"
-        );
+        if (home.profiles.isadmin()){
+          home.settings.tools._s_checknightly=$n(
+            'div','',{
+              action:'*checknightly'
+            },
+            home.settings.about.P,
+            "<c>partly_cloudy_night</c> Check for Nightly Build"
+          );
+          home.settings.tools._s_checkupdate=$n(
+            'div','',{
+              action:'*checkupdate'
+            },
+            home.settings.about.P,
+            "<c>update</c> Check for Update"
+          );
+        }
       }
       home.settings.initmore_done=true;
       pb.cfg_update_el();
@@ -11534,7 +11582,9 @@ const home={
       if (hsel>=1 && hsel<=3){
         home.update_homepages(hsel-1);
       }
-      home.sidebar.onsidebar=(hsel==5);
+      if (pb.cfg_data.directsidebar){
+        home.sidebar.onsidebar=(hsel==5);
+      }
       home.header_items_selected=hsel;
     }
     else if (c==KENTER){
@@ -11617,8 +11667,10 @@ const home={
         home.settings.open(0);
       }
       else if (sel==5){
-        // home.search.voiceSearch(1);
-        // Sidebar
+        if (!pb.cfg_data.directsidebar){
+          $('sidebar').classList.add('active');
+          home.sidebar.onsidebar=true;
+        }
       }
       else if (sel==6){
         home.search.voiceSearch(1);
@@ -11809,7 +11861,10 @@ const home={
     }
 
     if (home.sidebar.onsidebar){
-      if (home.sidebar.keycb(c)){
+      if (!pb.cfg_data.directsidebar){
+        return home.sidebar.keycb(c);
+      }
+      else if (home.sidebar.keycb(c)){
         return true;
       }
     }

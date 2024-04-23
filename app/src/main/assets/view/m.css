@@ -664,6 +664,24 @@ c.loader {
 .animetv_header.active .animetv_header_banner div.active c{
   text-shadow: none !important;
 }
+.animetv_header.active .animetv_header_banner div.animetv_logo.active{
+  color:#fff;
+  background: transparent !important;
+}
+.animetv_header_banner div.animetv_logo c{
+  position: absolute;
+  margin-left: calc(-.2vw - var(--fs-20vw));
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--tim-2s) var(--interpolation);
+  position: absolute;
+  transform: rotate(-90deg);
+}
+.animetv_header.active .animetv_header_banner div.animetv_logo.active c{
+  visibility: visible;
+  opacity: 1;
+  transform: rotate(0deg);
+}
 
 /* ------------------------------ search ----------------------------- */
 #search_content{
@@ -3815,7 +3833,7 @@ c.loader {
 #sidebar_contents{
   position: absolute;
   width:18vw;
-  padding: 0 1vw 0 1vw;
+  padding: 2vw;
   bottom:0;
   left:0;
   top:0;
