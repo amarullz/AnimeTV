@@ -63,7 +63,7 @@ document.addEventListener('keydown', function (e) {
 
 const login = {
     wallpaper_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/wallpaper/',
-    dynamic_wallpaper: true,
+    dynamic_wallpaper: 2,
     h: $('animetv'),
     users: [],
     usersel: [],
@@ -74,6 +74,22 @@ const login = {
     pin_user:null,
     pin_uid:0,
     usel:null,
+    currbg:null,
+    update_theme:function(){
+        if (login.dynamic_wallpaper>0){
+            document.documentElement.className=login.usersel[login.sel]._data.theme;
+        }
+        if (login.dynamic_wallpaper>1){
+            if (login.currbg){
+                login.currbg.classList.remove('active');
+            }
+            login.currbg=null;
+            if (login.usersel[login.sel]._data.wp){
+                login.currbg=login.usersel[login.sel]._data.wp;
+                login.currbg.classList.add('active');
+            }
+        }
+    },
     ppimg: function (id) {
         var usr = login.users[id];
         if (usr) {
@@ -121,7 +137,7 @@ const login = {
             login.usersel[login.sel].classList.remove('active');
             login.usersel[pc].classList.add('active');
             login.sel=pc;
-            document.documentElement.className=login.usersel[pc]._data.theme;
+            login.update_theme();
         }
     },
     openpin:function(uid){
@@ -284,19 +300,28 @@ const login = {
     load_user_config:function(u){
         u.bg='';
         u.theme='';
-        try{
-            var itm=_JSAPI.storeGet(u.u+'pb_cfg',"");
-            if (itm){
-                var j=JSON.parse(itm);
-                if (j){
-                    if ('bgimg' in j){
-                        if ('src' in j.bgimg){
-                            u.bg=j.bgimg.src;
+        u.wp=null;
+        if (login.dynamic_wallpaper>1){
+            try{
+                var itm=_JSAPI.storeGet(u.u+'pb_cfg',"");
+                if (itm){
+                    var j=JSON.parse(itm);
+                    if (j){
+                        if ('bgimg' in j){
+                            if ('src' in j.bgimg){
+                                u.bg=j.bgimg.src;
+                                if (u.bg){
+                                    u.wp=$n('img', 'usr_wallpaper hide', {src:login.wallpaper_base+u.bg}, login.h, '');
+                                    u.wp.onload=function(){
+                                        this.classList.remove('hide');
+                                    };
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }catch(e){}
+            }catch(e){}
+        }
         try{
             var itm=_JSAPI.storeGet(u.u+'theme',"theme_dark");
             if (itm){
@@ -331,7 +356,7 @@ const login = {
         }
         login.sel=0;
         login.usersel[0].classList.add('active');
-        document.documentElement.className=login.usersel[0]._data.theme;
+        login.update_theme();
 
         _KEY_CB = login.user_select_keycb;
 

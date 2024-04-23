@@ -92,7 +92,7 @@ html {
     font-family: robotoc, Arial, Helvetica, sans-serif;
     font-size: var(--fs-10vw);
     font-weight: normal;
-    background: transparent !important;
+    background: #000 !important;
     color: #fff;
     overflow: hidden;
 }
@@ -120,7 +120,29 @@ html {
     bottom: 0;
 }
 .flexhold.usersel{
-    background: linear-gradient(180deg, #000, var(--primary-bg) 100%);
+    background: linear-gradient(180deg, rgba(0,0,0,.5), var(--primary-bg) 100%);
+    z-index: 2;
+}
+img.usr_wallpaper{
+    position: absolute;
+    top:0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 4s cubic-bezier(.25, .8, .25, 1);
+}
+.usr_wallpaper.hide{
+    opacity: 0 !important;
+}
+.usr_wallpaper.active{
+    opacity: 1;
+    visibility: visible;
 }
 
 /* User sel */
