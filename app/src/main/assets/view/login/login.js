@@ -330,6 +330,12 @@ const login = {
         }catch(e){}
     },
     user_select: function () {
+        var ls=parseInt(_JSAPI.storeGet("loginstyle","1"));
+        if (isNaN(ls)||ls<0||ls>2){
+          ls=1;
+        }
+        login.dynamic_wallpaper=ls;
+
         login.h.innerHTML = '';
         var flexhold = $n('div', 'flexhold usersel', null, login.h, '');
         login.usel=flexhold;

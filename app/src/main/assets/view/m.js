@@ -4790,6 +4790,11 @@ const pb={
     'Grey',
     'Dark'
   ],
+  cfgloginscreen_name:[
+    'Static Style',
+    'Follow User Theme',
+    'Follow User Theme and Wallpaper'
+  ],
   cfg_save:function(){
     _JSAPI.storeSet(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
   },
@@ -4812,6 +4817,13 @@ const pb={
       }
       if (key=='speed'){
         el.lastElementChild.innerHTML="SPEED "+_API.vidSpeed.toFixed(2)+"x";
+      }
+      else if (key=='loginscreen'){
+        var ls=toInt(_JSAPI.storeGet("loginstyle","1"));
+        if (ls<0||ls>2){
+          ls=1;
+        }
+        el.lastElementChild.innerHTML=pb.cfgloginscreen_name[ls];
       }
       else if (key=='cachesz'){
         el.lastElementChild.innerHTML=_JSAPI.getCacheSz()+" MB";
@@ -4947,7 +4959,7 @@ const pb={
       pb.cfg_update_el('showclock');
       
 
-
+      pb.cfg_update_el('loginscreen');
       pb.cfg_update_el('uifontsize');
       pb.cfg_update_el('httpclient');
       pb.cfg_update_el('listprog');
@@ -6311,6 +6323,23 @@ const pb={
           pb.updateanimation();
         }
       }
+      else if (key=="loginscreen"){
+        var ls=toInt(_JSAPI.storeGet("loginstyle","1"));
+        if (ls<0||ls>2){
+          ls=1;
+        }
+        var chval=_API.listPrompt(
+          "Login Screen Style",
+          pb.cfgloginscreen_name,
+          ls
+        );
+        if (chval!=null){
+          ls=toInt(chval);
+          _JSAPI.storeSet("loginstyle",ls+"");
+          pb.cfg_update_el(key);
+        }
+      }
+
       else if (key=="httpclient"){
         // pb.state=0;
         var chval=_API.listPrompt(
@@ -9847,6 +9876,17 @@ const home={
           home.settings.styling.P,
           '<c class="check">clear</c><c>thumbnail_bar</c> Show sidebar directly'
         );
+
+        if (home.profiles.isadmin()){
+          home.settings.tools._s_loginscreen=$n(
+            'div','',{
+              action:'*loginscreen',
+              s_desc:"Change Who's Watching screen style"
+            },
+            home.settings.styling.P,
+            '<c>format_size</c> Login Style<span class="value"></span>'
+          );
+        }
 
 
         
