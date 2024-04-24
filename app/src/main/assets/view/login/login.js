@@ -64,6 +64,7 @@ document.addEventListener('keydown', function (e) {
 
 const login = {
     default_user:null,
+    ppic_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/ppic/',
     wallpaper_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/wallpaper/',
     dynamic_wallpaper: 2,
     h: $('animetv'),
@@ -102,10 +103,13 @@ const login = {
     },
     ppimg: function (id) {
         var usr = login.users[id];
-        if (usr) {
-            return '/__view/profile/' + (usr.i) + '.png';
+        if (usr){
+            if (usr.im){
+                return usr.im;
+            }
+            return login.ppic_base+'pic/'+(usr.i)+'.png';
         }
-        return '/__view/profile/0.png';
+        return login.ppic_base+"pic/0.png";
     },
     ppname: function (id) {
         var usr = login.users[id];

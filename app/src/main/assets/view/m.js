@@ -2088,6 +2088,26 @@ const _API={
     });
   },
 
+  ppic_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/ppic/',
+  ppic_data:[],
+  ppic_list:function(cb){
+    if (_API.ppic_data.length>0){
+      cb(_API.ppic_data.length);
+      return;
+    }
+    $ap(_API.ppic_base+'ppic.json',function(v){
+      if (v.ok){
+        try{
+          var wd=JSON.parse(v.responseText);
+          if (wd.length>0){
+            _API.ppic_data=JSON.parse(v.responseText);
+          }
+        }catch(e){}
+      }
+      cb(_API.ppic_data.length);
+    });
+  },
+
   /*** THEMES ***/
   theme_list:[
     '',
@@ -9295,7 +9315,8 @@ const home={
         u:prefix,
         n:name,
         i:pp,
-        p:pin
+        p:pin,
+        it:"Anymoe"
       };
     },
     find:function(prefix, retidx){
@@ -9335,21 +9356,15 @@ const home={
     },
     users:[],
     me:null,
-    pp:[
-      'Anymoe',
-      'Umaru-chan',
-      'Luffy',
-      'Gintoki',
-      'Onizuka',
-      'Gojo Satoru',
-      'Asa Mitaka'
-    ],
     ppimg:function(uid){
       var usr=home.profiles.find(uid,false);
       if (usr){
-        return '/__view/profile/'+(usr.i)+'.png';
+        if (usr.im){
+          return usr.im;
+        }
+        return _API.ppic_base+'pic/'+(usr.i)+'.png';
       }
-      return '/__view/profile/0.png';
+      return _API.ppic_base+"pic/0.png";
     },
     ppname:function(uid){
       var usr=home.profiles.find(uid,false);
@@ -9364,12 +9379,41 @@ const home={
         cb();
         return false;
       }
-      _API.listPrompt(
+      listOrder.showImgPicker(
         "Set Profile Picture",
-        home.profiles.pp, usr.i, false, false, undefined,
-        function(v){
-          if (v!=null){
-            usr.i=v;
+        function(page,fcb){
+          _API.ppic_list(function(){
+            requestAnimationFrame(function(){
+              var o={
+                havenext:false,
+                data:[]
+              };
+              var have_active=false;
+              for (var i=0;i<_API.ppic_data.length;i++){
+                var vo={
+                  src:_API.ppic_base+"pic/"+_API.ppic_data[i].src+".png",
+                  title:_API.ppic_data[i].title,
+                  rsrc:_API.ppic_data[i].src
+                };
+                if (usr.i==vo.rsrc || usr.im==vo.src){
+                  vo.active=true;
+                  have_active=true;
+                }
+                o.data.push(vo);
+              }
+              if (!have_active){
+                o.data[0].active=true;
+              }
+              fcb(o);
+            });
+          });
+          return true;
+        },
+        function(r){
+          if (r!=null){
+            usr.i=r.rsrc;
+            usr.im=r.src;
+            usr.it=r.title;
             if (uid==_API.user_prefix){
               if (home.sidebar.profile){
                 home.sidebar.profile._img.src=home.profiles.ppimg(uid);
@@ -9380,6 +9424,7 @@ const home={
           cb();
         }
       );
+
       return true;
     },
     set_name:function(uid, cb){
@@ -9478,7 +9523,7 @@ const home={
         return false;
       }
       menu.push('Display Name: '+usr.n);
-      menu.push('Profile Picture: '+(home.profiles.pp[usr.i]));
+      menu.push('Profile Picture: '+special(usr.it?usr.it:usr.i));
       menu.push('PIN: '+(usr.p?'Have PIN':'No PIN'));
       if (!sel){
         sel=0;
