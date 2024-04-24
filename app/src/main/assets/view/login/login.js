@@ -239,16 +239,26 @@ const login = {
         }
         var pin=login.pin._pin;
         var pc=pin._keysel;
-        if (k==KLEFT || k==KUP){
-            var s=(k==KLEFT)?1:3;
-            pc-=s;
+        if (k==KLEFT){
+            if (pc%3-1<0)
+                pc+=2;
+            else
+                pc--;
+        }
+        else if (k==KRIGHT){
+            if (pc%3+1>2)
+                pc-=2;
+            else
+                pc++;
+        }
+        else if (k==KUP){
+            pc-=3;
             if (pc<0){
                 pc+=pin._keys.length;
             }
         }
-        else if (k==KRIGHT || k==KDOWN){
-            var s=(k==KRIGHT)?1:3;
-            pc+=s;
+        else if (k==KDOWN){
+            pc+=3;
             if (pc>=pin._keys.length){
                 pc-=pin._keys.length;
             }
