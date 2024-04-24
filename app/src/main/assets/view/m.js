@@ -7544,6 +7544,7 @@ const pb={
   load_open_stat:0,
   open:function(uri, ttid, noclean, startpos){
     console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos+" -> "+uri);
+    pb.video_tmp_start_pos=0;
     pb.pb_action_streamtype.classList.remove('active');
     pb.load_open_stat=0;
     _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
