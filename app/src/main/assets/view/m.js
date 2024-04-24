@@ -4517,12 +4517,12 @@ const pb={
     else{
       document.body.classList.remove('japan-title');
     }
-    if (pb.cfg_data.compactlist){
-      document.body.classList.remove('view-informative');
-    }
-    else{
-      document.body.classList.add('view-informative');
-    }
+    // if (pb.cfg_data.compactlist){
+    //   document.body.classList.remove('view-informative');
+    // }
+    // else{
+    document.body.classList.add('view-informative');
+    // }
 
     if (pb.cfg_data.showclock){
       $('home_header').classList.remove('animetv_noclock');
@@ -4543,10 +4543,10 @@ const pb={
     performance:true,
     autoskip:false,
     autonext:true,
-    html5player:false,
+    // html5player:false,
     skipfiller:false,
     jptitle:false,
-    compactlist:false,
+    // compactlist:false,
     directsidebar:false,
     showclock:true,
     progcache:true,
@@ -4583,7 +4583,7 @@ const pb={
       if (j){
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
-        pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
+        // pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
         pb.cfg_data.dubaudio=('dubaudio' in j)?(j.dubaudio?true:false):false;
         
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
@@ -4598,7 +4598,7 @@ const pb={
         pb.cfg_data.usedoh=('usedoh' in j)?(j.usedoh?true:false):true;
         
         
-        pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
+        // pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.showclock=('showclock' in j)?(j.showclock?true:false):true;
         pb.cfg_data.directsidebar=('directsidebar' in j)?(j.directsidebar?true:false):false;
         
@@ -4678,7 +4678,7 @@ const pb={
     }
     pb.cfg_data.autoskip=false;
     pb.cfg_data.autonext=true;
-    pb.cfg_data.html5player=false;
+    // pb.cfg_data.html5player=false;
     pb.cfg_data.dubaudio=false;
     
     pb.cfg_data.skipfiller=false;
@@ -4691,7 +4691,7 @@ const pb={
     
     pb.cfg_data.usedoh=true;
     
-    pb.cfg_data.compactlist=false;
+    // pb.cfg_data.compactlist=false;
     pb.cfg_data.directsidebar=false;
     
     pb.cfg_data.showclock=true;
@@ -4874,9 +4874,9 @@ const pb={
         if (key=='usedoh'){
           pb.cfg_setactive(el,pb.cfg_data.httpclient==0);
         }
-        else if (key=='html5player'){
-          pb.cfg_setactive(el,!__SD3);
-        }
+        // else if (key=='html5player'){
+        //   pb.cfg_setactive(el,!__SD3);
+        // }
         else if (key=='dubaudio'){
           pb.cfg_setactive(el,__SD3);
         }
@@ -4935,7 +4935,7 @@ const pb={
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('dubaudio');
       
-      pb.cfg_update_el('html5player');
+      // pb.cfg_update_el('html5player');
       
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('preloadep'); 
@@ -4953,7 +4953,7 @@ const pb={
       pb.cfg_update_el('progcache');
       pb.cfg_update_el('usedoh');
       
-      pb.cfg_update_el('compactlist');
+      // pb.cfg_update_el('compactlist');
       pb.cfg_update_el('directsidebar');
       
       pb.cfg_update_el('showclock');
@@ -5176,9 +5176,9 @@ const pb={
       if (pb.startpos_val>0){
         pb.vid_startpos_init();
       }
-      if (pb.cfg_data.html5player){
-        pb.vid_cmd('scale',pb.cfg_data.scale);
-      }
+      // if (pb.cfg_data.html5player){
+      //   pb.vid_cmd('scale',pb.cfg_data.scale);
+      // }
       vtt.playback.buffering_set(true);
     }
     else if (c=='play'){
@@ -5187,10 +5187,10 @@ const pb={
       pb.menu_autohide();
       pb.setskip_track(1);
       vtt.playback.play();
-      if (pb.cfg_data.html5player){
-        pb.vid_cmd('speed',_API.vidSpeed);
-        pb.vid_cmd('scale',pb.cfg_data.scale);
-      }
+      // if (pb.cfg_data.html5player){
+      //   pb.vid_cmd('speed',_API.vidSpeed);
+      //   pb.vid_cmd('scale',pb.cfg_data.scale);
+      // }
     }
     else if (c=='pause'){
       vtt.playback.pause();
@@ -5456,7 +5456,7 @@ const pb={
           }
         }catch(e){}
       }
-      if ((urivid && !pb.cfg_data.html5player) || (__SD3)){
+      if ((urivid /*&& !pb.cfg_data.html5player*/) || (__SD3)){
         pb.data.vizm3u8=urivid;
         console.log("ATVLOG Got VizCB = "+urivid);
         if (pb.cfg('server')==0){
@@ -5546,9 +5546,9 @@ const pb={
         pb.pb_vid.innerHTML='';
         (function(){
           var iframe_src=pb.data.stream_vurl;
-          if (pb.cfg_data.html5player && __SD<3){
-            iframe_src+='&autostart=true';
-          }
+          // if (pb.cfg_data.html5player && __SD<3){
+          //   iframe_src+='&autostart=true';
+          // }
           pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
         })();
       }
@@ -5576,9 +5576,9 @@ const pb={
       pb.preload_episode_video=null;
 
       var iframe_src=pb.data.stream_vurl;
-      if (pb.cfg_data.html5player && __SD<3){
-        iframe_src+='&autostart=true';
-      }
+      // if (pb.cfg_data.html5player && __SD<3){
+      //   iframe_src+='&autostart=true';
+      // }
       pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
     })();
   },
@@ -5942,7 +5942,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (!pb.cfg_data.html5player&&!__SD5&&!__SD6){
+              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -6258,12 +6258,12 @@ const pb={
         if (_API.vidSpeed>2.0){
           _API.vidSpeed=0.5;
         }
-        if (pb.cfg_data.html5player){
-          pb.vid_cmd('speed',_API.vidSpeed);
-        }
-        else{
-          _API.videoSpeed(_API.vidSpeed);
-        }
+        // if (pb.cfg_data.html5player){
+        //   pb.vid_cmd('speed',_API.vidSpeed);
+        // }
+        // else{
+        _API.videoSpeed(_API.vidSpeed);
+        // }
         pb.cfg_update_el(key);
       }
       else if (key=="quality"){
@@ -6443,13 +6443,13 @@ const pb={
         pb.cfg_save();
         pb.updateanimation();
       }
-      else if (key=='compactlist'){
-        // Update Home
-        pb.cfg_data.compactlist=!pb.cfg_data.compactlist;
-        pb.cfg_update_el(key);
-        pb.cfg_save();
-        pb.updateanimation();
-      }
+      // else if (key=='compactlist'){
+      //   // Update Home
+      //   pb.cfg_data.compactlist=!pb.cfg_data.compactlist;
+      //   pb.cfg_update_el(key);
+      //   pb.cfg_save();
+      //   pb.updateanimation();
+      // }
       else if (key=='directsidebar'){
         // Update Home
         pb.cfg_data.directsidebar=!pb.cfg_data.directsidebar;
@@ -7141,9 +7141,9 @@ const pb={
     pb.cfg_load();
     pb.menu_clear(pb.pb_settings);
 
-    if (!pb.cfg_data.html5player){
-      _API.videoSpeed(_API.vidSpeed);
-    }
+    // if (!pb.cfg_data.html5player){
+    _API.videoSpeed(_API.vidSpeed);
+    // }
 
     // $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
     // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
@@ -7152,7 +7152,7 @@ const pb={
 
     
     pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
-    if (!pb.cfg_data.html5player&&!__SD6){
+    if (/*!pb.cfg_data.html5player&&*/!__SD6){
       pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
     }
 
@@ -7669,6 +7669,8 @@ const home={
   home_scroll:$('home_scroll'),
   home_slide:$('home_slide'),
 
+  // Enable hide previous non visible item list
+  withspre:false, // home.withspre
 
   // home_recent:$('home_recent'),
   // home_dub:$('home_dub'),
@@ -7984,12 +7986,14 @@ const home={
           hl._ep=$n('span','info info_bottom',null,hl,binfotxt);
         }
       }
-      var PGSZ=(__SD3||__SD5||__SD6)?60:30;
-      while (g.P.childElementCount>PGSZ){
-        g._spre.push(g.P.firstElementChild.nextElementSibling);
-        g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+      if (home.withspre){
+        var PGSZ=(__SD3||__SD5||__SD6)?60:30;
+        while (g.P.childElementCount>PGSZ){
+          g._spre.push(g.P.firstElementChild.nextElementSibling);
+          g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+        }
+        g.__update_pre();
       }
-      g.__update_pre();
 
       if (!g._sel)
         pb.menu_select(g,g.P.firstElementChild);
@@ -8033,14 +8037,16 @@ const home={
 
     rc._page=1;
     pb.menu_clear(rc);
-    rc._nojump=true;
+    rc._nojump=home.withspre;
     // rc._keycb=pb.menu_keycb;
     pb.menu_init(rc);
 
     rc._spre=[];
     rc._spost=[];
     rc.__update_pre=function(){
-      rc.P.firstElementChild.style.marginRight=(12*rc._spre.length)+"vw";
+      if (home.withspre){
+        rc.P.firstElementChild.style.marginRight=(12*rc._spre.length)+"vw";
+      }
     };
     rc.__selectcb=function(g,c){
       if (!c) return;
@@ -8052,7 +8058,7 @@ const home={
         if (++n>PGSZ) break;
       }
       if (n<=PGSZ-1){
-        if (g._spre.length>0){
+        if (g._spre.length>0 && home.withspre){
           g.P.insertBefore(g._spre.pop(), g.P.firstElementChild.nextElementSibling);
           g._spost.push(g.P.lastElementChild);
           g.P.removeChild(g.P.lastElementChild);
@@ -8067,7 +8073,7 @@ const home={
         c=c.nextElementSibling;
         if (++n>4) return;
       }
-      if (g._spost.length>0){
+      if (g._spost.length>0 && home.withspre){
         g.P.appendChild(g._spost.pop());
         g._spre.push(g.P.firstElementChild.nextElementSibling);
         g.P.removeChild(g.P.firstElementChild.nextElementSibling);
@@ -9848,7 +9854,7 @@ const home={
         home.settings.tools._s_dubaudio=$n(
           'div','',{
             action:'*dubaudio',
-            s_desc:"Always use DUB audio stream with subtitle if available. Only work with source 3 and 4"
+            s_desc:"Use dub with subtitle on source 3/4 if available. WARNING: Subtitle may out of sync!"
           },
           home.settings.video.P,
           '<c class="check">check</c><c>speech_to_text</c> Use DUB Stream'
@@ -9863,7 +9869,6 @@ const home={
           home.settings.styling.P,
           '<c>format_size</c> Font Size<span class="value">Normal</span>'
         );
-
         home.settings.tools._s_theme=$n(
           'div','',{
             action:'*theme'
@@ -9871,7 +9876,6 @@ const home={
           home.settings.styling.P,
           '<c>palette</c> Interface Color <span class="value">-</span>'
         );
-        
         home.settings.tools._s_bgimg=$n(
           'div','',{
             action:'*bgimg'
@@ -9879,43 +9883,6 @@ const home={
           home.settings.styling.P,
           '<c>wallpaper</c> Wallpaper<span class="value">Wallpaper-1</span>'
         );
-
-        home.settings.tools._s_homylist=$n(
-          'div','',{
-            action:'*homylist',
-            s_desc:'Set MyList as main page when AnimeTV started'
-          },
-          home.settings.styling.P,
-          '<c class="check">clear</c><c>dvr</c> MyList Main Page'
-        );
-
-        home.settings.tools._s_compactlist=$n(
-          'div','',{
-            action:'*compactlist',
-            s_desc:"Use old compact anime list"
-          },
-          home.settings.styling.P,
-          '<c class="check">clear</c><c>unfold_less</c> Compact List'
-        );
-        
-        home.settings.tools._s_showclock=$n(
-          'div','',{
-            action:'*showclock',
-            s_desc:"Show clock in homescreen"
-          },
-          home.settings.styling.P,
-          '<c class="check">clear</c><c>nest_clock_farsight_digital</c> Show Clock'
-        );
-
-        home.settings.tools._s_directsidebar=$n(
-          'div','',{
-            action:'*directsidebar',
-            s_desc:"No need to press ok key to show sidebar"
-          },
-          home.settings.styling.P,
-          '<c class="check">clear</c><c>thumbnail_bar</c> Show sidebar directly'
-        );
-
         if (home.profiles.isadmin()){
           home.settings.tools._s_loginscreen=$n(
             'div','',{
@@ -9926,8 +9893,6 @@ const home={
             '<c>shield_person</c> Login Style<span class="value"></span>'
           );
         }
-
-
         
         /* Performance */
         home.settings.tools._s_animation=$n(
@@ -9953,6 +9918,44 @@ const home={
           home.settings.performance.P,
           '<c class="check">clear</c><c>brand_awareness</c> Navigation Sound'
         );
+
+        home.settings.tools._s_homylist=$n(
+          'div','',{
+            action:'*homylist',
+            s_desc:'Set MyList as main page when AnimeTV started'
+          },
+          home.settings.performance.P,
+          '<c class="check">clear</c><c>dvr</c> MyList Main Page'
+        );
+
+        // home.settings.tools._s_compactlist=$n(
+        //   'div','',{
+        //     action:'*compactlist',
+        //     s_desc:"Use old compact anime list"
+        //   },
+        //   home.settings.performance.P,
+        //   '<c class="check">clear</c><c>unfold_less</c> Compact List'
+        // );
+        
+        home.settings.tools._s_showclock=$n(
+          'div','',{
+            action:'*showclock',
+            s_desc:"Show clock in homescreen"
+          },
+          home.settings.performance.P,
+          '<c class="check">clear</c><c>nest_clock_farsight_digital</c> Show Clock'
+        );
+
+        home.settings.tools._s_directsidebar=$n(
+          'div','',{
+            action:'*directsidebar',
+            s_desc:"No need to press ok key to show sidebar"
+          },
+          home.settings.performance.P,
+          '<c class="check">clear</c><c>thumbnail_bar</c> Show sidebar directly'
+        );
+
+        
 
 
         /* Others */
@@ -9990,6 +9993,8 @@ const home={
           home.settings.more.P,
           '<c class="check">clear</c><c>language_japanese_kana</c> Japanese Titles'
         );
+
+        /*
         home.settings.tools._s_html5player=$n(
           'div','',{
             action:'*html5player',
@@ -9998,6 +10003,7 @@ const home={
           home.settings.more.P,
           '<c class="check">check</c><c>live_tv</c> Use HTML5 Video Player'
         );
+        */
 
         /* Networks */
         home.settings.tools._s_httpclient=$n(
@@ -10535,11 +10541,14 @@ const home={
             hl._ep=$n('span','info info_bottom',null,hl,binfotxt);
           }
         }
-        while (g.P.childElementCount>60){
-          g._spre.push(g.P.firstElementChild.nextElementSibling);
-          g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+
+        if (home.withspre){
+          while (g.P.childElementCount>60){
+            g._spre.push(g.P.firstElementChild.nextElementSibling);
+            g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+          }
+          g.__update_pre();
         }
-        g.__update_pre();
   
         if (!g._sel)
           pb.menu_select(g,g.P.firstElementChild);
@@ -10700,7 +10709,9 @@ const home={
       rc._onload=0;
       rc._sel=null;
       rc.__update_pre=function(){
-        rc.P.firstElementChild.style.marginRight=(12*rc._spre.length)+"vw";
+        if (home.withspre){
+          rc.P.firstElementChild.style.marginRight=(12*rc._spre.length)+"vw";
+        }
       };
       rc.__selectcb=function(g,c){
         if (!c) return;
@@ -10711,7 +10722,7 @@ const home={
           if (++n>7) break;
         }
         if (n<=6){
-          if (g._spre.length>0){
+          if (g._spre.length>0 && home.withspre){
             g.P.insertBefore(g._spre.pop(), g.P.firstElementChild.nextElementSibling);
             g._spost.push(g.P.lastElementChild);
             g.P.removeChild(g.P.lastElementChild);
@@ -10726,7 +10737,7 @@ const home={
           c=c.nextElementSibling;
           if (++n>4) return;
         }
-        if (g._spost.length>0){
+        if (g._spost.length>0 && home.withspre){
           g.P.appendChild(g._spost.pop());
           g._spre.push(g.P.firstElementChild.nextElementSibling);
           g.P.removeChild(g.P.firstElementChild.nextElementSibling);
@@ -12492,11 +12503,13 @@ const _MAL={
             hl._ep=$n('span','info info_bottom',null,hl,binfotxt);
           }
         }
-        while (g.P.childElementCount>30){
-          g._spre.push(g.P.firstElementChild.nextElementSibling);
-          g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+        if (home.withspre){
+          while (g.P.childElementCount>30){
+            g._spre.push(g.P.firstElementChild.nextElementSibling);
+            g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+          }
+          g.__update_pre();
         }
-        g.__update_pre();
         if (!g._sel)
           pb.menu_select(g,g.P.firstElementChild);
         else
@@ -12970,11 +12983,13 @@ const _MAL={
             hl._ep=$n('span','info_ep_havenext',null,hl,'');
           }
         }
-        while (g.P.childElementCount>30){
-          g._spre.push(g.P.firstElementChild.nextElementSibling);
-          g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+        if (home.withspre){
+          while (g.P.childElementCount>30){
+            g._spre.push(g.P.firstElementChild.nextElementSibling);
+            g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+          }
+          g.__update_pre();
         }
-        g.__update_pre();
         if (!g._sel)
           pb.menu_select(g,g.P.firstElementChild);
         else
@@ -13030,11 +13045,13 @@ const _MAL={
             infotxt+='<span class="info_ep"><c>avg_pace</c>'+special((numep?numep:"-")+"")+'</span>'; 
             hl._ep=$n('span','info',null,hl,infotxt);
           }
-          while (g.P.childElementCount>30){
-            g._spre.push(g.P.firstElementChild.nextElementSibling);
-            g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+          if (home.withspre){
+            while (g.P.childElementCount>30){
+              g._spre.push(g.P.firstElementChild.nextElementSibling);
+              g.P.removeChild(g.P.firstElementChild.nextElementSibling);
+            }
+            g.__update_pre();
           }
-          g.__update_pre();
     
           if (!g._sel)
             pb.menu_select(g,g.P.firstElementChild);
