@@ -11350,7 +11350,12 @@ const home={
     kwinput:function(){
       var s=home.search.src.keyword;
       if (!s._noinput){
-        s.value=slugString(s.value+'');
+        s.value=s.value=s.value.toLowerCase()
+        .replace(/[^\w]+/g, " ")
+        .replace(/  /g, "  ")
+        .replace(/  /g, " ")
+        .replace(/  /g, " ")
+        .replace(/  /g, " ");
         home.search.src.update_history();
       }
     },
