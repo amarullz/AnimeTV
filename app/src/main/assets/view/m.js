@@ -6391,7 +6391,7 @@ const pb={
                   var have_active=false;
                   for (var i=0;i<_API.wallpaper_data.length;i++){
                     var vo={
-                      src:_API.wallpaper_base+"/thumbs"+_API.wallpaper_data[i].src,
+                      src:_API.wallpaper_base+"thumbs/"+_API.wallpaper_data[i].src,
                       title:_API.wallpaper_data[i].title,
                       rsrc:_API.wallpaper_data[i].src
                     };
