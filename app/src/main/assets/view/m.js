@@ -9545,17 +9545,23 @@ const home={
       );
     },
     default_user:function(endcb){
-      var dusr=toInt(_JSAPI.storeGet("default_user","0"));
+      var dusr=_JSAPI.storeGet("default_user","");
+      var sme=home.profiles.find(dusr,false);
+      var sel=0;
       var usrs=["Always show login screen"];
       for (var i=1;i<home.profiles.users.length;i++){
         usrs.push(home.profiles.users[i].n);
+        if (sme && home.profiles.users[i].u==sme.u){
+          sel=i;
+        }
       }
+
       _API.listPrompt(
         "Set Default User",
-        usrs,dusr,false,false,undefined,
+        usrs,sel,false,false,undefined,
         function(v){
           if (v!=null){
-            _JSAPI.storeSet("default_user",v+"")
+            _JSAPI.storeSet("default_user",home.profiles.users[v].u+"")
           }
           endcb();
         }
@@ -9571,8 +9577,9 @@ const home={
         can_add_new=true;
       }
       if (home.profiles.users.length>1){
-        var dusr=toInt(_JSAPI.storeGet("default_user","0"));
-        usrs.push("+ Set Default User"+(dusr>0?": "+(home.profiles.users[dusr].n):""));
+        var dusr=_JSAPI.storeGet("default_user","");
+        var sme=home.profiles.find(dusr,false);
+        usrs.push("+ Set Default User"+((dusr&&sme)?": "+(sme.n):""));
         start_u++;
       }
       for (var i=1;i<home.profiles.users.length;i++){

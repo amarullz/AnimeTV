@@ -26,10 +26,6 @@ function clk() {
         _JSAPI.playClick();
     }
 }
-function toInt(x) {
-    var x = parseInt(x);
-    return isNaN(x)?0:x;
-}
 
 /* Key codes */
 const KUP = 38;
@@ -67,7 +63,7 @@ document.addEventListener('keydown', function (e) {
 
 
 const login = {
-    defuser:toInt(_JSAPI.storeGet("default_user","0")),
+    default_user:null,
     wallpaper_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/wallpaper/',
     dynamic_wallpaper: 2,
     h: $('animetv'),
@@ -95,6 +91,14 @@ const login = {
                 login.currbg.classList.add('active');
             }
         }
+    },
+    find:function(prefix, retidx){
+        for (var i=0;i<login.users.length;i++){
+            if (login.users[i].u==prefix){
+                return retidx?i:login.users[i];
+            }
+        }
+        return retidx?0:null;
     },
     ppimg: function (id) {
         var usr = login.users[id];
@@ -128,6 +132,7 @@ const login = {
             } catch (e) { }
         }
         login.users = defuser;
+        login.default_user = login.find(_JSAPI.storeGet("default_user",""),true);
         login.start();
     },
     user_select_click: function (el) {
@@ -368,8 +373,8 @@ const login = {
         }
 
         login.sel=0;
-        if (login.defuser<login.users.length){
-            login.sel=login.defuser;
+        if (login.default_user<login.users.length){
+            login.sel=login.default_user;
         }
         login.usersel[login.sel].classList.add('active');
         login.update_theme();
@@ -436,6 +441,12 @@ const login = {
         },1);
     },
     start: function () {
+        if ((location.hash=='#appstart') && (login.default_user>0)){
+            if (!login.users[login.default_user].p){
+                login.go(login.default_user,login.users[login.default_user].u);
+                return;
+            }
+        }
         if (login.users.length > 1) {
             login.stat = 1;
             login.user_select();

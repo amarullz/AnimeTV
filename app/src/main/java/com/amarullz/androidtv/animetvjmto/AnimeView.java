@@ -416,7 +416,8 @@ import javax.crypto.spec.SecretKeySpec;
     aApi=new AnimeApi(activity);
     playerInjectString=aApi.assetsString("inject/view_player.html");
 //    webView.loadUrl("https://"+Conf.getDomain()+"/__view/main.html");
-    webView.loadUrl("https://"+Conf.getDomain()+"/__view/login/login.html");
+    webView.loadUrl("https://"+Conf.getDomain()+"/__view/login/login" +
+        ".html#appstart");
 
     // Init Channel Provider
     AnimeProvider.executeJob(activity);
