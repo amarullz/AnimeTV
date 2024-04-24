@@ -26,6 +26,11 @@ function clk() {
         _JSAPI.playClick();
     }
 }
+function toInt(x) {
+    var x = parseInt(x);
+    return isNaN(x)?0:x;
+}
+
 /* Key codes */
 const KUP = 38;
 const KDOWN = 40;
@@ -62,6 +67,7 @@ document.addEventListener('keydown', function (e) {
 
 
 const login = {
+    defuser:toInt(_JSAPI.storeGet("default_user","0")),
     wallpaper_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/wallpaper/',
     dynamic_wallpaper: 2,
     h: $('animetv'),
@@ -360,8 +366,12 @@ const login = {
             login.usersel.push(hl);
             login.load_user_config(login.users[i]);
         }
+
         login.sel=0;
-        login.usersel[0].classList.add('active');
+        if (login.defuser<login.users.length){
+            login.sel=login.defuser;
+        }
+        login.usersel[login.sel].classList.add('active');
         login.update_theme();
 
         _KEY_CB = login.user_select_keycb;

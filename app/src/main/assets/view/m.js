@@ -9544,12 +9544,36 @@ const home={
         }
       );
     },
+    default_user:function(endcb){
+      var dusr=toInt(_JSAPI.storeGet("default_user","0"));
+      var usrs=["Always show login screen"];
+      for (var i=1;i<home.profiles.users.length;i++){
+        usrs.push(home.profiles.users[i].n);
+      }
+      _API.listPrompt(
+        "Set Default User",
+        usrs,dusr,false,false,undefined,
+        function(v){
+          if (v!=null){
+            _JSAPI.storeSet("default_user",v+"")
+          }
+          endcb();
+        }
+      );
+    },
     manage:function(sel,endcb){
       var usrs=[];
       var start_u=0;
+      var can_add_new=false;
       if (home.profiles.users.length<5){
         usrs.push("+ Add New User");
-        start_u=1;
+        start_u++;
+        can_add_new=true;
+      }
+      if (home.profiles.users.length>1){
+        var dusr=toInt(_JSAPI.storeGet("default_user","0"));
+        usrs.push("+ Set Default User"+(dusr>0?": "+(home.profiles.users[dusr].n):""));
+        start_u++;
       }
       for (var i=1;i<home.profiles.users.length;i++){
         usrs.push(home.profiles.users[i].n);
@@ -9559,7 +9583,7 @@ const home={
         usrs, undefined, false, false, sel,
         function(v){
           if (v!=null){
-            if (v==0 && start_u==1){
+            if (v==0 && can_add_new){
               var un="u"+$tick();
               var nu=home.profiles.user_row(un,'User '+(home.profiles.users.length+1),0,'');
               home.profiles.users.push(nu);
@@ -9569,8 +9593,15 @@ const home={
                 home.profiles.manage(0,endcb);
               });
             }
+            else if (usrs[v].indexOf('+ Set Default User')==0){
+              home.profiles.default_user(function(){
+                requestAnimationFrame(function(){
+                  home.profiles.manage(v,endcb);
+                });
+              });
+            }
             else{
-              var selu=v;
+              var selu=(v-start_u)+1;
               if (start_u==0){
                 selu++;
               }
@@ -9884,7 +9915,7 @@ const home={
               s_desc:"Change Who's Watching screen style"
             },
             home.settings.styling.P,
-            '<c>format_size</c> Login Style<span class="value"></span>'
+            '<c>shield_person</c> Login Style<span class="value"></span>'
           );
         }
 
