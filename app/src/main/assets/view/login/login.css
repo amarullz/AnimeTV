@@ -108,6 +108,7 @@ html {
     bottom: .5vw;
     right: .5vw;
     opacity: .5;
+    z-index:5;
 }
 .flexhold{
     display: flex;
