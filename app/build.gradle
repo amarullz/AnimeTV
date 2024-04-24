@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 34
         versionCode 425
-        versionName "4.2.5"
+        versionName "4.5.8-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
