@@ -107,7 +107,7 @@ html {
     position: absolute;
     bottom: .5vw;
     right: .5vw;
-    opacity: .5;
+    opacity: .3;
     z-index:5;
 }
 .flexhold{
