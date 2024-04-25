@@ -10098,7 +10098,7 @@ const home={
               action:'*exitmode',
               s_desc:"Set back key to exit behavior"
             },
-            home.settings.styling.P,
+            home.settings.performance.P,
             '<c>door_open</c> Exit Mode<span class="value"></span>'
           );
         }
