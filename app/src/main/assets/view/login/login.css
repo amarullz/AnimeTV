@@ -140,6 +140,7 @@ img.usr_wallpaper{
 }
 .usr_wallpaper.hide{
     opacity: 0 !important;
+    visibility: hidden !important;
 }
 .usr_wallpaper.active{
     opacity: 1;

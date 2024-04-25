@@ -2045,6 +2045,7 @@ const KPGDOWN=34;
 const KPLAY=402;
 const KNEXT=403;
 const KPREV=401;
+const KMENU=93;
 
 /* sound click */
 function __clk_init(){
@@ -9245,7 +9246,7 @@ const home={
     keycb:function(c){
       var pc=home.sidebar.sel;
       var elm=home.sidebar.items[pc];
-      if (c==KBACK){
+      if (c==KBACK || c==KMENU){
         if (pb.cfg_data.directsidebar){
           if (pc==0){
             $('sidebar').classList.remove('active');
@@ -12156,6 +12157,12 @@ const home={
     }
     else if (c==KDOWN){
       if (++pr>home.menus[pc].length) pr=home.menus[pc].length;
+    }
+    else if (c==KMENU){
+      clk();
+      $('sidebar').classList.add('active');
+      home.sidebar.onsidebar=true;
+      return true;
     }
 
     if (home.row_selected!=pr){

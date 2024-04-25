@@ -136,6 +136,11 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_MEDIA_NEXT: c=403; break;
       case KeyEvent.KEYCODE_MEDIA_PREVIOUS: c=401; break;
       case KeyEvent.KEYCODE_FORWARD_DEL: c=8; break;
+
+      case 165: /* info, f10, menu */
+      case KeyEvent.KEYCODE_F1:
+      case KeyEvent.KEYCODE_F10:
+      case KeyEvent.KEYCODE_MENU: c=93; break;
     }
     if (code>=KeyEvent.KEYCODE_0 && code<=KeyEvent.KEYCODE_9){
       c=48+(code-KeyEvent.KEYCODE_0);
