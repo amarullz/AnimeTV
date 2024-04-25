@@ -9382,30 +9382,75 @@ const home={
       listOrder.showImgPicker(
         "Set Profile Picture",
         function(page,fcb){
-          _API.ppic_list(function(){
-            requestAnimationFrame(function(){
-              var o={
-                havenext:false,
-                data:[]
-              };
-              var have_active=false;
-              for (var i=0;i<_API.ppic_data.length;i++){
-                var vo={
-                  src:_API.ppic_base+"pic/"+_API.ppic_data[i].src+".png",
-                  title:_API.ppic_data[i].title,
-                  rsrc:_API.ppic_data[i].src
+          var res={
+            anilist:null,
+            mal:null
+          };
+          n=3;
+          function start_list(){
+            if (n<1){
+              requestAnimationFrame(function(){
+                var o={
+                  havenext:false,
+                  data:[]
                 };
-                if (usr.i==vo.rsrc || usr.im==vo.src){
-                  vo.active=true;
-                  have_active=true;
+                var have_active=false;
+                if (res.anilist){
+                  var vo={
+                    src:res.anilist,
+                    title:"AniList Avatar",
+                    rsrc:"-anilist"
+                  };
+                  if (usr.i==vo.rsrc || usr.im==vo.src){
+                    vo.active=true;
+                    have_active=true;
+                  }
+                  o.data.push(vo);
                 }
-                o.data.push(vo);
-              }
-              if (!have_active){
-                o.data[0].active=true;
-              }
-              fcb(o);
-            });
+                if (res.mal){
+                  var vo={
+                    src:res.mal,
+                    title:"MAL Avatar",
+                    rsrc:"-mal"
+                  };
+                  if (usr.i==vo.rsrc || usr.im==vo.src){
+                    vo.active=true;
+                    have_active=true;
+                  }
+                  o.data.push(vo);
+                }
+                for (var i=0;i<_API.ppic_data.length;i++){
+                  var vo={
+                    src:_API.ppic_base+"pic/"+_API.ppic_data[i].src+".png",
+                    title:_API.ppic_data[i].title,
+                    rsrc:_API.ppic_data[i].src
+                  };
+                  if (usr.i==vo.rsrc || usr.im==vo.src){
+                    vo.active=true;
+                    have_active=true;
+                  }
+                  o.data.push(vo);
+                }
+                if (!have_active){
+                  o.data[0].active=true;
+                }
+                fcb(o);
+              });
+            }
+          }
+          _MAL.getAvatar(true,function(c){
+            res.anilist=c;
+            n--;
+            start_list();
+          });
+          _MAL.getAvatar(false,function(c){
+            res.mal=c;
+            n--;
+            start_list();
+          });
+          _API.ppic_list(function(){
+            n--;
+            start_list();
           });
           return true;
         },
@@ -12612,8 +12657,8 @@ const _MAL={
           if (v){
             try{
               cb(v.data.User.avatar.large);
-              return;
             }catch(e){}
+            return;
           }
           cb(null);
         }, true);
@@ -12628,6 +12673,7 @@ const _MAL={
               var k=JSON.parse(v.responseText);
               cb(k.picture);
             }catch(e){}
+            return;
           }
           cb(null);
         });
