@@ -113,32 +113,39 @@ public class MainActivity extends FragmentActivity {
     switch(code){
       case KeyEvent.KEYCODE_ESCAPE:
       case KeyEvent.KEYCODE_BACK: c=27; break;
+
       case KeyEvent.KEYCODE_DPAD_UP: c=38; break;
       case KeyEvent.KEYCODE_DPAD_DOWN: c=40; break;
       case KeyEvent.KEYCODE_DPAD_LEFT: c=37; break;
       case KeyEvent.KEYCODE_DPAD_RIGHT: c=39; break;
+
       case KeyEvent.KEYCODE_ENTER:
       case KeyEvent.KEYCODE_DPAD_CENTER:
         c=send?13:1013;
         send=true;
         break;
-      case 166: /* PROG UP */
+
+      case KeyEvent.KEYCODE_CHANNEL_UP: /* 166 */
       case KeyEvent.KEYCODE_PAGE_UP: c=33; break;
-      case 167: /* PROG DOWN */
+
+      case KeyEvent.KEYCODE_CHANNEL_DOWN: /* 167 */
       case KeyEvent.KEYCODE_PAGE_DOWN: c=34; break;
-      case 183: /* red */
+
+      case KeyEvent.KEYCODE_PROG_BLUE:
       case KeyEvent.KEYCODE_F5:
         if (send){
           aView.reloadView();
         }
         break;
+
       case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: c=402; break;
       case KeyEvent.KEYCODE_MEDIA_NEXT: c=403; break;
       case KeyEvent.KEYCODE_MEDIA_PREVIOUS: c=401; break;
       case KeyEvent.KEYCODE_FORWARD_DEL: c=8; break;
 
-      case 165: /* info, f10, menu */
+      case KeyEvent.KEYCODE_INFO:
       case KeyEvent.KEYCODE_F1:
+      case KeyEvent.KEYCODE_PROG_RED:
       case KeyEvent.KEYCODE_F10:
       case KeyEvent.KEYCODE_MENU: c=93; break;
     }
