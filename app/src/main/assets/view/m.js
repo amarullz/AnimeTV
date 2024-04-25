@@ -4815,6 +4815,11 @@ const pb={
     'Follow User Theme',
     'Follow User Theme and Wallpaper'
   ],
+  cfgexitmode_name:[
+    'Exit directly',
+    'Confirm to exit',
+    'Back to login screen'
+  ],
   cfg_save:function(){
     _JSAPI.storeSet(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
   },
@@ -4844,6 +4849,13 @@ const pb={
           ls=1;
         }
         el.lastElementChild.innerHTML=pb.cfgloginscreen_name[ls];
+      }
+      else if (key=='exitmode'){
+        var ls=toInt(_JSAPI.storeGet("exitmode","0"));
+        if (ls<0||ls>2){
+          ls=0;
+        }
+        el.lastElementChild.innerHTML=pb.cfgexitmode_name[ls];
       }
       else if (key=='cachesz'){
         el.lastElementChild.innerHTML=_JSAPI.getCacheSz()+" MB";
@@ -4980,6 +4992,8 @@ const pb={
       
 
       pb.cfg_update_el('loginscreen');
+      pb.cfg_update_el('exitmode');
+
       pb.cfg_update_el('uifontsize');
       pb.cfg_update_el('httpclient');
       pb.cfg_update_el('listprog');
@@ -6356,6 +6370,23 @@ const pb={
         if (chval!=null){
           ls=toInt(chval);
           _JSAPI.storeSet("loginstyle",ls+"");
+          pb.cfg_update_el(key);
+        }
+        
+      }
+      else if (key=="exitmode"){
+        var ls=toInt(_JSAPI.storeGet("exitmode","0"));
+        if (ls<0||ls>2){
+          ls=0;
+        }
+        var chval=_API.listPrompt(
+          "Exit Mode",
+          pb.cfgexitmode_name,
+          ls
+        );
+        if (chval!=null){
+          ls=toInt(chval);
+          _JSAPI.storeSet("exitmode",ls+"");
           pb.cfg_update_el(key);
         }
       }
@@ -10061,6 +10092,17 @@ const home={
           '<c class="check">clear</c><c>thumbnail_bar</c> Show sidebar directly'
         );
 
+        if (home.profiles.isadmin()){
+          home.settings.tools._s_exitmode=$n(
+            'div','',{
+              action:'*exitmode',
+              s_desc:"Set back key to exit behavior"
+            },
+            home.settings.styling.P,
+            '<c>door_open</c> Exit Mode<span class="value"></span>'
+          );
+        }
+
         
 
 
@@ -12076,9 +12118,26 @@ const home={
     if (c==KBACK){
       if (pr==0){
         if (home.header_items_selected==0){
+          // EXIT MODE
+          var em=toInt(_JSAPI.storeGet("exitmode","0"));
           clk();
-          _JSAPI.appQuit();
-          return;
+          if (em==0){
+            _JSAPI.appQuit();
+          }
+          else if (em==1){
+            if (confirm("Exit AnimeTV?")){
+              _JSAPI.appQuit();
+            }
+          }
+          else if (em==2){
+            if ((home.profiles.users.length>1)||(home.profiles.me.p)){
+              home.profiles.logout();
+            }
+            else{
+              _JSAPI.appQuit();
+            }
+          }
+          return true;
         }
         else{
           home.header_keycb(home.home_header,-1);
@@ -12135,7 +12194,9 @@ const home={
         home.home_header.classList.remove('scrolled');
         home.home_scroll.style.transform="";
       }
+      return true;
     }
+    return false;
   },
 
 };
@@ -12671,7 +12732,15 @@ const _MAL={
           if (v.ok){
             try{
               var k=JSON.parse(v.responseText);
-              cb(k.picture);
+              if ('picture' in k){
+                try{
+                  cb(k.picture);
+                }catch(e){}
+                return;
+              }
+              else{
+                cb(null);
+              }
             }catch(e){}
             return;
           }
