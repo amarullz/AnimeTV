@@ -1,4 +1,46 @@
 # Changelogs
+- **4.6.5** 🍙
+  - Features
+    - Add New User Profile
+      - Add user management - Up to 5 users
+      - Add customizable user display name
+      - Add pin login per user
+      - Add user avatar selection
+      - Add default user selection
+      - Add AniList & MAL avatars in profile picture selection
+    - Add New Subtitle Style
+      - Add subtitle style preview
+      - Add color selection on subtitle style
+      - Add monospace font on subtitle style
+      - Add background opacity selection on subtitle style
+    - Add New app sidebar
+      - Move source selection to sidebar
+      - Add sidebar opening mode
+    - Add New Login Screen
+      - Add login screen follow user theme & wallpaper
+    - Add Exit Mode Settings - Configurable by admin only
+  - UI & UX
+    - Add image picker for avatars and wallpaper
+    - Revamp playback list of episodes, seasons, related and recommendation
+    - Tweak AniList have new episode indicator for more visibility
+    - Auto-hide skip intro button after 3 seconds if autoskip intro is disabled
+    - Enable mask fade for list edges in performance-ui
+    - Fix AnimeTV top logo color
+    - Remove source selection from settings
+    - Remove html5 player setting
+    - Remove compact list settings
+    - Add warning info for use dub stream
+    - Move MyList Main Page, Show Clock & Show sidebar to UI category
+  - Networking, API and Sources
+    - Add kaido.to to hianime (source 3) alternative domain
+  - Others
+    - Add spre config variable for lists auto dettach
+    - Set some settings item only available for admin (check nightly, cache settings, login screen)
+    - Add youtube channel link in about - settings
+    - Source will follow user last selected source
+    - Fix initial config values
+    - Fix time jump to last saved timestamp on next episode
+    - Fix spacebar on search
 - **4.2.5** 🫧
   - Features
     - New subtitle style config selection
