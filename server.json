@@ -8,10 +8,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.1-240410",
 
-  "appnum": 425,
-  "appver": "4.2.5",
-  "appsize": "5.92 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/4.2.5/animetv-4.2.5.apk",
+  "appnum": 465,
+  "appver": "4.6.5",
+  "appsize": "5.93 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/4.6.5/animetv-4.6.5.apk",
   "appnote": 
-    "- Add Multi domain name for sources\n- New subtitle style config\n- Add cache size config"
+    "- Add New User Profile and Login Screen\n- Add New app sidebar\n- Add New Subtitle Style\n- UI updates and bug fixes"
 }
