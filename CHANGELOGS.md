@@ -41,6 +41,7 @@
     - Fix initial config values
     - Fix time jump to last saved timestamp on next episode
     - Fix spacebar on search
+    - Assign menu,f1,f10 and red key to show sidebar
 - **4.2.5** 🫧
   - Features
     - New subtitle style config selection
