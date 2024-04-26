@@ -4798,15 +4798,15 @@ const pb={
   ],
   cfgperformance_name:[
     'No Blur Effect',
-    'No Drop Shadow',
-    'No Mask Image',
-    'No Text Shadow'
+    'No Drop Shadow Effect',
+    'No Mask Effect',
+    'No Text Shadow Effect'
   ],
   cfgperformance_short_name:[
     'Blur',
-    'Drop Shadow',
+    'Shadow',
     'Mask',
-    'Text Shadow'
+    'Text'
   ],
   cfguifontsize_name:[
     'Small',
@@ -4983,14 +4983,19 @@ const pb={
         }
         else if (key=='performance'){
           var s=[];
+          var n=0
           for (var i=0;i<pb.cfgperformance_short_name.length;i++){
             if (pb.cfg_data[key][i]){
               s.push(pb.cfgperformance_short_name[i]);
+              n++;
             }
           }
-          var tx=s.join(", ").trim();
-          if (!tx){
-            tx='Full effects';
+          var tx='Full effects';
+          if (n==pb.cfgperformance_short_name.length){
+            tx='Full performance';
+          }
+          else if (n>0){
+            tx=s.join(", ").trim();
           }
           el.lastElementChild.innerHTML=tx;
         }
