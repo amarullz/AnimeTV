@@ -4592,7 +4592,7 @@ const pb={
     skipfiller:false,
     jptitle:false,
     // compactlist:false,
-    directsidebar:false,
+    directsidebar:true,
     showclock:true,
     progcache:true,
     usedoh:true,
@@ -4645,7 +4645,7 @@ const pb={
         
         // pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.showclock=('showclock' in j)?(j.showclock?true:false):true;
-        pb.cfg_data.directsidebar=('directsidebar' in j)?(j.directsidebar?true:false):false;
+        pb.cfg_data.directsidebar=('directsidebar' in j)?(j.directsidebar?true:false):true;
         
         
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
@@ -4749,7 +4749,7 @@ const pb={
     pb.cfg_data.usedoh=true;
     
     // pb.cfg_data.compactlist=false;
-    pb.cfg_data.directsidebar=false;
+    pb.cfg_data.directsidebar=true;
     
     pb.cfg_data.showclock=true;
     
