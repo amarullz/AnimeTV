@@ -4802,6 +4802,12 @@ const pb={
     'No Mask Image',
     'No Text Shadow'
   ],
+  cfgperformance_short_name:[
+    'Blur',
+    'Drop Shadow',
+    'Mask',
+    'Text Shadow'
+  ],
   cfguifontsize_name:[
     'Small',
     'Medium',
@@ -4977,9 +4983,9 @@ const pb={
         }
         else if (key=='performance'){
           var s=[];
-          for (var i=0;i<pb.cfgperformance_name.length;i++){
+          for (var i=0;i<pb.cfgperformance_short_name.length;i++){
             if (pb.cfg_data[key][i]){
-              s.push(pb.cfgperformance_name[i]);
+              s.push(pb.cfgperformance_short_name[i]);
             }
           }
           var tx=s.join(", ").trim();
