@@ -4516,7 +4516,31 @@ const pb={
         break;
     }
     if (pb.cfg_data.performance){
-      _API.html_class+=' ui_performance'
+      var addclass=[];
+      var n=0;
+      if (pb.cfg_data.performance[0]){
+        addclass.push('ui_performance_blur');
+        n++;
+      }
+      if (pb.cfg_data.performance[1]){
+        addclass.push('ui_performance_shadow');
+        n++;
+      }
+      if (pb.cfg_data.performance[2]){
+        addclass.push('ui_performance_mask');
+        n++;
+      }
+      if (pb.cfg_data.performance[3]){
+        addclass.push('ui_performance_textshadow');
+        n++;
+      }
+      if (n>0){
+        addclass.push('ui_performance');
+      }
+      var cls=addclass.join(' ').trim();
+      if (cls){
+        _API.html_class+=' '+cls; // ' ui_performance'
+      }
     }
 
     switch(pb.cfg_data.uifontsize){
@@ -4561,7 +4585,7 @@ const pb={
 
   cfg_data:{
     animation:0,
-    performance:true,
+    performance:[true,true,true,false],
     autoskip:false,
     autonext:true,
     // html5player:false,
@@ -4627,7 +4651,7 @@ const pb={
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
         pb.cfg_data.alisthomess=('alisthomess' in j)?(j.alisthomess?true:false):true;
         
-        pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):true;
+        // pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):true;
         pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver?true:false):false;
 
         _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
@@ -4644,6 +4668,18 @@ const pb={
 
         pb.cfg_data.bgimg=JSON.parse(JSON.stringify(('bgimg' in j)?j.bgimg:{}));
         _API.bgimg_update();
+
+        if ('performance' in j){
+          if (Array.isArray(j.performance)){
+            pb.cfg_data.performance=JSON.parse(JSON.stringify(j.performance));
+          }
+          else if (j.performance){
+            pb.cfg_data.performance=[true,true,true,false];
+          }
+          else{
+            pb.cfg_data.performance=[false,false,false,false];
+          }
+        }
 
         if ('trailer' in j){
           var sv=parseInt(j.trailer);
@@ -4720,7 +4756,7 @@ const pb={
     pb.cfg_data.nonjapan=false;
     pb.cfg_data.alisthomess=true;
     
-    pb.cfg_data.performance=true;
+    pb.cfg_data.performance=[true,true,true,false];
     pb.cfg_data.mirrorserver=false;
     
     
@@ -4759,6 +4795,12 @@ const pb={
     'Fast',
     'Faster',
     'No Transition'
+  ],
+  cfgperformance_name:[
+    'No Blur Effect',
+    'No Drop Shadow',
+    'No Mask Image',
+    'No Text Shadow'
   ],
   cfguifontsize_name:[
     'Small',
@@ -4932,6 +4974,19 @@ const pb={
         }
         else if (key=='animation'){
           el.lastElementChild.innerHTML=pb.cfganimation_name[pb.cfg_data[key]];
+        }
+        else if (key=='performance'){
+          var s=[];
+          for (var i=0;i<pb.cfgperformance_name.length;i++){
+            if (pb.cfg_data[key][i]){
+              s.push(pb.cfgperformance_name[i]);
+            }
+          }
+          var tx=s.join(", ").trim();
+          if (!tx){
+            tx='Full effects';
+          }
+          el.lastElementChild.innerHTML=tx;
         }
         else if (key=='uifontsize'){
           el.lastElementChild.innerHTML=pb.cfguifontsize_name[pb.cfg_data[key]];
@@ -6565,10 +6620,21 @@ const pb={
         }
       }
       else if (key=='performance'){
-        pb.cfg_data.performance=!pb.cfg_data.performance;
-        pb.cfg_update_el(key);
-        pb.cfg_save();
-        pb.updateanimation();
+        // pb.cfg_data.performance=!pb.cfg_data.performance;
+        // pb.cfg_update_el(key);
+        // pb.cfg_save();
+        // pb.updateanimation();
+        var chval=_API.listPrompt(
+          "Performance UI",
+          pb.cfgperformance_name,
+          pb.cfg_data.performance
+        );
+        if (chval!=null){
+          pb.cfg_data.performance=JSON.parse(chval);
+          pb.cfg_update_el(key);
+          pb.cfg_save();
+          pb.updateanimation();
+        }
       }
       else if (key=='mirrorserver'){
         pb.cfg_data.mirrorserver=!pb.cfg_data.mirrorserver;
@@ -10046,7 +10112,8 @@ const home={
             s_desc:"Disable some styling for better performance gain"
           },
           home.settings.performance.P,
-          '<c class="check">clear</c><c>readiness_score</c> Performance UI'
+          '<c>readiness_score</c> Performance UI<span class="value">Normal</span>'
+          // '<c class="check">clear</c><c>readiness_score</c> Performance UI'
         );
         home.settings.tools._s_clksound=$n(
           'div','',{

@@ -247,9 +247,18 @@ ttl{
   --tim-8s: 0s;
 }
 
-.ui_performance *{
+/* .ui_performance *{
   box-shadow: none !important;
-  /* -webkit-mask-image: none !important; */
+  -webkit-mask-image: none !important;
+  text-shadow: none;
+} */
+.ui_performance_shadow *{
+  box-shadow: none !important;
+}
+.ui_performance_mask *{
+  -webkit-mask-image: none !important;
+}
+.ui_performance_textshadow *{
   text-shadow: none;
 }
 
@@ -3622,24 +3631,24 @@ c.loader {
   float: right;
 }
 @supports (backdrop-filter: blur(.6vw)) {
-  html:not(.ui_performance) #malview{
+  html:not(.ui_performance_blur) #malview{
     background-color: rgba(32,32,32,.6);
     backdrop-filter: blur(.6vw);
   }
-  html:not(.ui_performance) #malview.anilist_detail{
+  html:not(.ui_performance_blur) #malview.anilist_detail{
     background-color: rgba(24,24,24,.6);
     backdrop-filter: blur(.6vw);
   }
-  html:not(.ui_performance) #malview_info{
+  html:not(.ui_performance_blur) #malview_info{
     background-color: rgba(0,0,0,.5);
   }
-  html:not(.ui_performance) #malview_data div.disable{
+  html:not(.ui_performance_blur) #malview_data div.disable{
     background-color: transparent;
   }
-  html:not(.ui_performance) #malview_data div{
+  html:not(.ui_performance_blur) #malview_data div{
     background-color: rgba(45,45,45,.3);
   }
-  html:not(.ui_performance) #malview_data div.active{
+  html:not(.ui_performance_blur) #malview_data div.active{
     background-color: var(--primary-1);
   }
 }
