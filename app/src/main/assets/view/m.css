@@ -1003,6 +1003,7 @@ c.loader {
   color:rgba(255,255,255,.85);
   transition: color var(--tim-3s) var(--interpolation), transform 1s var(--interpolation);
 }
+.home_slideshow p div span.infobox span.infovalue h4:after,
 .home_slideshow p div span.infobox span.infovalue h4 *{
   text-shadow: 0 .2vw .2vw #000 !important;
 }
