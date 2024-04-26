@@ -4538,12 +4538,12 @@ const pb={
     else{
       document.body.classList.remove('japan-title');
     }
-    if (pb.cfg_data.compactlist){
-      document.body.classList.remove('view-informative');
-    }
-    else{
-      document.body.classList.add('view-informative');
-    }
+    // if (pb.cfg_data.compactlist){
+    //   document.body.classList.remove('view-informative');
+    // }
+    // else{
+    document.body.classList.add('view-informative');
+    // }
 
     if (pb.cfg_data.showclock){
       $('home_header').classList.remove('animetv_noclock');
@@ -4567,7 +4567,7 @@ const pb={
     // html5player:false,
     skipfiller:false,
     jptitle:false,
-    compactlist:false,
+    // compactlist:false,
     directsidebar:false,
     showclock:true,
     progcache:true,
@@ -4619,7 +4619,7 @@ const pb={
         pb.cfg_data.usedoh=('usedoh' in j)?(j.usedoh?true:false):true;
         
         
-        pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
+        // pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.showclock=('showclock' in j)?(j.showclock?true:false):true;
         pb.cfg_data.directsidebar=('directsidebar' in j)?(j.directsidebar?true:false):false;
         
@@ -4712,7 +4712,7 @@ const pb={
     
     pb.cfg_data.usedoh=true;
     
-    pb.cfg_data.compactlist=false;
+    // pb.cfg_data.compactlist=false;
     pb.cfg_data.directsidebar=false;
     
     pb.cfg_data.showclock=true;
@@ -4986,7 +4986,7 @@ const pb={
       pb.cfg_update_el('progcache');
       pb.cfg_update_el('usedoh');
       
-      pb.cfg_update_el('compactlist');
+      // pb.cfg_update_el('compactlist');
       pb.cfg_update_el('directsidebar');
       
       pb.cfg_update_el('showclock');
@@ -6511,13 +6511,13 @@ const pb={
         pb.cfg_save();
         pb.updateanimation();
       }
-      else if (key=='compactlist'){
-        // Update Home
-        pb.cfg_data.compactlist=!pb.cfg_data.compactlist;
-        pb.cfg_update_el(key);
-        pb.cfg_save();
-        pb.updateanimation();
-      }
+      // else if (key=='compactlist'){
+      //   // Update Home
+      //   pb.cfg_data.compactlist=!pb.cfg_data.compactlist;
+      //   pb.cfg_update_el(key);
+      //   pb.cfg_save();
+      //   pb.updateanimation();
+      // }
       else if (key=='directsidebar'){
         // Update Home
         pb.cfg_data.directsidebar=!pb.cfg_data.directsidebar;
@@ -10066,14 +10066,14 @@ const home={
           '<c class="check">clear</c><c>dvr</c> MyList Main Page'
         );
 
-        home.settings.tools._s_compactlist=$n(
-          'div','',{
-            action:'*compactlist',
-            s_desc:"Use old compact anime list"
-          },
-          home.settings.performance.P,
-          '<c class="check">clear</c><c>unfold_less</c> Compact List'
-        );
+        // home.settings.tools._s_compactlist=$n(
+        //   'div','',{
+        //     action:'*compactlist',
+        //     s_desc:"Use old compact anime list"
+        //   },
+        //   home.settings.performance.P,
+        //   '<c class="check">clear</c><c>unfold_less</c> Compact List'
+        // );
         
         home.settings.tools._s_showclock=$n(
           'div','',{
