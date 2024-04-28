@@ -1392,7 +1392,7 @@ c.loader {
   right:0;
   bottom:0;
   position: absolute;
-  background: linear-gradient(90deg, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .3) 45%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .4) 65%, rgba(0, 0, 0, 0) 100%);
   padding: 5vw;
   font-size: var(--fs-13vw);
   text-shadow: 0 0 .5vw #000, .05vw .05vw .05vw #000;
