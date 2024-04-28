@@ -212,11 +212,16 @@ import javax.crypto.spec.SecretKeySpec;
         }
         else if (jo.has("multi")) {
           JSONArray jm=jo.getJSONArray("multi");
-          final boolean[] multisel = new boolean[jm.length()];
-          final boolean[] firstval = new boolean[jm.length()];
-          for (int i = 0; i < jm.length(); i++) {
-            multisel[i] = jm.getBoolean(i);
-            firstval[i] = multisel[i];
+          final boolean[] multisel = new boolean[ja.length()];
+          final boolean[] firstval = new boolean[ja.length()];
+          for (int i = 0; i < ja.length(); i++) {
+            if (jm.length()>i) {
+              multisel[i] = jm.getBoolean(i);
+              firstval[i] = multisel[i];
+            }
+            else{
+              firstval[i] = multisel[i] = false;
+            }
           }
           builder.setMultiChoiceItems(list, multisel, (dialog, which, isChecked) -> {
             multisel[which]=isChecked;

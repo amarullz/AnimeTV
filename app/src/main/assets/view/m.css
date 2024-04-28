@@ -942,7 +942,9 @@ c.loader {
 }
 .home_slideshow p div.active.yt-playing img{
   opacity:0;
-  /* transform: scale(1); */
+}
+:not(.ui_performance_scale) .home_slideshow p div.active.yt-playing img{
+  transform: scale(1);
 }
 .home_slideshow p div .iframe_holder{
   display: none;
@@ -991,11 +993,13 @@ c.loader {
   display: block;
   transition: transform var(--tim-4s) var(--interpolation);
   transform-origin: center left;
-  /* transform: scale(.95); */
 }
-/* .home_slideshow.active p div span.infobox span.infovalue{
+:not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue{
+  transform: scale(.95);
+}
+:not(.ui_performance_scale) .home_slideshow.active p div span.infobox span.infovalue{
   transform: scale(1);
-} */
+}
 .home_slideshow p div span.infobox span.infovalue h4{
   margin:0;
   padding:0;
@@ -1032,27 +1036,27 @@ c.loader {
   text-shadow: 0 .1vw .2vw #000 !important;
   transition: color var(--tim-3s) var(--interpolation), transform var(--tim-5s) var(--interpolation);
 }
-/* .home_slideshow p div span.infobox span.infovalue span.desc{
+:not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue span.desc{
   transform-origin: top left;
   transform: scale(1);
 }
-.home_slideshow p div span.infobox span.infovalue h4{
+:not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue h4{
   transform-origin: bottom left;
   transform: scale(1);
 }
-.home_slideshow.active p div.active.yt-playing span.infobox span.infovalue span.desc,
-.home_slideshow.active p div.active.yt-playing span.infobox span.infovalue h4{
+:not(.ui_performance_scale) .home_slideshow.active p div.active.yt-playing span.infobox span.infovalue span.desc,
+:not(.ui_performance_scale) .home_slideshow.active p div.active.yt-playing span.infobox span.infovalue h4{
   transform: scale(.9);
-} */
-.home_slideshow.active p div.active span.infobox span.infovalue h4{
+}
+:not(.ui_performance_scale) .home_slideshow.active p div.active span.infobox span.infovalue h4{
   color:#fff;
 }
-.home_slideshow.active p div.active span.infobox span.infovalue span.desc{
+:not(.ui_performance_scale) .home_slideshow.active p div.active span.infobox span.infovalue span.desc{
   color:rgba(255,255,255,.8);
 }
-/* .home_slideshow p div.active img{
+:not(.ui_performance_scale) .home_slideshow p div.active img{
   transform: scale(1.1);
-} */
+}
 .home_slideshow p div span.infobox span.infovalue span.info{
   display: block;
   padding-top:1.5vw;
@@ -2278,6 +2282,10 @@ c.loader {
 }
 .home_list.home_list_notitle:before{
   display: none;
+}
+.home_list.home_list_notitle{
+  padding-top:1vw;
+  margin-top:-1vw;
 }
 
 .home_opt_list.active:before,
@@ -3689,7 +3697,13 @@ c.loader {
 /* .view-informative .home_list:not(#home_slide).active>p>div.active img {
   border: .1vw solid rgba(0,0,0,.5) !important;
 } */
-.view-informative .home_list:not(#home_slide).active>p>div:before{
+:not(.ui_performance_scale) .view-informative .home_list:not(#home_slide)>p>div{
+  transition: transform var(--tim-3s) var(--interpolation) !important;
+}
+:not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active {
+  transform: scale(1.04);
+}
+.view-informative .home_list:not(#home_slide).active>p>div.active:before{
   content:' ';
   display: block;
   width: 12.2vw;
@@ -3700,10 +3714,12 @@ c.loader {
   top:0;
   left:-.1vw;
   z-index:0;
-  visibility: hidden;
 }
-.view-informative .home_list:not(#home_slide).active>p>div.active:before{
-  visibility: visible;
+:not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
+  width: 12vw;
+  height: 16.8vw;
+  left:0vw !important;
+  top:.1vw !important;
 }
 .view-informative .home_list:not(#home_slide)>p>div b {
   text-align: left;

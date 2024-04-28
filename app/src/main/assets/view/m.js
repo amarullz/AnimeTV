@@ -4523,14 +4523,18 @@ const pb={
         n++;
       }
       if (pb.cfg_data.performance[1]){
-        addclass.push('ui_performance_shadow');
+        addclass.push('ui_performance_scale');
         n++;
       }
       if (pb.cfg_data.performance[2]){
-        addclass.push('ui_performance_mask');
+        addclass.push('ui_performance_shadow');
         n++;
       }
       if (pb.cfg_data.performance[3]){
+        addclass.push('ui_performance_mask');
+        n++;
+      }
+      if (pb.cfg_data.performance[4]){
         addclass.push('ui_performance_textshadow');
         n++;
       }
@@ -4585,7 +4589,7 @@ const pb={
 
   cfg_data:{
     animation:0,
-    performance:[true,true,true,false],
+    performance:[true,true,true,true,false],
     autoskip:false,
     autonext:true,
     // html5player:false,
@@ -4674,10 +4678,10 @@ const pb={
             pb.cfg_data.performance=JSON.parse(JSON.stringify(j.performance));
           }
           else if (j.performance){
-            pb.cfg_data.performance=[true,true,true,false];
+            pb.cfg_data.performance=[true,true,true,true,false];
           }
           else{
-            pb.cfg_data.performance=[false,false,false,false];
+            pb.cfg_data.performance=[false,false,false,false,false];
           }
         }
 
@@ -4756,7 +4760,7 @@ const pb={
     pb.cfg_data.nonjapan=false;
     pb.cfg_data.alisthomess=true;
     
-    pb.cfg_data.performance=[true,true,true,false];
+    pb.cfg_data.performance=[true,true,true,true,false];
     pb.cfg_data.mirrorserver=false;
     
     
@@ -4798,12 +4802,14 @@ const pb={
   ],
   cfgperformance_name:[
     'No Blur Effect',
+    'No Scale Effect',
     'No Drop Shadow Effect',
     'No Mask Effect',
     'No Text Shadow Effect'
   ],
   cfgperformance_short_name:[
     'Blur',
+    'Scale',
     'Shadow',
     'Mask',
     'Text'
@@ -14091,7 +14097,7 @@ const _MAL={
           }
           else{
             /* Add to fav */
-            var obep=_MAL.pop.var.resume?_MAL.pop.var.resume:1;
+            var obep=1; /*_MAL.pop.var.resume?_MAL.pop.var.resume:1;*/
             var ob={
               'url':openurl,
               'title':_MAL.pop.var.title,

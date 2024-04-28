@@ -96,9 +96,11 @@ html {
     color: #fff;
     overflow: hidden;
 }
+body *{
+    user-select: none !important;
+}
 #animetv{
     text-align: center;
-    user-select: none !important;
 }
 .login_logo{
     width: 15vw;
