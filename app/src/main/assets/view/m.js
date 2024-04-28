@@ -3862,6 +3862,14 @@ const vtt={
     'Color',
     'Text Opacity'
   ],
+  style_icons:[
+    'brand_family',
+    'format_size',
+    'format_bold',
+    'gradient',
+    'palette',
+    'opacity'
+  ],
   style_order:[
     [
       "Serif",
@@ -3946,7 +3954,7 @@ const vtt={
         var val=vtt.style_get(pb.cfg_data.ccstyle,i);
         // sel.push(vtt.style_type[i]+': '+val);
         sel.push({
-          'icon':'toggle_on',
+          'icon':vtt.style_icons[i],
           'title':'<span class="label">'+special(vtt.style_type[i])+
             '</span><span class="value vinline">'+special(val)+'</span>'
         });
@@ -7102,6 +7110,9 @@ const pb={
   keycb:function(c){
     if (_MAL.onpopup){
       return _MAL.pop_keycb(c);
+    }
+    if (listOrder.onpopup){
+      return listOrder.keycb(c);
     }
     if (home.onsettings){
       return home.settings_keycb(c);
