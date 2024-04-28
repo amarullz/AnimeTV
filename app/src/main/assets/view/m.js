@@ -3859,7 +3859,8 @@ const vtt={
     'Font Size',
     'Font Weight',
     'Background',
-    'Color'
+    'Color',
+    'Text Opacity'
   ],
   style_order:[
     [
@@ -3896,10 +3897,21 @@ const vtt={
       "Blue",
       "Primary",
       "Accent"
-    ]
+    ],
+    [
+      "Full Opacity",
+      "95% Transparent",
+      "90% Transparent",
+      "85% Transparent",
+      "80% Transparent",
+      "75% Transparent",
+      "70% Transparent",
+      "65% Transparent",
+      "60% Transparent"
+    ],
   ],
   style_divs:[
-    1,10,100,1000,10000
+    1,10,100,1000,10000,100000
   ],
   style_get:function(v, t, sl){
     if (t<0 || t>=vtt.style_order.length){
@@ -3932,12 +3944,19 @@ const vtt={
       var sel=[];
       for (var i=0;i<vtt.style_order.length;i++){
         var val=vtt.style_get(pb.cfg_data.ccstyle,i);
-        sel.push(vtt.style_type[i]+': '+val);
+        // sel.push(vtt.style_type[i]+': '+val);
+        sel.push({
+          'icon':'toggle_on',
+          'title':'<span class="label">'+special(vtt.style_type[i])+
+            '</span><span class="value vinline">'+special(val)+'</span>'
+        });
       }
-      _API.listPrompt(
-        "Subtitle Style",
-        sel, undefined, false, true, prev_selpos,
+      // _API.listPrompt(
+      //   "Subtitle Style",
+      //   sel, undefined, false, true, prev_selpos,
+      listOrder.showMenu("Subtitle Style",sel,prev_selpos,
         function(chval){
+          $('popupcontainer').className='active';
           if (chval!=null){
             var ssel=vtt.style_get(pb.cfg_data.ccstyle,chval,3);
             prev_selpos=chval;
@@ -14554,6 +14573,28 @@ const listOrder={
     $('popupcontainer').className='active';
     listOrder.holder.classList.add('active');
   },
+  showMenu:function(winTitle,list,sel,cb){
+    listOrder.popuptype=2;
+    listOrder.cb=cb;
+    listOrder.win.className='';
+    listOrder.onpopup=true;
+    listOrder.win.innerHTML='';
+    listOrder.changed=false;
+    $n('div','listorder_title',null,listOrder.win,special(winTitle));
+    listOrder.group=$n('div','settings_group active',null,listOrder.win,'');
+    listOrder.group.P=$n('p','',null,listOrder.group,'');
+    for (var i=0;i<list.length;i++){
+      var li=list[i];
+      var tx = '<c>'+(li.icon?li.icon:'arrow_right')+'</c> '+li.title;
+      var el=$n('div',(i==sel?'active':''),null,listOrder.group.P,tx);
+      el._id=i;
+      if (i==sel){
+        listOrder.group._sel=el;
+      }
+    }
+    $('popupcontainer').className='active';
+    listOrder.holder.classList.add('active');
+  },
   imglist:[],
   imgSel:-1,
   imgFetchCb:null,
@@ -14708,8 +14749,17 @@ const listOrder={
     listOrder.imgLoadNext();
   },
   close:function(){
+    $('popupcontainer').className='';
     if (listOrder.cb){
-      if (listOrder.popuptype==1){
+      if (listOrder.popuptype==2){
+        if (listOrder.group._sel){
+          listOrder.cb(listOrder.group._sel._id);
+        }
+        else{
+          listOrder.cb(null);
+        }
+      }
+      else if (listOrder.popuptype==1){
         /* imagepicker */
         if (listOrder.changed){
           if (listOrder.imgSel>-1){
@@ -14744,7 +14794,6 @@ const listOrder={
       }
       listOrder.cb=null;
     }
-    $('popupcontainer').className='';
     listOrder.holder.classList.remove('active');
     listOrder.win.innerHTML='';
     listOrder.onpopup=false;
@@ -14756,6 +14805,9 @@ const listOrder={
     }
     if (c==KBACK){
       clk();
+      if (listOrder.popuptype==2){
+        listOrder.group._sel=null;
+      }
       listOrder.close();
       return true;
     }
@@ -14777,6 +14829,11 @@ const listOrder={
     }
     else if (c==KENTER){
       clk();
+      if (listOrder.popuptype==2){
+        listOrder.close();
+        return true;
+      }
+
       listOrder.group._sel._data.active=!listOrder.group._sel._data.active;
       if (listOrder.group._sel._data.active){
         listOrder.group._sel.firstElementChild.classList.add('checked');
@@ -14800,6 +14857,10 @@ const listOrder={
       return true;
     }
     else if (c==KLEFT||c==KRIGHT){
+      if (listOrder.popuptype==2){
+        return false;
+      }
+
       var before=null;
       if (c==KLEFT){
         before=listOrder.group._sel.previousElementSibling;
