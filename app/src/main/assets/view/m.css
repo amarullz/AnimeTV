@@ -264,7 +264,11 @@ ttl{
 
 body,
 html {
-  margin: 0;
+  margin: 0;body *{
+    user-select: none !important;
+    -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
   padding: 0;
   font-family: robotoc, Arial, Helvetica, sans-serif;
   font-size: var(--fs-10vw);
@@ -273,6 +277,12 @@ html {
   color: #fff;
   /* scroll-behavior: smooth; */
   overflow: hidden;
+}
+
+*{
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 /* body > div */
