@@ -73,16 +73,20 @@ function SD_CFGNAME(n){
   return _API.user_prefix+'sdomain_'+n;
 }
 function SD_CHANGE(){
-  var nxe=_API.listPrompt(
+  listOrder.showList(
     "Source Server",
     __SOURCE_NAME,
     __SD-1,
+    function(nxe){
+      if (nxe==null){
+        return;
+      }
+      SD_SETTINGS(toInt(nxe)+1);
+    },
+    false,
+    '',
     true
   );
-  if (nxe==null){
-    return;
-  }
-  SD_SETTINGS(toInt(nxe)+1);
 }
 function SD_SETTINGS(n, cb){
   $('popupcontainer').className='active';
@@ -97,7 +101,7 @@ function SD_SETTINGS(n, cb){
     var sid_time=60000;
     for (var i=0;i<r.length;i++){
       var w=r[i];
-      var tx=w.dn+" "+(w.st==2?("[OK: "+w.tm+"ms]"):"[ERROR]");
+      var tx=special(w.dn)+'<span class="value">'+(w.st==2?("OK - "+w.tm+"ms"):"ERROR")+'</span>';
       if (w.st==2){
         if (w.tm<sid_time){
           sid=i;
@@ -107,34 +111,38 @@ function SD_SETTINGS(n, cb){
       list_info.push(tx);
     }
     var nx=n-1;
-    var chval=_API.listPrompt(
+    listOrder.showList(
       "Select Source Domain",list_info,
       sid,
-      true
-    );
-    if (chval!=null){
-      var wsel=r[chval];
-      if (wsel.st!=2){
-        if (!_API.confirmDialog("Domain Warning!!",
-        "Target Domain <b>"+wsel.dn+"</b> is failed in benchmark!!!<br>"+
-        "Do you want to continue?",
-        true)){
+      function(chval){
+        if (chval!=null){
+          var wsel=r[chval];
+          if (wsel.st!=2){
+            if (!_API.confirmDialog("Domain Warning!!",
+            "Target Domain <b>"+wsel.dn+"</b> is failed in benchmark!!!<br>"+
+            "Do you want to continue?",
+            true)){
+              return;
+            }
+          }
+          var sdomain="";
+          if (chval>0){
+            sdomain=__SOURCE_DOMAINS[nx][chval];
+          }
+          _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
+          if (cb){
+            cb(__SOURCE_DOMAINS[nx][chval]);
+          }
           return;
         }
-      }
-      var sdomain="";
-      if (chval>0){
-        sdomain=__SOURCE_DOMAINS[nx][chval];
-      }
-      _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
-      if (cb){
-        cb(__SOURCE_DOMAINS[nx][chval]);
-      }
-      return;
-    }
-    if (cb){
-      cb(null);
-    }
+        if (cb){
+          cb(null);
+        }
+      },
+      true,
+      '',
+      true
+    );
   });
 }
 function SD_LOAD_DOMAIN(){
@@ -2559,37 +2567,43 @@ const _API={
                 currentVersion=push_num;
               }
               var dt=new Date(n.time);
-              var ds=(dt.getYear()-100)+'-'+pad2(dt.getMonth()+1)+'-'+pad2(dt.getDate())+' '+pad2(dt.getHours())+':'+pad2(dt.getMinutes());
-              nl.push(n.name+(n.nightly?'':'-STABLE')+'\t('+n.filesize+')\t\t'+ds);
+              var ds=(dt.getYear()+1900)+'-'+pad2(dt.getMonth()+1)+'-'+pad2(dt.getDate())+' '+pad2(dt.getHours())+':'+pad2(dt.getMinutes());
+              nl.push(special(n.name+(n.nightly?'':'-STABLE'))+
+                '<span class="datetime">'+special(ds)+'</span><span class="value">'+n.filesize+'</span>'
+              );
               np.push(n);
               push_num++;
             }
           }
           if (nl.length>0){
-            var chval=_API.listPrompt(
+            listOrder.showList(
               "Nightly and Release",
               nl,
-              (currentVersion>-1)?currentVersion:undefined
+              (currentVersion>-1)?currentVersion:undefined,
+              function(chval){
+                if (chval!=null){
+                  var d=np[chval];
+                  var dt=new Date(d.time);
+                  var ctxt=
+                    "Filename: **"+d.filename+"** ("+d.filesize+")\n"+
+                    "Release Date: **"+dt.toLocaleString()+"**\n\n"+
+                    d.content.trim()+
+                    (d.nightly?"\n\n**CAUTION: __NIGHTLY BUILD MAY UNSTABLE !!!__**\n":"\n\n")+
+                    (d.nightly?"**ARE YOU SURE YOU WANT TO INSTALL NIGHTLY BUILD?**":"**Install this stable build?**");
+                  ctxt=md2html(ctxt,true);
+                  if (_API.confirmDialog((d.nightly?"Nightly ":"Release ")+d.name,ctxt,true)){
+                    _API.showToast(
+                      d.nightly?"Downloading Nightly Build...":"Downloading Stable Build..."
+                    );
+                    _JSAPI.installApk(d.url,d.nightly);
+                    setTimeout(reCheckForOnUpdate,500);
+                    return;
+                  }
+                }
+              },
+              true,
+              'deployed_code_update'
             );
-            if (chval!=null){
-              var d=np[chval];
-              var dt=new Date(d.time);
-              var ctxt=
-                "Filename: **"+d.filename+"** ("+d.filesize+")\n"+
-                "Release Date: **"+dt.toLocaleString()+"**\n\n"+
-                d.content.trim()+
-                (d.nightly?"\n\n**CAUTION: __NIGHTLY BUILD MAY UNSTABLE !!!__**\n":"\n\n")+
-                (d.nightly?"**ARE YOU SURE YOU WANT TO INSTALL NIGHTLY BUILD?**":"**Install this stable build?**");
-              ctxt=md2html(ctxt,true);
-              if (_API.confirmDialog((d.nightly?"Nightly ":"Release ")+d.name,ctxt,true)){
-                _API.showToast(
-                  d.nightly?"Downloading Nightly Build...":"Downloading Stable Build..."
-                );
-                _JSAPI.installApk(d.url,d.nightly);
-                setTimeout(reCheckForOnUpdate,500);
-                return;
-              }
-            }
           }
           else{
             _API.showToast("There is no new compatible nightly build...");
@@ -3968,10 +3982,10 @@ const vtt={
           if (chval!=null){
             var ssel=vtt.style_get(pb.cfg_data.ccstyle,chval,3);
             prev_selpos=chval;
-            _API.listPrompt(
+            listOrder.showList(
               vtt.style_type[chval],
               vtt.style_order[chval],
-              ssel, false, true, undefined, function(ssval){
+              ssel, function(ssval){
                 if (ssval!=null){
                   var k=pb.cfg_data.ccstyle;
                   k-=(Math.floor(k / vtt.style_divs[chval]) % 10) * vtt.style_divs[chval];
@@ -6338,17 +6352,19 @@ const pb={
         home.settings.lang_action();
       }
       else if (key=='theme'){
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Interface Color",
           pb.cfgtheme_name,
-          _API.theme_sel
+          _API.theme_sel,
+          function(chval){
+            if (chval!=null){
+              _API.theme_sel=toInt(chval);
+              _JSAPI.storeSet(_API.user_prefix+"theme", _API.theme_list[_API.theme_sel]);
+              _API.theme_update();
+              pb.cfg_update_el(key);
+            }
+          }
         );
-        if (chval!=null){
-          _API.theme_sel=toInt(chval);
-          _JSAPI.storeSet(_API.user_prefix+"theme", _API.theme_list[_API.theme_sel]);
-          _API.theme_update();
-          pb.cfg_update_el(key);
-        }
       }
       else if (key=='settings'){
         home.settings.open(1);
@@ -6401,123 +6417,138 @@ const pb={
         pb.cfg_update_el(key);
       }
       else if (key=="quality"){
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Video Quality",
           pb.cfgquality_name,
-          pb.cfg_data.quality
-        );
-        if (chval!=null){
-          pb.cfg_data.quality=toInt(chval);
-          pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-          if (pb.state){
-            pb.reinit_video_delay(1000);
+          pb.cfg_data.quality,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.quality=toInt(chval);
+              pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+              if (pb.state){
+                pb.reinit_video_delay(1000);
+              }
+            }
           }
-        }
+        );
       }
       else if (key=="animation"){
         // pb.state=0;
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Transition Animation",
           pb.cfganimation_name,
-          pb.cfg_data.animation
+          pb.cfg_data.animation,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.animation=toInt(chval);
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+              pb.updateanimation();
+            }
+          }
         );
-        if (chval!=null){
-          pb.cfg_data.animation=toInt(chval);
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-          pb.updateanimation();
-        }
       }
       else if (key=="trailer"){
         // pb.state=0;
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Play Trailer",
           pb.cfgtrailer_name,
-          pb.cfg_data.trailer
+          pb.cfg_data.trailer,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.trailer=toInt(chval);
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+            }
+          }
         );
-        if (chval!=null){
-          pb.cfg_data.trailer=toInt(chval);
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-        }
       }
       else if (key=="uifontsize"){
         // pb.state=0;
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Font Size",
           pb.cfguifontsize_name,
-          pb.cfg_data.uifontsize
+          pb.cfg_data.uifontsize,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.uifontsize=toInt(chval);
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+              pb.updateanimation();
+            }
+          }
         );
-        if (chval!=null){
-          pb.cfg_data.uifontsize=toInt(chval);
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-          pb.updateanimation();
-        }
       }
       else if (key=="loginscreen"){
         var ls=toInt(_JSAPI.storeGet("loginstyle","1"));
         if (ls<0||ls>2){
           ls=1;
         }
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Login Screen Style",
           pb.cfgloginscreen_name,
-          ls
+          ls,
+          function(chval){
+            if (chval!=null){
+              ls=toInt(chval);
+              _JSAPI.storeSet("loginstyle",ls+"");
+              pb.cfg_update_el(key);
+            }
+          }
         );
-        if (chval!=null){
-          ls=toInt(chval);
-          _JSAPI.storeSet("loginstyle",ls+"");
-          pb.cfg_update_el(key);
-        }
-        
       }
       else if (key=="exitmode"){
         var ls=toInt(_JSAPI.storeGet("exitmode","0"));
         if (ls<0||ls>2){
           ls=0;
         }
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Exit Mode",
           pb.cfgexitmode_name,
-          ls
+          ls,
+          function(chval){
+            if (chval!=null){
+              ls=toInt(chval);
+              _JSAPI.storeSet("exitmode",ls+"");
+              pb.cfg_update_el(key);
+            }
+          }
         );
-        if (chval!=null){
-          ls=toInt(chval);
-          _JSAPI.storeSet("exitmode",ls+"");
-          pb.cfg_update_el(key);
-        }
       }
 
       else if (key=="httpclient"){
         // pb.state=0;
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "HTTP Client",
           pb.cfghttpclient_name,
-          pb.cfg_data.httpclient
+          pb.cfg_data.httpclient,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.httpclient=toInt(chval);
+              pb.cfg_update_el(key);
+              pb.cfg_update_el('usedoh');
+              pb.cfg_save();
+              _JSAPI.setHttpClient(pb.cfg_data.httpclient);
+            }
+          }
         );
-        if (chval!=null){
-          pb.cfg_data.httpclient=toInt(chval);
-          pb.cfg_update_el(key);
-          pb.cfg_update_el('usedoh');
-          pb.cfg_save();
-          _JSAPI.setHttpClient(pb.cfg_data.httpclient);
-        }
       }
       else if (key=="listprog"){
         // pb.state=0;
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Update watch progress",
           pb.cfglistprog_name,
-          pb.cfg_data.listprog
+          pb.cfg_data.listprog,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.listprog=toInt(chval);
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+            }
+          }
         );
-        if (chval!=null){
-          pb.cfg_data.listprog=toInt(chval);
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-        }
       }
       else if (key=="ccstyle"){
         vtt.changestyle();
@@ -6645,23 +6676,29 @@ const pb={
           opttxt.push((opt[i])+" MB");
         }
         // Update Home
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "Cache Size",
           opttxt,
-          sel
-        );
-        if (chval!=null){
-          if (chval>0){
-            var newsz=opt[chval-1]
-            _JSAPI.setCacheSz(newsz);
-            pb.cfg_update_el(key);
-          }
-          else{
-            if (confirm("Clear AnimeTV Cache?")){
-              _JSAPI.clearCache();
+          sel,
+          function(chval){
+            if (chval!=null){
+              if (chval>0){
+                var newsz=opt[chval-1]
+                _JSAPI.setCacheSz(newsz);
+                pb.cfg_update_el(key);
+              }
+              else{
+                if (confirm("Clear AnimeTV Cache?")){
+                  _JSAPI.clearCache();
+                }
+              }
             }
           }
-        }
+        );
+        try{
+          listOrder.group.P.firstElementChild.firstElementChild.innerHTML='delete_forever';
+          listOrder.group.P.firstElementChild.firstElementChild.classList.remove('radio');
+        }catch(e){}
       }
       else if (key=='performance'){
         // pb.cfg_data.performance=!pb.cfg_data.performance;
@@ -6707,18 +6744,20 @@ const pb={
           }
         }
         else if (key=="scale"){
-          var chval=_API.listPrompt(
+          listOrder.showList(
             "Video Scaling",
             pb.cfgscale_name,
-            pb.cfg_data.scale
+            pb.cfg_data.scale,
+            function(chval){
+              if (chval!=null){
+                pb.cfg_data.scale=toInt(chval);
+                pb.cfg_update_el(key);
+                pb.cfg_save();
+                _API.videoScale(pb.cfg_data.scale);
+                pb.vid_cmd('scale',pb.cfg_data.scale);
+              }
+            }
           );
-          if (chval!=null){
-            pb.cfg_data.scale=toInt(chval);
-            pb.cfg_update_el(key);
-            pb.cfg_save();
-            _API.videoScale(pb.cfg_data.scale);
-            pb.vid_cmd('scale',pb.cfg_data.scale);
-          }
         }
         else{
           pb.cfg_data[key]=!pb.cfg_data[key];
@@ -9857,9 +9896,9 @@ const home={
         }
       }
 
-      _API.listPrompt(
+      listOrder.showList(
         "Set Default User",
-        usrs,sel,false,false,undefined,
+        usrs,sel,
         function(v){
           if (v!=null){
             _JSAPI.storeSet("default_user",home.profiles.users[v].u+"")
@@ -10448,36 +10487,38 @@ const home={
     },
     lang_action:function(){
       var selid=_API.tlangs_id(pb.cfg_data.lang,1);
-      var chval=_API.listPrompt(
+      listOrder.showList(
         "Subtitle Language",
         _API.lang_titles,
-        selid
-      );
-      if (chval!=null){
-        var prevstype=_API.currentStreamType;
+        selid,
+        function(chval){
+          if (chval!=null){
+            var prevstype=_API.currentStreamType;
 
-        var sel=toInt(chval);
-        var nlg=_API.tlangs[sel][1];
-        console.log("Change Language = "+nlg);
-        pb.cfg_data.lang=nlg;
-        pb.cfg_save();
-        pb.cfg_update_el('lang');
+            var sel=toInt(chval);
+            var nlg=_API.tlangs[sel][1];
+            console.log("Change Language = "+nlg);
+            pb.cfg_data.lang=nlg;
+            pb.cfg_save();
+            pb.cfg_update_el('lang');
 
-        var nst=_API.streamTypeById(nlg);
-        if (nst!=prevstype){
-          _API.setStreamTypeValue(-1,home.settings.isplayback?1:0);
-          if (home.settings.isplayback){
-            pb.startpos_val=pb.vid_stat.pos;
-            pb.init_video();
+            var nst=_API.streamTypeById(nlg);
+            if (nst!=prevstype){
+              _API.setStreamTypeValue(-1,home.settings.isplayback?1:0);
+              if (home.settings.isplayback){
+                pb.startpos_val=pb.vid_stat.pos;
+                pb.init_video();
+              }
+            }
+            if (nst==1 && prevstype==1){
+              /* Reinit subtitle */
+              try{
+                vtt.init(pb.subtitles);
+              }catch(e){}
+            }
           }
         }
-        if (nst==1 && prevstype==1){
-          /* Reinit subtitle */
-          try{
-            vtt.init(pb.subtitles);
-          }catch(e){}
-        }
-      }
+      );
     },
     open:function(arg){
       home.settings.isplayback=arg;
@@ -12010,71 +12051,89 @@ const home={
         home.search.open({});
       }
       else if (sel==1){
-        var chval=_API.listPrompt(
-          "Home",
-          ["Refresh Home","Customize Home", "Reload AnimeTV"]
-        );
-        if (chval!==null){
-          if (chval==0){
-            home.init_homepage(true);
-          }
-          else if (chval==1){
-            listOrder.show(
-              "Customize Home - Source "+__SD_NAME,
-              home.listOrder.home,
-              function(v){
-                if (v!=null){
-                  var homeSaved = [];
-                  for (var i=0;i<v.length;i++){
-                    homeSaved.push([v[i].id,v[i].active]);
-                  }
-                  listOrder.store.save("home",homeSaved,false);
-                  home.init_homepage(true);
-                }
+        listOrder.showMenu(
+          undefined,
+          [
+            {icon:'refresh',title:"Refresh Home"},
+            {icon:'tune',title:"Customize Home"},
+            {icon:'cycle',title:"Reload AnimeTV"}
+          ],
+          0,
+          function(chval){
+            if (chval!==null){
+              if (chval==0){
+                home.init_homepage(true);
               }
-            );
+              else if (chval==1){
+                listOrder.show(
+                  "Customize Home - Source "+__SD_NAME,
+                  home.listOrder.home,
+                  function(v){
+                    if (v!=null){
+                      var homeSaved = [];
+                      for (var i=0;i<v.length;i++){
+                        homeSaved.push([v[i].id,v[i].active]);
+                      }
+                      listOrder.store.save("home",homeSaved,false);
+                      home.init_homepage(true);
+                    }
+                  }
+                );
+              }
+              else if (chval==2){
+                _API.reload();
+              }
+            }
           }
-          else if (chval==2){
-            _API.reload();
-          }
-        }
+        );
       }
       else if (sel==2){
-        var chval=_API.listPrompt(
-          "MyList",
-          ["Refresh MyList","Customize MyList", "Clear Watch History"]
-        );
-        if (chval!==null){
-          if (chval==0){
-            home.init_mylist(true);
-          }
-          else if (chval==1){
-            listOrder.show(
-              "Customize MyList",
-              home.listOrder.mylist,
-              function(v){
-                if (v!=null){
-                  var listSaved = [];
-                  for (var i=0;i<v.length;i++){
-                    listSaved.push([v[i].id,v[i].active]);
+        // var chval=_API.listPrompt(
+        //   "MyList",
+        //   ["Refresh MyList","Customize MyList", "Clear Watch History"]
+        // );
+        listOrder.showMenu(
+          undefined,
+          [
+            {icon:'refresh',title:"Refresh MyList"},
+            {icon:'tune',title:"Customize MyList"},
+            {icon:'delete_forever',title:"Clear Watch History"}
+          ],
+          0,
+          function(chval){
+            if (chval!==null){
+              if (chval==0){
+                home.init_mylist(true);
+              }
+              else if (chval==1){
+                listOrder.show(
+                  "Customize MyList",
+                  home.listOrder.mylist,
+                  function(v){
+                    if (v!=null){
+                      var listSaved = [];
+                      for (var i=0;i<v.length;i++){
+                        listSaved.push([v[i].id,v[i].active]);
+                      }
+                      listOrder.store.save("mylist",listSaved,true);
+                      home.init_mylist(true);
+                    }
                   }
-                  listOrder.store.save("mylist",listSaved,true);
+                );
+              }
+              else if (chval==2){
+                if (!confirm('WARNING!!!\n\nThis action will clear your watch history, and can\'t be restored.\n\nYou want to continue?')){
+                  return;
+                }
+                if (confirm('WARNING!!!\n\nYou Have '+(list.history.list.length)+' anime in your watch history.\nClear it now?')){
+                  list.history={detail:{},list:[]};
+                  list.save(list.history,'list_history');
                   home.init_mylist(true);
                 }
               }
-            );
-          }
-          else if (chval==2){
-            if (!confirm('WARNING!!!\n\nThis action will clear your watch history, and can\'t be restored.\n\nYou want to continue?')){
-              return;
-            }
-            if (confirm('WARNING!!!\n\nYou Have '+(list.history.list.length)+' anime in your watch history.\nClear it now?')){
-              list.history={detail:{},list:[]};
-              list.save(list.history,'list_history');
-              home.init_mylist(true);
             }
           }
-        }
+        );
       }
       else if (sel==3){
         home.schedule_init(true);
@@ -13075,7 +13134,7 @@ const _MAL={
     var uri='/v2/anime/'+animeid+'/my_list_status?status='+enc(stat);
     _MAL.req(uri,"PUT",cb);
   },
-  login:function(isanilist){
+  login:function(isanilist,logintype){
     if (_MAL.token && !isanilist){
       if (confirm('Are you sure you want to logout MyAnimeList integration?')){
         _JSAPI.storeDel(_API.user_prefix+"mal_auth");
@@ -13091,19 +13150,28 @@ const _MAL={
       }
     }
     else{
-      if (!isanilist){
-        var chval=_API.listPrompt(
+      if (!isanilist && !logintype){
+        listOrder.showMenu(
           "MyAnimeList Login Type",
-          ["QRCode Web Authorization","Username + Password"]
+          [
+            {icon:'qr_code_scanner',title:"QRCode Web Authorization"},
+            {icon:'key',title:"Username + Password"}
+          ],
+          0,
+          function(chval){
+            if (chval===null){
+              return;
+            }
+            if (chval==1){
+              _JSAPI.malLogin();
+              return;
+            }
+            else{
+              _MAL.login(0,1);
+            }
+          }
         );
-
-        if (chval===null){
-          return;
-        }
-        if (chval==1){
-          _JSAPI.malLogin();
-          return;
-        }
+        return;
       }
 
       home.settings.open_qrcode(
@@ -14612,8 +14680,10 @@ const listOrder={
   cb:null,
   changed:false,
   title_el:null,
+  list_sel:-1,
   show:function(winTitle,list,cb){
     listOrder.popuptype=0;
+    listOrder.list_sel=-1;
     listOrder.cb=cb;
     listOrder.win.className='';
     listOrder.onpopup=true;
@@ -14644,14 +14714,66 @@ const listOrder={
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
   },
-  showMenu:function(winTitle,list,sel,cb){
+  showList:function(winTitle,list,sel,cb,ishtml,deficon,forcesel){
+    listOrder.list_sel=sel;
+    if (sel===undefined || forcesel){
+      listOrder.list_sel=-1;
+    }
     listOrder.popuptype=2;
     listOrder.cb=cb;
     listOrder.win.className='';
     listOrder.onpopup=true;
     listOrder.win.innerHTML='';
     listOrder.changed=false;
-    listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(winTitle));
+    if (winTitle!==undefined){
+      listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(winTitle));
+    }
+    listOrder.group=$n('div','settings_group active',null,listOrder.win,'');
+    listOrder.group.P=$n('p','',null,listOrder.group,'');
+    for (var i=0;i<list.length;i++){
+      var li=list[i];
+      var tx = '';
+      var active=false;
+      if (sel==undefined){
+        active=(i==0);
+        tx='<c>'+(deficon?deficon:'arrow_right')+'</c>';
+      }
+      else{
+        active=(i==sel)?true:false;
+        tx='<c class="radio'+(active?' active':'')+'">'+
+          (active?'radio_button_checked':'radio_button_unchecked')+
+          '</c>';
+      }
+      if (ishtml){
+        tx+=li;
+      }
+      else{
+        tx+=special(li);
+      }
+      var el=$n('div',(active?'active':''),null,listOrder.group.P,tx);
+      el._id=i;
+      if (active){
+        listOrder.group._sel=el;
+      }
+    }
+    if (!listOrder.group._sel){
+      listOrder.group._sel=listOrder.group.P.firstElementChild;
+    }
+    $('popupcontainer').className='active';
+    listOrder.holder.classList.add('active');
+    listOrder.autoScroll(listOrder.group,listOrder.group._sel);
+  },
+  showMenu:function(winTitle,list,sel,cb){
+    listOrder.list_sel=-1;
+    listOrder.popuptype=2;
+    listOrder.cb=cb;
+    listOrder.win.className='';
+    listOrder.onpopup=true;
+    listOrder.win.innerHTML='';
+    listOrder.changed=false;
+    if (winTitle!==undefined){
+      listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(winTitle));
+    }
     listOrder.group=$n('div','settings_group active',null,listOrder.win,'');
     listOrder.group.P=$n('p','',null,listOrder.group,'');
     for (var i=0;i<list.length;i++){
@@ -14665,6 +14787,9 @@ const listOrder={
       if (i==sel){
         listOrder.group._sel=el;
       }
+    }
+    if (!listOrder.group._sel){
+      listOrder.group._sel=listOrder.group.P.firstElementChild;
     }
     $('popupcontainer').className='active';
     listOrder.holder.classList.add('active');
@@ -14841,7 +14966,7 @@ const listOrder={
     
     if (tmpcb){
       if (ptype==2){
-        if (listOrder.group._sel){
+        if (listOrder.group._sel && (listOrder.list_sel!=listOrder.group._sel._id)){
           tmpcb(listOrder.group._sel._id);
         }
         else{

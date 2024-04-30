@@ -3899,6 +3899,18 @@ c.loader {
   margin-top: -.5vw;
   margin-bottom: -.5vw;
 }
+#listorder .settings_group p div c.radio{
+  color: #666;
+}
+#listorder .settings_group p div c.radio.active{
+  color: var(--accent-1);
+}
+#listorder .settings_group p div span.datetime{
+  float:right;
+  font-size:var(--fs-8vw);
+  color:#888;
+}
+
 #listorder .listorder_title.profile{
   text-align: left;
   padding:1.6vw;
