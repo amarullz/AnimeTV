@@ -3744,7 +3744,7 @@ c.loader {
   transition: transform var(--tim-3s) var(--interpolation) !important;
 }
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active {
-  transform: scale(1.04);
+  transform: scale(1.06);
 }
 .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   content:' ';
