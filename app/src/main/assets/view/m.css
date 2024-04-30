@@ -3850,8 +3850,7 @@ c.loader {
 #listorder .listorder_tips{
   display: block;
   padding:.6vw;
-  text-align: center;
-  
+  text-align: center; 
 }
 #listorder .listorder_tips{
   background-color: #1e1e1e;
@@ -3864,6 +3863,11 @@ c.loader {
   font-size: var(--fs-12vw);
   border-bottom: .1vw solid #121212;
   color: #ddd;
+}
+#listorder .settings_group{
+  max-height:70vh;
+  overflow-y: auto;
+  position: relative;
 }
 #listorder .settings_group p div{
   display: block;
@@ -3881,6 +3885,26 @@ c.loader {
 }
 #listorder .settings_group p div c.check{
   margin-top: -.2vw;
+}
+#listorder .settings_group p div img.listimg{
+  margin-left: -4.3vw;
+}
+#listorder .settings_group p div img.listimg,
+#listorder .listorder_title img.listimg{
+  width:3vw;
+  height: 3vw;
+  vertical-align: middle;
+  border-radius: 3vw;
+  margin-right: 1vw;
+  margin-top: -.5vw;
+  margin-bottom: -.5vw;
+}
+#listorder .listorder_title.profile{
+  text-align: left;
+  padding:1.6vw;
+}
+#listorder .listorder_title.profile c{
+  float: right;
 }
 
 /* SIDEBAR */

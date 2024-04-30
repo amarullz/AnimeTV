@@ -9583,16 +9583,24 @@ const home={
               });
             }
           }
-          _MAL.getAvatar(true,function(c){
-            res.anilist=c;
-            n--;
-            start_list();
-          });
-          _MAL.getAvatar(false,function(c){
-            res.mal=c;
-            n--;
-            start_list();
-          });
+          if (uid==_API.user_prefix){
+            // with anilist/MAL
+            _MAL.getAvatar(true,function(c){
+              res.anilist=c;
+              n--;
+              start_list();
+            });
+            _MAL.getAvatar(false,function(c){
+              res.mal=c;
+              n--;
+              start_list();
+            });
+          }
+          else{
+            // without anilist/MAL
+            n=1;
+          }
+          
           _API.ppic_list(function(){
             n--;
             start_list();
@@ -9704,7 +9712,11 @@ const home={
       var menu=[];
       if (uid==_API.user_prefix){
         if (home.profiles.users.length>1){
-          menu.push('Switch User');
+          menu.push({
+            icon:'swap_horiz',
+            title:'Switch User',
+            id:'switch'
+          });
         }
       }
       var pretitle='';
@@ -9712,53 +9724,80 @@ const home={
       if (!usr){
         return false;
       }
-      menu.push('Display Name: '+usr.n);
-      menu.push('Profile Picture: '+special(usr.it?usr.it:usr.i));
-      menu.push('PIN: '+(usr.p?'Have PIN':'No PIN'));
+      menu.push({
+        icon:'badge',
+        title:'<span class="label">Display Name</span>'+
+          '<span class="value vinline">'+special(usr.n)+'</span>',
+        id:'name'
+      });
+      menu.push({
+        icon:'account_box',
+        title:'<span class="label">Profile Picture</span>'+
+          '<span class="value vinline">'+special(usr.it?usr.it:usr.i)+'</span>',
+        id:'avatar'
+      });
+      menu.push({
+        icon:'lock',
+        title:'<span class="label">PIN</span>'+
+          '<span class="value vinline">'+special(usr.p?'Have PIN':'No PIN')+'</span>',
+        id:'pin'
+      });
+
       if (!sel){
         sel=0;
       }
       if ((uid=='') && (_API.user_prefix=='')){
-        menu.push('Manage Users');
+        menu.push({
+          icon:'construction',
+          title:'Manage Users',
+          id:'manage'
+        });
       }
       else if (_API.user_prefix==''){
-        menu.push('Delete Users');
-        pretitle='Edit User: ';
+        menu.push({
+          icon:'delete',
+          title:'Delete User',
+          id:'delete'
+        });
+        pretitle='<c>build</c>';
       }
-      _API.listPrompt(
-        pretitle+usr.n,
-        menu, undefined, false, false, sel,
+      // _API.listPrompt(
+      //   pretitle+usr.n,
+      //   menu, undefined, false, false, sel,
+      listOrder.showMenu('',menu,sel,
         function(v){
           if (v!=null){
-            if (menu[v].indexOf("Switch User")==0){
+            if (menu[v].id=="switch"){
               home.profiles.logout();
               return;
             }
-            else if (menu[v].indexOf("Profile Picture")==0){
+            else if (menu[v].id=="avatar"){
               home.profiles.set_pp(uid,function(){
                 home.profiles.open(uid,v,endcb);
               });
               return;
             }
-            else if (menu[v].indexOf("Display Name")==0){
+            else if (menu[v].id=="name"){
               home.profiles.set_name(uid,function(){
                 home.profiles.open(uid,v,endcb);
               });
               return;
             }
-            else if (menu[v].indexOf("PIN:")==0){
-              home.profiles.set_pin(uid,function(){
-                home.profiles.open(uid,v,endcb);
+            else if (menu[v].id=="pin"){
+              requestAnimationFrame(function(){
+                home.profiles.set_pin(uid,function(){
+                  home.profiles.open(uid,v,endcb);
+                });
               });
               return;
             }
-            else if (menu[v].indexOf("Manage Users")==0){
+            else if (menu[v].id=="manage"){
               home.profiles.manage(0,function(){
                 home.profiles.open(uid,v,endcb);
               });
               return;
             }
-            else if (menu[v].indexOf("Delete Users")==0){
+            else if (menu[v].id=="delete"){
               if (confirm("Are you sure you want to delete user '"+usr.n+"'?")){
                 var un=home.profiles.find(uid,true);
                 if ((un>0)&&(uid!='')){
@@ -9801,6 +9840,10 @@ const home={
           }
         }
       );
+      listOrder.title_el.classList.add('profile');
+      listOrder.title_el.innerHTML=
+        '<img src="'+home.profiles.ppimg(usr.u)+'" class="listimg" /> '+
+        special(usr.n)+pretitle;
     },
     default_user:function(endcb){
       var dusr=_JSAPI.storeGet("default_user","");
@@ -9830,22 +9873,37 @@ const home={
       var start_u=0;
       var can_add_new=false;
       if (home.profiles.users.length<5){
-        usrs.push("+ Add New User");
+        usrs.push({
+          icon:'add',
+          title:"Add New User",
+          id:'addnew'
+        });
         start_u++;
         can_add_new=true;
       }
       if (home.profiles.users.length>1){
         var dusr=_JSAPI.storeGet("default_user","");
         var sme=home.profiles.find(dusr,false);
-        usrs.push("+ Set Default User"+((dusr&&sme)?": "+(sme.n):""));
+        usrs.push({
+          icon:'check',
+          title:'<span class="label">Default User</span>'+
+            '<span class="value vinline">'+special((dusr&&sme)?sme.n:"")+'</span>',
+          id:'default'
+        });
         start_u++;
       }
       for (var i=1;i<home.profiles.users.length;i++){
-        usrs.push(home.profiles.users[i].n);
+        usrs.push({
+          icon:'account_circle',
+          image:home.profiles.ppimg(home.profiles.users[i].u),
+          title:special(home.profiles.users[i].n),
+          id:i
+        });
       }
-      _API.listPrompt(
-        "Manage Users",
-        usrs, undefined, false, false, sel,
+      // _API.listPrompt(
+      //   "Manage Users",
+      //   usrs, undefined, false, false, sel,
+      listOrder.showMenu("Manage Users",usrs,sel,
         function(v){
           if (v!=null){
             if (v==0 && can_add_new){
@@ -9858,7 +9916,7 @@ const home={
                 home.profiles.manage(0,endcb);
               });
             }
-            else if (usrs[v].indexOf('+ Set Default User')==0){
+            else if (usrs[v].id=="default"){
               home.profiles.default_user(function(){
                 requestAnimationFrame(function(){
                   home.profiles.manage(v,endcb);
@@ -14553,6 +14611,7 @@ const listOrder={
   group:null,
   cb:null,
   changed:false,
+  title_el:null,
   show:function(winTitle,list,cb){
     listOrder.popuptype=0;
     listOrder.cb=cb;
@@ -14560,7 +14619,7 @@ const listOrder={
     listOrder.onpopup=true;
     listOrder.win.innerHTML='';
     listOrder.changed=false;
-    $n('div','listorder_title',null,listOrder.win,special(winTitle));
+    listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(winTitle));
     listOrder.group=$n('div','settings_group active',null,listOrder.win,'');
     $n('div','listorder_tips',null,listOrder.win,'Use left/right to move order');
     
@@ -14583,6 +14642,7 @@ const listOrder={
     listOrder.group._sel.classList.add('active');
     $('popupcontainer').className='active';
     listOrder.holder.classList.add('active');
+    listOrder.autoScroll(listOrder.group,listOrder.group._sel);
   },
   showMenu:function(winTitle,list,sel,cb){
     listOrder.popuptype=2;
@@ -14591,12 +14651,15 @@ const listOrder={
     listOrder.onpopup=true;
     listOrder.win.innerHTML='';
     listOrder.changed=false;
-    $n('div','listorder_title',null,listOrder.win,special(winTitle));
+    listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(winTitle));
     listOrder.group=$n('div','settings_group active',null,listOrder.win,'');
     listOrder.group.P=$n('p','',null,listOrder.group,'');
     for (var i=0;i<list.length;i++){
       var li=list[i];
       var tx = '<c>'+(li.icon?li.icon:'arrow_right')+'</c> '+li.title;
+      if (li.image){
+        tx = '<img src="'+li.image+'" class="listimg" /> '+li.title;
+      }
       var el=$n('div',(i==sel?'active':''),null,listOrder.group.P,tx);
       el._id=i;
       if (i==sel){
@@ -14605,6 +14668,7 @@ const listOrder={
     }
     $('popupcontainer').className='active';
     listOrder.holder.classList.add('active');
+    listOrder.autoScroll(listOrder.group,listOrder.group._sel);
   },
   imglist:[],
   imgSel:-1,
@@ -14664,6 +14728,21 @@ const listOrder={
     }
     return false;
   },
+  autoScroll:function(par, sel){
+    // scroll
+    var ot=sel.offsetTop;
+    var oh=sel.offsetHeight;
+    var ob=ot+oh;
+    var st=par.scrollTop;
+    var sh=par.offsetHeight;
+    var sb=st+sh;
+    if (ot<st){ 
+      par.scrollTop=ot;
+    }
+    else if (ob>sb){
+      par.scrollTop=ob-sh;
+    }
+  },
   imgSelUpdate:function(pc){
     if (pc!=listOrder.imgSel){
       if (listOrder.imgSel>-1){
@@ -14671,22 +14750,7 @@ const listOrder={
       }
       listOrder.imglist[pc].classList.add('active');
       listOrder.imgSel=pc;
-
-      // scroll
-      var sel=listOrder.imglist[pc];
-      var ot=sel.offsetTop;
-      var oh=sel.offsetHeight;
-      var ob=ot+oh;
-      var st=listOrder.group.scrollTop;
-      var sh=listOrder.group.offsetHeight;
-      var sb=st+sh;
-      if (ot<st){ 
-        listOrder.group.scrollTop=ot;
-      }
-      else if (ob>sb){
-        listOrder.group.scrollTop=ob-sh;
-      }
-
+      listOrder.autoScroll(listOrder.group,listOrder.imglist[pc]);
     }
   },
   imgLoadNext:function(){
@@ -14753,34 +14817,48 @@ const listOrder={
     listOrder.imgHasNextPage=true;
     listOrder.imgOnLoad=false;
     listOrder.changed=false;
-    $n('div','listorder_title',null,listOrder.win,special(winTitle));
+    listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(winTitle));
     listOrder.group=$n('div','imgpicker_group',null,listOrder.win,'');
     $('popupcontainer').className='active';
     listOrder.holder.classList.add('active');
     listOrder.imgLoadNext();
   },
   close:function(){
+    var rcb=listOrder.cb;
+    var tmpcb=function(v){
+      requestAnimationFrame(function(){
+        rcb(v);
+        rcb=null;
+      });
+    };
+    var ptype=listOrder.popuptype;
+
     $('popupcontainer').className='';
-    if (listOrder.cb){
-      if (listOrder.popuptype==2){
+    listOrder.holder.classList.remove('active');
+    listOrder.win.innerHTML='';
+    listOrder.onpopup=false;
+    listOrder.popuptype=0;
+    
+    if (tmpcb){
+      if (ptype==2){
         if (listOrder.group._sel){
-          listOrder.cb(listOrder.group._sel._id);
+          tmpcb(listOrder.group._sel._id);
         }
         else{
-          listOrder.cb(null);
+          tmpcb(null);
         }
       }
-      else if (listOrder.popuptype==1){
+      else if (ptype==1){
         /* imagepicker */
         if (listOrder.changed){
           if (listOrder.imgSel>-1){
-            listOrder.cb(
+            tmpcb(
               listOrder.imglist[listOrder.imgSel]._data
             );
           }
         }
         else{
-          listOrder.cb(null);
+          tmpcb(null);
         }
         listOrder.imglist=[];
       }
@@ -14797,18 +14875,14 @@ const listOrder={
               }
             );
           }
-          listOrder.cb(data);
+          tmpcb(data);
         }
         else{
-          listOrder.cb(null);
+          tmpcb(null);
         }
       }
-      listOrder.cb=null;
     }
-    listOrder.holder.classList.remove('active');
-    listOrder.win.innerHTML='';
-    listOrder.onpopup=false;
-    listOrder.popuptype=0;
+    tmpcb=null;
   },
   keycb:function(c){
     if (listOrder.popuptype==1){
@@ -14835,6 +14909,7 @@ const listOrder={
         listOrder.group._sel.classList.remove('active');
         listOrder.group._sel=next;
         next.classList.add('active');
+        listOrder.autoScroll(listOrder.group,listOrder.group._sel);
       }
       return true;
     }
@@ -14894,6 +14969,7 @@ const listOrder={
         listOrder.group.P.appendChild(listOrder.group._sel);
       }
       listOrder.changed=true;
+      listOrder.autoScroll(listOrder.group,listOrder.group._sel);
       return true;
     }
     return false;
