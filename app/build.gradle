@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 34
         versionCode 465
-        versionName "4.6.5"
+        versionName "4.6.7-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
