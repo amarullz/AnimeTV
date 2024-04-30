@@ -953,9 +953,9 @@ c.loader {
 .home_slideshow p div.active.yt-playing img{
   opacity:0;
 }
-:not(.ui_performance_scale) .home_slideshow p div.active.yt-playing img{
+/* :not(.ui_performance_scale) .home_slideshow p div.active.yt-playing img{
   transform: scale(1);
-}
+} */
 .home_slideshow p div .iframe_holder{
   display: none;
   background-color: transparent !important;
@@ -1004,12 +1004,12 @@ c.loader {
   transition: transform var(--tim-4s) var(--interpolation);
   transform-origin: center left;
 }
-:not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue{
+/* :not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue{
   transform: scale(.95);
 }
 :not(.ui_performance_scale) .home_slideshow.active p div span.infobox span.infovalue{
   transform: scale(1);
-}
+} */
 .home_slideshow p div span.infobox span.infovalue h4{
   margin:0;
   padding:0;
@@ -1046,15 +1046,15 @@ c.loader {
   text-shadow: 0 .1vw .2vw #000 !important;
   transition: color var(--tim-3s) var(--interpolation), transform var(--tim-5s) var(--interpolation);
 }
-:not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue span.desc{
+/* :not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue span.desc{
   transform-origin: top left;
   transform: scale(1);
 }
 :not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue h4{
   transform-origin: bottom left;
   transform: scale(1);
-}
-:not(.ui_performance_scale) .home_slideshow.active p div.active.yt-playing span.infobox span.infovalue span.desc,
+} */
+/* :not(.ui_performance_scale) .home_slideshow.active p div.active.yt-playing span.infobox span.infovalue span.desc,
 :not(.ui_performance_scale) .home_slideshow.active p div.active.yt-playing span.infobox span.infovalue h4{
   transform: scale(.9);
 }
@@ -1066,7 +1066,7 @@ c.loader {
 }
 :not(.ui_performance_scale) .home_slideshow p div.active img{
   transform: scale(1.1);
-}
+} */
 .home_slideshow p div span.infobox span.infovalue span.info{
   display: block;
   padding-top:1.5vw;
