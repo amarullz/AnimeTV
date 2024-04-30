@@ -7147,11 +7147,11 @@ const pb={
 
   /* Root Key Callback */
   keycb:function(c){
-    if (_MAL.onpopup){
-      return _MAL.pop_keycb(c);
-    }
     if (listOrder.onpopup){
       return listOrder.keycb(c);
+    }
+    if (_MAL.onpopup){
+      return _MAL.pop_keycb(c);
     }
     if (home.onsettings){
       return home.settings_keycb(c);
@@ -12322,11 +12322,11 @@ const home={
       }
       return;
     }
-    if (_MAL.onpopup){
-      return _MAL.pop_keycb(c);
-    }
     if (listOrder.onpopup){
       return listOrder.keycb(c);
+    }
+    if (_MAL.onpopup){
+      return _MAL.pop_keycb(c);
     }
     if (home.onsearch){
       return home.search_keycb(c);
@@ -14098,47 +14098,56 @@ const _MAL={
             sl=i;
           }
         }
+        var havedel=false;
         if (st.indexOf(x)>-1){
           sn.push('Remove from '+ucfirst(x,1));
+          havedel=true;
         }
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "AniList",
           sn,
-          (sl>-1)?sl:undefined
-        );
-        if (chval!=null){
-          if (chval==6){
-            /* delete */
-            if (confirm('Are you sure you want to remove it from AniList?')){
-              _MAL.alset_del(hl._addal._mid, function(v){
-                if (v){
-                  hl._addal._curr='';
-                  hl._addal.innerHTML='<c>bookmark_add</c>Add to AniList';
-                  hl._addal._myinfo.innerHTML="Not on your list";
-                  home.init_mylist(true);
-                  _API.showToast("Deleted from AniList...");
+          (sl>-1)?sl:-1,
+          function(chval){
+            $('popupcontainer').className='active';
+            if (chval!=null){
+              if (chval==6){
+                /* delete */
+                if (confirm('Are you sure you want to remove it from AniList?')){
+                  _MAL.alset_del(hl._addal._mid, function(v){
+                    if (v){
+                      hl._addal._curr='';
+                      hl._addal.innerHTML='<c>bookmark_add</c>Add to AniList';
+                      hl._addal._myinfo.innerHTML="Not on your list";
+                      home.init_mylist(true);
+                      _API.showToast("Deleted from AniList...");
+                    }
+                    else{
+                      _API.showToast("Deleting AniList failed...");
+                    }
+                  });
                 }
-                else{
-                  _API.showToast("Deleting AniList failed...");
-                }
-              });
-            }
-          }
-          else{
-            var ssel = st[chval];
-            _MAL.alset_list(hl._addal._aid, ssel, function(v){
-              if (v){
-                hl._addal._curr=ssel;
-                hl._addal.innerHTML='<c>bookmark</c> AniList '+ucfirst(ssel,1);
-                hl._addal._myinfo.innerHTML=ucfirst(ssel,1);
-                home.init_mylist(true);
-                _API.showToast("Saved to AniList "+ucfirst(ssel,1));
               }
               else{
-                _API.showToast("Saving AniList failed...");
+                var ssel = st[chval];
+                _MAL.alset_list(hl._addal._aid, ssel, function(v){
+                  if (v){
+                    hl._addal._curr=ssel;
+                    hl._addal.innerHTML='<c>bookmark</c> AniList '+ucfirst(ssel,1);
+                    hl._addal._myinfo.innerHTML=ucfirst(ssel,1);
+                    home.init_mylist(true);
+                    _API.showToast("Saved to AniList "+ucfirst(ssel,1));
+                  }
+                  else{
+                    _API.showToast("Saving AniList failed...");
+                  }
+                });
               }
-            });
+            }
           }
+        );
+        if (havedel){
+          listOrder.group.P.lastElementChild.firstElementChild.classList.remove('radio');
+          listOrder.group.P.lastElementChild.firstElementChild.innerHTML='delete_forever';
         }
       }
       else if (hl._btn[hl._btn_sel]==hl._addmal){
@@ -14164,45 +14173,54 @@ const _MAL={
             sl=i;
           }
         }
+        var havedel=false;
         if (st.indexOf(x)>-1){
           sn.push('Remove from '+ucfirst(x.replace(/_/g,' '),1));
+          havedel=true;
         }
-        var chval=_API.listPrompt(
+        listOrder.showList(
           "MAL",
           sn,
-          (sl>-1)?sl:undefined
-        );
-        if (chval!=null){
-          if (chval==5){
-            /* delete */
-            if (confirm('Are you sure you want to remove it from MAL?')){
-              _MAL.set_del(hl._addmal._mid, function(v){
-                if (v){
-                  hl._addmal._dat.my_list_status.status='';
-                  hl._addmal._update();
-                  home.init_mylist(true);
-                  _API.showToast("Deleted from MAL...");
+          (sl>-1)?sl:-1,
+          function(chval){
+            $('popupcontainer').className='active';
+            if (chval!=null){
+              if (chval==5){
+                /* delete */
+                if (confirm('Are you sure you want to remove it from MAL?')){
+                  _MAL.set_del(hl._addmal._mid, function(v){
+                    if (v){
+                      hl._addmal._dat.my_list_status.status='';
+                      hl._addmal._update();
+                      home.init_mylist(true);
+                      _API.showToast("Deleted from MAL...");
+                    }
+                    else{
+                      _API.showToast("Deleting MAL failed...");
+                    }
+                  });
                 }
-                else{
-                  _API.showToast("Deleting MAL failed...");
-                }
-              });
-            }
-          }
-          else{
-            var ssel = st[chval];
-            _MAL.set_list(hl._addmal._mid, ssel, function(v){
-              if (v){
-                hl._addmal._dat.my_list_status.status=ssel;
-                hl._addmal._update();
-                home.init_mylist(true);
-                _API.showToast("Saved to MAL "+ucfirst(ssel.replace(/_/g,' '),1));
               }
               else{
-                _API.showToast("Saving MAL failed...");
+                var ssel = st[chval];
+                _MAL.set_list(hl._addmal._mid, ssel, function(v){
+                  if (v){
+                    hl._addmal._dat.my_list_status.status=ssel;
+                    hl._addmal._update();
+                    home.init_mylist(true);
+                    _API.showToast("Saved to MAL "+ucfirst(ssel.replace(/_/g,' '),1));
+                  }
+                  else{
+                    _API.showToast("Saving MAL failed...");
+                  }
+                });
               }
-            });
+            }
           }
+        );
+        if (havedel){
+          listOrder.group.P.lastElementChild.firstElementChild.classList.remove('radio');
+          listOrder.group.P.lastElementChild.firstElementChild.innerHTML='delete_forever';
         }
       }
     }
