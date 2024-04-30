@@ -15159,7 +15159,7 @@ const listOrder={
       return true;
     }
     else if (c==KLEFT||c==KRIGHT){
-      if (listOrder.popuptype==2){
+      if ((listOrder.popuptype==2)||(listOrder.popuptype==3)) {
         var next = null;
         if (c==KRIGHT){
           next=listOrder.group._sel.nextElementSibling;
