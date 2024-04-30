@@ -4842,11 +4842,18 @@ const pb={
     'No Transition'
   ],
   cfgperformance_name:[
-    'No Blur Effect',
-    'No Scale Effect',
-    'No Drop Shadow Effect',
-    'No Mask Effect',
-    'No Text Shadow Effect'
+    'Blur Effect',
+    'Scale Effect',
+    'Drop Shadow',
+    'Mask Effect',
+    'Text Shadow'
+  ],
+  cfgperformance_icon:[
+    'blur_on',
+    'resize',
+    'shadow',
+    'gradient',
+    'text_format'
   ],
   cfgperformance_short_name:[
     'Blur',
@@ -5032,14 +5039,14 @@ const pb={
           var s=[];
           var n=0
           for (var i=0;i<pb.cfgperformance_short_name.length;i++){
-            if (pb.cfg_data[key][i]){
+            if (!pb.cfg_data[key][i]){
               s.push(pb.cfgperformance_short_name[i]);
               n++;
             }
           }
-          var tx='Full effects';
+          var tx='Full performance';
           if (n==pb.cfgperformance_short_name.length){
-            tx='Full performance';
+            tx='Full effects';
           }
           else if (n>0){
             tx=s.join(", ").trim();
@@ -6705,17 +6712,32 @@ const pb={
         // pb.cfg_update_el(key);
         // pb.cfg_save();
         // pb.updateanimation();
-        var chval=_API.listPrompt(
+        listOrder.showMulti(
           "Performance UI",
           pb.cfgperformance_name,
-          pb.cfg_data.performance
-        );
-        if (chval!=null){
-          pb.cfg_data.performance=JSON.parse(chval);
-          pb.cfg_update_el(key);
-          pb.cfg_save();
-          pb.updateanimation();
-        }
+          pb.cfg_data.performance,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.performance=chval;
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+              pb.updateanimation();
+            }
+          },
+          pb.cfgperformance_icon,
+          true
+        )
+        // var chval=_API.listPrompt(
+        //   "Performance UI",
+        //   pb.cfgperformance_name,
+        //   pb.cfg_data.performance
+        // );
+        // if (chval!=null){
+        //   pb.cfg_data.performance=JSON.parse(chval);
+        //   pb.cfg_update_el(key);
+        //   pb.cfg_save();
+        //   pb.updateanimation();
+        // }
       }
       else if (key=='mirrorserver'){
         pb.cfg_data.mirrorserver=!pb.cfg_data.mirrorserver;
@@ -10253,7 +10275,7 @@ const home={
         home.settings.tools._s_performance=$n(
           'div','',{
             action:'*performance',
-            s_desc:"Disable some styling for better performance gain"
+            s_desc:"Enable/disable some effects for better performance gain"
           },
           home.settings.performance.P,
           '<c>readiness_score</c> Performance UI<span class="value">Normal</span>'
@@ -14732,6 +14754,42 @@ const listOrder={
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
   },
+  multilist:[],
+  showMulti:function(winTitle,list,sel,cb,icons,rev){
+    listOrder.popuptype=3;
+    listOrder.list_sel=-1;
+    listOrder.multilist=[];
+    listOrder.cb=cb;
+    listOrder.win.className='';
+    listOrder.onpopup=true;
+    listOrder.win.innerHTML='';
+    listOrder.changed=false;
+    if (winTitle!==undefined){
+      listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(winTitle));
+    }
+    listOrder.group=$n('div','settings_group active',null,listOrder.win,'');
+    listOrder.group.P=$n('p','',null,listOrder.group,'');
+    for (var i=0;i<list.length;i++){
+      var li=list[i];
+      var active=sel[i]?true:false;
+      if (rev){
+        active=active?false:true;
+      }
+      var tx =
+        '<c class="check'+(active?' checked':'')+'">check</c>'+
+        '<c>'+((icons&&icons[i])?icons[i]:'arrow_right')+'</c> '+
+        special(li);
+      var el=$n('div',(i==0?'active':''),null,listOrder.group.P,tx);
+      el._id=i;
+      el._active=active;
+      listOrder.multilist.push(sel[i]?true:false);
+    }
+    listOrder.group._sel = listOrder.group.P.firstElementChild;
+    listOrder.group._sel.classList.add('active');
+    $('popupcontainer').className='active';
+    listOrder.holder.classList.add('active');
+    listOrder.autoScroll(listOrder.group,listOrder.group._sel);
+  },
   showList:function(winTitle,list,sel,cb,ishtml,deficon,forcesel){
     listOrder.list_sel=sel;
     if (sel===undefined || forcesel){
@@ -14991,6 +15049,14 @@ const listOrder={
           tmpcb(null);
         }
       }
+      else if (ptype==3){
+        if (listOrder.changed){
+          tmpcb(JSON.parse(JSON.stringify(listOrder.multilist)));
+        }
+        else{
+          tmpcb(null);
+        }
+      }
       else if (ptype==1){
         /* imagepicker */
         if (listOrder.changed){
@@ -15061,6 +15127,13 @@ const listOrder={
       if (listOrder.popuptype==2){
         listOrder.close();
         return true;
+      }
+      else if (listOrder.popuptype==3){
+        listOrder.group._sel._active=!listOrder.group._sel._active;
+        listOrder.group._sel.firstElementChild.classList[listOrder.group._sel._active?'add':'remove']('checked');
+        listOrder.multilist[listOrder.group._sel._id]=!listOrder.multilist[listOrder.group._sel._id];
+        listOrder.changed=true;
+        return true;  
       }
 
       listOrder.group._sel._data.active=!listOrder.group._sel._data.active;
