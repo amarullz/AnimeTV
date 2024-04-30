@@ -15069,7 +15069,41 @@ const listOrder={
     }
     else if (c==KLEFT||c==KRIGHT){
       if (listOrder.popuptype==2){
-        return false;
+        var next = null;
+        if (c==KRIGHT){
+          next=listOrder.group._sel.nextElementSibling;
+          if (next){
+            for (var i=0;i<4;i++){
+              if (!next.nextElementSibling){
+                break;
+              }
+              else{
+                next=next.nextElementSibling;
+              }
+            }
+          }
+        }
+        else if (c==KLEFT){
+          next = listOrder.group._sel.previousElementSibling;
+          if (next){
+            for (var i=0;i<4;i++){
+              if (!next.previousElementSibling){
+                break;
+              }
+              else{
+                next=next.previousElementSibling;
+              }
+            }
+          }
+        }
+        if (next){
+          clk();
+          listOrder.group._sel.classList.remove('active');
+          listOrder.group._sel=next;
+          next.classList.add('active');
+          listOrder.autoScroll(listOrder.group,listOrder.group._sel);
+        }
+        return true;
       }
 
       var before=null;
