@@ -3035,10 +3035,11 @@ c.loader {
 }
 .settings_group p div span.label{
   display: inline-block;
-  width:12vw;
+  width:15vw;
 }
 .settings_group p div span.value.vinline{
   display: inline-block;
+  font-size: var(--fs-14vw);
 }
 .settings_group p div span.value l{
   display: inline-block;
@@ -3873,9 +3874,9 @@ c.loader {
   display: block;
   position: relative;
   /* border-bottom: .1vw solid #333; */
-  font-size: var(--fs-13vw);
-  line-height: 1;
-  padding:.8vw 5vw .8vw 6vw;
+  font-size: var(--fs-15vw);
+  line-height: 1.1;
+  padding:1vw 5vw 1vw 6vw;
 }
 #listorder .settings_group p div>c:not(.check){
   float:left;
