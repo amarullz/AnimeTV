@@ -7013,6 +7013,8 @@ const pb={
         }
         else if (g._should_clear)
           g._reset();
+        else if (g._cyclic)
+          n=g.P.lastElementChild;
       }
     }
     else if (c==KRIGHT){
@@ -7024,6 +7026,8 @@ const pb={
           g.__next();
           return true;
         }
+        else if (g._cyclic)
+          n=g.P.firstElementChild;
       }
       else
         n=g.P.firstElementChild;
@@ -8847,6 +8851,7 @@ const home={
     }
     home.home_slide.innerHTML='<div class="home_list_loader"><span class="z-loader"></span></div>';
     home.home_slide._page=1;
+    home.home_slide._cyclic=1;
 
     if (__SD6||pb.cfg_data.alisthomess||(__SD==2)){
       home.home_anilist_load();
