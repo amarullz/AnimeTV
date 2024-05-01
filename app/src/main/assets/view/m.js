@@ -14839,6 +14839,7 @@ const listOrder={
     }
     if (!listOrder.group._sel){
       listOrder.group._sel=listOrder.group.P.firstElementChild;
+      listOrder.group._sel.classList.add('active');
     }
     $('popupcontainer').className='active';
     listOrder.holder.classList.add('active');
@@ -14871,6 +14872,7 @@ const listOrder={
     }
     if (!listOrder.group._sel){
       listOrder.group._sel=listOrder.group.P.firstElementChild;
+      listOrder.group._sel.classList.add('active');
     }
     $('popupcontainer').className='active';
     listOrder.holder.classList.add('active');
