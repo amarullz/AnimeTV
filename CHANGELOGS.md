@@ -1,4 +1,27 @@
 # Changelogs
+- **4.8.0** 🪂
+  - Features
+    - Add text opacity selection for subtitle style
+    - Revamp user profile menu with internal dialog
+      - Show icons on popup dialog menu
+      - Show avatars for user selection
+      - Don't show anilist/mal avatars when editing user
+      - Only showing when selecting their own avatar
+  - UI & UX
+    - Change all android list dialog with custom html based dialog
+    - Detailed performance-ui effect selector
+    - Performance UI now show selected effect rather than disabled effect
+    - Add scale config on performance-ui
+    - fix slideshow jp-title text-shadow
+    - Set directly open sidebar enable by default
+    - Change subtitle style menu from android dialog to custom html based menu dialog
+    - Disable css tap highlight
+    - Remove slideshow scale effect
+    - Make playback meta background darker
+    - Cyclic slideshow navigation
+    - Fix dialog selection class to active
+  - Others
+    - Always set episode-1 when add to watchlist
 - **4.6.5** 🍙
   - Features
     - Add New User Profile
