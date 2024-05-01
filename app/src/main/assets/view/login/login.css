@@ -224,12 +224,12 @@ img.usr_wallpaper{
     transform: scale(1);
     opacity: 1;
 }
-@supports (backdrop-filter: blur(.6vw)) {
+/* @supports (backdrop-filter: blur(.6vw)) {
     .pin{
         background-color: rgba(30,30,30,.65);
       backdrop-filter: blur(.6vw);
     }
-}
+} */
 .pin .user_item{
     position: relative;
     vertical-align: middle;
