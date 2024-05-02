@@ -4996,7 +4996,7 @@ const pb={
         return;
       }
       if (key=='speed'){
-        el.lastElementChild.innerHTML="SPEED "+_API.vidSpeed.toFixed(2)+"x";
+        el.lastElementChild.innerHTML="Speed "+_API.vidSpeed.toFixed(2)+"x";
       }
       else if (key=='loginscreen'){
         var ls=toInt(_JSAPI.storeGet("loginstyle","1"));
@@ -5038,12 +5038,22 @@ const pb={
       else if (key=='fav'){
         if (pb.data.animeid){
           if (list.fav_exists(pb.data.animeid)){
-            el.innerHTML='<c>clear</c> REMOVE FROM WATCHLIST';
+            el.innerHTML='<c>clear</c> Watchlist';
           }
           else{
-            el.innerHTML='<c>bookmark_border</c> ADD TO WATCHLIST';
+            el.innerHTML='<c>bookmark_add</c> Watchlist';
           }
         }
+      }
+      else if (key=="streamselect"){
+        var icos=[
+          'subtitles','closed_caption','mic'
+        ];
+        var subel=[
+          'Hardsub','Softsub','Dub'
+        ];
+        el.innerHTML='<c>'+icos[_API.currentStreamType]+'</c> '+subel[_API.currentStreamType];
+        // _API.currentStreamType
       }
       else if (key=="hardsub" || key=="softsub"||key=="dub"){
         var subel=[
@@ -5184,6 +5194,7 @@ const pb={
       pb.cfg_update_el('hardsub');
       pb.cfg_update_el('softsub');
       pb.cfg_update_el('dub');
+      pb.cfg_update_el('streamselect');
 
       pb.cfg_update_el('lang');
 
@@ -6467,6 +6478,29 @@ const pb={
           _API.checkNightly();
         }
       }
+      else if (key=="streamselect"){
+        if (!__SD3&&!__SD5&&!__SD6){
+          var lst=['Hardsub'];
+          if (pb.data.stream_url.soft){
+            lst.push('Softsub');
+          }
+          if (pb.data.stream_url.dub){
+            lst.push('Dub');
+          }
+          listOrder.showList(
+            "Stream Type",
+            lst,
+            _API.currentStreamType,
+            function(chval){
+              if (chval!=null){
+                _API.setStreamTypeValue(chval,1);
+                pb.reinit_video_delay(100);
+                pb.cfg_update_el(key);
+              }
+            }
+          );
+        }
+      }
       else if (key=="hardsub" || key=="softsub"|| key=="dub"){
         var sel=0;
         if (key=="softsub") sel=1;
@@ -7459,24 +7493,11 @@ const pb={
 
     // $n('div','',{action:'-prev'},pb.pb_settings,'<c>skip_previous</c> PREV');
     // $n('div','',{action:'-next'},pb.pb_settings,'NEXT <c>skip_next</c>');
-    pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> SETTINGS');
-    pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
+    pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> Settings');
+    // pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
 
     
-    pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>SPEED 1.0x</span>');
-    if (/*!pb.cfg_data.html5player&&*/!__SD6){
-      pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>AUTO</span>');
-    }
-
-    if (!__SD3&&!__SD5&&!__SD6){
-      pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARDSUB');
-      if (pb.data.stream_url.soft){
-        pb.pb_settings._s_softsub=$n('div','',{action:'*softsub'},pb.pb_settings.P,'<c>clear</c> SOFTSUB');
-      }
-      if (pb.data.stream_url.dub){
-        pb.pb_settings._s_dub=$n('div','',{action:'*dub'},pb.pb_settings.P,'<c>clear</c> DUB');
-      }
-    }
+    pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>Speed 1.0x</span>');
 
     if (!__SD5){
       pb.pb_settings._s_mirrorserver=$n(
@@ -7484,8 +7505,23 @@ const pb={
           action:'*mirrorserver'
         },
         pb.pb_settings.P,
-        '<c>clear</c> MIRROR SERVER'
+        '<c>clear</c> Mirror'
       );
+    }
+
+    if (/*!pb.cfg_data.html5player&&*/!__SD6){
+      pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>Auto</span>');
+    }
+
+    if (!__SD3&&!__SD5&&!__SD6){
+      // pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARD');
+      // if (pb.data.stream_url.soft){
+      //   pb.pb_settings._s_softsub=$n('div','',{action:'*softsub'},pb.pb_settings.P,'<c>clear</c> SOFT');
+      // }
+      // if (pb.data.stream_url.dub){
+      //   pb.pb_settings._s_dub=$n('div','',{action:'*dub'},pb.pb_settings.P,'<c>clear</c> DUB');
+      // }
+      pb.pb_settings._s_streamselect=$n('div','',{action:'*streamselect'},pb.pb_settings.P,'<c>subtitles</c>');
     }
     
     /*
@@ -7674,6 +7710,8 @@ const pb={
     /* Genres */
     pb.menu_clear(pb.pb_genres);
     if (pb.data.genres||pb.data.info.type){
+      pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_genres.P,'');
+
       if (pb.data.info.type){
         $n('div','',{action:'@'+pb.data.info.type.val},pb.pb_genres.P,special(pb.data.info.type.name));
       }
