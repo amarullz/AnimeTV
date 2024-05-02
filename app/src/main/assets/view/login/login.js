@@ -443,6 +443,9 @@ const login = {
             }
         }
         /* PIN */
+        requestAnimationFrame(function(){
+            login.h.className='';
+        });
     },
     go:function(id,prefix){
         _JSAPI.profileSetSel(id);

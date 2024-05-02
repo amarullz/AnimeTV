@@ -103,6 +103,18 @@ body *{
 }
 #animetv{
     text-align: center;
+    opacity:1;
+    visibility: visible;
+    position: absolute;
+    top:0;
+    left:0;
+    right: 0;
+    bottom: 0;
+    transition: all .3s cubic-bezier(.25, .8, .25, 1);
+}
+#animetv.hide{
+    opacity:0;
+    visibility: hidden;
 }
 .login_logo{
     width: 15vw;
@@ -138,6 +150,7 @@ img.usr_wallpaper{
     width: 100vw;
     height: 100vh;
     object-fit: cover !important;
+    background: transparent !important;
     opacity: 0;
     visibility: hidden;
     transition: all 4s cubic-bezier(.25, .8, .25, 1);
@@ -218,11 +231,13 @@ img.usr_wallpaper{
     box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
     transform: scale(.9);
     opacity: 0;
+    visibility: hidden;
     transition: all .3s cubic-bezier(.25, .8, .25, 1);
 }
 .flexhold.pinhold.active .pin{
     transform: scale(1);
     opacity: 1;
+    visibility: visible;
 }
 /* @supports (backdrop-filter: blur(.6vw)) {
     .pin{

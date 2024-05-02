@@ -9966,14 +9966,12 @@ const home={
                       _JSAPI.storeDel(uid+"sdomain_"+i);
                     }
                   }catch(e){}
-                  
-
                   if (endcb){
                     endcb(true);
+                    return;
                   }
                 }
               }
-              return;
             }
           }
           if (endcb){
