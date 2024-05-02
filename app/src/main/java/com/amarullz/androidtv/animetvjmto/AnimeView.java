@@ -481,6 +481,10 @@ import javax.crypto.spec.SecretKeySpec;
             settings.put("Origin", "https://" + Conf.STREAM_DOMAIN2);
             settings.put("Referer", "https://" + Conf.STREAM_DOMAIN2+"/");
           }
+          else if (host.contains("mp4upload.com")){
+            settings.put("Origin", "https://"+host);
+            settings.put("Referer", "https://www.mp4upload.com/");
+          }
           else if (host.contains(Conf.STREAM_DOMAIN)){
             settings.put("Origin", "https://" + Conf.STREAM_DOMAIN);
           }
@@ -857,6 +861,21 @@ import javax.crypto.spec.SecretKeySpec;
         Log.d(_TAG,"BLOCK CSS/IMG = "+url);
         return aApi.badRequest;
       }
+    }
+    else if (host.contains("mp4upload.com")&&url.endsWith("video.mp4")){
+      Log.d(_TAG, "GOT-MASTER-M3U8 mp4upload = " + url);
+      String m3u8data="{}";
+      try{
+        JSONObject j=
+            new JSONObject("{\"result\":{\"sources\":[{}]}}");
+        j.getJSONObject("result")
+            .getJSONArray("sources")
+            .getJSONObject(0)
+            .put("file",url);
+        m3u8data=j.toString();
+      }catch (Exception ignored){}
+      Log.d(_TAG, "sendM3U8Req = " + m3u8data);
+      sendM3U8Req(m3u8data);
     }
     else if (host.contains("rosebudemphasizelesson.com")||
             host.contains("simplewebanalysis.com")||

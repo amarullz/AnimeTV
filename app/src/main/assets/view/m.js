@@ -1091,13 +1091,25 @@ const wave={
           main:null,
           mirror:null,
         };
+        var mp4upload=null;
         for (var i=0;i<d.length;i++){
           var s=d[i];
           var st=s.textContent.toLowerCase().trim();
           if (st=='vidplay') sid.main=s;
           else if (st=='mycloud') sid.mirror=s;
+          else if (st=='mp4upload') mp4upload=s;
         }
         var load_s=null;
+        if (sid.main==null && sid.mirror==null && mp4upload){
+          sid.main=mp4upload;
+        }
+        else if (sid.mirror==null && mp4upload){
+          sid.mirror=mp4upload;
+        }
+        else if (sid.main==null && mp4upload){
+          sid.main=sid.mirror;
+          sid.mirror=mp4upload;
+        }
         if (!pb.cfg_data.mirrorserver){
           load_s=(sid.main)?sid.main:sid.mirror;
         }
@@ -1612,8 +1624,40 @@ const wave={
       cb(null);
     });
   },
+  mp4uploadGetData:function(u,cb){
+    console.warn("MP4UPLOAD VID: "+u);
+    $ap(u,function(r){
+      if (r.ok){
+        try{
+          var player_data=null;
+          eval("player_data="+r.responseText.split('player.src(',2)[1].split(');')[0]);
+          if (player_data){
+            console.warn(player_data);
+            cb({
+              result:{
+                sources:[
+                  {
+                    file:player_data.src,
+                    type:player_data.type
+                  }
+                ]
+              }
+            });
+            return;
+          }
+        }catch(e){
+          cb(null);
+        }
+      }
+      cb(null);
+    });
+  },
   vidplayGetData:function(u,cb){
     var vidHost=u.split('/')[2];
+    if (vidHost.indexOf("mp4upload.com")>-1){
+      wave.mp4uploadGetData(u,cb);
+      return;
+    }
     wave.vidplayGetMedia(u,function(url){
       if (url){
         $ap(url,function(r){

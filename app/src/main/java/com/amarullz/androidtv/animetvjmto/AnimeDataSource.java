@@ -5,6 +5,7 @@ import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.datasource.HttpUtil.buildRangeRequestHeader;
 import static java.lang.Math.min;
 
+import android.net.SSLCertificateSocketFactory;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
@@ -28,6 +29,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.net.HttpHeaders;
 
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -42,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
+
+import javax.net.ssl.HttpsURLConnection;
 
 @UnstableApi public class AnimeDataSource extends BaseDataSource implements HttpDataSource {
 
@@ -632,6 +637,16 @@ import java.util.zip.GZIPInputStream;
             Map<String, String> requestParameters)
             throws IOException {
         HttpURLConnection connection = openConnection(url);
+
+        if (url.getHost().contains("mp4upload.com")) {
+            Log.d("ATVLOG","mp4upload allow cert");
+            if (connection instanceof HttpsURLConnection) {
+                HttpsURLConnection httpsConn = (HttpsURLConnection) connection;
+                httpsConn.setSSLSocketFactory(SSLCertificateSocketFactory.getInsecure(0, null));
+                httpsConn.setHostnameVerifier(new AllowAllHostnameVerifier());
+            }
+        }
+
         connection.setConnectTimeout(connectTimeoutMillis);
         connection.setReadTimeout(readTimeoutMillis);
 
