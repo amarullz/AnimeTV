@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -44,7 +43,6 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -53,7 +51,6 @@ import androidx.core.content.ContextCompat;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.source.MediaSource;
@@ -469,15 +466,17 @@ import javax.crypto.spec.SecretKeySpec;
       videoView=null;
     }
     videoDataSourceFactory= (s, transferListener) -> {
+      AnimeDataSource.sd5query="";
       Map<String, String> settings = new HashMap();
-      if (Conf.SOURCE_DOMAIN==5) {
-        settings.put("Origin", "https://" + Conf.SOURCE_DOMAIN5_API);
-      }
-      else{
-        try {
-          URL vurl=new URL(videoStatCurrentUrl);
-          String host=vurl.getHost();
+      try{
+        URL vurl=new URL(videoStatCurrentUrl);
+        String host=vurl.getHost();
 
+        if (Conf.SOURCE_DOMAIN==5) {
+          AnimeDataSource.sd5query=videoStatCurrentUrl;
+          settings.put("Origin", "https://" + Conf.SOURCE_DOMAIN5_API);
+        }
+        else{
           if (host.contains(Conf.STREAM_DOMAIN2)){
             settings.put("Origin", "https://" + Conf.STREAM_DOMAIN2);
             settings.put("Referer", "https://" + Conf.STREAM_DOMAIN2+"/");
@@ -500,10 +499,10 @@ import javax.crypto.spec.SecretKeySpec;
             String h2=h[h.length-2]+"."+h[h.length-1];
             settings.put("Origin", "https://" +h2);
           }
-        } catch (MalformedURLException ignored) {}
-      }
+        }
+      } catch (MalformedURLException ignored) {}
       Log.d(_TAG,"VIDEO-DATA-SOURCE : "+videoStatCurrentUrl+" / ORIGIN : "+settings.get("Origin"));
-      return new DefaultHttpDataSource.Factory()
+      return new AnimeDataSource.Factory()
           .setUserAgent(Conf.USER_AGENT)
           .setDefaultRequestProperties(settings)
           .setAllowCrossProtocolRedirects(true);

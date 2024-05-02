@@ -5415,7 +5415,7 @@ const pb={
       pb.vid_event(c,v);
     });
   },
-  m3u8_parse_main:function(src,dt){
+  m3u8_parse_main:function(src,dt,addurl){
     var d=(dt+"").replace(/\r/g,'').trim();
     var l=d.split('\n');
     var r=0;
@@ -5447,7 +5447,7 @@ const pb={
       pb.data.vsources.push(
         {
           r:t[i]+"p",
-          u:nsrc["p"+(t[i])]
+          u:nsrc["p"+(t[i])]+(addurl?addurl:'')
         }
       );
     }
@@ -5474,7 +5474,11 @@ const pb={
     console.log("PARSED-M3u8 QUALITY="+pb.cfg_data.quality);
     function getm3u8cb(r){
       if (r.ok){
-        pb.m3u8_parse_main(src,r.responseText);
+        var addUrl='';
+        if (__SD5){
+          addUrl=src.substring(src.indexOf('?'));
+        }
+        pb.m3u8_parse_main(src,r.responseText,addUrl);
         if (pb.cfg_data.quality<pb.data.vsources.length){
           var sl=pb.data.vsources[pb.cfg_data.quality];
           pb.sel_quality=sl.r;
@@ -5966,6 +5970,16 @@ const pb={
           try{
             window.Hls=function(c){
               this.loadSource=function(x){
+                if (c && ('xhrSetup' in c)){
+                  var kv={
+                    open:function(m,u,t){
+                      play_data.url=u;
+                      console.warn("GOT PLAY DATA XHRSETUP = "+play_data.url);
+                    }
+                  };
+                  c.xhrSetup(kv,x);
+                  return;
+                }
                 play_data.url=x;
                 console.warn("GOT PLAY DATA = "+x);
               };
