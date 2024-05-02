@@ -969,8 +969,16 @@ const wave={
   
   /* Get Episode View */
   view_cache:{},
-  getView:function(url_with_hash, f){
-    var uid=++_API.viewid;
+  getView:function(url_with_hash, f, retuid){
+    var uid=retuid?retuid:++_API.viewid;
+    try { if (VRF){} }
+    catch(e){
+      console.log("No VRF Yet...");
+      setTimeout(function(){
+        wave.getView(url_with_hash,f,uid);
+      },500);
+      return uid;
+    }
     var url_parse_hash=url_with_hash.split('#');
     var url=url_parse_hash[0];
     var hash_ep='';
@@ -3210,8 +3218,8 @@ const _API={
       ttid:''
     };
     try{
+      console.log("ATVLOG FLIX JSON : "+jsn);
       var da=JSON.parse(jsn);
-      // console.log("JSON : "+jsn);
       var u=('slug' in da)?da:da[0];
       if (!u){
         return null;
@@ -3353,7 +3361,7 @@ const _API={
         cb(_API.tooltipFlixParse(__AFLIX.cache[id],isview));
         return;
       }
-      tt_url='/__proxy/'+__AFLIX.ns+"/idtoinfo?ids=["+id+"]&y=5550555a525b";
+      tt_url='/__proxy/'+__AFLIX.ns+"/idtoinfo?ids=["+id+"]&y=6964696e666f";
       console.log("TTURL = "+tt_url);
     }
     else{
@@ -7505,7 +7513,8 @@ const pb={
       pb.pb_settings,
       pb.pb_tracks
     ];
-    pb.pb.style.backgroundImage='url('+(pb.data.banner?pb.data.banner:pb.data.poster)+'), url('+(pb.data.banner?pb.data.banner:pb.data.poster)+')';
+    pb.pb.style.backgroundImage='url('+(pb.data.banner?pb.data.banner:pb.data.poster)+')';
+    //, url('+(pb.data.banner?pb.data.banner:pb.data.poster)+')';
 
     /* META */
     pb.ep_num='';
@@ -7769,12 +7778,17 @@ const pb={
     /* playNext */
     try{
       pb.playnext_last_tick=$tick()+2000;
+      var bannerUrl=pb.data.banner?pb.data.banner:pb.data.poster;
+      if (bannerUrl.indexOf("https://")!=0){
+        bannerUrl="https://"+__DNS+""+bannerUrl;
+      }
       _JSAPI.playNextMeta(
         pb.data.title+(pb.ep_num?(" ("+pb.ep_num+")"):''),
         pb.ep_title, 
-        pb.data.banner?pb.data.banner:pb.data.poster, 
-        pb.url_value.substring(("https://"+__DNS).length),
-        pb.tip_value
+        bannerUrl, 
+        pb.open_uri,
+        pb.tip_value,
+        __SD
       );
     }catch(e){}
 
@@ -7802,12 +7816,14 @@ const pb={
     });
   },
   load_open_stat:0,
+  open_uri:"",
   open:function(uri, ttid, noclean, startpos){
     console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos+" -> "+uri);
     pb.video_tmp_start_pos=0;
     pb.pb_action_streamtype.classList.remove('active');
     pb.load_open_stat=0;
     _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
+    pb.open_uri=uri;
 
     if (noclean){
       pb.pb_meta.classList.add('active');
@@ -7858,6 +7874,7 @@ const pb={
         if (!noclean){
           pb.reset(1);
         }
+        console.log("ATVLOG ERROR GETVIEW: "+JSON.stringify(d));
         _API.showToast("Playing episode failed. Please try again...");
       }
     });
@@ -12484,11 +12501,27 @@ const home={
 /* Argument Update */
 window.__ARGUPDATE=function(){
     var uri=_JSAPI.getArg("url");
-    var tip=_JSAPI.getArg("tip");
-    var pos=_JSAPI.getArg("pos");
     if (uri){
-        console.log("ATVLOG ARGUPDATE -> "+uri+" / "+pos+" / "+tip);
-        pb.open("https://"+__DNS+uri, tip,0,pos);
+      var tip=_JSAPI.getArg("tip");
+      var pos=_JSAPI.getArg("pos");
+      var ssd=_JSAPI.getArg("sd");
+      var sd=toInt(ssd);
+      if (sd==0){
+        sd=1;
+      }
+      if (sd!=__SD){
+        console.log("ATVLOG ARGUPDATE -> CHANGE SD: "+sd+" / "+ssd);
+        if (sd>=1 && sd<=6){
+          _JSAPI.setSd(sd);
+          setTimeout(function(){
+            _API.reload();
+          },1);
+        }
+        return;
+      }
+      console.log("ATVLOG ARGUPDATE -> "+uri+" / "+pos+" / "+tip+" / SD="+sd);
+      pb.open(uri, tip,undefined,toInt(pos));
+      _JSAPI.clearArg();
     }
 };
 

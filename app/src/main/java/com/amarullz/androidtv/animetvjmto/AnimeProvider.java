@@ -264,10 +264,12 @@ public class AnimeProvider {
     @SuppressLint("RestrictedApi")
     private void addProgram(String title, String desc, String image, String uri, String tip) {
         PreviewProgram.Builder builder = new PreviewProgram.Builder();
-        Intent myIntent = new Intent(ctx, MainActivity.class);
+        @SuppressLint("UnsafeOptInUsageError") Intent myIntent = new Intent(ctx, MainActivity.class);
         myIntent.setPackage(ctx.getPackageName());
-        myIntent.putExtra("viewurl", uri);
+        myIntent.putExtra("viewurl", "https://aniwave.to"+uri);
         myIntent.putExtra("viewtip", tip);
+        myIntent.putExtra("viewsd", "1");
+        myIntent.putExtra("viewpos", "0");
         Uri intentUri= Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
         builder.setChannelId(CHANNEL_ID)
                 .setType(TvContractCompat.PreviewProgramColumns.TYPE_TV_EPISODE)
@@ -314,18 +316,17 @@ public class AnimeProvider {
     public static void setPlayNext(
             Context c,String title, String desc,
             String poster, String uri, String tip,
-            int pos, int duration){
+            int pos, int duration, int sd){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
                 clearPlayNext(c);
-
-                Intent myIntent = new Intent(c, MainActivity.class);
+                @SuppressLint("UnsafeOptInUsageError") Intent myIntent = new Intent(c, MainActivity.class);
                 myIntent.setPackage(c.getPackageName());
                 myIntent.putExtra("viewurl", uri);
                 myIntent.putExtra("viewtip", tip);
+                myIntent.putExtra("viewsd", sd+"");
                 myIntent.putExtra("viewpos", pos + "");
                 Uri intentUri = Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
-
                 WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
                 builder.setType(TvContractCompat.WatchNextPrograms.TYPE_MOVIE)
                         .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)

@@ -27,6 +27,7 @@ public class MainActivity extends FragmentActivity {
   public static String ARG_URL=null;
   public static String ARG_TIP=null;
   public static String ARG_POS=null;
+  public static String ARG_SD=null;
 
   public void updateInstance(Bundle savedInstanceState){
     /* Load Arguments */
@@ -36,6 +37,7 @@ public class MainActivity extends FragmentActivity {
         ARG_URL= extras.getString("viewurl");
         ARG_TIP= extras.getString("viewtip");
         ARG_POS=extras.getString("viewpos");
+        ARG_SD=extras.getString("viewsd");
       }
       else{
         ARG_URL=null;
@@ -46,6 +48,7 @@ public class MainActivity extends FragmentActivity {
       ARG_URL= (String) savedInstanceState.getSerializable("viewurl");
       ARG_TIP= (String) savedInstanceState.getSerializable("viewtip");
       ARG_POS= (String) savedInstanceState.getSerializable("viewpos");
+      ARG_SD= (String) savedInstanceState.getSerializable("viewsd");
     }
   }
 

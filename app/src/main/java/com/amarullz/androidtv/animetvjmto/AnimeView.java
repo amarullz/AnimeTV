@@ -1016,8 +1016,20 @@ import javax.crypto.spec.SecretKeySpec;
           if (MainActivity.ARG_POS != null)
             return MainActivity.ARG_POS;
           break;
+        case "sd":
+          if (MainActivity.ARG_SD != null)
+            return MainActivity.ARG_SD;
+          break;
       }
       return "";
+    }
+
+    @JavascriptInterface
+    public void clearArg(){
+      MainActivity.ARG_URL=null;
+      MainActivity.ARG_TIP=null;
+      MainActivity.ARG_POS=null;
+      MainActivity.ARG_SD=null;
     }
 
     @JavascriptInterface
@@ -1048,14 +1060,17 @@ import javax.crypto.spec.SecretKeySpec;
     }
 
     @JavascriptInterface
-    public void playNextMeta(String t, String d, String p, String u, String i){
+    public void playNextMeta(String t, String d, String p, String u, String i
+        , int sd){
       pnUpdated=false;
       pnTitle=t;
       pnDesc=d;
       pnPoster=p;
       pnUri=u;
       pnTip=i;
-      Log.d(_TAG,"Update Meta ("+u+"; "+t+"; "+d+"; "+i+")");
+      pnSd=sd;
+      Log.d(_TAG,"Update Meta ("+u+"; "+t+"; "+d+"; "+i+"; "+sd+"; Poster="+p+
+          ")");
     }
 
     @JavascriptInterface
@@ -1681,19 +1696,19 @@ import javax.crypto.spec.SecretKeySpec;
   public String pnPoster="";
   public String pnUri="";
   public String pnTip="";
+  public int pnSd=1;
   public int pnPos=0;
   public int pnDuration=0;
   public void updatePlayNext(){
     AsyncTask.execute(() -> {
       if (pnUpdated){
         pnUpdated=false;
-        if (pnPos>10&&(pnDuration-pnPos>10)) {
-
+        if (pnPos>2&&(pnDuration-pnPos>5)) {
             try {
               AnimeProvider.setPlayNext(
                       activity, pnTitle, pnDesc,
                       pnPoster, pnUri, pnTip,
-                      pnPos, pnDuration
+                      pnPos, pnDuration, pnSd
               );
             } catch (Exception ignored) {
             }
