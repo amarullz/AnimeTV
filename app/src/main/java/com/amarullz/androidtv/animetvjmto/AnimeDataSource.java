@@ -7,6 +7,7 @@ import static java.lang.Math.min;
 
 import android.net.SSLCertificateSocketFactory;
 import android.net.Uri;
+import android.util.Base64;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -31,6 +32,7 @@ import com.google.common.net.HttpHeaders;
 
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -40,6 +42,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.NoRouteToHostException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -302,6 +305,9 @@ import javax.net.ssl.HttpsURLConnection;
         this.keepPostFor302Redirects = keepPostFor302Redirects;
     }
 
+    private Uri noConnUri=null;
+    private int noConnResponseCode=-1;
+
     /**
      * @deprecated Use {@link AnimeDataSource.Factory#setContentTypePredicate(Predicate)}
      *     instead.
@@ -316,12 +322,15 @@ import javax.net.ssl.HttpsURLConnection;
     @Override
     @Nullable
     public Uri getUri() {
-        return connection == null ? null : Uri.parse(connection.getURL().toString());
+        return connection == null ? noConnUri : Uri.parse(connection.getURL().toString());
     }
 
     @UnstableApi
     @Override
     public int getResponseCode() {
+        if (noConnResponseCode>0){
+            return noConnResponseCode;
+        }
         return connection == null || responseCode <= 0 ? -1 : responseCode;
     }
 
@@ -370,7 +379,31 @@ import javax.net.ssl.HttpsURLConnection;
         this.dataSpec = dataSpec;
         bytesRead = 0;
         bytesToRead = 0;
+        noConnUri=null;
+        noConnResponseCode=-1;
+
         transferInitializing(dataSpec);
+
+        if (Conf.SOURCE_DOMAIN==6) {
+            try {
+                URL url = new URL(dataSpec.uri.toString());
+                if (url.getRef()!=null && url.getRef().startsWith("DAT=")){
+                    String b64=url.getRef().substring(4);
+                    byte[] txtVal = Base64.decode(b64,Base64.DEFAULT);
+                    inputStream = new ByteArrayInputStream(txtVal);
+                    bytesToRead = dataSpec.length; // txtVal.length;
+                    opened = false;
+                    this.connection=null;
+                    noConnUri=Uri.parse(url.toString());
+                    noConnResponseCode=200;
+                    Log.d("ATVLOG","Source6 Direct M3u8: ("+bytesToRead+")\n"+
+                        new String(txtVal, StandardCharsets.UTF_8));
+                    return bytesToRead;
+                }
+            } catch (Exception e) {
+                Log.d("ATVLOG","Source6 Direct M3u8 ERR: "+e);
+            }
+        }
 
         String responseMessage;
         HttpURLConnection connection;
@@ -646,7 +679,6 @@ import javax.net.ssl.HttpsURLConnection;
                 httpsConn.setHostnameVerifier(new AllowAllHostnameVerifier());
             }
         }
-
         connection.setConnectTimeout(connectTimeoutMillis);
         connection.setReadTimeout(readTimeoutMillis);
 
@@ -774,7 +806,9 @@ import javax.net.ssl.HttpsURLConnection;
                         HttpDataSourceException.TYPE_OPEN);
             }
             bytesToSkip -= read;
-            bytesTransferred(read);
+            if (opened) {
+                bytesTransferred(read);
+            }
         }
     }
 
@@ -810,7 +844,9 @@ import javax.net.ssl.HttpsURLConnection;
         }
 
         bytesRead += read;
-        bytesTransferred(read);
+        if (opened) {
+            bytesTransferred(read);
+        }
         return read;
     }
 
