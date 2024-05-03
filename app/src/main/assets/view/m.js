@@ -487,11 +487,12 @@ var kaas={
       f(JSON.parse(JSON.stringify(d)),uid);
     }
 
-    function selectServer(d){
+    function selectServer(stid,d){
       if (!d || d.length<1){
         return null;
       }
-      var ismirror= pb.cfg_data.mirrorserver;
+      var ismirror=(pb.server_selected(1)==1);
+      var hasod=false;
       var od=d[0];
       var md=d[0];
       var vs=null;
@@ -501,26 +502,57 @@ var kaas={
         if (di.name){
           if (di.name=='VidStreaming'){
             vs=di;
+            view_data.servers[stid].push(
+              pb.serverobj('VidStreaming',0)
+            );
+            if (pb.server_selected(2)==0){
+              hasod=true;
+              od=di;
+            }
           }
           else if (di.name=='BirdStream'){
             bs=di;
+            view_data.servers[stid].push(
+              pb.serverobj('BirdStream',1)
+            );
+            if (pb.server_selected(2)==1){
+              hasod=true;
+              od=di;
+            }
+          }
+          else if (di.name=='DuckStream'){
+            view_data.servers[stid].push(
+              pb.serverobj('DuckStream',2)
+            );
+            if (pb.server_selected(2)==2){
+              hasod=true;
+              od=di;
+            }
           }
         }
       }
       if (bs){
-        od=bs;
+        if (!hasod){
+          od=bs;
+        }
         md=vs?vs:bs;
       }
       else if (vs){
-        od=vs;
+        if (!hasod){
+          od=vs;
+        }
         md=bs?bs:vs;
       }
       if (!ismirror){
-        od=vs?vs:od;
+        if (!hasod){
+          od=vs?vs:od;
+        }
         md=bs?bs:md;
       }
       else{
-        od=bs?bs:od;
+        if (!hasod){
+          od=bs?bs:od;
+        }
         md=vs?vs:md;
       }
       if (!md.name){
@@ -549,7 +581,7 @@ var kaas={
         od={
           name:odname,
           src:vd
-        }
+        };
       }
       od.mirror=JSON.parse(JSON.stringify(md));
       return od;
@@ -583,9 +615,15 @@ var kaas={
               'dub':''
             };
             view_data.skip=[];
+            view_data.servers={
+              'sub':[],
+              'softsub':[],
+              'dub':[]
+            };
             if (d.sub_data){
-              var sv=selectServer(d.sub_data);
+              var sv=selectServer('softsub',d.sub_data);
               if (sv){
+                view_data.servers.sub=JSON.parse(JSON.stringify(view_data.servers.softsub));
                 sv.mirror.name=(sv.mirror.name+'').toLowerCase();
                 view_data.stream_mirror.hard=
                 view_data.stream_mirror.soft=sv.mirror;
@@ -596,7 +634,7 @@ var kaas={
               }
             }
             if (d.dub_data){
-              var sv=selectServer(d.dub_data);
+              var sv=selectServer('dub',d.dub_data);
               if (sv){
                 sv.mirror.name=(sv.mirror.name+'').toLowerCase();
                 view_data.stream_mirror.dub=sv.mirror;
@@ -1054,6 +1092,11 @@ const wave={
         data.curr_ep+'?vrf='+enc(wave.vrfEncrypt(data.curr_ep));
       var num_servers=0;
       var loaded_servers=0;
+      data.servers={
+        'sub':[],
+        'softsub':[],
+        'dub':[]
+      };
       function fetchServer(t,s){
         data.stream_url[t]='';
         data.skip_vals[t]=[];
@@ -1061,6 +1104,7 @@ const wave={
           return;
         }
         var dLink=s.getAttribute('data-link-id');
+        var isFilemoon=s.isfilemoon?true:false;
         var svurl=
           "/ajax/server/"+
           dLink+'?vrf='+enc(wave.vrfEncrypt(dLink));
@@ -1069,6 +1113,9 @@ const wave={
             try{
               var j=JSON.parse(r.responseText);
               var surl=wave.vrfDecrypt(j.result.url);
+              if (isFilemoon){
+                surl+="#FILEMOON";
+              }
               var skdt=JSON.parse(wave.vrfDecrypt(j.result.skip_data));
               data.stream_url[t]=surl;
               data.skip_vals[t]=[
@@ -1086,35 +1133,73 @@ const wave={
           "X-Ref-Prox":url
         });
       }
-      function findServer(d){
+      function findServer(stid, d){
         var sid={
           main:null,
           mirror:null,
         };
+        // data.servers
         var mp4upload=null;
+        var load_s=null;
+
         for (var i=0;i<d.length;i++){
           var s=d[i];
           var st=s.textContent.toLowerCase().trim();
-          if (st=='vidplay') sid.main=s;
-          else if (st=='mycloud') sid.mirror=s;
-          else if (st=='mp4upload') mp4upload=s;
+          if (st=='vidplay'){
+            sid.main=s;
+            data.servers[stid].push(
+              pb.serverobj('VidPlay',0)
+            );
+            if (pb.server_selected(3)==0){
+              load_s=s;
+            }
+          }
+          else if (st=='mycloud'){
+            sid.mirror=s;
+            data.servers[stid].push(
+              pb.serverobj('MyCloud',1)
+            );
+            if (pb.server_selected(3)==1){
+              load_s=s;
+            }
+          }
+          else if (st=='mp4upload'){
+            mp4upload=s;
+            data.servers[stid].push(
+              pb.serverobj('Mp4Upload',2)
+            );
+            if (pb.server_selected(3)==2){
+              load_s=s;
+            }
+          }
+          else if (st=='filemoon'){
+            s.isfilemoon=true;
+            data.servers[stid].push(
+              pb.serverobj('Filemoon',3)
+            );
+            if (pb.server_selected(3)==3){
+              load_s=s;
+            }
+          }
         }
-        var load_s=null;
-        if (sid.main==null && sid.mirror==null && mp4upload){
-          sid.main=mp4upload;
-        }
-        else if (sid.mirror==null && mp4upload){
-          sid.mirror=mp4upload;
-        }
-        else if (sid.main==null && mp4upload){
-          sid.main=sid.mirror;
-          sid.mirror=mp4upload;
-        }
-        if (!pb.cfg_data.mirrorserver){
-          load_s=(sid.main)?sid.main:sid.mirror;
-        }
-        else{
-          load_s=(sid.mirror)?sid.mirror:sid.main;
+        
+        if (!load_s){
+          if (sid.main==null && sid.mirror==null && mp4upload){
+            sid.main=mp4upload;
+          }
+          else if (sid.mirror==null && mp4upload){
+            sid.mirror=mp4upload;
+          }
+          else if (sid.main==null && mp4upload){
+            sid.main=sid.mirror;
+            sid.mirror=mp4upload;
+          }
+          if (pb.server_selected(3)==1){
+            load_s=(sid.main)?sid.main:sid.mirror;
+          }
+          else{
+            load_s=(sid.mirror)?sid.mirror:sid.main;
+          }
         }
         if (load_s){
           num_servers++;
@@ -1128,9 +1213,9 @@ const wave={
           try{
             var j=JSON.parse(r.responseText);
             var d=$n('div','',0,0,j.result);
-            fetchServer('hard',findServer(d.querySelectorAll('[data-type=sub] '+query_el)));
-            fetchServer('soft',findServer(d.querySelectorAll('[data-type=softsub] '+query_el)));
-            fetchServer('dub',findServer(d.querySelectorAll('[data-type=dub] '+query_el)));
+            fetchServer('hard',findServer('sub',d.querySelectorAll('[data-type=sub] '+query_el)));
+            fetchServer('soft',findServer('softsub',d.querySelectorAll('[data-type=softsub] '+query_el)));
+            fetchServer('dub',findServer('dub',d.querySelectorAll('[data-type=dub] '+query_el)));
             d.innerHTML='';
             d='';
             return;
@@ -1645,11 +1730,47 @@ const wave={
             });
             return;
           }
-        }catch(e){
-          cb(null);
-        }
+        }catch(e){}
       }
       cb(null);
+    });
+  },
+  filemoonGetData:function(u,cb){
+    console.warn("FILEMOON VID: "+u);
+    $ap(u,function(r){
+      if (r.ok){
+        try{
+          var d=$n('div','',null,null,r.responseText);
+          var src=d.querySelector('script:last-child').innerHTML;
+          var vdat='';
+          eval("vdat="+src.trim().substr(4));
+          window._filemoon=vdat;
+          if (vdat){
+            var uri=JSON.parse("["+vdat.split('{sources:[{file:')[1].split("}]")[0]+"]")[0];
+            cb({
+              result:{
+                sources:[
+                  {
+                    file:uri+"#FILEMOON",
+                    type:'hls'
+                  }
+                ]
+              }
+            });
+          }
+          return;
+        }catch(e){}
+      }
+      cb({
+        result:{
+          sources:[
+            {
+              file:'ERROR',
+              type:''
+            }
+          ]
+        }
+      });
     });
   },
   vidplayGetData:function(u,cb){
@@ -1658,6 +1779,11 @@ const wave={
       wave.mp4uploadGetData(u,cb);
       return;
     }
+    else if (u.indexOf("#FILEMOON")>0){
+      wave.filemoonGetData(u,cb);
+      return;
+    }
+
     wave.vidplayGetMedia(u,function(url){
       if (url){
         $ap(url,function(r){
@@ -4541,6 +4667,61 @@ const pb={
 
   curr_stream_type:0,
 
+  serverobj:function(name, priority){
+    return {
+      n: name,
+      p: priority
+    };
+  },
+
+  server_selected:function(max){
+    if (!max){
+      max=1;
+    }
+    if (!pb.cfg_data.mirrorserver){
+      return 0;
+    }
+    else if ((pb.cfg_data.mirrorserver===true)||(pb.cfg_data.mirrorserver==1)){
+      return 1;
+    }
+    else if (toInt(pb.cfg_data.mirrorserver)<=max){
+      return toInt(pb.cfg_data.mirrorserver);
+    }
+    return 0;
+  },
+
+  server_ismulti:function(){
+    var multi=true;
+    if (!pb.state)
+      multi=false;
+    else if (!pb.data.servers)
+      multi=false;
+    else if (!pb.data.streamtype)
+      multi=false;
+    else if (!pb.data.servers[pb.data.streamtype])
+      multi=false;
+    else if (pb.data.servers[pb.data.streamtype].length<1)
+      multi=false;
+    return multi;
+  },
+
+  server_getname:function(){
+    if (pb.server_ismulti()){
+      var vr=pb.data.servers[pb.data.streamtype];
+      var sel="Main";
+      for (var i=0;i<vr.length;i++){
+        if (vr[i].p==pb.cfg_data.mirrorserver || i==0){
+          sel=vr[i].n;
+        }
+      }
+      return sel;
+    }
+    if (pb.cfg_data.mirrorserver){
+      return "Mirror";
+    }
+    return "Main";
+  },
+
   listobj:function(){
     var ob={
       'url':pb.data.url,
@@ -4704,7 +4885,7 @@ const pb={
     quality:0,
     uifontsize:2,
     httpclient:0,
-    mirrorserver:false,
+    mirrorserver:0,
     listprog:0,
     dubaudio:false,
     preloadep:true,
@@ -4749,9 +4930,11 @@ const pb={
         pb.cfg_data.alisthomess=('alisthomess' in j)?(j.alisthomess?true:false):true;
         
         // pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):true;
-        pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver?true:false):false;
 
-        _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
+        // pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver?true:false):false;
+        pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver===true?1:toInt(j.mirrorserver)):0;
+
+        // _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
         
         
         pb.cfg_data.lang=('lang' in j)?j.lang:'';
@@ -4854,7 +5037,7 @@ const pb={
     pb.cfg_data.alisthomess=true;
     
     pb.cfg_data.performance=[true,true,true,true,false];
-    pb.cfg_data.mirrorserver=false;
+    pb.cfg_data.mirrorserver=0;
     
     
     pb.cfg_data.trailer=1;
@@ -4870,7 +5053,7 @@ const pb={
     pb.cfg_data.bgimg={};
     pb.cfg_data.quality=0;
 
-    _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
+    // _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
     _API.setStreamType(0,0);
     vtt.set_style(pb.cfg_data.ccstyle);
     _API.bgimg_update();
@@ -5028,6 +5211,9 @@ const pb={
         else{
           el.lastElementChild.innerHTML=pb.sel_quality;
         }
+      }
+      else if (key=='mirrorserver'){
+        el.lastElementChild.innerHTML=special(pb.server_getname());
       }
       else if (key=='trailer'){
         el.lastElementChild.innerHTML=pb.cfgtrailer_name[pb.cfg_data.trailer];
@@ -5482,6 +5668,7 @@ const pb={
     var l=dt.split('\n');
     var m=[];
     var v=[];
+    var a=[];
     var k='';
     var kl='';
     for (var i=0;i<l.length;i++){
@@ -5496,15 +5683,30 @@ const pb={
               kl=ln;
             }
           }
+          a.push(ln);
         }
         else{
-          m.push(ln);
+          if (ln.indexOf('TYPE=AUDIO')>0){
+            if (pb.data.streamtype=="dub"){
+              if (ln.indexOf('LANGUAGE="eng"')>0){
+                m.push(ln);
+              }
+            }
+            else{
+              m.push(ln);
+            }
+          }
+          else{
+            // pb.data.streamtype=
+            m.push(ln);
+          }
         }
       }
       else{
         v.push(
           [k,kl,ln]
         );
+        a.push(ln);
         k=kl='';
       }
     }
@@ -5512,6 +5714,13 @@ const pb={
       return toInt(b[0])-toInt(a[0])
     });
     var tx=m.join("\n");
+    pb.data.vsources=[];
+    var ct1=[tx,a.join('\n')].join('\n');
+    pb.data.vsources.push({
+      r:"Auto",
+      u:src+"#DAT="+btoa(ct1),
+      c:ct1
+    });
     for (var i=0;i<v.length;i++){
       var content=[tx,v[i][1],v[i][2]].join('\n');
       pb.data.vsources.push({
@@ -5561,6 +5770,25 @@ const pb={
   },
   sel_quality:"AUTO",
   init_video_mp4upload:function(src){
+    if (src.indexOf("/video.mp4")>0 && src.indexOf("mp4upload.com")>0){
+      console.log("NO-PARSE Mp4upload, no parse");
+      pb.init_video_player_url(src);
+      if (pb.pb_settings._s_quality){
+        pb.pb_settings.P.removeChild(pb.pb_settings._s_quality);
+        pb.pb_settings._s_quality=null;
+      }
+      return;
+    }
+    else if (src.indexOf("#FILEMOON")>0){
+      console.log("NO-PARSE FILEMOON, no parse");
+      pb.init_video_player_url(src);
+      if (pb.pb_settings._s_quality){
+        pb.pb_settings.P.removeChild(pb.pb_settings._s_quality);
+        pb.pb_settings._s_quality=null;
+      }
+      return;
+    }
+
     pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
     pb.data.vsources=[
       {
@@ -5570,7 +5798,7 @@ const pb={
     ];
 
     /* Auto Quality */
-    if (pb.cfg_data.quality==0){
+    if (!__SD6 && pb.cfg_data.quality==0){
       console.log("NO-PARSE AUTO M3u8 QUALITY="+pb.cfg_data.quality);
       pb.init_video_player_url(src);
       pb.cfg_update_el("quality");
@@ -5727,6 +5955,14 @@ const pb={
         }catch(e){}
       }
       if ((urivid /*&& !pb.cfg_data.html5player*/) || (__SD3)){
+        if (urivid=="ERROR"){
+          pb.playback_error(
+            'PLAYBACK ERROR',
+            "Loading video from failed. Try change stream server."
+          );
+          return false;
+        }
+
         pb.data.vizm3u8=urivid;
         console.log("ATVLOG Got VizCB = "+urivid);
         if (pb.cfg('server')==0){
@@ -5981,6 +6217,10 @@ const pb={
               pb.cfg_update_el("quality");
               console.warn(["DASH VIDEO",b]);
               pb.sel_quality="Dash Auto";
+              if (pb.pb_settings._s_quality){
+                pb.pb_settings.P.removeChild(pb.pb_settings._s_quality);
+                pb.pb_settings._s_quality=null;
+              }
             }
             else{
               // pb.init_video_player_url('https:'+b.hls);
@@ -6304,7 +6544,7 @@ const pb={
       for (var i=0;i<dt.ep_servers[ut].length;i++){
         var q=dt.ep_servers[ut][i];
         if (q.server==1||q.server==4){
-          if (pb.cfg_data.mirrorserver && uid!=0){
+          if (pb.server_selected(1) && uid!=0){
             uid=i;
           }
           else if (uid==0){
@@ -6320,7 +6560,7 @@ const pb={
         for (var i=0;i<dt.ep_servers[ut].length;i++){
           var q=dt.ep_servers[ut][i];
           if (q.server==1||q.server==4){
-            if (pb.cfg_data.mirrorserver && dubuid!=0){
+            if (pb.server_selected(1) && dubuid!=0){
               dubuid=i;
             }
             else if (uid==0){
@@ -6528,7 +6768,7 @@ const pb={
         }
       }
       else if (key=="streamselect"){
-        if (!__SD3&&!__SD5&&!__SD6){
+        if (!__SD3&&!__SD5/*&&!__SD6*/){
           var lst=['Hardsub'];
           if (pb.data.stream_url.soft){
             lst.push('Softsub');
@@ -6576,8 +6816,8 @@ const pb={
         var vlist=[];
         for (var i=0;i<pb.cfgquality_name.length;i++){
           if (i!=0 && pb.state && pb.data.vsources && pb.data.vsources.length>i){
-            vlist.push(special(pb.cfgquality_name[i]+'')+
-              '<span class="value">'+
+            vlist.push('<span class="label">'+special(pb.cfgquality_name[i]+'')+
+              '</span><span class="value vinline">'+
               special(pb.data.vsources[i].r+'')+
               "</span>"
             );
@@ -6904,12 +7144,51 @@ const pb={
         // }
       }
       else if (key=='mirrorserver'){
-        pb.cfg_data.mirrorserver=!pb.cfg_data.mirrorserver;
-        pb.cfg_update_el(key);
-        pb.cfg_save();
-        _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,pb.state?1:0);
-        if (pb.state){
-          pb.reloadPlayback(1000);
+        if (pb.server_ismulti()){
+          var sv=[];
+          pb.data.servers[pb.data.streamtype].sort(function(a,b){
+            return toInt(a.p)-toInt(b.p)
+          });
+          var vr=pb.data.servers[pb.data.streamtype];
+          var sel=0;
+          for (var i=0;i<vr.length;i++){
+            sv.push(vr[i].n);
+            if (vr[i].p==pb.cfg_data.mirrorserver){
+              sel=i;
+            }
+          }
+          listOrder.showList(
+            "Stream Server",
+            sv,
+            sel,
+            function(chval){
+              if (chval!=null){
+                pb.cfg_data.mirrorserver=toInt(chval);
+                pb.cfg_update_el(key);
+                pb.cfg_save();
+                if (pb.state){
+                  pb.reloadPlayback(1000);
+                }
+              }
+            }
+          );
+        }
+        else{
+          listOrder.showList(
+            "Stream Server",
+            ["Main","Mirror"],
+            pb.cfg_data.mirrorserver?1:0,
+            function(chval){
+              if (chval!=null){
+                pb.cfg_data.mirrorserver=toInt(chval);
+                pb.cfg_update_el(key);
+                pb.cfg_save();
+                if (pb.state){
+                  pb.reloadPlayback(1000);
+                }
+              }
+            }
+          );
         }
       }
       else if (key=='malaccount'){
@@ -7569,7 +7848,7 @@ const pb={
           action:'*mirrorserver'
         },
         pb.pb_settings.P,
-        '<c>clear</c> Mirror'
+        '<c>cloud</c> <span>Main</span>'
       );
     }
 
@@ -7577,7 +7856,7 @@ const pb={
       pb.pb_settings._s_quality=$n('div','',{action:'*quality'},pb.pb_settings.P,'<c>hd</c> <span>Auto</span>');
     //}
 
-    if (!__SD3&&!__SD5&&!__SD6){
+    if (!__SD3&&!__SD5/*&&!__SD6*/){
       // pb.pb_settings._s_hardsub=$n('div','',{action:'*hardsub'},pb.pb_settings.P,'<c>clear</c> HARD');
       // if (pb.data.stream_url.soft){
       //   pb.pb_settings._s_softsub=$n('div','',{action:'*softsub'},pb.pb_settings.P,'<c>clear</c> SOFT');
@@ -7616,6 +7895,7 @@ const pb={
     pb.pb_action_streamtype.innerHTML='<c>'+(translate?"g_translate":pb.cfgstreamtype_ico[pb.curr_stream_type])+'</c> '+
       (translate?"TRANSLATE":pb.cfgstreamtype_name[pb.curr_stream_type])+txtadd;
     pb.pb_action_streamtype.classList.add('active');
+    pb.cfg_update_el("mirrorserver");
   },
 
   update_malist_ep:function(dr){
@@ -7968,7 +8248,7 @@ const pb={
     pb.video_tmp_start_pos=0;
     pb.pb_action_streamtype.classList.remove('active');
     pb.load_open_stat=0;
-    _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
+    // _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
     pb.open_uri=uri;
 
     if (noclean){
