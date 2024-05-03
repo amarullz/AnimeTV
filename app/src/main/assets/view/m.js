@@ -1744,7 +1744,6 @@ const wave={
           var src=d.querySelector('script:last-child').innerHTML;
           var vdat='';
           eval("vdat="+src.trim().substr(4));
-          window._filemoon=vdat;
           if (vdat){
             var uri=JSON.parse("["+vdat.split('{sources:[{file:')[1].split("}]")[0]+"]")[0];
             cb({
@@ -1758,6 +1757,7 @@ const wave={
               }
             });
           }
+          d=null;
           return;
         }catch(e){}
       }
