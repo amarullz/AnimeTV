@@ -657,7 +657,7 @@ var kaas={
           }
           if (sub_url){
             if (d.sub_data){
-              setTimeout(parseServer,250);
+              setTimeout(parseServer,10);
             }
             else{
               $a(sub_url,function(r){
@@ -672,7 +672,7 @@ var kaas={
           }
           if (dub_url){
             if (d.dub_data){
-              setTimeout(parseServer,250);
+              setTimeout(parseServer,10);
             }
             else{
               $a(dub_url,function(r){
