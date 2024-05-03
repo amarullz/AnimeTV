@@ -503,9 +503,9 @@ var kaas={
           if (di.name=='VidStreaming'){
             vs=di;
             view_data.servers[stid].push(
-              pb.serverobj('VidStreaming',0)
+              pb.serverobj('VidStreaming',1)
             );
-            if (pb.server_selected(2)==0){
+            if (pb.server_selected(2)==1){
               hasod=true;
               od=di;
             }
@@ -513,9 +513,9 @@ var kaas={
           else if (di.name=='BirdStream'){
             bs=di;
             view_data.servers[stid].push(
-              pb.serverobj('BirdStream',1)
+              pb.serverobj('BirdStream',0)
             );
-            if (pb.server_selected(2)==1){
+            if (pb.server_selected(2)==0){
               hasod=true;
               od=di;
             }
@@ -5664,6 +5664,54 @@ const pb={
       pb.vid_event(c,v);
     });
   },
+  dash_parse(src,dt){
+    console.warn("DASH PARSER: "+src);
+    try{
+      var doc = new DOMParser().parseFromString(dt,"text/xml");
+      var vids=doc.querySelectorAll("Representation[height]");
+      var parent=vids[0].parentElement;
+      var elm={};
+      for (var i=0;i<vids.length;i++){
+        var v=vids[i];
+        var h=v.getAttribute("height");
+        var hi='p'+h;
+        if (!(hi in elm)){
+          elm[hi]={
+            c:[],
+            id:h
+          };
+        }
+        elm[hi].c.push(v);
+        parent.removeChild(v);
+      }
+      var ela=[];
+      for (var i in elm){
+        parent.textContent='';
+        for (var j=0;j<elm[i].c.length;j++){
+          parent.appendChild(elm[i].c[j]);
+        }
+        var x=new XMLSerializer().serializeToString(doc);
+        x=x.replace(/\t/g,' ').replace(/\r/g,'').replace(/\n/g,' ').replace(/   /g,' ').replace(/  /g,' ').replace(/  /g,' ').replace(/  /g,' ');
+        elm[i].x=x;
+        ela.push(elm[i]);
+        parent.textContent='';
+      }
+      ela.sort(function(a,b){
+        return toInt(b.id)-toInt(a.id);
+      });
+      var srcparse=src.split('#')[0];
+      for (var i=0;i<ela.length;i++){
+        var lela=ela[i];
+        pb.data.vsources.push({
+          r:lela.id+"p",
+          u:srcparse+"#DAT="+btoa(lela.x)+"#dash",
+          c:lela.x
+        });
+      }
+    }catch(e){
+      console.log("No DOMParser?");
+    }
+  },
   m3u8_kaas_parse:function(src,dt){
     var l=dt.split('\n');
     var m=[];
@@ -5813,7 +5861,12 @@ const pb={
           addUrl=src.substring(src.indexOf('?'));
         }
         if (__SD6){
-          pb.m3u8_kaas_parse(src,r.responseText);
+          if (src.indexOf("#dash")>0){
+            pb.dash_parse(src,r.responseText);
+          }
+          else{
+            pb.m3u8_kaas_parse(src,r.responseText);
+          }
         }
         else{
           pb.m3u8_parse_main(src,r.responseText,addUrl);
@@ -6213,14 +6266,15 @@ const pb={
             /* Load Videos */
             console.warn(["kaas.streamGet",b]);
             if (b.dash){
-              pb.init_video_player_url('https:'+b.dash+'#dash');
-              pb.cfg_update_el("quality");
-              console.warn(["DASH VIDEO",b]);
-              pb.sel_quality="Dash Auto";
-              if (pb.pb_settings._s_quality){
-                pb.pb_settings.P.removeChild(pb.pb_settings._s_quality);
-                pb.pb_settings._s_quality=null;
-              }
+              pb.init_video_mp4upload('https:'+b.dash+'#dash');
+              // pb.init_video_player_url('https:'+b.dash+'#dash');
+              // pb.cfg_update_el("quality");
+              // console.warn(["DASH VIDEO",b]);
+              // pb.sel_quality="Dash Auto";
+              // if (pb.pb_settings._s_quality){
+              //   pb.pb_settings.P.removeChild(pb.pb_settings._s_quality);
+              //   pb.pb_settings._s_quality=null;
+              // }
             }
             else{
               // pb.init_video_player_url('https:'+b.hls);

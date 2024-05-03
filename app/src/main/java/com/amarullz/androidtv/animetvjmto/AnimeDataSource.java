@@ -389,6 +389,9 @@ import javax.net.ssl.HttpsURLConnection;
                 URL url = new URL(dataSpec.uri.toString());
                 if (url.getRef()!=null && url.getRef().startsWith("DAT=")){
                     String b64=url.getRef().substring(4);
+                    if (b64.indexOf("#")>0){
+                        b64=b64.substring(0,b64.indexOf("#"));
+                    }
                     byte[] txtVal = Base64.decode(b64,Base64.DEFAULT);
                     inputStream = new ByteArrayInputStream(txtVal);
                     bytesToRead = dataSpec.length; // txtVal.length;
