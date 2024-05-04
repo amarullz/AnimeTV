@@ -13507,9 +13507,13 @@ const _MAL={
         },function(v){
           if (v){
             try{
-              cb(v.data.User.avatar.large);
+              if (v.data.User.avatar.large){
+                try{
+                  cb(v.data.User.avatar.large);
+                }catch(e2){}
+                return;
+              }
             }catch(e){}
-            return;
           }
           cb(null);
         }, true);
@@ -13524,7 +13528,9 @@ const _MAL={
               var k=JSON.parse(v.responseText);
               if ('picture' in k){
                 try{
-                  cb(k.picture);
+                  if (k.picture){
+                    cb(k.picture);
+                  }
                 }catch(e){}
                 return;
               }
