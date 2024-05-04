@@ -10408,6 +10408,10 @@ const home={
                   }
                 }
               }
+              else{
+                home.profiles.open(uid,v,endcb);
+                return;
+              }
             }
           }
           if (endcb){
