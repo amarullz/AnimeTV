@@ -322,6 +322,9 @@ import javax.crypto.spec.SecretKeySpec;
     if (BuildConfig.DEBUG) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
+    else{
+      USE_WEB_VIEW_ASSETS=false;
+    }
 
     setFullscreen();
     VERSION_INIT();
@@ -658,8 +661,9 @@ import javax.crypto.spec.SecretKeySpec;
               http.execute();
               InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
               return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
-            } catch (Exception ignored) {}
-            return aApi.badRequest;
+            } catch (Exception ignored) {
+            }
+//            return aApi.badRequest;
           }
         }
         return aApi.assetsRequest(uri.getPath().substring(3));
