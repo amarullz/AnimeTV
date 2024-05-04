@@ -7991,32 +7991,9 @@ const pb={
   MAL:{
     set:false
   },
-  init:function(){
-    pb.preload_started=0;
-    pb.preload_video_started=0;
-
-    pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
-
-    $('home').style.display=$('search').style.display='none';
-    pb.setskip_track(0);
-    pb.updateStreamTypeInfo();
-
-    pb.menus=[
-      pb.pb_genres,
-      pb.pb_settings,
-      pb.pb_tracks
-    ];
-    pb.pb.style.backgroundImage='url('+(pb.data.banner?pb.data.banner:pb.data.poster)+')';
-    //, url('+(pb.data.banner?pb.data.banner:pb.data.poster)+')';
-
-    /* META */
-    pb.ep_num='';
-    pb.ep_title='';
-    pb.pb_title.innerHTML=tspecial(pb.data.title);
-    pb.pb_title.setAttribute('jp',pb.data.title_jp?pb.data.title_jp:dpb.data.title);
-
+  MAL_LOAD:function(force){
     /* Find Playback Meta */
-    if (!pb.MAL.set){
+    if (!pb.MAL.set||force){
       console.log("Searching AniList Match: "+pb.data.title);
       _MAL.allist_search(pb.data.title,function(v){
         pb.MAL.set=true;
@@ -8054,6 +8031,32 @@ const pb={
         }
       },1,10,true, true);
     }
+  },
+  init:function(){
+    pb.preload_started=0;
+    pb.preload_video_started=0;
+
+    pb.sel_quality=pb.cfgquality_name[pb.cfg_data.quality];
+
+    $('home').style.display=$('search').style.display='none';
+    pb.setskip_track(0);
+    pb.updateStreamTypeInfo();
+
+    pb.menus=[
+      pb.pb_genres,
+      pb.pb_settings,
+      pb.pb_tracks
+    ];
+    pb.pb.style.backgroundImage='url('+(pb.data.banner?pb.data.banner:pb.data.poster)+')';
+    //, url('+(pb.data.banner?pb.data.banner:pb.data.poster)+')';
+
+    /* META */
+    pb.ep_num='';
+    pb.ep_title='';
+    pb.pb_title.innerHTML=tspecial(pb.data.title);
+    pb.pb_title.setAttribute('jp',pb.data.title_jp?pb.data.title_jp:dpb.data.title);
+
+    pb.MAL_LOAD(false);
 
     var addb='';
     try{
