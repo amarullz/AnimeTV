@@ -4166,8 +4166,8 @@ const vtt={
       //   sel, undefined, false, true, prev_selpos,
       listOrder.showMenu("Subtitle Style",sel,prev_selpos,
         function(chval){
-          $('popupcontainer').className='active';
           if (chval!=null){
+            $('popupcontainer').className='active';
             var ssel=vtt.style_get(pb.cfg_data.ccstyle,chval,3);
             prev_selpos=chval;
             listOrder.showList(
@@ -15309,7 +15309,7 @@ const listOrder={
     }
     listOrder.group._sel = listOrder.group.P.firstElementChild;
     listOrder.group._sel.classList.add('active');
-    $('popupcontainer').className='active';
+    $('popupcontainer').className='active onpopup';
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
   },
@@ -15345,7 +15345,7 @@ const listOrder={
     }
     listOrder.group._sel = listOrder.group.P.firstElementChild;
     listOrder.group._sel.classList.add('active');
-    $('popupcontainer').className='active';
+    $('popupcontainer').className='active onpopup';
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
   },
@@ -15395,7 +15395,7 @@ const listOrder={
       listOrder.group._sel=listOrder.group.P.firstElementChild;
       listOrder.group._sel.classList.add('active');
     }
-    $('popupcontainer').className='active';
+    $('popupcontainer').className='active onpopup';
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
   },
@@ -15428,7 +15428,7 @@ const listOrder={
       listOrder.group._sel=listOrder.group.P.firstElementChild;
       listOrder.group._sel.classList.add('active');
     }
-    $('popupcontainer').className='active';
+    $('popupcontainer').className='active onpopup';
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
   },
@@ -15597,9 +15597,16 @@ const listOrder={
 
     $('popupcontainer').className='';
     listOrder.holder.classList.remove('active');
-    listOrder.win.innerHTML='';
+    // listOrder.win.innerHTML='';
     listOrder.onpopup=false;
     listOrder.popuptype=0;
+    setTimeout(function(){
+      if (!listOrder.onpopup){
+        if (listOrder.win.innerHTML){
+          listOrder.win.innerHTML='';
+        }
+      }
+    },300);
     
     if (tmpcb){
       if (ptype==2){

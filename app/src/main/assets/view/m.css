@@ -3827,9 +3827,13 @@ c.loader {
   bottom: 0;
   visibility: hidden;
   z-index: 49999;
+  transition: visibility var(--tim-4s);
 }
 #listorder.active{
   visibility: visible;
+}
+#popupcontainer.active.onpopup {
+  z-index: 48888;
 }
 #listorder #listorder_window{
   position: relative;
@@ -3842,6 +3846,13 @@ c.loader {
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22) !important;
   border-radius: .5vw;
   width:40vw;
+  opacity: 0;
+  transform: scale(.8);
+  transition: all var(--tim-3s) var(--interpolation);
+}
+#listorder.active #listorder_window{
+  opacity: 1;
+  transform: scale(1);
 }
 #listorder #listorder_window p{
   padding:0;
