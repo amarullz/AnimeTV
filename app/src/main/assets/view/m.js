@@ -4901,7 +4901,7 @@ const pb={
     preloadep:true,
     homylist:false,
     clksound:true,
-    maltrackdialog:false
+    maltrackdialog:0
   },
   cfg_load:function(){
     var itm=_JSAPI.storeGet(_API.user_prefix+'pb_cfg',"");
@@ -4924,7 +4924,6 @@ const pb={
         pb.cfg_data.preloadep=('preloadep' in j)?(j.preloadep?true:false):true;
         pb.cfg_data.homylist=('homylist' in j)?(j.homylist?true:false):false;
         pb.cfg_data.clksound=('clksound' in j)?(j.clksound?true:false):true;
-        pb.cfg_data.maltrackdialog=('maltrackdialog' in j)?(j.maltrackdialog?true:false):false;
         
         pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
         pb.cfg_data.progcache=('progcache' in j)?(j.progcache?true:false):true;
@@ -4975,6 +4974,12 @@ const pb={
           var sv=parseInt(j.trailer);
           if (!isNaN(sv)&&sv>=0&&sv<=2)
             pb.cfg_data.trailer=sv;
+        }
+
+        if ('maltrackdialog' in j){
+          var sv=parseInt(j.maltrackdialog);
+          if (!isNaN(sv)&&sv>=0&&sv<=4)
+            pb.cfg_data.maltrackdialog=sv;
         }
 
         if ('quality' in j){
@@ -5034,7 +5039,7 @@ const pb={
     pb.cfg_data.preloadep=true;
     pb.cfg_data.homylist=false;
     pb.cfg_data.clksound=true;
-    pb.cfg_data.maltrackdialog=false;
+    pb.cfg_data.maltrackdialog=0;
     
     
     pb.cfg_data.usedoh=true;
@@ -5126,6 +5131,14 @@ const pb={
     'Watched 50%',
     'Watched 75%',
     'Finish watching',
+  ],
+
+  cfgmaltrackdialog_name:[
+    'Do nothing',
+    'Show tracking dialog',
+    'Auto add to AniList',
+    'Auto add to MAL',
+    'Auto add to AniList and MAL',
   ],
   
   cfgstreamtype_name:[
@@ -5325,6 +5338,9 @@ const pb={
         }
         else if (key=='listprog'){
           el.lastElementChild.innerHTML=pb.cfglistprog_name[pb.cfg_data[key]];
+        }
+        else if (key=='maltrackdialog'){
+          el.lastElementChild.innerHTML=pb.cfgmaltrackdialog_name[pb.cfg_data[key]];
         }
         else if (key=='scale'){
           el.lastElementChild.innerHTML=pb.cfgscale_name[pb.cfg_data[key]];
@@ -7036,6 +7052,20 @@ const pb={
           }
         );
       }
+      else if (key=="maltrackdialog"){
+        listOrder.showList(
+          "Auto Tracking",
+          pb.cfgmaltrackdialog_name,
+          pb.cfg_data.maltrackdialog,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.maltrackdialog=toInt(chval);
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+            }
+          }
+        );
+      }
       else if (key=="ccstyle"){
         vtt.changestyle();
       }
@@ -8003,7 +8033,7 @@ const pb={
       if (!pb.MAL.mymal && !pb.MAL.myanilist){
         return true;
       }
-      if (trackable&&(!pb.MAL.mymal || !pb.MAL.myanilist)){
+      if (trackable){
         return true;
       }
     }
@@ -8017,13 +8047,14 @@ const pb={
       // no on the list yet
       console.log("ATVLOG: NOT ON THE LIST");
 
-      var list=[
-        {
+      var list=[];
+      if (!trackable){
+        list.push({
           icon:'close',
           title:"Don't Track",
           id:'notrack'
-        }
-      ];
+        });
+      }
       if (_MAL.alauth&&_MAL.auth&&pb.MAL.anilist&&pb.MAL.mal&&!pb.MAL.mymal&&!pb.MAL.myanilist){
         list.push({
           icon:'done_all',
@@ -8034,7 +8065,7 @@ const pb={
       }
       if (_MAL.alauth&&pb.MAL.anilist&&!pb.MAL.myanilist){
         list.push({
-          icon:'hub',
+          icon:'bookmark_add',
           title:'Track on AniList',
           id:'anilist',
           msg:'Saved to AniList'
@@ -8042,10 +8073,26 @@ const pb={
       }
       if (_MAL.auth&&pb.MAL.mal&&!pb.MAL.mymal){
         list.push({
-          icon:'list_alt',
+          icon:'bookmark_add',
           title:'Track on MAL',
           id:'mal',
           msg:'Saved to MAL'
+        });
+      }
+      if (_MAL.alauth&&pb.MAL.myanilist){
+        list.push({
+          icon:'cancel',
+          title:'Remove from AniList',
+          id:'delanilist',
+          msg:'Removed from AniList'
+        });
+      }
+      if (_MAL.auth&&pb.MAL.mymal){
+        list.push({
+          icon:'cancel',
+          title:'Remove from MAL',
+          id:'delmal',
+          msg:'Removed from MAL'
         });
       }
       var list_n=0;
@@ -8057,10 +8104,40 @@ const pb={
         }
         pb.MAL_LOAD(true,true);
       }
-      listOrder.showMenu('Track Anime',list,0,function(v){
+      listOrder.showMenu('Tracking Anime',list,0,function(v){
         if (v!=null){
+          list_n=0;
+          list_ok_n=0;
           if (list[v].id=="notrack"){
             pb.MAL_NO_TRACKS.push(pb.tip_value);
+            return;
+          }
+          else if (list[v].id=="delanilist"){
+            if (!confirm("Remove from AniList?")){
+              return;
+            }
+            _MAL.alset_del(pb.MAL.myanilist.id, function(n){
+              if (n){
+                list_save_finish(v);
+              }
+              else{
+                _API.showToast("Remove from AniList failed...");
+              }
+            });
+            return;
+          }
+          else if (list[v].id=="delmal"){
+            if (!confirm("Remove from MAL?")){
+              return;
+            }
+            _MAL.set_del(pb.MAL.mal.id, function(n){
+              if (n){
+                list_save_finish(v);
+              }
+              else{
+                _API.showToast("Remove from MAL failed...");
+              }
+            });
             return;
           }
           if (list[v].id=='trackall'||list[v].id=='anilist'){
@@ -8098,17 +8175,67 @@ const pb={
   MAL_LOAD:function(force, notrack){
     /* Find Playback Meta */
     if (!pb.MAL.set||force){
+      if (force){
+        pb.MAL={set:false};
+      }
       console.log("Searching AniList Match: "+pb.data.title);
       var load_n=0;
       function track_popup(){
-        if (!pb.MAL_TRACKABLE(true)){
-          if (pb.pb_settings._s_tracking){
-            pb.pb_genres.P.removeChild(pb.pb_settings._s_tracking);
-            pb.pb_settings._s_tracking=null;
-            pb.menu_select(pb.pb_genres,pb.pb_genres.P.firstElementChild);
-          }
+        if (notrack){
+          return;
         }
-        if (notrack||!pb.cfg_data.maltrackdialog){
+        if (pb.cfg_data.maltrackdialog!=1){
+          var list_n=0;
+          var list_ok_n=0;
+          function auto_list_save_finish(){
+            home.init_mylist(true);
+            if (list_ok_n==0){
+              if (pb.cfg_data.maltrackdialog==4){
+                _API.showToast('Saved to AniList and MAL');
+              }
+              else if (pb.cfg_data.maltrackdialog==2){
+                _API.showToast('Saved to AniList');
+              }
+              else if (pb.cfg_data.maltrackdialog==3){
+                _API.showToast('Saved to MAL');
+              }
+            }
+            pb.MAL_LOAD(true,true);
+          }
+          if (pb.cfg_data.maltrackdialog==4||pb.cfg_data.maltrackdialog==2){
+            // Auto Add to AniList
+            if (_MAL.alauth&&pb.MAL.anilist&&!pb.MAL.myanilist){
+              list_n++;
+              list_ok_n++;
+              _MAL.alset_list(pb.MAL.anilist.id,"CURRENT",function(n){
+                list_n--;
+                if (n){
+                  list_ok_n--;
+                }
+                else{
+                  _API.showToast("Track on AniList failed...");
+                }
+                auto_list_save_finish();
+              });
+            }
+          }
+          if (pb.cfg_data.maltrackdialog==4||pb.cfg_data.maltrackdialog==3){
+            // Auto Add to MAL
+            if (_MAL.auth&&pb.MAL.mal&&!pb.MAL.mymal){
+              list_n++;
+              list_ok_n++;
+              _MAL.set_list(pb.MAL.mal.id,"watching",function(n){
+                list_n--;
+                if (n){
+                  list_ok_n--;
+                }
+                else{
+                  _API.showToast("Track on MAL failed...");
+                }
+                auto_list_save_finish();
+              });
+            }
+          }
           return;
         }
         if (load_n>0){
@@ -8255,7 +8382,7 @@ const pb={
     pb.menu_clear(pb.pb_genres);
     if (pb.data.genres||pb.data.info.type){
       pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_genres.P,'');
-      pb.pb_settings._s_tracking=$n('div','',{action:'*tracking'},pb.pb_genres.P,'<c>left_click</c> Track');
+      pb.pb_settings._s_tracking=$n('div','',{action:'*tracking'},pb.pb_genres.P,'<c>data_exploration</c> Tracking');
 
       if (pb.data.info.type){
         $n('div','',{action:'@'+pb.data.info.type.val},pb.pb_genres.P,special(pb.data.info.type.name));
@@ -11132,10 +11259,10 @@ const home={
         home.settings.tools._s_maltrackdialog=$n(
           'div','',{
             action:'*maltrackdialog',
-            s_desc:"Show tracking dialog when playing untracked anime"
+            s_desc:"Action to do when playing untracked anime"
           },
           home.settings.integration.P,
-          '<c class="check">clear</c><c>add_task</c> Ask for Tracking'
+          '<c>data_exploration</c> Auto Tracking<span class="value"></span>'
         );
         
 
