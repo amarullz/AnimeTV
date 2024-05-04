@@ -8182,7 +8182,7 @@ const pb={
     pb.ep_num='';
     pb.ep_title='';
     pb.pb_title.innerHTML=tspecial(pb.data.title);
-    pb.pb_title.setAttribute('jp',pb.data.title_jp?pb.data.title_jp:dpb.data.title);
+    pb.pb_title.setAttribute('jp',pb.data.title_jp?pb.data.title_jp:pb.data.title);
 
     pb.MAL_LOAD(false);
 
