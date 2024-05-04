@@ -13207,7 +13207,8 @@ const _MAL={
           episodes
           mediaListEntry{
             id,
-            progress
+            progress,
+            status
           }
         }
       }
