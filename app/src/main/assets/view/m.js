@@ -8171,6 +8171,14 @@ const pb={
         }
       });
     }
+    else if (trackable){
+      if (!_MAL.alauth && _MAL.auth){
+        _API.showToast("Please login to AniList or MAL first...");
+      }
+      else{
+        _API.showToast("Anime Untrackable...");
+      }
+    }
   },
   MAL_LOAD:function(force, notrack){
     /* Find Playback Meta */
