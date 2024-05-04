@@ -4901,6 +4901,7 @@ const pb={
     preloadep:true,
     homylist:false,
     clksound:true,
+    maltrackdialog:false
   },
   cfg_load:function(){
     var itm=_JSAPI.storeGet(_API.user_prefix+'pb_cfg',"");
@@ -4923,8 +4924,7 @@ const pb={
         pb.cfg_data.preloadep=('preloadep' in j)?(j.preloadep?true:false):true;
         pb.cfg_data.homylist=('homylist' in j)?(j.homylist?true:false):false;
         pb.cfg_data.clksound=('clksound' in j)?(j.clksound?true:false):true;
-        
-        
+        pb.cfg_data.maltrackdialog=('maltrackdialog' in j)?(j.maltrackdialog?true:false):false;
         
         pb.cfg_data.jptitle=('jptitle' in j)?(j.jptitle?true:false):false;
         pb.cfg_data.progcache=('progcache' in j)?(j.progcache?true:false):true;
@@ -5034,6 +5034,7 @@ const pb={
     pb.cfg_data.preloadep=true;
     pb.cfg_data.homylist=false;
     pb.cfg_data.clksound=true;
+    pb.cfg_data.maltrackdialog=false;
     
     
     pb.cfg_data.usedoh=true;
@@ -5357,6 +5358,8 @@ const pb={
       pb.cfg_update_el('preloadep'); 
       pb.cfg_update_el('homylist');
       pb.cfg_update_el('clksound');
+      pb.cfg_update_el('maltrackdialog');
+      
       
       pb.cfg_update_el('nonjapan');
       pb.cfg_update_el('alisthomess');
@@ -6790,6 +6793,9 @@ const pb={
         }
         pb.cfg_update_el(key);
       }
+      else if (key=="tracking"){
+        pb.MAL_TRACK(true);
+      }
       else if (key=='lang'){
         home.settings.lang_action();
       }
@@ -7991,10 +7997,128 @@ const pb={
   MAL:{
     set:false
   },
-  MAL_LOAD:function(force){
+  MAL_NO_TRACKS:[],
+  MAL_TRACKABLE:function(trackable){
+    if ((_MAL.alauth&&pb.MAL.anilist)||(_MAL.auth&&pb.MAL.mal)){
+      if (!pb.MAL.mymal && !pb.MAL.myanilist){
+        return true;
+      }
+      if (trackable&&(!pb.MAL.mymal || !pb.MAL.myanilist)){
+        return true;
+      }
+    }
+    return false;
+  },
+  MAL_TRACK:function(trackable){
+    if (!pb.state){
+      return;
+    }
+    if (pb.MAL_TRACKABLE(trackable)){
+      // no on the list yet
+      console.log("ATVLOG: NOT ON THE LIST");
+
+      var list=[
+        {
+          icon:'close',
+          title:"Don't Track",
+          id:'notrack'
+        }
+      ];
+      if (_MAL.alauth&&_MAL.auth&&pb.MAL.anilist&&pb.MAL.mal&&!pb.MAL.mymal&&!pb.MAL.myanilist){
+        list.push({
+          icon:'done_all',
+          title:'Track on AniList and MAL',
+          id:'trackall',
+          msg:'Saved to AniList and MAL'
+        });
+      }
+      if (_MAL.alauth&&pb.MAL.anilist&&!pb.MAL.myanilist){
+        list.push({
+          icon:'hub',
+          title:'Track on AniList',
+          id:'anilist',
+          msg:'Saved to AniList'
+        });
+      }
+      if (_MAL.auth&&pb.MAL.mal&&!pb.MAL.mymal){
+        list.push({
+          icon:'list_alt',
+          title:'Track on MAL',
+          id:'mal',
+          msg:'Saved to MAL'
+        });
+      }
+      var list_n=0;
+      var list_ok_n=0;
+      function list_save_finish(v){
+        home.init_mylist(true);
+        if (list_ok_n==0){
+          _API.showToast(list[v].msg);
+        }
+        pb.MAL_LOAD(true,true);
+      }
+      listOrder.showMenu('Track Anime',list,0,function(v){
+        if (v!=null){
+          if (list[v].id=="notrack"){
+            pb.MAL_NO_TRACKS.push(pb.tip_value);
+            return;
+          }
+          if (list[v].id=='trackall'||list[v].id=='anilist'){
+            list_n++;
+            list_ok_n++;
+            _MAL.alset_list(pb.MAL.anilist.id,"CURRENT",function(n){
+              list_n--;
+              if (n){
+                list_ok_n--;
+              }
+              else{
+                _API.showToast("Track on AniList failed...");
+              }
+              list_save_finish(v);
+            });
+          }
+          if (list[v].id=='trackall'||list[v].id=='mal'){
+            list_n++;
+            list_ok_n++;
+            _MAL.set_list(pb.MAL.mal.id,"watching",function(n){
+              list_n--;
+              if (n){
+                list_ok_n--;
+              }
+              else{
+                _API.showToast("Track on MAL failed...");
+              }
+              list_save_finish(v);
+            });
+          }
+        }
+      });
+    }
+  },
+  MAL_LOAD:function(force, notrack){
     /* Find Playback Meta */
     if (!pb.MAL.set||force){
       console.log("Searching AniList Match: "+pb.data.title);
+      var load_n=0;
+      function track_popup(){
+        if (!pb.MAL_TRACKABLE(true)){
+          if (pb.pb_settings._s_tracking){
+            pb.pb_genres.P.removeChild(pb.pb_settings._s_tracking);
+            pb.pb_settings._s_tracking=null;
+            pb.menu_select(pb.pb_genres,pb.pb_genres.P.firstElementChild);
+          }
+        }
+        if (notrack||!pb.cfg_data.maltrackdialog){
+          return;
+        }
+        if (load_n>0){
+          return;
+        }
+        if (pb.MAL_NO_TRACKS.indexOf(pb.tip_value)>=0){
+          return;
+        }
+        pb.MAL_TRACK();
+      }
       _MAL.allist_search(pb.data.title,function(v){
         pb.MAL.set=true;
         if (!v){
@@ -8003,6 +8127,7 @@ const pb={
         if (v.match){
           pb.MAL.anilist=JSON.parse(JSON.stringify(v.match));
           if (v.match.idMal){
+            load_n++;
             _MAL.mal_detail(v.match.idMal,function(r){
               if (r.ok){
                 try{
@@ -8018,6 +8143,8 @@ const pb={
                   }
                 }catch(e){}
               }
+              load_n--;
+              track_popup();
             }, true);
           }
         }
@@ -8029,6 +8156,7 @@ const pb={
             progress:v.match.mediaListEntry.progress
           };
         }
+        track_popup();
       },1,10,true, true);
     }
   },
@@ -8127,6 +8255,7 @@ const pb={
     pb.menu_clear(pb.pb_genres);
     if (pb.data.genres||pb.data.info.type){
       pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_genres.P,'');
+      pb.pb_settings._s_tracking=$n('div','',{action:'*tracking'},pb.pb_genres.P,'<c>left_click</c> Track');
 
       if (pb.data.info.type){
         $n('div','',{action:'@'+pb.data.info.type.val},pb.pb_genres.P,special(pb.data.info.type.name));
@@ -10825,6 +10954,7 @@ const home={
           home.settings.performance.P,
           '<c class="check">clear</c><c>brand_awareness</c> Navigation Sound'
         );
+        
 
         home.settings.tools._s_homylist=$n(
           'div','',{
@@ -10998,6 +11128,14 @@ const home={
           },
           home.settings.integration.P,
           '<c>cloud_sync</c> Update watch progress<span class="value"></span>'
+        );
+        home.settings.tools._s_maltrackdialog=$n(
+          'div','',{
+            action:'*maltrackdialog',
+            s_desc:"Show tracking dialog when playing untracked anime"
+          },
+          home.settings.integration.P,
+          '<c class="check">clear</c><c>add_task</c> Ask for Tracking'
         );
         
 
