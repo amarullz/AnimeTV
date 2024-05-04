@@ -462,12 +462,27 @@ import javax.crypto.spec.SecretKeySpec;
   public PlayerConfig videoPlayerConfig;
   public DataSourceFactoryProvider videoDataSourceFactory=null;
 
+  public int videoSizeWidth=0;
+  public int videoSizeHeight=0;
+  public void setVideoSize(int w,int h){
+    videoSizeWidth=w;
+    videoSizeHeight=h;
+    Log.d(_TAG,"VIDEO SIZE "+w+"x"+h);
+    AsyncTask.execute(() ->activity.runOnUiThread(() ->
+        webView.evaluateJavascript(
+            "try{__VIDRESCB("+videoSizeWidth+","+videoSizeHeight+");}catch(e)" +
+                "{}",
+            null)
+    ));
+  }
+
   @SuppressLint("UnsafeOptInUsageError")
   public void initVideoView(){
     if (videoView!=null){
       videoLayout.removeAllViews();
       videoView=null;
     }
+    setVideoSize(0,0);
     videoDataSourceFactory= (s, transferListener) -> {
       AnimeDataSource.sd5query="";
       Map<String, String> settings = new HashMap();
@@ -530,8 +545,11 @@ import javax.crypto.spec.SecretKeySpec;
     // Create Video
     videoPlayer=new ExoMediaPlayerImpl(videoPlayerConfig);
     videoPlayer.setSurface(videoView.getHolder().getSurface());
-    videoPlayer.setVideoSizeListener(videoSize -> videoViewEnvelope.setVideoSize(videoSize.width, videoSize.height,
-        videoSize.pixelWidthHeightRatio));
+    videoPlayer.setVideoSizeListener(videoSize -> {
+      videoViewEnvelope.setVideoSize(videoSize.width, videoSize.height,
+          videoSize.pixelWidthHeightRatio);
+      setVideoSize(videoSize.width,videoSize.height);
+    });
     videoPlayer.addAnalyticsListener(new AnalyticsListener() {
       @Override
       public void onPlaybackStateChanged(EventTime eventTime, int state) {
@@ -546,6 +564,7 @@ import javax.crypto.spec.SecretKeySpec;
         Log.d(_TAG, "ANL: TrackChanged="+tracks);
       }
     });
+
   }
 
   public void videoSetSource(String url){

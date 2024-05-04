@@ -456,7 +456,7 @@ import javax.net.ssl.HttpsURLConnection;
 
         // Check for a valid content type.
         String contentType = connection.getContentType();
-//        Log.d("VIDEOSOURCE", "Content-Type: "+contentType);
+//        Log.d("ATVLOG", "DataSource: "+contentType+" = "+dataSpec.uri.toString());
 
         if (contentTypePredicate != null && !contentTypePredicate.apply(contentType)) {
             closeConnectionQuietly();
