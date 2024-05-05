@@ -3541,7 +3541,7 @@ const _API={
         cb(_API.tooltipFlixParse(__AFLIX.cache[id],isview));
         return;
       }
-      tt_url='/__proxy/'+__AFLIX.ns+"/idtoinfo?ids=["+id+"]&y=6964696e666f";
+      tt_url='/__proxy/'+__AFLIX.ns+"/idtoinfo?ids=["+id+"]&y="+__AFLIX.enc2("idinfo");
       console.log("TTURL = "+tt_url);
     }
     else{
@@ -8180,6 +8180,62 @@ const pb={
       }
     }
   },
+  MAL_RELREC:function(id){
+    if (!id || (!__SD5 && !__SD6)){
+      return;
+    }
+    _MAL.allist_related(id,function(dm){
+      if (dm && dm.n>0){
+        try{
+          var elm=[
+            [dm.rel,pb.pb_related],
+            [dm.rec,pb.pb_recs]
+          ];
+          for (var jj=0;jj<elm.length;jj++){
+            var ldm=elm[jj][0];
+            var g=elm[jj][1];
+            pb.menu_clear(g);
+            if (ldm.length>0){
+              pb.menus.push(g);
+              for (var i=0;i<ldm.length;i++){
+                var d=ldm[i];
+                var malid="anilistmedia_"+d.id;
+                _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
+                var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
+                hl._img=$n('img','',{loading:'lazy',src:$img(d.coverImage.large)},hl,'');
+                hl._title=$n('b','',{
+                  jp:d.title.romaji?d.title.romaji:d.title.english
+                },hl,tspecial(
+                  d.title.english?d.title.english:d.title.romaji
+                ));
+                var infotxt='';
+                var mtp=d.format;
+                if (mtp=='TV_SHORT'){
+                  mtp='TV';
+                }
+                if (mtp){
+                  infotxt+='<span class="info_type">'+special(mtp)+'</span>';
+                }
+                if (d.episodes){
+                  infotxt+='<span class="info_sumep"><c>bookmark</c>'+special(d.episodes)+'</span>';
+                }
+                if (infotxt){
+                  hl._ep=$n('span','info',null,hl,infotxt);
+                }
+              }
+              pb.menu_select(g,g.P.firstElementChild);
+              g.style.display='';
+            }
+            else{
+              g.style.display='none';
+            }
+          }
+        }catch(ee){
+          console.warn(ee);
+        }
+      }
+    });
+  },
   MAL_LOAD:function(force, notrack){
     /* Find Playback Meta */
     if (!pb.MAL.set||force){
@@ -8281,6 +8337,9 @@ const pb={
               load_n--;
               track_popup();
             }, true);
+          }
+          if (!notrack){
+            pb.MAL_RELREC(v.match.id);
           }
         }
         if (v.match.mediaListEntry){
@@ -13844,6 +13903,91 @@ const _MAL={
     requestAnimationFrame(function(){
       cb(null);
     });
+  },
+  allist_related:function(id,cb){
+    _MAL.alreq(`query($id:Int) {
+      Media(isAdult:false, type: ANIME, id:$id){
+        id
+        idMal
+        relations{
+          nodes{
+            id
+            idMal
+            title{
+              romaji
+              english
+            }
+            coverImage{
+              large
+            }
+            episodes
+            status
+            duration
+            format
+            type
+            isAdult
+            averageScore
+          }
+        }
+        recommendations{
+          nodes{
+            mediaRecommendation{
+              id
+              idMal
+              title{
+                romaji
+                english
+              }
+              coverImage{
+                large
+              }
+              episodes
+              status
+              duration
+              format
+              type
+              isAdult
+              averageScore
+            }
+          }
+        }
+      }
+    }`,{
+      "id":id
+    },function(v){
+      if (v){
+        var out={
+          rel:[],
+          rec:[],
+          n:0
+        };
+        try{
+          var nd=v.data.Media.relations.nodes;
+          for (var i=0;i<nd.length;i++){
+            var vd=nd[i];
+            if (vd.type=="ANIME"){
+              out.rel.push(vd);
+              out.n++;
+            }
+          }
+        }catch(e){}
+        try{
+          var nd=v.data.Media.recommendations.nodes;
+          for (var i=0;i<nd.length;i++){
+            var vd=nd[i].mediaRecommendation;
+            if (vd.type=="ANIME"){
+              out.rec.push(vd);
+              out.n++;
+            }
+          }
+        }catch(e){}
+        try{
+          cb(out);
+        }catch(e){}
+        return;
+      }
+      cb(null);
+    }, true);
   },
   allist_list:function(sort,page,perpage,cb){
     var sr='POPULARITY_DESC';
