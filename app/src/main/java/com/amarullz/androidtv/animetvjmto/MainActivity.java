@@ -1,10 +1,16 @@
 package com.amarullz.androidtv.animetvjmto;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -14,10 +20,13 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.media.session.MediaButtonReceiver;
 import androidx.media3.common.util.UnstableApi;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @UnstableApi /*
  * Main Activity class that loads {@link MainFragment}.
@@ -83,9 +92,10 @@ public class MainActivity extends FragmentActivity {
     super.onCreate(savedInstanceState);
 
 //     initLogcat();
-
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     setContentView(R.layout.activity_main);
+
+    initBluetooth();
 
     updateInstance(savedInstanceState);
     aView=new AnimeView(this);
@@ -140,9 +150,16 @@ public class MainActivity extends FragmentActivity {
           aView.reloadView();
         }
         break;
-
+      case KeyEvent.KEYCODE_MEDIA_PAUSE:
+      case KeyEvent.KEYCODE_MEDIA_PLAY:
       case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: c=402; break;
+
+      case KeyEvent.KEYCODE_MEDIA_STEP_FORWARD:
+      case KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD:
       case KeyEvent.KEYCODE_MEDIA_NEXT: c=403; break;
+
+      case KeyEvent.KEYCODE_MEDIA_STEP_BACKWARD:
+      case KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD:
       case KeyEvent.KEYCODE_MEDIA_PREVIOUS: c=401; break;
       case KeyEvent.KEYCODE_FORWARD_DEL: c=8; break;
 
@@ -178,6 +195,7 @@ public class MainActivity extends FragmentActivity {
 
   @Override
   protected void onStop() {
+    mediaButtonStop();
     aView.updatePlayNext();
     super.onStop();
   }
@@ -186,10 +204,12 @@ public class MainActivity extends FragmentActivity {
   protected void onStart() {
     super.onStart();
     aView.onStartPause(true);
+    mediaButtonStart();
   }
 
   @Override
   protected void onPause() {
+    mediaButtonStop();
     aView.onStartPause(false);
     super.onPause();
   }
@@ -216,4 +236,83 @@ public class MainActivity extends FragmentActivity {
     aView.updateArgs();
   }
 
+  /* BLUETOOTH MEDIA KEY HANDLER */
+  public MediaSession mSession=null;
+  public Timer mediaButtonTimer=null;
+  public void initBluetooth(){
+    try {
+      mSession = new MediaSession(this, getPackageName());
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        ComponentName mediaButtonReceiver = new ComponentName(this,
+            MediaButtonReceiver.class);
+        mSession.setMediaButtonBroadcastReceiver(mediaButtonReceiver);
+      } else {
+        Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null,
+            getApplicationContext(), MediaButtonReceiver.class);
+        mSession.setMediaButtonReceiver(
+            PendingIntent.getBroadcast(
+                getApplicationContext(), 0,
+                mediaButtonIntent, PendingIntent.FLAG_IMMUTABLE
+            )
+        );
+      }
+      mSession.setFlags(
+          MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
+              MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS
+      );
+      mSession.setActive(true);
+      mSession.setCallback(new MediaSession.Callback() {
+        @Override
+        public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+          KeyEvent keyEvent = (KeyEvent) mediaButtonEvent.getExtras().get(Intent.EXTRA_KEY_EVENT);
+          if (keyEvent != null) {
+            sendKeyEvent(keyEvent.getKeyCode(), keyEvent.getAction());
+          }
+          return super.onMediaButtonEvent(mediaButtonEvent);
+        }
+
+      });
+    }catch (Exception ignored){
+      mSession=null;
+    }
+  }
+  public void mediaButtonStop(){
+    if (mediaButtonTimer!=null) {
+      mediaButtonTimer.cancel();
+      mediaButtonTimer=null;
+    }
+  }
+  public void mediaButtonStart(){
+    if (mediaButtonTimer!=null) {
+      mediaButtonTimer.cancel();
+      mediaButtonTimer=null;
+    }
+    if (mSession!=null) {
+      TimerTask mediaButtonTask = new TimerTask() {
+        @Override
+        public void run() {
+          try {
+            PlaybackState state = new PlaybackState.Builder()
+                .setActions(
+                    PlaybackState.ACTION_PLAY_PAUSE |
+                        PlaybackState.ACTION_PLAY |
+                        PlaybackState.ACTION_PAUSE |
+                        PlaybackState.ACTION_SKIP_TO_NEXT |
+                        PlaybackState.ACTION_SKIP_TO_PREVIOUS |
+                        PlaybackState.ACTION_FAST_FORWARD |
+                        PlaybackState.ACTION_REWIND
+                )
+                .setState(PlaybackState.STATE_PAUSED, 0, 1f,
+                    SystemClock.elapsedRealtime())
+                .build();
+            mSession.setPlaybackState(state);
+          } catch (Exception ignored) {
+          }
+        }
+      };
+      mediaButtonTimer = new Timer();
+      mediaButtonTask.run();
+      mediaButtonTimer.scheduleAtFixedRate(mediaButtonTask, 0, 10000);
+    }
+  }
 }
