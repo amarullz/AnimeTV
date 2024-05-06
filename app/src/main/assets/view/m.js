@@ -9660,6 +9660,10 @@ const home={
           this.classList.add('loaded');
         };
         if (im){
+          me.onerror=function(){
+            this.onerror=null;
+            me.src=fallback;
+          };
           me.classList.add('isthumb');
           me.src=im;
         }
