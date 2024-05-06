@@ -8885,6 +8885,10 @@ const home={
         var d={};
         var at=t.querySelector('.film-name a');
         d.url=at.getAttribute('href');
+
+        if (d.url.indexOf("?")>=0){
+          d.url=d.url.substring(0,d.url.indexOf('?'));
+        }
         // qtip = /ajax/movie/qtip/100
         
         ttl=d.title=at.getAttribute('title');
@@ -15638,11 +15642,6 @@ const _MAL={
     home.anilist_yt.cleanup();
     if (!_MAL.onpopup){
       return;
-    }
-    if (__SD3){
-      if (url.endsWith("?ref=search")){
-        url=url.substring(0,url.lastIndexOf('?ref=search'));
-      }
     }
     // console.log("PreviewDo = "+JSON.stringify([url, img, ttid, currep, tcurr, tdur,d,arg,malid]));
     try{
