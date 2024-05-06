@@ -1063,10 +1063,19 @@ c.loader {
 }
 :not(.ui_performance_scale) .home_slideshow.active p div.active span.infobox span.infovalue span.desc{
   color:rgba(255,255,255,.8);
+}*/
+#home_slide.home_list>p>div img:not(.loaded){
+  opacity:0 !important;
+}
+#home_slide.home_list>p>div img.loaded{
+  opacity:1;
+}
+:not(.ui_performance_scale) .home_slideshow p div img{
+  transform: scale(1);
 }
 :not(.ui_performance_scale) .home_slideshow p div.active img{
   transform: scale(1.1);
-} */
+}
 .home_slideshow p div span.infobox span.infovalue span.info{
   display: block;
   padding-top:1.5vw;

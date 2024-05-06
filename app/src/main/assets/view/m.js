@@ -4632,6 +4632,58 @@ const vtt={
     }
   }
 };
+/****************************** BANNER CACHE ******************************/
+const bannerCacher={
+  key:'e4reefz8',
+  base:'https://keyvalue.immanuel.co/api/KeyVal',
+  cache:{},
+  get:function(id,cb){
+    var vkey='c'+id;
+    if (vkey in bannerCacher.cache){
+      requestAnimationFrame(function(){
+        cb(bannerCacher.cache[vkey]);
+      });
+      return;
+    }
+    $ap(bannerCacher.base+"/GetValue/"+bannerCacher.key+"/"+id,function(r){
+      var o=null;
+      if (r.ok){
+        try{
+          o=atob(JSON.parse(r.responseText));
+        }catch(e){}
+      }
+      bannerCacher.cache[vkey]=o;
+      cb(o);
+    },
+    {
+      "Pragma": "max-age=604800",
+      "Cache-Control": "max-age=604800"
+    });
+  },
+  set:function(id,val,cb){
+    var vkey='c'+id;
+    if (bannerCacher.cache[vkey]){
+      requestAnimationFrame(function(){
+        cb(bannerCacher.cache[vkey]);
+      });
+      return;
+    }
+    $ap(bannerCacher.base+"/UpdateValue/"+bannerCacher.key+"/"+id+"/"+btoa(val).replace(/\=/g,''),function(r){
+      var o=null;
+      if (r.ok){
+        try{
+          o=JSON.parse(r.responseText);
+          bannerCacher.cache[vkey]=val;
+        }catch(e){}
+      }
+      cb(o);
+    },
+    {
+      "Content-Type":"text/plain",
+      "post":"1"
+    });
+  }
+};
 
 /****************************** PLAYBACK ******************************/
 const pb={
@@ -8181,6 +8233,24 @@ const pb={
     }
   },
   MAL_RELREC:function(id){
+    /* Send Thumbnails to server cache */
+    if (__SD<=2){
+      if (pb.data.banner){
+        // console.warn("Banner Checking("+id+")");
+        bannerCacher.get(id+'',function(b1){
+          // console.warn("Banner Get("+id+"): "+b1);
+          if (!b1 || (b1!=pb.data.banner)){
+            bannerCacher.set(id+'',
+              pb.data.banner,
+              function(b2){
+                console.warn("Save Thumbnail("+id+"): "+b2+" = "+pb.data.banner);
+              }
+            );
+          }
+        });
+      }
+    }
+
     if (!id || (!__SD5 && !__SD6)){
       return;
     }
@@ -9584,6 +9654,21 @@ const home={
     pb.menu_clear(home.home_slide);
     pb.menu_init(home.home_slide);
 
+    function loadBannerImage(me, id, fallback){
+      bannerCacher.get(id+'',function(im){
+        me.onload=function(){
+          this.classList.add('loaded');
+        };
+        if (im){
+          me.classList.add('isthumb');
+          me.src=im;
+        }
+        else{
+          me.src=fallback;
+        }
+      });
+    }
+
     if (v.data.Page.media.length>0){
       var has_trailer=false;
       for (var i=0;i<v.data.Page.media.length;i++){
@@ -9610,10 +9695,8 @@ const home={
             }
           }
 
-          hl._img=$n('img',d.bannerImageIsThumb?'isthumb':'',{loading:'lazy',src:$img(d.bannerImage?d.bannerImage:d.coverImage.large)},hl._imgh,'');
-          hl._img.onload=function(){
-            this.classList.add('loaded');
-          };
+          hl._img=$n('img',d.bannerImageIsThumb?'isthumb':'',{loading:'lazy',src:''},hl._imgh,'');
+          loadBannerImage(hl._img, d.id, $img(d.bannerImage?d.bannerImage:d.coverImage.large));
 
           hl._viewbox=$n('span','infobox',null,hl,'');
           hl._view=$n('span','infovalue',null,hl._viewbox,'');
@@ -14818,10 +14901,18 @@ const _MAL={
           }
         }
       }
-      if (d.bannerImage){
-        hl._banner=$n('div','alsd_banner',null,hl._content,'');
-        hl._banner.style.backgroundImage='url('+$img(d.bannerImage)+')';
-      }
+      var banner_div=hl._banner=$n('div','alsd_banner',null,hl._content,'');
+      hl._banner.style.display='none';
+      bannerCacher.get(d.id+'',function(im){
+        var vimg=$img(d.bannerImage);
+        if (im){
+          vimg=im;
+        }
+        if (vimg){
+          banner_div.style.backgroundImage='url('+vimg+')';
+          banner_div.style.display='';
+        }
+      });
 
       if (trailer_avail){
         hl._playtrailer=$n('div','alsd_button',null,hl._tools,'<c>play_arrow</c> Play Trailer');
@@ -15515,6 +15606,10 @@ const _MAL={
     try{
     var numep=toInt(d.ep);
     currep=toInt(currep);
+    if (currep>numep){
+      currep=numep;
+    }
+
     _MAL.pop.title.innerHTML=tspecial(d.title);
     _MAL.pop.title.setAttribute('jp',d.title_jp?d.title_jp:d.title);
 

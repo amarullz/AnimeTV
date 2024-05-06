@@ -152,7 +152,13 @@ public class MainActivity extends FragmentActivity {
         break;
       case KeyEvent.KEYCODE_MEDIA_PAUSE:
       case KeyEvent.KEYCODE_MEDIA_PLAY:
-      case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: c=402; break;
+      case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+        if (mSession==null){
+          c=402;
+        }
+        break;
+      case 402:
+        c=402; break;
 
       case KeyEvent.KEYCODE_MEDIA_STEP_FORWARD:
       case KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD:
@@ -172,7 +178,7 @@ public class MainActivity extends FragmentActivity {
     if (code>=KeyEvent.KEYCODE_0 && code<=KeyEvent.KEYCODE_9){
       c=48+(code-KeyEvent.KEYCODE_0);
     }
-//    Log.d("KEYEV","Code = "+code);
+//    Log.d("KEYEV","Code = "+code+" / "+evtype);
     if (c>0&&aView.webViewReady) {
       if (send) {
         aView.webView.evaluateJavascript(
@@ -239,6 +245,7 @@ public class MainActivity extends FragmentActivity {
   /* BLUETOOTH MEDIA KEY HANDLER */
   public MediaSession mSession=null;
   public Timer mediaButtonTimer=null;
+  public int mediaCurrentState=PlaybackState.STATE_PAUSED;
   public void initBluetooth(){
     try {
       mSession = new MediaSession(this, getPackageName());
@@ -271,9 +278,48 @@ public class MainActivity extends FragmentActivity {
           return super.onMediaButtonEvent(mediaButtonEvent);
         }
 
+        @Override
+        public void onPlay() {
+//          Log.d("KEYEV","ONPLAY");
+          sendKeyEvent(402, KeyEvent.ACTION_DOWN);
+          sendKeyEvent(402, KeyEvent.ACTION_UP);
+          mediaCurrentState=PlaybackState.STATE_PLAYING;
+          mediaSetState();
+          super.onPlay();
+        }
+
+        @Override
+        public void onPause() {
+//          Log.d("KEYEV","ONPAUSE");
+          sendKeyEvent(402, KeyEvent.ACTION_DOWN);
+          sendKeyEvent(402, KeyEvent.ACTION_UP);
+          mediaCurrentState=PlaybackState.STATE_PAUSED;
+          mediaSetState();
+          super.onPause();
+        }
+
       });
     }catch (Exception ignored){
       mSession=null;
+    }
+  }
+  public void mediaSetState(){
+    try {
+      PlaybackState state = new PlaybackState.Builder()
+          .setActions(
+              PlaybackState.ACTION_PLAY_PAUSE |
+                  PlaybackState.ACTION_PLAY |
+                  PlaybackState.ACTION_PAUSE |
+                  PlaybackState.ACTION_SKIP_TO_NEXT |
+                  PlaybackState.ACTION_SKIP_TO_PREVIOUS |
+                  PlaybackState.ACTION_FAST_FORWARD |
+                  PlaybackState.ACTION_REWIND
+          )
+          .setState(mediaCurrentState, 0, 1f,
+              SystemClock.elapsedRealtime())
+          .build();
+      mSession.setPlaybackState(state);
+    } catch (Exception ignored) {
     }
   }
   public void mediaButtonStop(){
@@ -291,23 +337,8 @@ public class MainActivity extends FragmentActivity {
       TimerTask mediaButtonTask = new TimerTask() {
         @Override
         public void run() {
-          try {
-            PlaybackState state = new PlaybackState.Builder()
-                .setActions(
-                    PlaybackState.ACTION_PLAY_PAUSE |
-                        PlaybackState.ACTION_PLAY |
-                        PlaybackState.ACTION_PAUSE |
-                        PlaybackState.ACTION_SKIP_TO_NEXT |
-                        PlaybackState.ACTION_SKIP_TO_PREVIOUS |
-                        PlaybackState.ACTION_FAST_FORWARD |
-                        PlaybackState.ACTION_REWIND
-                )
-                .setState(PlaybackState.STATE_PAUSED, 0, 1f,
-                    SystemClock.elapsedRealtime())
-                .build();
-            mSession.setPlaybackState(state);
-          } catch (Exception ignored) {
-          }
+          mediaSetState();
+
         }
       };
       mediaButtonTimer = new Timer();
