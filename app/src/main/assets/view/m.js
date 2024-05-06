@@ -15606,6 +15606,11 @@ const _MAL={
     if (!_MAL.onpopup){
       return;
     }
+    if (__SD3){
+      if (url.endsWith("?ref=search")){
+        url=url.substring(0,url.lastIndexOf('?ref=search'));
+      }
+    }
     // console.log("PreviewDo = "+JSON.stringify([url, img, ttid, currep, tcurr, tdur,d,arg,malid]));
     try{
     var numep=toInt(d.ep);
