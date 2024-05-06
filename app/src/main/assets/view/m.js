@@ -4938,6 +4938,7 @@ const pb={
     usedoh:true,
     nonjapan:false,
     alisthomess:true,
+    alisthqbanner:false,
     trailer:1,
     server:0,
     scale:0,
@@ -4989,9 +4990,9 @@ const pb={
         
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
         pb.cfg_data.alisthomess=('alisthomess' in j)?(j.alisthomess?true:false):true;
+        pb.cfg_data.alisthqbanner=('alisthqbanner' in j)?(j.alisthqbanner?true:false):false;
         
         // pb.cfg_data.performance=('performance' in j)?(j.performance?true:false):true;
-
         // pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver?true:false):false;
         pb.cfg_data.mirrorserver=('mirrorserver' in j)?(j.mirrorserver===true?1:toInt(j.mirrorserver)):0;
 
@@ -5103,6 +5104,7 @@ const pb={
     
     pb.cfg_data.nonjapan=false;
     pb.cfg_data.alisthomess=true;
+    pb.cfg_data.alisthqbanner=false;
     
     pb.cfg_data.performance=[true,true,true,true,false];
     pb.cfg_data.mirrorserver=0;
@@ -5431,6 +5433,7 @@ const pb={
       
       pb.cfg_update_el('nonjapan');
       pb.cfg_update_el('alisthomess');
+      pb.cfg_update_el('alisthqbanner');
 
       pb.cfg_update_el('trailer');
       
@@ -7184,6 +7187,13 @@ const pb={
       else if (key=='alisthomess'){
         // Update Home
         pb.cfg_data.alisthomess=!pb.cfg_data.alisthomess;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        home.settings.needreload=true;
+      }
+      else if (key=='alisthqbanner'){
+        // Update Home
+        pb.cfg_data.alisthqbanner=!pb.cfg_data.alisthqbanner;
         pb.cfg_update_el(key);
         pb.cfg_save();
         home.settings.needreload=true;
@@ -9655,6 +9665,13 @@ const home={
     pb.menu_init(home.home_slide);
 
     function loadBannerImage(me, id, fallback){
+      if (!pb.cfg_data.alisthqbanner){
+        me.onload=function(){
+          this.classList.add('loaded');
+        };
+        me.src=fallback;
+        return;
+      }
       bannerCacher.get(id+'',function(im){
         me.onload=function(){
           this.classList.add('loaded');
@@ -9664,7 +9681,6 @@ const home={
             this.onerror=null;
             me.src=fallback;
           };
-          me.classList.add('isthumb');
           me.src=im;
         }
         else{
@@ -11295,6 +11311,15 @@ const home={
           },
           home.settings.more.P,
           '<c class="check">clear</c><c>playlist_add_check_circle</c> AniList Slideshow'
+        );
+
+        home.settings.tools._s_alisthqbanner=$n(
+          'div','',{
+            action:'*alisthqbanner',
+            s_desc:"Get higher quality AniList banner image for slideshow and more info"
+          },
+          home.settings.more.P,
+          '<c class="check">clear</c><c>high_res</c> HiRes AniList Banner'
         );
 
         home.settings.tools._s_trailer=$n(
@@ -14907,16 +14932,24 @@ const _MAL={
       }
       var banner_div=hl._banner=$n('div','alsd_banner',null,hl._content,'');
       hl._banner.style.display='none';
-      bannerCacher.get(d.id+'',function(im){
-        var vimg=$img(d.bannerImage);
-        if (im){
-          vimg=im;
-        }
-        if (vimg){
-          banner_div.style.backgroundImage='url('+vimg+')';
+      if (!pb.cfg_data.alisthqbanner){
+        if (d.bannerImage){
+          banner_div.style.backgroundImage='url('+$img(d.bannerImage)+')';
           banner_div.style.display='';
         }
-      });
+      }
+      else{
+        bannerCacher.get(d.id+'',function(im){
+          var vimg=d.bannerImage?$img(d.bannerImage):'';
+          if (im){
+            vimg=im;
+          }
+          if (vimg){
+            banner_div.style.backgroundImage='url('+vimg+')';
+            banner_div.style.display='';
+          }
+        });
+      }
 
       if (trailer_avail){
         hl._playtrailer=$n('div','alsd_button',null,hl._tools,'<c>play_arrow</c> Play Trailer');
