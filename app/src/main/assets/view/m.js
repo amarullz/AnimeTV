@@ -10641,6 +10641,15 @@ const home={
       }
       return 'Default User';
     },
+    ratename:function(uid){
+      var usr=home.profiles.find(uid,false);
+      if (usr){
+        if (usr.x<6 && usr.x>=0){
+          return ratingSystem.ratingName(usr.x);
+        }
+      }
+      return '';
+    },
     set_pp:function(uid, cb){
       var usr=home.profiles.find(uid,false);
       if (!usr){
@@ -10902,8 +10911,8 @@ const home={
         var rc = ratingSystem.toRatingId(usr.x);
         var rv = ratingSystem.ratingName(rc);
         menu.push({
-          icon:'supervisor_account',
-          title:'<span class="label">Parental</span>'+
+          icon:'escalator_warning',
+          title:'<span class="label">Parental Control</span>'+
           '<span class="value vinline">'+special(rv)+'</span>',
           id:'parental'
         });
@@ -11128,7 +11137,8 @@ const home={
     profile._img=$n('img','',{src:home.profiles.ppimg(_API.user_prefix)},profile,'');
     profile._txt=$n('span','',null,profile,'');
     profile._displayname=$n('b','',null,profile._txt,special(home.profiles.ppname(_API.user_prefix)));
-    profile._username=$n('i','',null,profile._txt,(_API.user_prefix=='')?'admin':'user');
+    var rn=home.profiles.ratename(_API.user_prefix);
+    profile._username=$n('i','',null,profile._txt,(_API.user_prefix=='')?'admin':'user'+(rn?" - "+rn:""));
     profile.classList.add('active');
     home.sidebar.profile=profile;
     home.sidebar.items=[profile];

@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 34
         versionCode 480
-        versionName "4.8.0"
+        versionName "4.9.2"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
