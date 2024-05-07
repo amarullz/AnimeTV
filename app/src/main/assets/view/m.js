@@ -4695,7 +4695,7 @@ const ratingSystem={
     'PG-13',
     'R',
     'R+',
-    'RX',
+    'Rx',
     'No Limitation'
   ],
   rating_match:[
@@ -4713,7 +4713,7 @@ const ratingSystem={
     'PG-13 - Teens 13 and Older',
     'R - 17+ Violence & Profanity',
     'R+ - Profanity & Mild Nudity',
-    'RX - More adult audience',
+    'Rx - More adult audience',
     'No Limitation'
   ],
   noLimit:6,
