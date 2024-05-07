@@ -840,6 +840,9 @@ var kaas={
         try{
           var d={};
           var u=t[i];
+          if (!ratingSystem.checkRating(u.rating)){
+            continue;
+          }
           d.url=u.slug;
           d.title=u.title_en?u.title_en:u.title;
           d.title_jp=u.title;
@@ -4684,6 +4687,86 @@ const bannerCacher={
     });
   }
 };
+/****************************** RATING ******************************/
+const ratingSystem={
+  ratings:[
+    'G',
+    'PG',
+    'PG-13',
+    'R',
+    'R+',
+    'RX',
+    'No Limitation'
+  ],
+  rating_match:[
+    'G',
+    'PG',
+    'PG13',
+    'R',
+    'R+',
+    'RX',
+    'No Limitation'
+  ],
+  ratings_withdesc:[
+    'G - All Ages',
+    'PG - Children',
+    'PG-13 - Teens 13 and Older',
+    'R - 17+ Violence & Profanity',
+    'R+ - Profanity & Mild Nudity',
+    'RX - More adult audience',
+    'No Limitation'
+  ],
+  noLimit:6,
+  currentRating:2,
+  allSource:true,
+  blockMessage:function(){
+    _API.showToast("PARENTAL: Opening anime is not allowed...");
+  },
+  toRating:function(t){
+    var tx=(t+'').toUpperCase().replace(/\-/g,'').replace(/ /g,'');
+    return ratingSystem.rating_match.indexOf(tx);
+  },
+  checkRating:function(t){
+    if (!t){
+      /* Set PG-13 as default if there is no rating */
+      t="PG-13";
+    }
+    /* Check rating */
+    var r=ratingSystem.toRating(t);
+    return (r<=ratingSystem.currentRating);
+  },
+  ratingName:function(i){
+    if (ratingSystem.ratings.length>i && i>=0){
+      return ratingSystem.ratings[i];
+    }
+    return '';
+  },
+  checkAdult:function(isadult, title, title_jp){
+    if (ratingSystem.currentRating<4){
+      if (isadult){
+          return false;
+      }
+      if (title && (title+'').toLowerCase().indexOf("censor")>-1){
+        return false;
+      }
+      if (title_jp && (title_jp+'').toLowerCase().indexOf("censor")>-1){
+        return false;
+      }
+    }
+    return true;
+  },
+  toRatingId:function(x){
+    var rc=parseInt(x);
+    if (isNaN(rc)){
+      rc=ratingSystem.noLimit;
+    }
+    return rc;
+  },
+  setCurrentRating:function(x){
+    ratingSystem.currentRating=ratingSystem.toRatingId(x);
+    ratingSystem.allSource=(ratingSystem.currentRating>=4);
+  }
+};
 
 /****************************** PLAYBACK ******************************/
 const pb={
@@ -8435,6 +8518,12 @@ const pb={
     }
   },
   init:function(){
+    if (!ratingSystem.checkRating(pb.data.info.rating)){
+      pb.reset(1,0);
+      ratingSystem.blockMessage();
+      return;
+    }
+
     pb.preload_started=0;
     pb.preload_video_started=0;
 
@@ -9112,6 +9201,9 @@ const home={
     if (rd&&rd.length){
       for (var i=0;i<rd.length;i++){
         var d=rd[i];
+        if (!ratingSystem.checkAdult(d.adult,d.title,d.title_jp)){
+          continue;
+        }
         if (g._lid=='dub') {
           if (d.epdub){
             d.ep=d.epdub;
@@ -9413,6 +9505,10 @@ const home={
       for (var i=0;i<td.length;i++){
         try{
         var d=td[i];
+
+        if (!ratingSystem.checkAdult(d.adult,d.title,d.title_jp)){
+          continue;
+        }
         
         if (!__SD3&&!__SD5){
           d.poster=$imgcdn(d.poster);
@@ -10486,7 +10582,8 @@ const home={
         n:name,
         i:pp,
         p:pin,
-        it:"Anymoe"
+        it:"Anymoe",
+        x:6
       };
     },
     find:function(prefix, retidx){
@@ -10522,6 +10619,7 @@ const home={
       }
       home.profiles.users=defuser;
       home.profiles.me=home.profiles.find(_API.user_prefix,false);
+      ratingSystem.setCurrentRating(home.profiles.me.x);
       return true;
     },
     users:[],
@@ -10676,6 +10774,28 @@ const home={
       );
       return true;
     },
+    parental:function(uid,cb){
+      var usr=home.profiles.find(uid,false);
+      if (!usr){
+        cb();
+        return false;
+      }
+      if (uid==_API.user_prefix){
+        cb();
+        return false;
+      }
+      var rc=ratingSystem.toRatingId(usr.x);
+      listOrder.showList(
+        "Parental Control",ratingSystem.ratings_withdesc,rc,
+        function(v){
+          if (v!=null){
+            usr.x=v;
+            home.profiles.save();
+          }
+          cb();
+        }
+      );
+    },
     set_pin:function(uid, cb){
       var usr=home.profiles.find(uid,false);
       if (!usr){
@@ -10779,6 +10899,15 @@ const home={
         });
       }
       else if (_API.user_prefix==''){
+        var rc = ratingSystem.toRatingId(usr.x);
+        var rv = ratingSystem.ratingName(rc);
+        menu.push({
+          icon:'supervisor_account',
+          title:'<span class="label">Parental</span>'+
+          '<span class="value vinline">'+special(rv)+'</span>',
+          id:'parental'
+        });
+
         menu.push({
           icon:'delete',
           title:'Delete User',
@@ -10818,6 +10947,12 @@ const home={
             }
             else if (menu[v].id=="manage"){
               home.profiles.manage(0,function(){
+                home.profiles.open(uid,v,endcb);
+              });
+              return;
+            }
+            else if (menu[v].id=="parental"){
+              home.profiles.parental(uid,function(){
                 home.profiles.open(uid,v,endcb);
               });
               return;
@@ -11005,6 +11140,12 @@ const home={
       var seldomain=_JSAPI.storeGet(SD_CFGNAME(i+1),"");
       if (!seldomain){
         seldomain=__SOURCE_DOMAINS[i][0];
+      }
+      if (!ratingSystem.allSource){
+        if (i==4){
+          /* Parental will not work on source 5 */
+          continue;
+        }
       }
       var hl=$n('div',active?'sidebar_item checked':'sidebar_item',null,sources,'');
       hl._action='source';
@@ -11858,6 +11999,9 @@ const home={
         g._havenext=(rd.length>=28);
         for (var i=0;i<rd.length;i++){
           var d=rd[i];
+          if (!ratingSystem.checkAdult(d.adult,d.title,d.title_jp)){
+            continue;
+          }
           var argv={
             url:d.url,
             img:d.poster,
@@ -13202,6 +13346,9 @@ const home={
       var unairToday=null;
       for (var i=0;i<schedules.data.length;i++){
         var d=schedules.data[i];
+        if (!ratingSystem.checkAdult(d.isAdult,d.title.english,d.title.romaji)){
+          continue;
+        }
         var malid="anilistmedia_"+d.id;
         var animeDay = d.airDate.getDay();
 
@@ -13857,6 +14004,9 @@ const _MAL={
       if (v.data.Page.media.length>0){
         for (var i=0;i<v.data.Page.media.length;i++){
           var d=v.data.Page.media[i];
+          if (!ratingSystem.checkAdult(d.isAdult,d.title.english,d.title.romaji)){
+            continue;
+          }
           var malid="anilistmedia_"+d.id;
           _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
           var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
@@ -15550,7 +15700,7 @@ const _MAL={
     }
   },
   popup_close:function(){
-    _MAL.pop.mv.className='';
+    _MAL.pop.mv.className='loading';
     $('popupcontainer').className='';
     _MAL.pop.var.ondetail=false;
     _MAL.pop.var.ready=false;
@@ -15643,6 +15793,12 @@ const _MAL={
     if (!_MAL.onpopup){
       return;
     }
+    if (!ratingSystem.checkRating(d.rating)){
+      _MAL.popup_close();
+      ratingSystem.blockMessage();
+      return;
+    }
+
     // console.log("PreviewDo = "+JSON.stringify([url, img, ttid, currep, tcurr, tdur,d,arg,malid]));
     try{
     var numep=toInt(d.ep);
