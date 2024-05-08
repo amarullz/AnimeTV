@@ -1883,6 +1883,41 @@ function $a(uri, cb, hdr, pd){
   }
   return xhttp;
 }
+function $scroll(el,val,isHoriz,duration){
+  el[isHoriz?'scrollLeft':'scrollTop']=val;
+  var sid=el.__scroll_id=$tick();
+  el.__scroll_duration = duration?duration:100;
+  el.__scroll_end=$tick()+el.__scroll_duration;
+  el.__scroll_duration = parseFloat(el.__scroll_duration);
+  el.__scroll_start=isHoriz?el.scrollLeft:el.scrollTop;
+  el.__scroll_target=val;
+  if (el.__scroll_to){
+    clearTimeout(el.__scroll_to);
+    el.__scroll_to=null;
+  }
+  function move(){
+    if (sid!=el.__scroll_id){
+      return;
+    }
+    var delta = (el.__scroll_end-$tick());
+    if (delta>0){
+      var t = 1.0 - (delta / el.__scroll_duration);
+      var v = el.__scroll_start+((el.__scroll_target-el.__scroll_start) * t);
+      if (v>0 || v<el[isHoriz?'scrollWidth':'scrollHeight']){
+        requestAnimationFrame(function(){
+          if (sid!=el.__scroll_id){
+            return;
+          }
+          el[isHoriz?'scrollLeft':'scrollTop']=v;
+          el.__scroll_to=setTimeout(move,2);
+        });
+        return;
+      }
+    }
+    el[isHoriz?'scrollLeft':'scrollTop']=el.__scroll_target;
+  }
+  el.__scroll_to=setTimeout(move,1);
+}
 
 /* proxy ajax */
 function $ap(uri, cb, hdr){
@@ -15352,7 +15387,7 @@ const _MAL={
       if (st!=hl.scrollTop){
         var pt=hl.scrollTop;
         hl.scrollTop=st;
-        if (pt!=hl.scrollTop){
+        if (pt!=st){
           clk();
         }
       }
@@ -16236,7 +16271,7 @@ const listOrder={
     var st=par.scrollTop;
     var sh=par.offsetHeight;
     var sb=st+sh;
-    if (ot<st){ 
+    if (ot<st){
       par.scrollTop=ot;
     }
     else if (ob>sb){
@@ -16533,6 +16568,7 @@ const listOrder={
 };
 
 (function(){
+  // return;
   var xDown = null;
   var yDown = null;
   var tIsMove=false;
