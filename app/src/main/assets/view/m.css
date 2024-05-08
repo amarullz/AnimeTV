@@ -3768,6 +3768,9 @@ c.loader {
   left:-.1vw;
   z-index:0;
 }
+:not(.ui_performance_shadow) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
+  box-shadow: 0 .1vw 1vw .1vw var(--accent-1);
+}
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   width: 12vw;
   height: 16.8vw;

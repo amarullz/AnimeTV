@@ -5020,7 +5020,7 @@ const pb={
 
   cfg_data:{
     animation:0,
-    performance:[true,true,true,true,false],
+    performance:[true,false,true,true,false],
     autoskip:false,
     autonext:true,
     // html5player:false,
@@ -5111,7 +5111,7 @@ const pb={
             pb.cfg_data.performance=JSON.parse(JSON.stringify(j.performance));
           }
           else if (j.performance){
-            pb.cfg_data.performance=[true,true,true,true,false];
+            pb.cfg_data.performance=[true,false,true,true,false];
           }
           else{
             pb.cfg_data.performance=[false,false,false,false,false];
@@ -5201,7 +5201,7 @@ const pb={
     pb.cfg_data.alisthomess=true;
     pb.cfg_data.alisthqbanner=false;
     
-    pb.cfg_data.performance=[true,true,true,true,false];
+    pb.cfg_data.performance=[true,false,true,true,false];
     pb.cfg_data.mirrorserver=0;
     
     
