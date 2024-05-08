@@ -9942,6 +9942,10 @@ const home={
     home.home_slide._page=1;
     home.home_slide._cyclic=1;
 
+    touchHelper.gestureReg($('home_slide_touch'),function(v){
+      pb.menu_keycb(home.home_slide,v);
+    }, window.offsetWidth*0.1);
+
     if (__SD6||pb.cfg_data.alisthomess||(__SD==2)){
       home.home_anilist_load();
       return;
@@ -13272,11 +13276,9 @@ const home={
     }
   },
   header_item_click:function(c){
-    console.warn(c);
     var me=this;
     var pc=home.header_items.indexOf(me);
     if (pc>-1){
-      console.warn(pc);
       var hsel=home.header_items_selected;
       var psel=hsel;
       home.header_items[hsel].classList.remove('active');
@@ -16198,7 +16200,7 @@ const listOrder={
               listOrder.keycb(r==KUP?KRIGHT:KLEFT);
             }
           }
-        }, dr[i].parentElement.offsetHeight);
+        }, dr[i].parentElement.offsetHeight, 'active');
       }
     }
   },
@@ -16807,7 +16809,10 @@ const listOrder={
 
 const touchHelper={
   getTouch:function(evt) {
-    return evt.touches || evt.originalEvent.touches;
+    if (evt.touches){
+      return evt.touches[0];
+    }
+    return {clientX:evt.screenX,clientY:evt.screenY};
   },
   tend:function(evt){
     if (!this._tIsMove){
@@ -16816,19 +16821,37 @@ const touchHelper={
       }
     }
     this._tIsMove=false;
+    this._tIsDown=false;
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
+    if (this._activeclass){
+      this.classList.remove(this._activeclass);
+    }
   },
   start:function(evt) {
-    const firstTouch = touchHelper.getTouch(evt)[0];
+    const firstTouch = touchHelper.getTouch(evt);
     this._xDown = firstTouch.clientX;
     this._yDown = firstTouch.clientY;
     this._tIsMove=false;
+    this._tIsDown=true;
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
+    if (this._activeclass){
+      this.classList.add(this._activeclass);
+    }
   },
   move:function(evt) {
+    if (!this._tIsDown){
+      return;
+    }
     if ( ! this._xDown || ! this._yDown ) {
         return;
     }
-    var xUp = evt.touches[0].clientX;
-    var yUp = evt.touches[0].clientY;
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
+    const moveT = touchHelper.getTouch(evt);
+    var xUp = moveT.clientX;
+    var yUp = moveT.clientY;
     var xDiff = this._xDown - xUp;
     var yDiff = this._yDown - yUp;
     var minCancel=window.outerWidth*0.02;
@@ -16875,7 +16898,11 @@ const touchHelper={
       }
     }
   },
-  gestureReg:function(el,cb,minmove){
+  gestureReg:function(el,cb,minmove,activeclass){
+    console.warn(["register touch", el]);
+    try{
+      touchHelper.gestureUnreg(el);
+    }catch(e){}
     if (!minmove){
       minmove=window.outerWidth*0.07;
     }
@@ -16884,15 +16911,16 @@ const touchHelper={
     el._xDown = null;
     el._yDown = null;
     el._tIsMove=false;
-    el.addEventListener('touchstart', touchHelper.start, false);
-    el.addEventListener('touchmove', touchHelper.move, false);
-    el.addEventListener('touchend', touchHelper.tend, false);
+    el._activeclass=activeclass;
+    el.addEventListener('touchstart', touchHelper.start, true);
+    el.addEventListener('touchmove', touchHelper.move, true);
+    el.addEventListener('touchend', touchHelper.tend, true);
   },
-  gestureUnred:function(el){
+  gestureUnreg:function(el){
     el._cb=null;
-    el.removeEventListener('touchstart', touchHelper.start, false);
-    el.removeEventListener('touchmove', touchHelper.move, false);
-    el.removeEventListener('touchend', touchHelper.tend, false);
+    el.removeEventListener('touchstart', touchHelper.start, true);
+    el.removeEventListener('touchmove', touchHelper.move, true);
+    el.removeEventListener('touchend', touchHelper.tend, true);
   }
 };
 

@@ -875,6 +875,15 @@ c.loader {
   box-sizing: border-box;
   display: block;
 }
+#home_slide_touch{
+  width:100vw;
+  height:40vw;
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 22;
+}
 #home_slide_holder{
   padding:0;
   width:100vw;
@@ -3123,6 +3132,10 @@ c.loader {
   font-size: var(--fs-10vw);
   color: #aaa;
   content: attr(s_desc);
+}
+
+.settings_group p div c[drag].active{
+  color: var(--accent-1);
 }
 
 #popupcontainer{
