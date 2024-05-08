@@ -850,8 +850,12 @@ var kaas={
           d.poster=kaas.imgPoster(u.poster,0);
           d.epavail=d.ep=u.episode_number?u.episode_number:'';
           d.type=u.type?u.type.toUpperCase():'';
+          d.rating=u.rating;
           if (u.duration){
             d.duration=Math.floor(u.duration/60000)+'MIN';
+          }
+          if (ratingSystem.toRating(u.rating)>3 || ratingSystem.checkAdultTitle(u.title_en,u.title)){
+            d.adult=true;
           }
           rd.push(d);
         }catch(e2){}
@@ -2287,6 +2291,8 @@ const _API={
       cb(_API.wallpaper_data.length);
     });
   },
+
+  rplustxt:"R+",
 
   ppic_base:'https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/ppic/',
   ppic_data:[],
@@ -4741,15 +4747,21 @@ const ratingSystem={
     }
     return '';
   },
+  checkAdultTitle:function(title, title_jp){
+    if (title && (title+'').toLowerCase().indexOf("censor")>-1){
+      return true;
+    }
+    if (title_jp && (title_jp+'').toLowerCase().indexOf("censor")>-1){
+      return true;
+    }
+    return false;
+  },
   checkAdult:function(isadult, title, title_jp){
     if (ratingSystem.currentRating<4){
       if (isadult){
-          return false;
-      }
-      if (title && (title+'').toLowerCase().indexOf("censor")>-1){
         return false;
       }
-      if (title_jp && (title_jp+'').toLowerCase().indexOf("censor")>-1){
+      else if (ratingSystem.checkAdultTitle(title,title_jp)){
         return false;
       }
     }
@@ -9225,8 +9237,12 @@ const home={
         var infotxt='';
         var binfotxt='';
         if (d.adult){
-          binfotxt+='<span class="info_adult">18+</span>';
+          binfotxt+='<span class="info_adult">'+_API.rplustxt+'</span>';
         }
+        else if (d.rating){
+          binfotxt+='<span class="info_ep">'+d.rating+'</span>';
+        }
+
         if (d.duration){
           binfotxt+='<span class="info_duration">'+special((d.duration+"").toLowerCase())+'</span>';
         }
@@ -9543,7 +9559,7 @@ const home={
           infotxt+='<span class="info_type">'+special(d.type)+'</span>';
         }
         if (d.adult){
-          infotxt+='<span class="info_adult">18+</span>';
+          infotxt+='<span class="info_adult">'+_API.rplustxt+'</span>';
         }
         if (d.duration){
           infotxt+='<span class="info_duration">'+special((d.duration+"").toUpperCase())+'</span>';
@@ -9720,7 +9736,7 @@ const home={
       infotxt+='<span class="info_score"><u><b style="width:'+d.averageScore+'%">⭐⭐⭐⭐⭐</b><b>⭐⭐⭐⭐⭐</b></u></span>';
     }
     if (d.isAdult){
-      infotxt+='<span class="info_adult">18+</span>';
+      infotxt+='<span class="info_adult">'+_API.rplustxt+'</span>';
     }
     if (d.seasonYear){
       if (mtp&&(mtp!='unknown')){
@@ -12028,7 +12044,10 @@ const home={
           var infotxt='';
           var binfotxt='';
           if (d.adult){
-            binfotxt+='<span class="info_adult">18+</span>';
+            binfotxt+='<span class="info_adult">'+_API.rplustxt+'</span>';
+          }
+          else if (d.rating){
+            binfotxt+='<span class="info_ep">'+d.rating+'</span>';
           }
           if (d.duration){
             binfotxt+='<span class="info_duration">'+special((d.duration+"").toLowerCase())+'</span>';
@@ -13380,7 +13399,7 @@ const home={
           mtp='TV';
         }
         if (d.isAdult){
-          infotxt+='<span class="info_adult">18+</span>';
+          infotxt+='<span class="info_adult">'+_API.rplustxt+'</span>';
         }
         if (mtp&&(mtp!='unknown')){
           infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
@@ -14034,7 +14053,7 @@ const _MAL={
             binfotxt+='<span class="info_score"><c>star</c>'+d.averageScore+'</span>';
           }
           if (d.isAdult){
-            binfotxt+='<span class="info_adult">18+</span>';
+            binfotxt+='<span class="info_adult">'+_API.rplustxt+'</span>';
           }
           var isplan=false;
           if (d.status=='NOT_YET_RELEASED'){
@@ -14653,7 +14672,7 @@ const _MAL={
             mtp='TV';
           }
           if (d.media.isAdult){
-            infotxt+='<span class="info_adult">18+</span>';
+            infotxt+='<span class="info_adult">'+_API.rplustxt+'</span>';
           }
           if (mtp&&(mtp!='unknown')){
             infotxt+='<span class="info_type">'+special(mtp.toUpperCase())+'</span>';
@@ -15771,7 +15790,7 @@ const _MAL={
   },
   popuprating:function(v){
     if (v=='R+'){
-      _MAL.pop.rating.innerHTML='18+';
+      _MAL.pop.rating.innerHTML=_API.rplustxt;
       _MAL.pop.rating.className='adult';
     }
     else{
