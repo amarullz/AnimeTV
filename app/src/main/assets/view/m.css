@@ -642,6 +642,8 @@ c.loader {
   transition: all var(--tim-3s) var(--interpolation);
   text-shadow: 0 .1vw .1vw #000 !important;
 }
+.animetv_header.active .animetv_header_banner #home_schedule:hover:after,
+.animetv_header.active .animetv_header_banner #home_settings:hover:after,
 .animetv_header.active .animetv_header_banner #home_schedule.active:after,
 .animetv_header.active .animetv_header_banner #home_settings.active:after{
   visibility: visible;
@@ -660,7 +662,7 @@ c.loader {
 }
 .animetv_noclock .animetv_header_banner #home_time{
   display: none !important;
-} 
+}
 .animetv_header_banner div.selected:before{
   content: '';
   width:60%;
@@ -672,19 +674,26 @@ c.loader {
   transform: scaleX(1);
   transition: all var(--tim-3s) var(--interpolation);
 }
+.animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover.selected:before,
 .animetv_header.active .animetv_header_banner div.active.selected:before{
   opacity: 0;
   transform: scaleX(0);
 }
+.animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover,
 .animetv_header.active .animetv_header_banner div.active{
   background:#fff;
   color:var(--primary-1);
   border-radius: 2vw;
   text-shadow: none !important;
 }
+.animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover{
+  color:var(--accent-1);
+}
+.animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover c,
 .animetv_header.active .animetv_header_banner div.active c{
   text-shadow: none !important;
 }
+.animetv_header .animetv_header_banner div.animetv_logo:hover,
 .animetv_header.active .animetv_header_banner div.animetv_logo.active{
   color:#fff;
   background: transparent !important;
@@ -698,6 +707,7 @@ c.loader {
   position: absolute;
   transform: rotate(-90deg);
 }
+.animetv_header .animetv_header_banner div.animetv_logo:hover c,
 .animetv_header.active .animetv_header_banner div.animetv_logo.active c{
   visibility: visible;
   opacity: 1;
