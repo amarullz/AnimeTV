@@ -7,6 +7,10 @@ const __SD3=((__SD==3) || (__SD==4))?true:false;
 const __SD5=(__SD==5);
 const __SD6=(__SD==6);
 
+/* is touch screen */
+var _USE_TOUCH=true;
+var _TOUCH=false;
+
 const __SOURCE_NAME=[
   'Aniwave', 'Anix', 'Hianime', 'Aniwatch', 'Animeflix', 'KickAss'
 ];
@@ -2215,16 +2219,18 @@ window._KEYEV=function(key, evSource){
 
 /**** NON KEY GESTURES ******/
 (function(){
-  window.addEventListener("wheel", event => {
-    if (event.deltaY < 0)
-    {
-      _KEYEV(KUP);
-    }
-    else if (event.deltaY > 0)
-    {
-      _KEYEV(KDOWN);
-    }
-  });
+  if (!_USE_TOUCH){
+    window.addEventListener("wheel", event => {
+      if (event.deltaY < 0)
+      {
+        _KEYEV(KUP);
+      }
+      else if (event.deltaY > 0)
+      {
+        _KEYEV(KDOWN);
+      }
+    });
+  }
 })();
 /**** NON KEY GESTURES ******/
 
@@ -7603,10 +7609,24 @@ const pb={
               g._margin=0;
               g.classList.remove('maskleft');
             }
-            if (g._margin)
-              g.P.style.transform='translateX(-'+g._margin+'px)';
-            else
-              g.P.style.transform='translateX(0)';
+            if (_TOUCH){
+              if (!g._noscroll){
+                g.P.style.transform='translateX(0)';
+                if (g._margin)
+                  g.scrollLeft=g._margin;
+                else
+                  g.scrollLeft=0;
+              }
+              else{
+                g._noscroll=false;
+              }
+            }
+            else{
+              if (g._margin)
+                g.P.style.transform='translateX(-'+g._margin+'px)';
+              else
+                g.P.style.transform='translateX(0)';
+            }
           }
           g._sel=n;
         };
@@ -7623,91 +7643,34 @@ const pb={
   },
 
   /* menu key handler */
-  gestures:{
-    pos:function(ev){
-      var pX=0;
-      var pY=0;
-      if (ev.touches){
-        if (ev.touches.length>0){
-          pX=ev.touches[0].screenX;
-          pY=ev.touches[0].screenY;
-        }
-      }
-      else{
-        pX=ev.screenX;
-        pY=ev.screenY;
-      }
-      return [pX,pY];
-    },
-    start:function(ev){
-      var p=pb.gestures.pos(ev);
-      if (p[0]&&p[1])
-        this.__gesture_start=p;
-      else
-        this.__gesture_start=null;
-      this.__gesture_moved=false;
-      ev.preventDefault();
-    },
-    move:function(ev){
-      var s=this.__gesture_start;
-      if (s){
-        var p=pb.gestures.pos(ev);
-        var xmove=p[0]-s[0];
-        if (this.P){
-          if (Math.abs(xmove)<(window.outerWidth*0.06)){
-            this.P.style.marginLeft=(xmove/1.5)+'px';
-          }
-          else{
-            this.P.style.marginLeft='';
-            this.__gesture_start=p;
-            this.__gesture_moved=true;
-            if (xmove<0){
-              this._keycb(this,KRIGHT);
-            }
-            else{
-              this._keycb(this,KLEFT);
-            }
-          }
-        }
-      }
-    },
-    end:function(ev){
-      this.P.style.marginLeft='';
-      this.__gesture_start=null;
-      if (!this.__gesture_moved){
-        var tp=ev.target;
-        while(tp){
-          if (tp.parentNode==this.P){
-            break;
-          }
-          else if (tp==this){
-            tp=null;
-            break;
-          }
-          tp=tp.parentNode;
-        }
-        if (tp){
-          if (tp.classList.contains('active')){
-            this._keycb(this,KENTER);
-          }
-          else{
-            pb.menu_select(this,tp);
-          }
-        }
-      }
-      this.__gesture_moved=false;
-      // console.log([this,ev]);
-    },
-  },
-  menu_gesture_init:function(g){
-    g.ontouchstart=pb.gestures.start;
-    g.ontouchmove=pb.gestures.move;
-    g.ontouchend=pb.gestures.end;
-  },
-
   menu_init:function(g){
     g._keycb=pb.menu_keycb;
-    // pb.menu_gesture_init(g);
+    g._scrollLast=0;
+    g.onscroll=function(){
+      if (this.scrollLeft==this.scrollWidth-this.offsetWidth){
+        if (this._scrollLast!=this.scrollLeft){
+          this._scrollLast=this.scrollLeft;
+          if (this._edgecb){
+            this._edgecb(this);
+          }
+        }
+      }
+    };
+    g.onclick=function(e){
+      var el=e.target;
+      while(el){
+        if (el.parentElement==this.P){
+          break;
+        }
+        el=el.parentElement;
+      }
+      if (el){
+        this._noscroll=true;
+        this._sel=this._target_n=el;
+        this.__update();
+        pb.menu_keycb(this,KENTER);
+      }
+    };
   },
   menu_keycb:function(g,c,z){
     var n=null;
@@ -9415,6 +9378,22 @@ const home={
         home.recent_load(rc);
       }
     };
+    rc._edgecb=function(g){
+      if (g._onload!=0) return;
+      if (g._page>60) return;
+      g._page++;
+      // g._sel=g.P.lastElementChild;
+      // pb.menu_select(g,g._sel);
+      g._noscroll=true;
+      if (loader){
+        loader(rc);
+      }
+      else{
+        home.recent_load(rc);
+      }
+    };
+
+
     if (loader){
       loader(rc);
     }
@@ -11255,6 +11234,22 @@ const home={
     home.update_homepages(pb.cfg_data.homylist?1:0);
     home.init_discord_message();
     home.init_sidebar();
+
+    home.home_scroll_mask.onscroll=function(){
+      if (this.scrollTop>window.outerWidth*0.05){
+        if (!home.home_header.classList.contains('scrolled')){
+          home.home_header.classList.add('scrolled');
+        }
+      }
+      else{
+        if (home.home_header.classList.contains('scrolled')){
+          home.home_header.classList.remove('scrolled');
+        }
+      }
+    };
+    $('popupcontainer').onclick=function(){
+      window._KEYEV(KBACK,1);
+    };
   },
   init_discord_message:function(){
     // Discord Info & Announchments
@@ -11751,6 +11746,34 @@ const home={
       home.settings.update(0,0);
       pb.pb.classList.add('onsettings');
       home.settings.settings.classList.add('active');
+      home.settings.settings.onclick=function(e){
+        var el=e.target;
+        if (el==this){
+          window._KEYEV(KBACK,1);
+          return;
+        }
+        while(el){
+          if (el.parentElement==home.settings.settings){
+            el=null;
+            break;
+          }
+          if (el.getAttribute("action")){
+            break;
+          }
+          el=el.parentElement;
+        }
+        if (el){
+          try{
+            if (el.classList.contains('disabled')){
+              return;
+            }
+            clk();
+            var action=el.getAttribute('action');
+            var arg=el.getAttribute('arg');
+            pb.action_handler(action,arg);
+          }catch(e){}
+        }
+      };
     },
     close:function(){
       if (home.settings.needreload){
@@ -13643,11 +13666,23 @@ const home={
         if ((pr==home.menus[pc].length) || (ty>(home.home_scroll.offsetHeight-window.outerHeight))) {
           ty=home.home_scroll.offsetHeight-window.outerHeight;
         }
-        home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
+        if (_TOUCH){
+          home.home_scroll.style.transform="";
+          home.home_scroll_mask.scrollTop=ty;
+        }
+        else{
+          home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
+        }
       }
       else{
         home.home_header.classList.remove('scrolled');
-        home.home_scroll.style.transform="";
+        if (_TOUCH){
+          home.home_scroll.style.transform="";
+          home.home_scroll_mask.scrollTop=0;
+        }
+        else{
+          home.home_scroll.style.transform="";
+        }
       }
       return true;
     }
@@ -16053,6 +16088,56 @@ const listOrder={
   changed:false,
   title_el:null,
   list_sel:-1,
+  regclick:function(){
+    listOrder.holder.onclick=function(e){
+      var el=e.target;
+      if (el==this){
+        window._KEYEV(KBACK,1);
+        return;
+      }
+      while(el){
+        if (el.parentElement==this){
+          el=null;
+          break;
+        }
+        if (listOrder.popuptype==1){
+          if (el.parentElement==listOrder.group){
+            break;
+          }
+        }
+        else if (el.parentElement==listOrder.group.P){
+          break;
+        }
+        el=el.parentElement;
+      }
+      if (el){
+        try{
+          if (listOrder.popuptype==1){
+            if (listOrder.imgSel>-1){
+              listOrder.imglist[listOrder.imgSel].classList.remove('active');
+            }
+            var pc=listOrder.imglist.indexOf(el);
+            if (pc>-1){
+              listOrder.imglist[pc].classList.add('active');
+              listOrder.imgSel=pc;
+              listOrder.changed=true;
+              listOrder.close();
+            }
+          }
+          else{
+            if (listOrder.group._sel!=el){
+              if (listOrder.group._sel){
+                listOrder.group._sel.classList.remove('active');
+              }
+              listOrder.group._sel=el;
+              el.classList.add('active');
+            }
+            listOrder.keycb(KENTER);
+          }
+        }catch(e){}
+      }
+    };
+  },
   show:function(winTitle,list,cb){
     listOrder.popuptype=0;
     listOrder.list_sel=-1;
@@ -16085,6 +16170,7 @@ const listOrder={
     $('popupcontainer').className='active onpopup';
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
+    listOrder.regclick();
   },
   multilist:[],
   showMulti:function(winTitle,list,sel,cb,icons,rev){
@@ -16121,6 +16207,7 @@ const listOrder={
     $('popupcontainer').className='active onpopup';
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
+    listOrder.regclick();
   },
   showList:function(winTitle,list,sel,cb,ishtml,deficon,forcesel){
     listOrder.list_sel=sel;
@@ -16171,6 +16258,7 @@ const listOrder={
     $('popupcontainer').className='active onpopup';
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
+    listOrder.regclick();
   },
   showMenu:function(winTitle,list,sel,cb){
     listOrder.list_sel=-1;
@@ -16204,6 +16292,7 @@ const listOrder={
     $('popupcontainer').className='active onpopup';
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
+    listOrder.regclick();
   },
   imglist:[],
   imgSel:-1,
@@ -16357,9 +16446,11 @@ const listOrder={
     $('popupcontainer').className='active';
     listOrder.holder.classList.add('active');
     listOrder.imgLoadNext();
+    listOrder.regclick();
   },
   close:function(){
     var rcb=listOrder.cb;
+    listOrder.holder.onclick=null;
     var tmpcb=function(v){
       requestAnimationFrame(function(){
         rcb(v);
@@ -16568,7 +16659,17 @@ const listOrder={
 };
 
 (function(){
-  // return;
+  if (_USE_TOUCH){
+    function regtouch(){
+      _TOUCH=true;
+      body.classList.add('istouch');
+      document.removeEventListener("touchstart", regtouch, false);
+      return true;
+    }
+    document.addEventListener('touchstart', regtouch, false);
+    return;
+  }
+
   var xDown = null;
   var yDown = null;
   var tIsMove=false;
