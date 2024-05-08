@@ -8,7 +8,7 @@ const __SD5=(__SD==5);
 const __SD6=(__SD==6);
 
 /* is touch screen */
-var _USE_TOUCH=false;
+var _USE_TOUCH=true;
 var _TOUCH=false;
 
 const __SOURCE_NAME=[
@@ -9944,7 +9944,7 @@ const home={
 
     touchHelper.gestureReg($('home_slide_touch'),function(v){
       pb.menu_keycb(home.home_slide,v);
-    }, window.offsetWidth*0.1);
+    }, window.offsetWidth*0.1, null, true);
 
     if (__SD6||pb.cfg_data.alisthomess||(__SD==2)){
       home.home_anilist_load();
@@ -16827,10 +16827,12 @@ const touchHelper={
     }
     this._tIsMove=false;
     this._tIsDown=false;
-    evt.preventDefault();
-    evt.stopImmediatePropagation();
     if (this._activeclass){
       this.classList.remove(this._activeclass);
+    }
+    if (!this._nocancel){
+      evt.preventDefault();
+      evt.stopImmediatePropagation();
     }
   },
   start:function(evt) {
@@ -16839,10 +16841,12 @@ const touchHelper={
     this._yDown = firstTouch.clientY;
     this._tIsMove=false;
     this._tIsDown=true;
-    evt.preventDefault();
-    evt.stopImmediatePropagation();
     if (this._activeclass){
       this.classList.add(this._activeclass);
+    }
+    if (!this._nocancel){
+      evt.preventDefault();
+      evt.stopImmediatePropagation();
     }
   },
   move:function(evt) {
@@ -16852,8 +16856,10 @@ const touchHelper={
     if ( ! this._xDown || ! this._yDown ) {
         return;
     }
-    evt.preventDefault();
-    evt.stopImmediatePropagation();
+    if (!this._nocancel){
+      evt.preventDefault();
+      evt.stopImmediatePropagation();
+    }
     const moveT = touchHelper.getTouch(evt);
     var xUp = moveT.clientX;
     var yUp = moveT.clientY;
@@ -16903,7 +16909,7 @@ const touchHelper={
       }
     }
   },
-  gestureReg:function(el,cb,minmove,activeclass){
+  gestureReg:function(el,cb,minmove,activeclass,nocancel){
     console.warn(["register touch", el]);
     try{
       touchHelper.gestureUnreg(el);
@@ -16911,6 +16917,7 @@ const touchHelper={
     if (!minmove){
       minmove=window.outerWidth*0.07;
     }
+    el._nocancel=nocancel;
     el._minmove=minmove;
     el._cb=cb;
     el._xDown = null;
