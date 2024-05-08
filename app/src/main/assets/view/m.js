@@ -8,7 +8,7 @@ const __SD5=(__SD==5);
 const __SD6=(__SD==6);
 
 /* is touch screen */
-var _USE_TOUCH=true;
+var _USE_TOUCH=false;
 var _TOUCH=false;
 
 const __SOURCE_NAME=[
@@ -16744,12 +16744,16 @@ const listOrder={
            evt.originalEvent.touches; // jQuery
   }
   function handleTouchStart(evt) {
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
       const firstTouch = getTouches(evt)[0];
       xDown = firstTouch.clientX;
       yDown = firstTouch.clientY;
       tIsMove=false;
   }
   function handleTouchMove(evt) {
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
       if ( ! xDown || ! yDown ) {
           return;
       }
@@ -16795,15 +16799,16 @@ const listOrder={
       }
   }
   function handleTouchEnd(evt){
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
     if (!tIsMove){
       window._KEYEV(KENTER,1);
     }
     tIsMove=false;
   }
-  document.addEventListener('touchstart', handleTouchStart, false);
-  document.addEventListener('touchmove', handleTouchMove, false);
-  document.addEventListener('touchend', handleTouchEnd, false);
-  
+  document.addEventListener('touchstart', handleTouchStart, true);
+  document.addEventListener('touchmove', handleTouchMove, true);
+  document.addEventListener('touchend', handleTouchEnd, true);
 })();
 
 

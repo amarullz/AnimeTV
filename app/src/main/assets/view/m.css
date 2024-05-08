@@ -642,8 +642,8 @@ c.loader {
   transition: all var(--tim-3s) var(--interpolation);
   text-shadow: 0 .1vw .1vw #000 !important;
 }
-.animetv_header.active .animetv_header_banner #home_schedule:hover:after,
-.animetv_header.active .animetv_header_banner #home_settings:hover:after,
+.istouch .animetv_header.active .animetv_header_banner #home_schedule:hover:after,
+.istouch .animetv_header.active .animetv_header_banner #home_settings:hover:after,
 .animetv_header.active .animetv_header_banner #home_schedule.active:after,
 .animetv_header.active .animetv_header_banner #home_settings.active:after{
   visibility: visible;
@@ -674,26 +674,26 @@ c.loader {
   transform: scaleX(1);
   transition: all var(--tim-3s) var(--interpolation);
 }
-.animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover.selected:before,
+.istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover.selected:before,
 .animetv_header.active .animetv_header_banner div.active.selected:before{
   opacity: 0;
   transform: scaleX(0);
 }
-.animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover,
+.istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover,
 .animetv_header.active .animetv_header_banner div.active{
   background:#fff;
   color:var(--primary-1);
   border-radius: 2vw;
   text-shadow: none !important;
 }
-.animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover{
+.istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover{
   color:var(--accent-1);
 }
-.animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover c,
+.istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover c,
 .animetv_header.active .animetv_header_banner div.active c{
   text-shadow: none !important;
 }
-.animetv_header .animetv_header_banner div.animetv_logo:hover,
+.istouch .animetv_header .animetv_header_banner div.animetv_logo:hover,
 .animetv_header.active .animetv_header_banner div.animetv_logo.active{
   color:#fff;
   background: transparent !important;
@@ -707,7 +707,7 @@ c.loader {
   position: absolute;
   transform: rotate(-90deg);
 }
-.animetv_header .animetv_header_banner div.animetv_logo:hover c,
+.istouch .animetv_header .animetv_header_banner div.animetv_logo:hover c,
 .animetv_header.active .animetv_header_banner div.animetv_logo.active c{
   visibility: visible;
   opacity: 1;
@@ -1574,7 +1574,7 @@ c.loader {
 .pb_menu>p>div.active {
   background-color: var(--dimm-1);
 }
-.pb_menu>p>div:hover,
+.istouch .pb_menu>p>div:hover,
 .pb_menu.active>p>div.active {
   background-color: var(--primary-2);
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
@@ -2391,7 +2391,7 @@ c.loader {
   height: 17vw;
   opacity:1;
 }
-.home_list>p>div:hover,
+.istouch .home_list>p>div:hover,
 .home_list>p>div.active{
   background-color: var(--primary-1);
 }
@@ -3033,9 +3033,9 @@ c.loader {
 .settings_group.active p div.active{
   background-color: #444;
 }
-.settings_group p div.active:hover,
-.settings_group.active p div.active:hover,
-.settings_group p div:hover{
+.istouch .settings_group p div.active:hover,
+.istouch .settings_group.active p div.active:hover,
+.istouch .settings_group p div:hover{
   background-color: #111;
 }
 .settings_group p div c.check{
@@ -3823,11 +3823,11 @@ c.loader {
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide)>p>div{
   transition: transform var(--tim-3s) var(--interpolation) !important;
 }
-:not(.ui_performance_scale) .view-informative .home_list:not(#home_slide):hover>p>div.active
+:not(.ui_performance_scale) .istouch .view-informative .home_list:not(#home_slide):hover>p>div.active
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active {
   transform: scale(1.06);
 }
-.view-informative .home_list:not(#home_slide)>p>div:hover:before,
+.istouch .view-informative .home_list:not(#home_slide)>p>div:hover:before,
 .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   content:' ';
   display: block;
@@ -3840,11 +3840,11 @@ c.loader {
   left:-.1vw;
   z-index:0;
 }
-:not(.ui_performance_shadow) .view-informative .home_list:not(#home_slide)>p>div:hover:before,
+:not(.ui_performance_shadow) .istouch .view-informative .home_list:not(#home_slide)>p>div:hover:before,
 :not(.ui_performance_shadow) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   box-shadow: 0 .1vw 1vw .1vw var(--accent-1);
 }
-:not(.ui_performance_scale) .view-informative .home_list:not(#home_slide)>p>div:hover:before,
+:not(.ui_performance_scale) .istouch .view-informative .home_list:not(#home_slide)>p>div:hover:before,
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   width: 12vw;
   height: 16.8vw;
@@ -4218,8 +4218,8 @@ c.loader {
 .imgpicker_group .imgpicker_item.active{
   border-color: #fff;
 }
-.imgpicker_group .imgpicker_item.active:hover,
-.imgpicker_group .imgpicker_item:hover{
+.istouch .imgpicker_group .imgpicker_item.active:hover,
+.istouch .imgpicker_group .imgpicker_item:hover{
   border-color: var(--primary-3);
 }
 .imgpicker_group .imgpicker_item img{
