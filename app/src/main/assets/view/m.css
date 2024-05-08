@@ -1244,6 +1244,8 @@ c.loader {
   left:0;
   right:0;
   top:0;
+  overflow: hidden;
+  height: 100vh;
   opacity: 0;
   transition: 
     opacity var(--tim-3s) var(--interpolation), 
@@ -1257,6 +1259,7 @@ c.loader {
   opacity: 1;
   transform: translateX(0);
   z-index: 6;
+  height: auto;
 }
 
 
@@ -2330,6 +2333,12 @@ c.loader {
   position: relative;
   color: #aaa;
   height: var(--fs-13vw);
+}
+.istouch .pb_menu.home_tabs>p:before,
+.istouch .home_opt_list:before,
+.istouch .home_list:before{
+  position: sticky;
+  left:0;
 }
 .pb_menu.home_tabs>p:before{
   display: inline-block !important;

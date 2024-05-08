@@ -105,6 +105,7 @@ function SD_CHANGE(){
 function SD_SETTINGS(n, cb){
   $('popupcontainer').className='active';
   $('aboutpopup').className='active'; 
+  $('popup_qrcode').onclick=null;
   $('popup_qrcode').innerHTML='Benchmarking...';
   $('popup_qrcode').style.display='';
   SD_CHECK_DOMAIN(n,function(r){
@@ -7610,7 +7611,7 @@ const pb={
               g.classList.remove('maskleft');
             }
             if (_TOUCH){
-              g.P.style.transform='translateX(0)';
+              g.P.style.transform='';
               if (g._margin)
                 g.scrollLeft=g._margin;
               else
@@ -7643,13 +7644,16 @@ const pb={
     g._keycb=pb.menu_keycb;
     g._scrollLast=0;
     g.onscroll=function(){
-      if (this.scrollLeft==this.scrollWidth-this.offsetWidth){
-        if (this._scrollLast!=this.scrollLeft){
-          this._scrollLast=this.scrollLeft;
+      if (this.scrollLeft>=this.scrollWidth-(this.offsetWidth*1.2)){
+        if (this._scrollLast!=this.scrollWidth){
+          this._scrollLast=this.scrollWidth;
           if (this._edgecb){
             this._edgecb(this);
           }
         }
+      }
+      if (g.P.style.transform){
+        g.P.style.transform='';
       }
     };
     g.onclick=function(e){
@@ -11869,6 +11873,9 @@ const home={
             colorLight : "#ffffff",
             correctLevel : QRCode.CorrectLevel.H
           });
+          $('popup_qrcode').onclick=function(){
+            _JSAPI.openIntentUri(uri);
+          };
         }
         else{
           $('popup_qrcode').innerHTML=title;
@@ -16176,6 +16183,24 @@ const listOrder={
         }catch(e){}
       }
     };
+    if (listOrder.popuptype==0){
+      var dr=listOrder.group.P.querySelectorAll("c[drag]");
+      for (var i=0;i<dr.length;i++){
+        touchHelper.gestureReg(dr[i], function(r){
+          if (r==KDOWN || r==KUP){
+            var el=this.parentElement;
+            if (el){
+              if (listOrder.group._sel){
+                listOrder.group._sel.classList.remove('active');
+              }
+              listOrder.group._sel=el;
+              el.classList.add('active');
+              listOrder.keycb(r==KUP?KRIGHT:KLEFT);
+            }
+          }
+        }, dr[i].parentElement.offsetHeight);
+      }
+    }
   },
   show:function(winTitle,list,cb){
     listOrder.popuptype=0;
@@ -16194,7 +16219,7 @@ const listOrder={
       var li=list[i];
       var tx =
         '<c class="check'+(li.active?' checked':'')+'">check</c>'+
-        '<c>drag_indicator</c> '+
+        '<c drag="'+i+'">drag_indicator</c> '+
         special(li.title);
       var el=$n('div',(i==0?'active':''),null,listOrder.group.P,tx);
       el._data={
@@ -16699,13 +16724,13 @@ const listOrder={
 
 (function(){
   if (_USE_TOUCH){
-    function regtouch(){
+    function regtouch_global(){
       _TOUCH=true;
       body.classList.add('istouch');
-      document.removeEventListener("touchstart", regtouch, false);
+      document.removeEventListener("touchstart", regtouch_global, false);
       return true;
     }
-    document.addEventListener('touchstart', regtouch, false);
+    document.addEventListener('touchstart', regtouch_global, false);
     return;
   }
 
@@ -16779,6 +16804,97 @@ const listOrder={
   
 })();
 
+
+const touchHelper={
+  getTouch:function(evt) {
+    return evt.touches || evt.originalEvent.touches;
+  },
+  tend:function(evt){
+    if (!this._tIsMove){
+      if (this._cb){
+        this._cb(KENTER);
+      }
+    }
+    this._tIsMove=false;
+  },
+  start:function(evt) {
+    const firstTouch = touchHelper.getTouch(evt)[0];
+    this._xDown = firstTouch.clientX;
+    this._yDown = firstTouch.clientY;
+    this._tIsMove=false;
+  },
+  move:function(evt) {
+    if ( ! this._xDown || ! this._yDown ) {
+        return;
+    }
+    var xUp = evt.touches[0].clientX;
+    var yUp = evt.touches[0].clientY;
+    var xDiff = this._xDown - xUp;
+    var yDiff = this._yDown - yUp;
+    var minCancel=window.outerWidth*0.02;
+    if ( Math.abs( xDiff ) < Math.abs( yDiff ) ) {
+      if (Math.abs( yDiff )>this._minmove){
+        if ( yDiff > 0 ) {
+          /* down swipe */
+          if (this._cb){
+            this._cb(KDOWN);
+          }
+        } else {
+          /* up swipe */
+          if (this._cb){
+            this._cb(KUP);
+          }
+        }
+        /* Update Values */
+        this._xDown = xUp;
+        this._yDown = yUp;
+      }
+      if (!this._tIsMove&&Math.abs( yDiff )>minCancel){
+        this._tIsMove=true;
+      }
+    }
+    else{
+      if (Math.abs( xDiff )>this._minmove){
+        if ( xDiff > 0 ) {
+          if (this._cb){
+            this._cb(KRIGHT);
+          }
+        } else {
+          if (this._cb){
+            this._cb(KLEFT);
+          }
+        }
+        /* Update Values */
+        this._xDown = xUp;
+        this._yDown = yUp;
+      }
+    }
+    if (!this._tIsMove){
+      if (Math.abs(xDiff)+Math.abs(yDiff)>minCancel){
+        this._tIsMove=true;
+      }
+    }
+  },
+  gestureReg:function(el,cb,minmove){
+    if (!minmove){
+      minmove=window.outerWidth*0.07;
+    }
+    el._minmove=minmove;
+    el._cb=cb;
+    el._xDown = null;
+    el._yDown = null;
+    el._tIsMove=false;
+    el.addEventListener('touchstart', touchHelper.start, false);
+    el.addEventListener('touchmove', touchHelper.move, false);
+    el.addEventListener('touchend', touchHelper.tend, false);
+  },
+  gestureUnred:function(el){
+    el._cb=null;
+    el.removeEventListener('touchstart', touchHelper.start, false);
+    el.removeEventListener('touchmove', touchHelper.move, false);
+    el.removeEventListener('touchend', touchHelper.tend, false);
+  }
+};
 
 /* START */
 (function(){
