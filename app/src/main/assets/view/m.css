@@ -493,6 +493,7 @@ c.loader {
   line-height:var(--fs-20vw);
   vertical-align: middle;
   text-shadow: 0 .1vw .2vw #000 !important;
+  outline: none;
 }
 .animetv_header_banner div c{
   font-size:var(--fs-12vw);
@@ -641,6 +642,7 @@ c.loader {
   visibility: hidden;
   transition: all var(--tim-3s) var(--interpolation);
   text-shadow: 0 .1vw .1vw #000 !important;
+  outline: none;
 }
 .istouch .animetv_header.active .animetv_header_banner #home_schedule:hover:after,
 .istouch .animetv_header.active .animetv_header_banner #home_settings:hover:after,
@@ -718,6 +720,9 @@ c.loader {
 #search_content{
   margin-top:25vw;
 }
+.istouch #search_content{
+  margin-top:8vw;
+}
 .animetv_header #search_kw_holder{
   background-color: #fff;
   padding:0;
@@ -752,6 +757,9 @@ c.loader {
   display: block;
   padding: 2vw 5vw 1vw 5vw;
   position: relative;
+}
+.istouch #search_tools{
+  display: none;
 }
 #search_tools>div{
   display: inline-block;
@@ -3823,7 +3831,7 @@ c.loader {
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide)>p>div{
   transition: transform var(--tim-3s) var(--interpolation) !important;
 }
-:not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide):hover>p>div.active
+:not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide):hover>p>div.active,
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active {
   transform: scale(1.06);
 }

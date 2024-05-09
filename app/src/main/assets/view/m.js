@@ -8,7 +8,7 @@ const __SD5=(__SD==5);
 const __SD6=(__SD==6);
 
 /* is touch screen */
-var _USE_TOUCH=true;
+var _USE_TOUCH=false;
 var _TOUCH=false;
 
 const __SOURCE_NAME=[
@@ -13287,6 +13287,7 @@ const home={
       home.header_items_selected=hsel;
       if (hsel>=1 && hsel<=3){
         if (psel!=hsel){
+          clk();
           home.update_homepages(hsel-1);
         }
         else{
