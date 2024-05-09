@@ -3823,11 +3823,11 @@ c.loader {
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide)>p>div{
   transition: transform var(--tim-3s) var(--interpolation) !important;
 }
-:not(.ui_performance_scale) .istouch .view-informative .home_list:not(#home_slide):hover>p>div.active
+:not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide):hover>p>div.active
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active {
   transform: scale(1.06);
 }
-.istouch .view-informative .home_list:not(#home_slide)>p>div:hover:before,
+.istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
 .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   content:' ';
   display: block;
@@ -3840,11 +3840,11 @@ c.loader {
   left:-.1vw;
   z-index:0;
 }
-:not(.ui_performance_shadow) .istouch .view-informative .home_list:not(#home_slide)>p>div:hover:before,
+:not(.ui_performance_shadow) .istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
 :not(.ui_performance_shadow) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   box-shadow: 0 .1vw 1vw .1vw var(--accent-1);
 }
-:not(.ui_performance_scale) .istouch .view-informative .home_list:not(#home_slide)>p>div:hover:before,
+:not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   width: 12vw;
   height: 16.8vw;
