@@ -16038,10 +16038,43 @@ const _MAL={
 
     _MAL.pop.var.ready=true;
     _MAL.pop.var.ondetail=false;
+
+    _MAL.buttonRegister();
+
     }catch(e){
       console.log("PDO = "+e);
     }
   },
+
+  buttonClick:function(ev){
+    // 
+    // return false;
+    var pc=_MAL.pop.menu.indexOf(this);
+    if (pc>-1){
+      _MAL.pop.menusel=pc;
+      _MAL.popup_update();
+      if (this==_MAL.pop.ep){
+        if (ev.target.tagName=='C'){
+          if (ev.target.classList.contains("right")){
+            _MAL.pop_keycb(KRIGHT);
+          }
+          else{
+            _MAL.pop_keycb(KLEFT);
+          }
+          return;
+        }
+      }
+      _MAL.pop_keycb(KENTER);
+    }
+    return false;
+  },
+  buttonRegister:function(){
+    for (var i=0;i<_MAL.pop.menu.length;i++){
+      _MAL.pop.menu[i].onclick=_MAL.buttonClick;
+    }
+    // var epb=$('malplay_ep').querySelectorAll("c");
+  },
+
   preview:function(url, img, titl, ttid, ep, tcurr, tdur,arg,malid){
     var url_parse=url.split('/');
     var defdat={

@@ -3690,6 +3690,19 @@ c.loader {
   line-height: 2.8vw;
 }
 
+.istouch #malview_data div#malplay_ep c:first-child{
+  margin-left: -1vw;
+  margin-right: .5vw;
+  padding-left:1.5vw;
+}
+.istouch #malview_data div#malplay_ep c.right{
+  margin-left: .5vw;
+  margin-right: -1vw;
+  padding-right:1.5vw;
+}
+.istouch #malview_data div#malplay_ep c:hover{
+  color: var(--accent-1);
+}
 .istouch #malview_data div:not(.disable):hover,
 #malview_data div.active{
   background-color: var(--primary-1);
