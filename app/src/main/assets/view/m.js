@@ -8,7 +8,7 @@ const __SD5=(__SD==5);
 const __SD6=(__SD==6);
 
 /* is touch screen */
-var _USE_TOUCH=false;
+var _USE_TOUCH=true;
 var _TOUCH=false;
 
 const __SOURCE_NAME=[
@@ -7643,7 +7643,7 @@ const pb={
   menu_init:function(g){
     g._keycb=pb.menu_keycb;
     g._scrollLast=0;
-    g.onscroll=function(){
+    g.onscrollend=function(){
       if (this.scrollLeft>=this.scrollWidth-(this.offsetWidth*1.2)){
         if (this._scrollLast!=this.scrollWidth){
           this._scrollLast=this.scrollWidth;
