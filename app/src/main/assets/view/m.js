@@ -10515,24 +10515,81 @@ const home={
     onsidebar:false,
     profile:null,
     items:[],
+    itemAction:function(elm,c){
+      if (c=='source_domain'){
+        SD_SETTINGS(elm._arg,function(newdomain){
+          if (newdomain){
+            if (elm._checked){
+              setTimeout(function(){
+                _API.reload();
+              },10);
+            }
+            else{
+              elm._domain.innerHTML='@'+newdomain;
+            }
+          }
+        });
+      }
+      else if (c=='source'){
+        _JSAPI.storeSet(_API.user_prefix+"sd",elm._arg+"");
+        _JSAPI.setSd(elm._arg);
+        setTimeout(function(){
+          _API.reload();
+        },10);
+      }
+      else if (c=='profile'){
+        home.profiles.open(_API.user_prefix,0);
+      }
+      else if (c=='playlist'){
+        _API.showToast("Under constructions...");
+      }
+      else{
+        return false;
+      }
+      return true;
+    },
+    itemclick:function(ev){
+      var c=this._action;
+      var elm=this;
+      console.warn(elm);
+
+      if (c=='source_domain'){
+        clk();
+        home.sidebar.itemAction(this.parentElement,c);
+        return false;
+      }
+      var pc=home.sidebar.items.indexOf(elm);
+      var isactive=false;
+      if (pc>-1){
+        if (pc>-1){
+          if (pc!=home.sidebar.sel){
+            clk();
+            home.sidebar.items[home.sidebar.sel].classList.remove('active');
+            elm.classList.add('active');
+            home.sidebar.sel=pc;
+          }
+          else{
+            isactive=true;
+          }
+        }
+      }
+      if (c=='source'){
+        if (!isactive || ev.target==elm._items){
+          return false;
+        }
+      }
+      clk();
+      home.sidebar.itemAction(elm,c);
+      return false;
+    },
     keycb:function(c){
       var pc=home.sidebar.sel;
       var elm=home.sidebar.items[pc];
       if (c==KBACK || c==KMENU){
-        if (pb.cfg_data.directsidebar){
-          if (pc==0){
-            $('sidebar').classList.remove('active');
-            home.sidebar.onsidebar=false;
-            return false;
-          }
-          pc=0;
-        }
-        else{
-          clk();
-          $('sidebar').classList.remove('active');
-          home.sidebar.onsidebar=false;
-          return true;
-        }
+        clk();
+        $('sidebar').classList.remove('active');
+        home.sidebar.onsidebar=false;
+        return true;
       }
       else if (c==KUP){
         if (--pc<0) pc=0;
@@ -10562,38 +10619,18 @@ const home={
         if (elm._action=='source'){
           clk();
           if (elm._items.classList.contains('active')){
-            SD_SETTINGS(elm._arg,function(newdomain){
-              if (newdomain){
-                if (elm._checked){
-                  setTimeout(function(){
-                    _API.reload();
-                  },10);
-                }
-                else{
-                  elm._domain.innerHTML='@'+newdomain;
-                }
-              }
-            });
+            home.sidebar.itemAction(elm,'source_domain');
           }
           else{
-            _JSAPI.storeSet(_API.user_prefix+"sd",elm._arg+"");
-            _JSAPI.setSd(elm._arg);
-            setTimeout(function(){
-              _API.reload();
-            },10);
+            home.sidebar.itemAction(elm,'source');
           }
           return true;
         }
-        else if (elm._action=='playlist'){
+        else{
           clk();
-          _API.showToast("Under constructions...");
-          return true;
+          home.sidebar.itemAction(elm,elm._action);
         }
-        else if (elm._action=='profile'){
-          clk();
-          home.profiles.open(_API.user_prefix,0);
-          return true;
-        }
+        return true;
       }
       if (pc!=home.sidebar.sel){
         clk();
@@ -11179,6 +11216,7 @@ const home={
     profile._username=$n('i','',null,profile._txt,(_API.user_prefix=='')?'admin':'user'+(rn?" - "+rn:""));
     profile.classList.add('active');
     home.sidebar.profile=profile;
+    profile.onclick=home.sidebar.itemclick;
     home.sidebar.items=[profile];
 
     /* Init Sources */
@@ -11196,20 +11234,33 @@ const home={
         }
       }
       var hl=$n('div',active?'sidebar_item checked':'sidebar_item',null,sources,'');
+      hl.onclick=home.sidebar.itemclick;
       hl._action='source';
       hl._arg=i+1;
       hl._checked=active;
       hl._icon=$n('c','',null,hl,'cloud');
       hl._items=$n('c',active?'items active':'items',null,hl,'settings');
+      hl._items._action='source_domain';
+      hl._items.onclick=home.sidebar.itemclick;
       hl._txt=$n('span','',null,hl,special(__SOURCE_NAME[i]));
       hl._domain=$n('i','',null,hl._txt,'@'+seldomain);
       home.sidebar.items.push(hl);
+
+      $('sidebar').onclick=function(ev){
+        if (ev.target==this){
+          window._KEYEV(KBACK,1);
+        }
+      };
+      home.sidebar.contents.onclick=function(){
+        return false;
+      };
     }
 
     /* Playlist */
     var tools=$n('div','sidebar_group',{title:'Tools'},home.sidebar.contents,'');
     var playlist=$n('div','sidebar_item',null,tools,'<c>playlist_play</c>Playlist');
     playlist._action='playlist';
+    playlist.onclick=home.sidebar.itemclick;
     home.sidebar.items.push(playlist);    
   },
   init:function(){
@@ -11262,7 +11313,9 @@ const home={
     };
     // header item click
     for (var i=0;i<home.header_items.length;i++){
-      home.header_items[i].onclick=home.header_item_click;
+      if (home.header_items[i]!=$('sidebar')){
+        home.header_items[i].onclick=home.header_item_click;
+      }
     }
     $('home_logo').onclick=home.header_item_click;
   },

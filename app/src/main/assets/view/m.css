@@ -4095,6 +4095,7 @@ c.loader {
 .sidebar_profile.hide{
   display: none;
 }
+.istouch .sidebar_profile.active:hover,
 .sidebar_profile.active{
   background-color: #fff;
   color:#000;
@@ -4185,6 +4186,11 @@ c.loader {
 .sidebar_group .sidebar_item.checked{
   color:var(--accent-1);
 }
+.istouch .sidebar_profile:hover,
+.istouch .sidebar_group .sidebar_item:hover{
+  background-color: var(--primary-1);
+}
+.istouch .sidebar_group .sidebar_item.active:hover,
 .sidebar_group .sidebar_item.active{
   background-color: #fff;
   color: #000;
