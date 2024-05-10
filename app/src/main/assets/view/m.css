@@ -3305,6 +3305,7 @@ c.loader {
 #anilist_detail .alsd_button.alsd_button_right{
   float: right;
 }
+.istouch #anilist_detail .alsd_button:hover,
 #anilist_detail .alsd_button.active{
   background-color: var(--primary-3) !important;
 }
