@@ -16946,28 +16946,5 @@ const touchHelper={
     home.init();
     _API.bgimg_update();
     body.classList.remove('notready');
-
-
-    // listOrder.showImgPicker(
-    //   "Select Image",
-    //   function(page,cb){
-    //     requestAnimationFrame(function(){
-    //       cb({
-    //         data:[
-    //           ['/__view/profile/0.png','One'],
-    //           ['/__view/profile/1.png','Two'],
-    //           ['/__view/profile/2.png','Three'],
-    //           ['/__view/profile/3.png','Four'],
-    //           ['/__view/profile/4.png','Five'],
-    //           ['/__view/profile/5.png','Six'],
-    //           ['/__view/profile/6.png','Seven']
-    //         ],
-    //         havenext:false
-    //       });
-    //     });
-    //     return true;
-    //   },
-    //   console.warn
-    // );
   }
 })();

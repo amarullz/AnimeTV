@@ -3142,6 +3142,13 @@ c.loader {
   content: attr(s_desc);
 }
 
+#listorder .settings_group p div c[drag]{
+  margin-top: -.2vw;
+  padding:1vw;
+  margin-left:-5vw !important;
+  margin-top:-1vw !important;
+  border-radius:4vw;
+}
 .settings_group p div c[drag].active{
   color: var(--accent-1);
 }
@@ -3683,6 +3690,7 @@ c.loader {
   line-height: 2.8vw;
 }
 
+.istouch #malview_data div:not(.disable):hover,
 #malview_data div.active{
   background-color: var(--primary-1);
   box-shadow: 0 .03vw .06vw rgba(0, 0, 0, 0.16), 0 .03vw .06vw rgba(0, 0, 0, 0.23) !important;
