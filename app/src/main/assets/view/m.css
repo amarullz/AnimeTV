@@ -1609,6 +1609,14 @@ c.loader {
   z-index: 50;
 }
 
+/* .istouch #pb_actions{
+  overflow-y: auto;
+}
+.istouch #pb_actions::-webkit-scrollbar{
+  width:0;
+  height:0;
+} */
+
 #pb_actions.active {
   visibility: visible;
   opacity: 1;

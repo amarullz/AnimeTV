@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -104,6 +105,19 @@ import javax.crypto.spec.SecretKeySpec;
   public static boolean USE_WEB_VIEW_ASSETS=false;
 
   public AudioManager audioManager;
+
+  public int sysBrightness;
+  public void initSysConfig(){
+    try{
+      sysBrightness = Settings.System.getInt(
+              activity.getContentResolver(), "screen_brightness"
+      );
+    }
+    catch(Exception ignored){
+      sysBrightness=127;
+    }
+    Log.d(_TAG,"ATVLOG Current Sys Brightness = "+sysBrightness);
+  }
 
   private void setFullscreen(){
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -318,6 +332,8 @@ import javax.crypto.spec.SecretKeySpec;
   @SuppressLint("SetJavaScriptEnabled")
   public AnimeView(Activity mainActivity) {
     activity = mainActivity;
+
+    initSysConfig();
 
     if (BuildConfig.DEBUG) {
       WebView.setWebContentsDebuggingEnabled(true);
@@ -1515,6 +1531,27 @@ import javax.crypto.spec.SecretKeySpec;
     public void profileSetPrefix(String v){
       profile_prefix=v;
     }
+
+    @JavascriptInterface
+    public int setBrightness(int b){
+      sysBrightness+=b;
+      if (sysBrightness<0){
+        sysBrightness=0;
+      }
+      else if (sysBrightness>255){
+        sysBrightness=255;
+      }
+      activity.runOnUiThread(()->{
+        if (b!=0) {
+          WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+          lp.screenBrightness = (sysBrightness / (float) 255);
+          activity.getWindow().setAttributes(lp);
+        }
+      });
+
+      return sysBrightness;
+    }
+
   }
 
   public int profile_sel=-1;

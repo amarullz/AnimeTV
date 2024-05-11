@@ -7878,6 +7878,92 @@ const pb={
     }
   },
 
+  motions:{
+    initialized:false,
+    init:function(){
+      if (pb.motions.initialized){
+        return;
+      }
+
+      var me=pb.motions;
+
+      touchHelper.gestureReg(pb.pb,function(c){
+        if (c==KUP || c==KDOWN){
+          if (pb.pb.classList.contains('menushow')){
+            _KEYEV(c);
+          }
+          else{
+            var x=pb.pb.__ev_x;
+            var w=window.outerWidth;
+            var w4=w/4;
+            if (x<w4){
+              var v=_JSAPI.setBrightness((c==KUP)?-25:25);
+              console.log("BRIGHTNESS: "+v);
+            }
+            else if (x>w-w4){
+              console.log("VOLUME "+(c==KUP?"UP":"DOWN"));
+            }
+            else{
+              _KEYEV(c);
+            }
+          }
+        }
+      },null,true);
+
+      pb.motions.initialized=true;
+
+      // pb.pb.onclick=pb.clickcb;
+      // pb.pb.ondblclick=pb.dbclickcb;
+      // pb.pb.onmousemove=pb.pb.ontouchmove=pb.poitmovecb;
+    }
+
+  },
+
+  // clickTo:null,
+  // poitmovecb:function(ev){
+  //   if (pb.pb.classList.contains('menushow')){
+  //     pb.lastkey=$tick();
+  //   }
+  //   return true;
+  // },
+
+  // clickcb:function(ev){
+  //   if (!pb.pb.classList.contains('menushow')){
+  //     // var w=window.outerWidth;
+  //     if (pb.clickTo){
+  //       clearTimeout(pb.clickTo);
+  //       pb.clickTo=null;
+  //     }
+  //     pb.clickTo=setTimeout(function(){
+  //       if (!pb.pb.classList.contains('menushow')){
+  //         pb.lastkey=$tick();
+  //         pb.menu_show(2);
+  //       }
+  //     },200);
+  //   }
+  //   return true;
+  // },
+  // dbclickcb:function(ev){
+  //   if (!pb.pb.classList.contains('menushow')){
+  //     var w=window.outerWidth;
+  //     if (ev.screenX<w/3){
+  //       if (pb.clickTo){
+  //         clearTimeout(pb.clickTo);
+  //         pb.clickTo=null;
+  //       }
+  //       _API.showToast("Skip Backward");
+  //     }
+  //     else if (ev.screenX>w-(w/3)){
+  //       if (pb.clickTo){
+  //         clearTimeout(pb.clickTo);
+  //         pb.clickTo=null;
+  //       }
+  //       _API.showToast("Skip Forward");
+  //     }
+  //   }
+  //   return true;
+  // },
+
   /* Root Key Callback */
   keycb:function(c){
     if (listOrder.onpopup){
@@ -8537,6 +8623,8 @@ const pb={
       ratingSystem.blockMessage();
       return;
     }
+
+    pb.motions.init();
 
     pb.preload_started=0;
     pb.preload_video_started=0;
@@ -16938,8 +17026,8 @@ const touchHelper={
   },
   start:function(evt) {
     const firstTouch = touchHelper.getTouch(evt);
-    this._xDown = firstTouch.clientX;
-    this._yDown = firstTouch.clientY;
+    this._xDown = this.__ev_x = firstTouch.clientX;
+    this._yDown = this.__ev_y = firstTouch.clientY;
     this._tIsMove=false;
     this._tIsDown=true;
     if (this._activeclass){
