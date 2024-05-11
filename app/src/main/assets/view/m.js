@@ -7927,6 +7927,18 @@ const pb={
             pb.track_keycb(pb.pb_tracks,c);
           }
         }
+        else if (c==KENTER){
+          if (!pb.pb.classList.contains('menushow')){
+            pb.lastkey=$tick();
+            pb.menu_show(2);
+          }
+          else if (pb.pb.__ev_target==pb.pb){
+            if (!pb.vid_stat.play)
+              pb.vid_cmd('play',0);
+            else
+              pb.vid_cmd('pause',0);
+          }
+        }
       },null,null,true);
 
       pb.pb.onmousemove=pb.pb.ontouchmove=function(){
