@@ -1443,6 +1443,11 @@ c.loader {
   z-index: 30;
 }
 
+#pb_meta #pb_genres,
+#pb_meta #pb_settings{
+  z-index: 500;
+}
+
 #pb_title {
   font-size: 3vw;
   width: 40vw;
@@ -1607,6 +1612,10 @@ c.loader {
   opacity: 0;
   visibility: hidden;
   z-index: 50;
+  pointer-events: none;
+}
+#pb_actions>*{
+  pointer-events: all;
 }
 
 /* .istouch #pb_actions{
