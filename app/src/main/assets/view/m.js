@@ -7914,7 +7914,8 @@ const pb={
               console.log("BRIGHTNESS: "+v);
             }
             else if (x>w-w4){
-              console.log("VOLUME "+(c==KUP?"UP":"DOWN"));
+              var v=_JSAPI.setVolume((c==KUP)?-5:5);
+              console.log("VOLUME: "+v);
             }
             else{
               _KEYEV(c);

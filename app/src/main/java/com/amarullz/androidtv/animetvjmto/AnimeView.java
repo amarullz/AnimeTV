@@ -1551,7 +1551,17 @@ import javax.crypto.spec.SecretKeySpec;
 
       return sysBrightness;
     }
-
+    @JavascriptInterface
+    public int setVolume(int b){
+      int v=audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+      if (b!=0) {
+        v+=b;
+        if (v<0) v=0;
+        else if(v>100) v=100;
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, v, 0);
+      }
+      return v;
+    }
   }
 
   public int profile_sel=-1;
