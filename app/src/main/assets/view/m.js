@@ -14855,7 +14855,7 @@ const _MAL={
         d.tk=d.access_token;
         d.ex=d.expires_in;
       }
-      if (('tk' in d) && ('ex' in d)){
+      if (('tk' in d) && ('ex' in d) && d.tk && d.ex){
         var dt={
           access_token:d.tk,
           exp:d.ex+$time(),
