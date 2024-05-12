@@ -12672,6 +12672,17 @@ const home={
         $('search_genre'),
         $('search_result')
       ],
+      order_notouch:[
+        $('search_header'),
+        $('search_tools'),
+        $('search_genre'),
+        $('search_result')
+      ],
+      order_touch:[
+        $('search_header'),
+        $('search_genre'),
+        $('search_result')
+      ],
       kwclean:function(ret){
         var s=home.search.src.keyword;
         if (s.value.charAt(s.value.length-1)=='_'){
@@ -13090,8 +13101,8 @@ const home={
       select_result:function(){
         var s=home.search.src;
         s.order[s.order_sel].classList.remove('active');
-        s.order[3].classList.add('active');
-        s.order_sel=3;
+        s.order[_TOUCH?2:3].classList.add('active');
+        s.order_sel=_TOUCH?2:3;
       },
       header_items:[],
       header_cb:function(g,c){
@@ -13158,7 +13169,7 @@ const home={
     },
     kwinput:function(){
       var s=home.search.src.keyword;
-      if (!s._noinput){
+      if (!s._noinput && !_TOUCH){
         s.value=s.value=s.value.toLowerCase()
         .replace(/[^\w]+/g, " ")
         .replace(/  /g, "  ")
@@ -13168,8 +13179,46 @@ const home={
         home.search.src.update_history();
       }
     },
+    kwfocus:function(){
+      if (_TOUCH){
+        home.search.headerselect($('search_kbd'));
+        if (!home.search.src._kw_focused){
+          _API.showIme(true);
+          home.search.src._kw_focused=true;
+        }
+      }
+    },
+    headerselect:function(el){
+      var s=home.search.src;
+      var g=$('search_header');
+      if (s.order_sel!=0){
+        s.order[s.order_sel].classList.remove('active');
+        s.order[0].classList.add('active');
+        s.order_sel=0;
+      }
+      var pc=s.header_items.indexOf(el);
+      if (pc>-1){
+        if (g._sel!=pc){
+          s.header_items[g._sel].classList.remove('active');
+          s.header_items[pc].classList.add('active');
+          g._sel=pc;
+        }
+      }
+    },
+    headerclick:function(){
+      home.search.headerselect(this);
+      if ($('search_logo')==this){
+        clk();
+        home.search.close();
+        return true;
+      }
+      home.search.src.header_cb($('search_header'),KENTER);
+      return true;
+    },
     init_search:function(){
       home.search.kw.oninput=home.search.kwinput;
+      home.search.kw.onfocus=home.search.kwfocus;
+
       var s=home.search.src;
       var isAnilist = s.cfg.anilist;
       var anilist_el = $('search_anilist');
@@ -13228,6 +13277,8 @@ const home={
     noanilist:false,
     open:function(arg){
       var s=home.search.src;
+      s.order=_TOUCH?s.order_touch:s.order_notouch;
+
       home.search.history.load();
       home.search.initresult(home.search.res);
       _API.setUri((__SD3||__SD5)?"/search":"/filter");
@@ -13283,21 +13334,35 @@ const home={
       s.keypad.classList.remove('active');
       s.history.classList.remove('active');
       s.order[1]._sel=s.keyboard;
-      s.order_sel=1;
+      s.order_sel=_TOUCH?0:1;
+
+      for (var i=0;i<s.header_items.length;i++){
+        s.header_items[i].onclick=home.search.headerclick;
+      }
+      $('search_logo').onclick=home.search.headerclick;
 
       /* Init arguments behavior */
       if (vsel){
-        s.order_sel=2;
+        s.order_sel=_TOUCH?1:2;
       }
       else{
         if (havekw){
-          s.order_sel=3;
+          s.order_sel=_TOUCH?2:3;
         }
       }
+
       s.order[s.order_sel].classList.add('active');
-      setTimeout(function(){
-        home.search.kw.blur();
-      },50);
+
+      if (s.order_sel==0 && _TOUCH){
+        setTimeout(function(){
+          home.search.kw.focus();
+        },50);
+      }
+      else{
+        setTimeout(function(){
+          home.search.kw.blur();
+        },50);
+      }
       home.search.dosearch();
     },
     onvoicesearch:false,
