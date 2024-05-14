@@ -7948,6 +7948,33 @@ const pb={
       }
       return false;
     },
+    track_action:function(ev){
+      var x=-1;
+      if (ev.touches && ev.touches.length>0){
+        x=ev.touches[0].clientX;
+      }
+      else if (pb.pb.__ev_x){
+        x=pb.pb.__ev_x;
+      }
+      if (x>-1){
+        var pbl=pb.pb_track.offsetLeft;
+        var pbw=pb.pb_track.offsetWidth;
+        var px = x-pbl;
+        if (px>pbw){
+          px=pbw;
+        }
+        if (px>0){
+          var d=pb.vid_get_time();
+          if (d.duration>0){
+            var pos = (px * d.duration) / pbw;
+            pb.vid_cmd('seek',pos);
+            vtt.set('');
+            pb.track_update_pos();
+            console.log("SEEK: "+pos);
+          }
+        }
+      }
+    },
     init:function(){
       if (pb.motions.initialized){
         return;
@@ -7955,7 +7982,7 @@ const pb={
 
       var me=pb.motions;
 
-      touchHelper.gestureReg(pb.pb,function(c){
+      touchHelper.gestureReg(pb.pb,function(c,evt){
         if (c==KUP || c==KDOWN){
           if (pb.pb.classList.contains('menushow')){
             _KEYEV(c);
@@ -7989,9 +8016,14 @@ const pb={
           }
         }
         else if(c==KLEFT||c==KRIGHT){
-          if (!pb.pb.classList.contains('menushow') || pb.motions.evtarget(pb.pb_tracks)){
+          if (!pb.pb.classList.contains('menushow')){
             _API.last_key_source=1;
             pb.track_keycb(pb.pb_tracks,c);
+          }
+          else if (pb.motions.evtarget(pb.pb_tracks)){
+            pb.motions.track_action(evt);
+            pb.pb._minmove=2;
+            pb.pb._lockDirection=1;
           }
         }
         else if (c==KENTER){
@@ -8028,6 +8060,9 @@ const pb={
               pb.lastkey=$tick();
               pb.menu_show(2);
             }
+          }
+          else if (pb.motions.evtarget(pb.pb_tracks)){
+            pb.motions.track_action(evt);
           }
           else if (pb.pb.__ev_target==pb.pb || pb.pb.__ev_target==pb.pb_meta){
             pb.menu_hide();
@@ -17204,6 +17239,7 @@ const touchHelper={
     }
     this._tIsMove=false;
     this._tIsDown=false;
+    this._lockDirection=0;
     if (this._activeclass){
       this.classList.remove(this._activeclass);
     }
@@ -17214,11 +17250,13 @@ const touchHelper={
   },
   start:function(evt) {
     const firstTouch = touchHelper.getTouch(evt);
+    this._minmove=this._minmove_main;
     this.__ev_target=evt.target;
     this._xDown = this.__ev_x = firstTouch.clientX;
     this._yDown = this.__ev_y = firstTouch.clientY;
     this._tIsMove=false;
     this._tIsDown=true;
+    this._lockDirection=0;
     if (this._activeclass){
       this.classList.add(this._activeclass);
     }
@@ -17244,7 +17282,7 @@ const touchHelper={
     var xDiff = this._xDown - xUp;
     var yDiff = this._yDown - yUp;
     var minCancel=window.outerWidth*0.02;
-    if ( Math.abs( xDiff ) < Math.abs( yDiff ) ) {
+    if ((this._lockDirection!=1) && (Math.abs( xDiff ) < Math.abs( yDiff ))) {
       if (Math.abs( yDiff )>this._minmove){
         if ( yDiff > 0 ) {
           /* down swipe */
@@ -17265,7 +17303,7 @@ const touchHelper={
         this._tIsMove=true;
       }
     }
-    else{
+    else if (this._lockDirection!=2){
       if (Math.abs( xDiff )>this._minmove){
         if ( xDiff > 0 ) {
           if (this._cb){
@@ -17296,7 +17334,7 @@ const touchHelper={
       minmove=window.outerWidth*0.07;
     }
     el._nocancel=nocancel;
-    el._minmove=minmove;
+    el._minmove_main=minmove;
     el._cb=cb;
     el._xDown = null;
     el._yDown = null;
