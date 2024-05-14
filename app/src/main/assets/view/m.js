@@ -5092,6 +5092,7 @@ const pb={
     bgimg:{},
     quality:0,
     uifontsize:2,
+    seekvalue:10,
     httpclient:0,
     mirrorserver:0,
     listprog:0,
@@ -5210,6 +5211,19 @@ const pb={
           pb.cfg_data.uifontsize=2;
         }
 
+        if ('seekvalue' in j){
+          var sv=parseInt(j.seekvalue);
+          pb.cfg_data.seekvalue=10;
+          if (!isNaN(sv)&&(sv!=null)&&sv>=2&&sv<=20){
+            pb.cfg_data.seekvalue=sv;
+          }
+        }
+        else{
+          pb.cfg_data.seekvalue=10;
+        }
+
+        
+
         if ('httpclient' in j){
           var sv=parseInt(j.httpclient);
           if (sv&&sv>0&&sv<=2)
@@ -5261,6 +5275,8 @@ const pb={
     pb.cfg_data.server=0;
     pb.cfg_data.animation=0;
     pb.cfg_data.uifontsize=2;
+    pb.cfg_data.seekvalue=10;
+    
     pb.cfg_data.httpclient=0;
     pb.cfg_data.listprog=0;
     
@@ -5553,6 +5569,9 @@ const pb={
         else if (key=='uifontsize'){
           el.lastElementChild.innerHTML=pb.cfguifontsize_name[pb.cfg_data[key]];
         }
+        else if (key=='seekvalue'){
+          el.lastElementChild.innerHTML=pb.cfg_data[key]+" seconds";
+        }
         else if (key=='httpclient'){
           el.lastElementChild.innerHTML=pb.cfghttpclient_name[pb.cfg_data[key]];
         }
@@ -5621,6 +5640,7 @@ const pb={
       pb.cfg_update_el('exitmode');
 
       pb.cfg_update_el('uifontsize');
+      pb.cfg_update_el('seekvalue');
       pb.cfg_update_el('httpclient');
       pb.cfg_update_el('listprog');
       
@@ -7256,6 +7276,33 @@ const pb={
           }
         );
       }
+      else if (key=="seekvalue"){
+        var lst=[];
+        var lstx=[];
+        var lsel=0;
+        var n=0;
+        for (var i=2;i<=20;i++){
+          if (i==pb.cfg_data.seekvalue){
+            lsel=n;
+          }
+          lstx.push(i+" seconds");
+          lst.push(i);
+          n++;
+        }
+        // pb.state=0;
+        listOrder.showList(
+          "Seek Value",
+          lstx,
+          lsel,
+          function(chval){
+            if (chval!==null){
+              pb.cfg_data.seekvalue=toInt(lst[chval]);
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+            }
+          }
+        );
+      }
       else if (key=="loginscreen"){
         var ls=toInt(_JSAPI.storeGet("loginstyle","1"));
         if (ls<0||ls>2){
@@ -7930,9 +7977,9 @@ const pb={
     if (c==KLEFT||c==KRIGHT){
       var fw=(_API.last_key_source==1&&c==KLEFT)||(_API.last_key_source!=1&&c==KRIGHT);
       if (fw)
-        pb.vid_cmd('seek',pb.vid_get_time().position+10);
+        pb.vid_cmd('seek',pb.vid_get_time().position+pb.cfg_data.seekvalue);
       else{
-        pb.vid_cmd('seek',pb.vid_get_time().position-10);
+        pb.vid_cmd('seek',pb.vid_get_time().position-pb.cfg_data.seekvalue);
         vtt.set('');
       }
       pb.track_update_pos();
@@ -11782,7 +11829,13 @@ const home={
           home.settings.video.P,
           '<c>hd</c> Video Quality<span class="value">-</span>'
         );
-
+        home.settings.tools._s_seekvalue=$n(
+          'div','',{
+            action:'*seekvalue'
+          },
+          home.settings.video.P,
+          '<c>fast_forward</c> Seek Value<span class="value"></span>'
+        );
         home.settings.tools._s_preloadep=$n(
           'div','',{
             action:'*preloadep',
