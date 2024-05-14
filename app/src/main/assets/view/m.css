@@ -3369,6 +3369,7 @@ c.loader {
   transition: all var(--tim-3s) var(--interpolation);
   will-change: transform, opacity;
   font-weight: bold;
+  pointer-events: none;
 }
 #aboutpopup.active {
   transform: scale(1);
@@ -3380,6 +3381,7 @@ c.loader {
   height:20vw;
 }
 #popup_qrcode{
+  pointer-events: all;
   font-size:var(--fs-14vw);
 }
 #qr_holder_value{

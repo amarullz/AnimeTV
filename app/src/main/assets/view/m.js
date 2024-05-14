@@ -5067,6 +5067,7 @@ const pb={
   },
 
   cfg_data:{
+    directpage:true,
     animation:0,
     performance:[true,false,true,true,false],
     autoskip:false,
@@ -5129,6 +5130,7 @@ const pb={
         // pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
         pb.cfg_data.showclock=('showclock' in j)?(j.showclock?true:false):true;
         pb.cfg_data.directsidebar=('directsidebar' in j)?(j.directsidebar?true:false):true;
+        pb.cfg_data.directpage=('directpage' in j)?(j.directpage?true:false):true;
         
         
         pb.cfg_data.nonjapan=('nonjapan' in j)?(j.nonjapan?true:false):false;
@@ -5242,6 +5244,7 @@ const pb={
     
     // pb.cfg_data.compactlist=false;
     pb.cfg_data.directsidebar=true;
+    pb.cfg_data.directpage=true;
     
     pb.cfg_data.showclock=true;
     
@@ -5588,6 +5591,8 @@ const pb={
       
       // pb.cfg_update_el('compactlist');
       pb.cfg_update_el('directsidebar');
+      pb.cfg_update_el('directpage');
+      
       
       pb.cfg_update_el('showclock');
       
@@ -10871,6 +10876,10 @@ const home={
           }
           return true;
         }
+        if (pb.cfg_data.directsidebar){
+          $('sidebar').classList.remove('active');
+          home.sidebar.onsidebar=false;
+        }
         return false;
       }
       else if (c==KENTER){
@@ -11566,8 +11575,10 @@ const home={
     };
 
     // container click
-    $('popupcontainer').onclick=function(){
-      window._KEYEV(KBACK,1);
+    $('popupcontainer').onclick=function(ev){
+      if (ev.target==this){
+        window._KEYEV(KBACK,1);
+      }
     };
     // header item click
     for (var i=0;i<home.header_items.length;i++){
@@ -11807,6 +11818,15 @@ const home={
           '<c class="check">clear</c><c>nest_clock_farsight_digital</c> Show Clock'
         );
 
+        home.settings.tools._s_directpage=$n(
+          'div','',{
+            action:'*directpage',
+            s_desc:"No need to press ok to switch page"
+          },
+          home.settings.performance.P,
+          '<c class="check">clear</c><c>switch_access_2</c> Switch page on select'
+        );
+
         home.settings.tools._s_directsidebar=$n(
           'div','',{
             action:'*directsidebar',
@@ -11815,6 +11835,8 @@ const home={
           home.settings.performance.P,
           '<c class="check">clear</c><c>thumbnail_bar</c> Show sidebar directly'
         );
+
+        
 
         if (home.profiles.isadmin()){
           home.settings.tools._s_exitmode=$n(
@@ -12189,7 +12211,15 @@ const home={
             correctLevel : QRCode.CorrectLevel.H
           });
           $('popup_qrcode').onclick=function(){
+            clk();
             _JSAPI.openIntentUri(uri);
+            if (home.ondonate==2){
+              return false;
+            }
+            else{
+              home.settings.close_qrcode();
+              return true;
+            }
           };
         }
         else{
@@ -13630,6 +13660,9 @@ const home={
   ],
 
   update_homepages:function(n){
+    if (home.col_selected==n){
+      return false;
+    }
     for (var i=0;i<home.homepages.length;i++){
       if (n==i){
         home.header_items[i+1].classList.add('selected');
@@ -13650,6 +13683,7 @@ const home={
     else if (n==0){
       home.init_homepage(false);
     }
+    return true;
   },
   header_item_click:function(c){
     var me=this;
@@ -13699,7 +13733,9 @@ const home={
       }
       home.header_items[hsel].classList.add('active');
       if (hsel>=1 && hsel<=3){
-        home.update_homepages(hsel-1);
+        if (pb.cfg_data.directpage){
+          home.update_homepages(hsel-1);
+        }
       }
       if (pb.cfg_data.directsidebar){
         home.sidebar.onsidebar=(hsel==5);
@@ -13713,6 +13749,9 @@ const home={
         home.search.open({});
       }
       else if (sel==1){
+        if (!pb.cfg_data.directpage && home.update_homepages(0)){
+          return true;
+        }
         listOrder.showMenu(
           undefined,
           [
@@ -13750,10 +13789,9 @@ const home={
         );
       }
       else if (sel==2){
-        // var chval=_API.listPrompt(
-        //   "MyList",
-        //   ["Refresh MyList","Customize MyList", "Clear Watch History"]
-        // );
+        if (!pb.cfg_data.directpage && home.update_homepages(1)){
+          return true;
+        }
         listOrder.showMenu(
           undefined,
           [
@@ -13798,6 +13836,9 @@ const home={
         );
       }
       else if (sel==3){
+        if (!pb.cfg_data.directpage && home.update_homepages(2)){
+          return true;
+        }
         home.schedule_init(true);
       }
       else if (sel==4){
