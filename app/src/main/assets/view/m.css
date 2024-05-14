@@ -1607,6 +1607,7 @@ c.loader {
 } */
 
 /**** ACTIONS ****/
+#pb_touch_actions,
 #pb_actions {
   position: absolute;
   /* inset: 0; */
@@ -1620,6 +1621,12 @@ c.loader {
   z-index: 50;
   pointer-events: none;
 }
+#pb_touch_actions{
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 #pb_actions>*{
   pointer-events: all;
 }
@@ -1631,10 +1638,51 @@ c.loader {
   width:0;
   height:0;
 } */
-
+.istouch .menushow #pb_touch_actions.active,
 #pb_actions.active {
   visibility: visible;
   opacity: 1;
+}
+.istouch .menushow #pb_touch_actions.active.hide{
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+#pb_touch_actions #pb_touch_iactions{
+  display: block;
+  text-align: center;
+  width: 100vw;
+}
+#pb_touch_actions #pb_touch_iactions c{
+  display: inline-block;
+  padding: 1.5vw;
+  background-color: rgba(0,0,0,.4);
+  border-radius: var(--fs-30vw);
+  font-size: var(--fs-30vw);
+  line-height: var(--fs-30vw);
+  width: var(--fs-30vw);
+  height: var(--fs-30vw);
+  text-align: center;
+  vertical-align: middle;
+  color: #fff;
+  margin: 0 4vw 0 4vw;
+  pointer-events: all;
+}
+#pb_touch_actions #pb_touch_iactions c#pb_touch_play{
+  padding: 3vw;
+  border-radius: var(--fs-60vw);
+  font-size: var(--fs-60vw);
+  line-height: var(--fs-60vw);
+  width: var(--fs-60vw);
+  height: var(--fs-60vw);
+}
+#pb_touch_actions #pb_touch_iactions c:hover{
+  background-color: var(--accent-1);
+  color: #000;
+}
+.istouch #pb_touch_actions #pb_touch_iactions c.hide{
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 #pb_osd{
