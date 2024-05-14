@@ -10080,7 +10080,11 @@ const home={
     home.home_slide._page=1;
     home.home_slide._cyclic=1;
 
-    touchHelper.gestureReg($('home_slide_touch'),function(v){
+    touchHelper.gestureReg($('home_slide_touch'),function(v,evt){
+      if (v==KENTER){
+        evt.preventDefault();
+        evt.stopImmediatePropagation();
+      }
       pb.menu_keycb(home.home_slide,v);
     }, window.offsetWidth*0.1, null, true);
 
@@ -17126,7 +17130,7 @@ const touchHelper={
   tend:function(evt){
     if (!this._tIsMove){
       if (this._cb){
-        this._cb(KENTER);
+        this._cb(KENTER, evt);
       }
     }
     this._tIsMove=false;
@@ -17176,12 +17180,12 @@ const touchHelper={
         if ( yDiff > 0 ) {
           /* down swipe */
           if (this._cb){
-            this._cb(KDOWN);
+            this._cb(KDOWN, evt);
           }
         } else {
           /* up swipe */
           if (this._cb){
-            this._cb(KUP);
+            this._cb(KUP, evt);
           }
         }
         /* Update Values */
@@ -17196,11 +17200,11 @@ const touchHelper={
       if (Math.abs( xDiff )>this._minmove){
         if ( xDiff > 0 ) {
           if (this._cb){
-            this._cb(KRIGHT);
+            this._cb(KRIGHT, evt);
           }
         } else {
           if (this._cb){
-            this._cb(KLEFT);
+            this._cb(KLEFT, evt);
           }
         }
         /* Update Values */
