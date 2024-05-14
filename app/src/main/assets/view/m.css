@@ -1646,20 +1646,24 @@ c.loader {
   z-index: 100;
   opacity: 0;
   visibility: hidden;
+  transform: scale(.9) translateY(-2vw);
   transition: 
+    transform var(--tim-3s) var(--interpolation),
     opacity var(--tim-3s) var(--interpolation),
     visibility var(--tim-3s) var(--interpolation);
 }
 #pb_osd.active{
+  transform: scale(1) translateY(0);
   opacity: 1;
   visibility: visible;
 }
 #pb_osd #pb_osd_inner{
   display: inline-block;
-  font-size: var(--fs-15vw);
-  background-color: rgba(0,0,0,.6);
+  font-size: var(--fs-14vw);
+  background-color: rgba(0,0,0,.5);
   border-radius: 1vw;
   padding: .5vw 1vw .5vw 1vw;
+  text-align: left;
 }
 #pb_osd #pb_osd_inner .progress{
   border-radius: 1vw;

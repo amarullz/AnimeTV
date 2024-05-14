@@ -7861,11 +7861,11 @@ const pb={
       pb.track_update_pos();
       if (!pb.pb.classList.contains('menushow')){
         var vi=(fw)?'fast_forward':'fast_rewind';
-        var vt=(fw)?'Fast forward 10s':'Rewind 10s';
         var d=pb.vid_get_time();
         if (d.duration>0){
           var dr=(d.position/d.duration)*100.0;
-          pb.osd('<c>'+vi+'</c> '+vt+'<div class="progress"><b style="width:'+dr+'%"></b></div>');
+          pb.osd('<c>'+vi+'</c> '+sec2ts(d.position,d.duration<3600)+' of '+sec2ts(d.duration,d.duration<3600)+
+          '<div class="progress"><b style="width:'+dr+'%"></b></div>');
         }
       }
     }
@@ -7942,7 +7942,7 @@ const pb={
           else{
             var x=pb.pb.__ev_x;
             var w=window.outerWidth;
-            var w4=w/4;
+            var w4=w/5;
             if (x<w4){
               var v=_JSAPI.setBrightness((c==KUP)?-25:25);
               var bv = Math.floor((v / 255.0) * 100);
@@ -7975,14 +7975,45 @@ const pb={
         }
         else if (c==KENTER){
           if (!pb.pb.classList.contains('menushow')){
-            pb.lastkey=$tick();
-            pb.menu_show(2);
+            var x=pb.pb.__ev_x;
+            var w=window.outerWidth;
+            var w4=w/5;
+            var t=(x<w4)?1:((x>w-w4)?2:0);
+            if (pb.motions.smenuto){
+              clearTimeout(pb.motions.smenuto);
+              pb.motions.smenuto=null;
+            }
+            if (t>0){
+              if (pb.motions.smenutick>$tick()-280){
+                _API.last_key_source=0;
+                pb.motions.smenutick=$tick();
+                if (t==1){
+                  pb.track_keycb(pb.pb_tracks,KLEFT);
+                }
+                else{
+                  pb.track_keycb(pb.pb_tracks,KRIGHT);
+                }
+              }
+              else{
+                pb.motions.smenutick=$tick();
+                pb.motions.smenuto=setTimeout(function(){
+                  pb.motions.smenuto=null;
+                  pb.lastkey=$tick();
+                  pb.menu_show(2);
+                },300);
+              }
+            }
+            else {
+              pb.lastkey=$tick();
+              pb.menu_show(2);
+            }
           }
-          else if (pb.pb.__ev_target==pb.pb){
-            if (!pb.vid_stat.play)
-              pb.vid_cmd('play',0);
-            else
-              pb.vid_cmd('pause',0);
+          else if (pb.pb.__ev_target==pb.pb || pb.pb.__ev_target==pb.pb_meta){
+            // if (!pb.vid_stat.play)
+            //   pb.vid_cmd('play',0);
+            // else
+            //   pb.vid_cmd('pause',0);
+            pb.menu_hide();
           }
         }
       },null,null,true);
@@ -7994,11 +8025,35 @@ const pb={
         return true;
       };
 
+      // pb.pb.ondblclick=pb.motions.dbclickcb;
       pb.motions.initialized=true;
 
       // pb.pb.onclick=pb.clickcb;
-      // pb.pb.ondblclick=pb.dbclickcb;
       // pb.pb.onmousemove=pb.pb.ontouchmove=pb.poitmovecb;
+    },
+
+    smenutick:0,
+    smenuto:null,
+
+    dbclickcb:function(ev){
+      if (!pb.pb.classList.contains('menushow')){
+        var w=window.outerWidth;
+        if (ev.screenX<w/3){
+          if (pb.clickTo){
+            clearTimeout(pb.clickTo);
+            pb.clickTo=null;
+          }
+          _API.showToast("Skip Backward");
+        }
+        else if (ev.screenX>w-(w/3)){
+          if (pb.clickTo){
+            clearTimeout(pb.clickTo);
+            pb.clickTo=null;
+          }
+          _API.showToast("Skip Forward");
+        }
+      }
+      return true;
     }
 
   },
@@ -8024,26 +8079,6 @@ const pb={
   //         pb.menu_show(2);
   //       }
   //     },200);
-  //   }
-  //   return true;
-  // },
-  // dbclickcb:function(ev){
-  //   if (!pb.pb.classList.contains('menushow')){
-  //     var w=window.outerWidth;
-  //     if (ev.screenX<w/3){
-  //       if (pb.clickTo){
-  //         clearTimeout(pb.clickTo);
-  //         pb.clickTo=null;
-  //       }
-  //       _API.showToast("Skip Backward");
-  //     }
-  //     else if (ev.screenX>w-(w/3)){
-  //       if (pb.clickTo){
-  //         clearTimeout(pb.clickTo);
-  //         pb.clickTo=null;
-  //       }
-  //       _API.showToast("Skip Forward");
-  //     }
   //   }
   //   return true;
   // },
