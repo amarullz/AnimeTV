@@ -939,6 +939,25 @@ c.loader {
 .home_slideshow.active p div{
   transition: opacity var(--tim-3s) var(--interpolation);
 }
+.istouch .home_slideshow p div{
+  transform: translateX(-100vw);
+  transition: opacity var(--tim-7s) var(--interpolation),
+    transform var(--tim-7s) var(--interpolation);
+}
+.istouch .home_slideshow p div.active{
+  transform: translateX(0);
+}
+.istouch .home_slideshow.active p div{
+  transition: opacity var(--tim-3s) var(--interpolation),
+    transform var(--tim-3s) var(--interpolation);
+}
+.istouch .home_slideshow p div.active+div{
+  transform: translateX(100vw);
+}
+
+.ontouch .home_slideshow p div{
+  transition: none !important;
+}
 .home_slideshow p div.active{
   opacity:1;
   z-index: 4;
