@@ -1175,11 +1175,16 @@ import javax.crypto.spec.SecretKeySpec;
     public void videoSetSpeed(float speed){
       activity.runOnUiThread(()-> {
         try {
-          if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+          if (videoSupportSpeed()) {
             videoPlayer.setPlaybackSpeed(speed);
           }
         }catch(Exception ignored){}
       });
+    }
+
+    @JavascriptInterface
+    public boolean videoSupportSpeed() {
+      return (Build.VERSION.SDK_INT > Build.VERSION_CODES.O);
     }
 
     private boolean videoIsPlaying=false;

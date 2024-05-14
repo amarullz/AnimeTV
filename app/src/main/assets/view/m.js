@@ -7113,17 +7113,48 @@ const pb={
         }
       }
       else if (key=="speed"){
-        _API.vidSpeed+=0.25;
-        if (_API.vidSpeed>2.0){
-          _API.vidSpeed=0.5;
+        var vlist=[];
+        var flist=[];
+        var fn=0;
+        var vs=0;
+        for (var i=0;i<10;i++){
+          fn+=0.25;
+          if (fn==_API.vidSpeed){
+            vs=i;
+          }
+          flist.push(fn);
+          vlist.push(fn+"x");
         }
+        listOrder.showList(
+          "Playback Speed",
+          vlist,vs,
+          function(chval){
+            if (chval!==null){
+              _API.vidSpeed=flist[toInt(chval)];
+              if (pb.cfg_data.html5player){
+                pb.vid_cmd('speed',_API.vidSpeed);
+              }
+              else{
+              _API.videoSpeed(_API.vidSpeed);
+              }
+              pb.cfg_update_el(key);
+            }
+          },
+          true
+        );
+
+        // _API.vidSpeed+=0.25;
+        // if (_API.vidSpeed>2.0){
+        //   _API.vidSpeed=0.5;
+        // }
+
         // if (pb.cfg_data.html5player){
         //   pb.vid_cmd('speed',_API.vidSpeed);
         // }
         // else{
-        _API.videoSpeed(_API.vidSpeed);
+        // _API.videoSpeed(_API.vidSpeed);
         // }
-        pb.cfg_update_el(key);
+        // pb.cfg_update_el(key);
       }
       else if (key=="quality"){
         var vlist=[];
@@ -8359,8 +8390,9 @@ const pb={
     pb.pb_settings._s_settings=$n('div','',{action:'*settings'},pb.pb_settings.P,'<c>settings</c> Settings');
     // pb.pb_settings._s_fav=$n('div','',{action:'*fav'},pb.pb_settings.P,'');
 
-    
-    pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>Speed 1.0x</span>');
+    if (_JSAPI.videoSupportSpeed()){
+      pb.pb_settings._s_speed=$n('div','',{action:'*speed'},pb.pb_settings.P,'<c>speed</c> <span>Speed 1.0x</span>');
+    }
 
     if (!__SD5){
       pb.pb_settings._s_mirrorserver=$n(
