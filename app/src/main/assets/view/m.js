@@ -2358,7 +2358,7 @@ const _API={
 
   /*** THEMES ***/
   theme_list:[
-    '',
+    'theme_purple',
     'theme_blue',
     'theme_teal',
     'theme_green',
@@ -7008,9 +7008,19 @@ const pb={
         home.settings.lang_action();
       }
       else if (key=='theme'){
+        var tl=[];
+        for (var i=0;i<pb.cfgtheme_name.length;i++){
+          var t=pb.cfgtheme_name[i];
+          var c=_API.theme_list[i];
+          var v=special(t)+
+            '<span class="theme_preview '+c+'">'+
+              '<b class="p0"></b><b class="p1"></b><b class="p2"></b><b class="p3"></b><b class="a"></b>'
+            '</span>';
+            tl.push(v);
+        }
         listOrder.showList(
           "Interface Color",
-          pb.cfgtheme_name,
+          tl, /*pb.cfgtheme_name,*/
           _API.theme_sel,
           function(chval){
             if (chval!=null){
@@ -7019,7 +7029,8 @@ const pb={
               _API.theme_update();
               pb.cfg_update_el(key);
             }
-          }
+          },
+          true
         );
       }
       else if (key=='settings'){

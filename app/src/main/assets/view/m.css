@@ -92,7 +92,7 @@ ttl{
   --interpolation: cubic-bezier(.25, .8, .25, 1);
 }
 
-:root.view-bigfont {
+.view-bigfont {
   /* big font size */
   --fs-7vw: .9vw;
   --fs-8vw: 1vw;
@@ -112,7 +112,7 @@ ttl{
   --fs-100vw: 10vw;
 }
 
-:root.view-bigfont.view-biggerfont {
+.view-bigfont.view-biggerfont {
   /* big font size */
   --fs-7vw: 1.1vw;
   --fs-8vw: 1.2vw;
@@ -132,7 +132,7 @@ ttl{
   --fs-100vw: 10vw;
 }
 
-:root.view-bigfont.view-biggest {
+.view-bigfont.view-biggest {
   /* big font size */
   --fs-7vw: 1.2vw;
   --fs-8vw: 1.3vw;
@@ -152,7 +152,17 @@ ttl{
   --fs-100vw: 10vw;
 }
 
-:root.theme_green {
+.theme_purple
+{
+  --primary-bg: #030004;
+  --primary-1: #406;
+  --primary-2: #608;
+  --primary-3: #80a;
+  --accent-1: #c5f;
+  --dimm-1: #234;
+}
+
+.theme_green {
   --primary-bg: #000300;
   --primary-1: #040;
   --primary-2: #060;
@@ -161,7 +171,7 @@ ttl{
   --dimm-1: #234;
 }
 
-:root.theme_teal {
+.theme_teal {
   --primary-bg: #000404;
   --primary-1: #033;
   --primary-2: #055;
@@ -170,7 +180,7 @@ ttl{
   --dimm-1: #234;
 }
 
-:root.theme_blue {
+.theme_blue {
   --primary-bg: #000003;
   --primary-1: #014;
   --primary-2: #026;
@@ -179,7 +189,7 @@ ttl{
   --dimm-1: #234;
 }
 
-:root.theme_brown {
+.theme_brown {
   --primary-bg: #080400;
   --primary-1: #420;
   --primary-2: #640;
@@ -188,7 +198,7 @@ ttl{
   --dimm-1: #234;
 }
 
-:root.theme_red {
+.theme_red {
   --primary-bg: #060000;
   --primary-1: #400;
   --primary-2: #600;
@@ -197,7 +207,7 @@ ttl{
   --dimm-1: #234;
 }
 
-:root.theme_grey {
+.theme_grey {
   --primary-bg: #080808;
   --primary-1: #123;
   --primary-2: #234;
@@ -206,7 +216,7 @@ ttl{
   --dimm-1: #234;
 }
 
-:root.theme_dark {
+.theme_dark {
   --primary-bg: #040404;
   --primary-1: #046;
   --primary-2: #068;
@@ -215,7 +225,7 @@ ttl{
   --dimm-1: #222;
 }
 
-:root.ani_quick {
+.ani_quick {
   --tim-10s: .5s;
   --tim-1s: .05s;
   --tim-2s: .1s;
@@ -226,7 +236,7 @@ ttl{
   --tim-8s: .4s;
 }
 
-:root.ani_super_quick {
+.ani_super_quick {
   --tim-10s: .25s;
   --tim-1s: .025s;
   --tim-2s: .05s;
@@ -236,7 +246,7 @@ ttl{
   --tim-7s: .175s;
   --tim-8s: .2s;
 }
-:root.ani_no_transition {
+.ani_no_transition {
   --tim-10s: 0s;
   --tim-1s: 0s;
   --tim-2s: 0s;
@@ -3141,6 +3151,36 @@ c.loader {
   display: inline-block;
   font-size: var(--fs-14vw);
 }
+
+.settings_group p div span.theme_preview{
+  display: block;
+  float: right;
+  margin-right:-3vw;
+}
+.settings_group p div span.theme_preview b::before{
+  content: '';
+}
+.settings_group p div span.theme_preview b{
+  display: inline-block;
+  width: var(--fs-14vw);
+  height: var(--fs-14vw);
+}
+.settings_group p div span.theme_preview b.p0{
+  background-color: var(--primary-bg);
+}
+.settings_group p div span.theme_preview b.p1{
+  background-color: var(--primary-1);
+}
+.settings_group p div span.theme_preview b.p2{
+  background-color: var(--primary-2);
+}
+.settings_group p div span.theme_preview b.p3{
+  background-color: var(--primary-3);
+}
+.settings_group p div span.theme_preview b.a{
+  background-color: var(--accent-1);
+}
+
 .settings_group p div span.value l{
   display: inline-block;
   background-color: var(--primary-bg);
