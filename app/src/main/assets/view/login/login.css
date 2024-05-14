@@ -33,37 +33,37 @@
         --primary-1 2s cubic-bezier(.25, .8, .25, 1),
         --accent-1 2s cubic-bezier(.25, .8, .25, 1);
 }
-:root.theme_green {
+.theme_green {
     --primary-bg: #030;
     --primary-1: #040;
     --accent-1: #3b3;
 }
-:root.theme_teal {
+.theme_teal {
     --primary-bg: #022;
     --primary-1: #033;
     --accent-1: #0aa;
 }
-:root.theme_blue {
+.theme_blue {
     --primary-bg: #000839;
     --primary-1: #014;
     --accent-1: #47b;
 }
-:root.theme_brown {
+.theme_brown {
     --primary-bg: #310;
     --primary-1: #420;
     --accent-1: #b70;
 }
-:root.theme_red {
+.theme_red {
     --primary-bg: #300;
     --primary-1: #400;
     --accent-1: #b44;
 }
-:root.theme_grey {
+.theme_grey {
     --primary-bg: #333;
     --primary-1: #123;
-    --accent-1: #33bb7c;
+    --accent-1: #9FD356;
 }
-:root.theme_dark {
+.theme_dark {
     --primary-bg: #22262f;
     --primary-1: #046;
     --accent-1: #e83;

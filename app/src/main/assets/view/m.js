@@ -7034,7 +7034,7 @@ const pb={
           var c=_API.theme_list[i];
           var v=special(t)+
             '<span class="theme_preview '+c+'">'+
-              '<b class="p0"></b><b class="p1"></b><b class="p2"></b><b class="p3"></b><b class="a"></b>'
+              '<b class="p1"></b><b class="p2"></b><b class="p3"></b><b class="a"></b>'
             '</span>';
             tl.push(v);
         }
