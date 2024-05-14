@@ -5434,12 +5434,31 @@ const pb={
           el.lastElementChild.innerHTML=pb.cfgquality_name[pb.cfg_data.quality];
         }
         else{
+          var ico='hd';
           if (pb.cfg_data.quality==0 && __VIDRESH>0){
             el.lastElementChild.innerHTML="Auto "+__VIDRESH+"p";
+            vr=toInt(__VIDRESH);
           }
           else{
             el.lastElementChild.innerHTML=pb.sel_quality;
+            vr=toInt(pb.sel_quality);
           }
+          if (vr==0){
+            ico='hd';
+          }
+          else if (vr==720){
+            ico='hd';
+          }
+          else if (vr==1080){
+            ico='full_hd';
+          }
+          else if (vr>1080){
+            ico='4k';
+          }
+          else if (vr<720){
+            ico='sd';
+          }
+          el.firstElementChild.innerHTML=ico;
         }
       }
       else if (key=='mirrorserver'){
@@ -7972,6 +7991,18 @@ const pb={
     osdi:$('pb_osd_inner'),
     osdto:null,
     initialized:false,
+    seekindicator:function(r){
+      var si=$n('div','playback_seek_indicator '+(r?' right':''),null,pb.pb,'&nbsp;');
+      setTimeout(function(){
+        si.ontransitionend=function(){
+          try{
+            si.parentElement.removeChild(si);
+            si=null;
+          }catch(ee){}
+        };
+        si.classList.add('hide');
+      },50);
+    },
     evtarget:function(g){
       var m=pb.pb.__ev_target;
       while(m){
@@ -8081,9 +8112,11 @@ const pb={
                 pb.motions.smenutick=$tick();
                 if (t==1){
                   pb.track_keycb(pb.pb_tracks,KLEFT);
+                  pb.motions.seekindicator(0);
                 }
                 else{
                   pb.track_keycb(pb.pb_tracks,KRIGHT);
+                  pb.motions.seekindicator(1);
                 }
               }
               else{

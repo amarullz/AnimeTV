@@ -1382,6 +1382,32 @@ c.loader {
   /* pointer-events: none; */
 }
 
+.playback_seek_indicator{
+  position:absolute;
+  z-index: 999999;
+  background-color: rgba(230,230,230,.2);
+  width:100vh;
+  height:100vh;
+  border-radius: 100vh;
+  top:0;
+  left:-50vh;
+  right: auto;
+  bottom:0;
+  pointer-events: none;
+  opacity:1;
+  transform: scaleX(.8);
+  transition: opacity var(--tim-4s) ease-out,
+    transform var(--tim-4s) ease-out;
+}
+.playback_seek_indicator.right{
+  right:-50vh;
+  left:auto;
+}
+.playback_seek_indicator.hide{
+  opacity: 0;
+  transform: scaleX(.1);
+}
+
 /* .playback_on_video #animebg, */
 .playback_on_video #pb {
   background: rgba(0,0,0,0) !important;
