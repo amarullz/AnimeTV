@@ -16519,11 +16519,12 @@ const _MAL={
       _MAL.popup_update();
       if (this==_MAL.pop.ep){
         if (ev.target.tagName=='C'){
+          var iscontext=(ev.type=='contextmenu');
           if (ev.target.classList.contains("right")){
-            _MAL.pop_keycb(KRIGHT);
+            _MAL.pop_keycb(iscontext?KPGDOWN:KRIGHT);
           }
           else{
-            _MAL.pop_keycb(KLEFT);
+            _MAL.pop_keycb(iscontext?KPGUP:KLEFT);
           }
           return;
         }
@@ -16535,6 +16536,9 @@ const _MAL={
   buttonRegister:function(){
     for (var i=0;i<_MAL.pop.menu.length;i++){
       _MAL.pop.menu[i].onclick=_MAL.buttonClick;
+      if (_MAL.pop.menu[i]==_MAL.pop.ep){
+        _MAL.pop.menu[i].oncontextmenu=_MAL.buttonClick;
+      }
     }
   },
 
