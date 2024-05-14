@@ -1656,11 +1656,12 @@ c.loader {
   text-align: center;
   width: 100vw;
 }
+#pb_touch_close,
 #pb_touch_actions #pb_touch_iactions c{
   display: inline-block;
   padding: 1.5vw;
   background-color: rgba(25,25,25,.4);
-  border-radius: var(--fs-30vw);
+  border-radius: 8vw;
   font-size: var(--fs-30vw);
   line-height: var(--fs-30vw);
   width: var(--fs-30vw);
@@ -1671,14 +1672,26 @@ c.loader {
   margin: 0 4vw 0 4vw;
   pointer-events: all;
 }
+#pb_touch_close{
+  display: block;
+  position: absolute;
+  left:3vw;
+  top:3vw;
+  margin:0 !important;
+  font-size: var(--fs-25vw);
+  line-height: var(--fs-25vw);
+  width: var(--fs-25vw);
+  height: var(--fs-25vw);
+  padding: .5vw;
+}
 #pb_touch_actions #pb_touch_iactions c#pb_touch_play{
   padding: 3vw;
-  border-radius: var(--fs-60vw);
   font-size: var(--fs-60vw);
   line-height: var(--fs-60vw);
   width: var(--fs-60vw);
   height: var(--fs-60vw);
 }
+#pb_touch_close:hover,
 #pb_touch_actions #pb_touch_iactions c:hover{
   background-color: var(--primary-2);
 }

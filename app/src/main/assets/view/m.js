@@ -4844,6 +4844,7 @@ const pb={
   pb_touch_play:$('pb_touch_play'),
   pb_touch_prev:$('pb_touch_prev'),
   pb_touch_next:$('pb_touch_next'),
+  pb_touch_close:$('pb_touch_close'),
 
   pb_vid:$('pb_vid'),
 
@@ -8133,6 +8134,10 @@ const pb={
           pb.next_ep(1);
         }
       };
+      pb.pb_touch_close.onclick=function(){
+        clk();
+        pb.reset(1,0);
+      }
       pb.pb_event_skip.onclick=function(){
         if (pb.onskip){
           if (pb.skip_val>0){
@@ -16519,7 +16524,7 @@ const _MAL={
       _MAL.popup_update();
       if (this==_MAL.pop.ep){
         if (ev.target.tagName=='C'){
-          var iscontext=(ev.type=='contextmenu');
+          var iscontext=(ev.type!='click');
           if (ev.target.classList.contains("right")){
             _MAL.pop_keycb(iscontext?KPGDOWN:KRIGHT);
           }
