@@ -1682,7 +1682,7 @@ c.loader {
   line-height: var(--fs-25vw);
   width: var(--fs-25vw);
   height: var(--fs-25vw);
-  padding: .5vw;
+  padding: 1vw;
 }
 #pb_touch_actions #pb_touch_iactions c#pb_touch_play{
   padding: 3vw;
