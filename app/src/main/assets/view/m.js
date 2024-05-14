@@ -7851,13 +7851,23 @@ const pb={
   /* Track & Timings */
   track_keycb:function(g,c){
     if (c==KLEFT||c==KRIGHT){
-      if ((_API.last_key_source==1&&c==KLEFT)||(_API.last_key_source!=1&&c==KRIGHT))
+      var fw=(_API.last_key_source==1&&c==KLEFT)||(_API.last_key_source!=1&&c==KRIGHT);
+      if (fw)
         pb.vid_cmd('seek',pb.vid_get_time().position+10);
       else{
         pb.vid_cmd('seek',pb.vid_get_time().position-10);
         vtt.set('');
       }
       pb.track_update_pos();
+      if (!pb.pb.classList.contains('menushow')){
+        var vi=(fw)?'fast_forward':'fast_rewind';
+        var vt=(fw)?'Fast forward 10s':'Rewind 10s';
+        var d=pb.vid_get_time();
+        if (d.duration>0){
+          var dr=(d.position/d.duration)*100.0;
+          pb.osd('<c>'+vi+'</c> '+vt+'<div class="progress"><b style="width:'+dr+'%"></b></div>');
+        }
+      }
     }
     else if (c==KENTER){
       if (!pb.vid_stat.play)
@@ -7888,8 +7898,21 @@ const pb={
       pb.pb_track_dur.innerHTML="";
     }
   },
-
+  osd:function(v){
+    if (pb.motions.osdto){
+      clearTimeout(pb.motions.osdto);
+      pb.motions.osdto=null;
+    }
+    pb.motions.osd.classList.add('active');
+    pb.motions.osdi.innerHTML=v;
+    pb.motions.osdto=setTimeout(function(){
+      pb.motions.osd.classList.remove('active');
+    },1500);
+  },
   motions:{
+    osd:$('pb_osd'),
+    osdi:$('pb_osd_inner'),
+    osdto:null,
     initialized:false,
     evtarget:function(g){
       var m=pb.pb.__ev_target;
@@ -7922,11 +7945,22 @@ const pb={
             var w4=w/4;
             if (x<w4){
               var v=_JSAPI.setBrightness((c==KUP)?-25:25);
-              console.log("BRIGHTNESS: "+v);
+              var bv = Math.floor((v / 255.0) * 100);
+              pb.osd('<c>light_mode</c> Brightness<div class="progress"><b style="width:'+bv+'%"></b></div>');
             }
             else if (x>w-w4){
-              var v=_JSAPI.setVolume((c==KUP)?-5:5);
-              console.log("VOLUME: "+v);
+              var v=_JSAPI.setVolume((c==KUP)?-10:10);
+              var vi='volume_up';
+              if (v==0){
+                vi='volume_off';
+              }
+              else if (v<40){
+                vi='volume_mute';
+              }
+              else if (v<70){
+                vi='volume_down';
+              }
+              pb.osd('<c>'+vi+'</c> Volume<div class="progress"><b style="width:'+v+'%"></b></div>');
             }
             else{
               _KEYEV(c);

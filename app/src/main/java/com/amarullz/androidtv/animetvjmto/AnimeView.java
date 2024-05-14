@@ -1554,13 +1554,17 @@ import javax.crypto.spec.SecretKeySpec;
     @JavascriptInterface
     public int setVolume(int b){
       int v=audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+      int m=audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+      float vl=(v*100f)/m;
       if (b!=0) {
-        v+=b;
-        if (v<0) v=0;
-        else if(v>100) v=100;
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, v, 0);
+        vl+=b;
+        if (vl<0) vl=0;
+        else if(vl>100) vl=100;
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+            (int) ((vl*m)/100),
+            0);
       }
-      return v;
+      return (int) vl;
     }
   }
 

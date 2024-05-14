@@ -1637,6 +1637,55 @@ c.loader {
   opacity: 1;
 }
 
+#pb_osd{
+  position:absolute;
+  top:3vw;
+  left:3vw;
+  right:3vw;
+  text-align: center;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: 
+    opacity var(--tim-3s) var(--interpolation),
+    visibility var(--tim-3s) var(--interpolation);
+}
+#pb_osd.active{
+  opacity: 1;
+  visibility: visible;
+}
+#pb_osd #pb_osd_inner{
+  display: inline-block;
+  font-size: var(--fs-15vw);
+  background-color: rgba(0,0,0,.6);
+  border-radius: 1vw;
+  padding: .5vw 1vw .5vw 1vw;
+}
+#pb_osd #pb_osd_inner .progress{
+  border-radius: 1vw;
+  margin: auto;
+  display: block;
+  width: 20vw;
+  height: 1vw;
+  line-height: 1vw;
+  overflow: hidden;
+  position: relative;
+  text-align: left;
+  background-color: #000;
+  border: .1vw solid rgba(255,255,255,.4);
+  padding:.1vw;
+  margin-top: .5vw;
+  margin-bottom: .5vw;
+}
+#pb_osd #pb_osd_inner .progress b{
+  border-radius: 1vw;
+  display: block;
+  height: 1vw;
+  line-height: 1vw;
+  overflow: hidden;
+  background-color: var(--accent-1);
+}
+
 #vtt_subtitle_preview,
 #vtt_subtitle{
   position:absolute;
