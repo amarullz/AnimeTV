@@ -8058,31 +8058,6 @@ const pb={
 
   },
 
-  // clickTo:null,
-  // poitmovecb:function(ev){
-  //   if (pb.pb.classList.contains('menushow')){
-  //     pb.lastkey=$tick();
-  //   }
-  //   return true;
-  // },
-
-  // clickcb:function(ev){
-  //   if (!pb.pb.classList.contains('menushow')){
-  //     // var w=window.outerWidth;
-  //     if (pb.clickTo){
-  //       clearTimeout(pb.clickTo);
-  //       pb.clickTo=null;
-  //     }
-  //     pb.clickTo=setTimeout(function(){
-  //       if (!pb.pb.classList.contains('menushow')){
-  //         pb.lastkey=$tick();
-  //         pb.menu_show(2);
-  //       }
-  //     },200);
-  //   }
-  //   return true;
-  // },
-
   /* Root Key Callback */
   keycb:function(c){
     if (listOrder.onpopup){
@@ -8117,11 +8092,9 @@ const pb={
           pb.menu_show(3);
           var vl=pb.menus[3];
           if (c==KNEXT||c==KPGUP){
-            // vl._keycb(vl,KRIGHT);
             pb.next_ep(1);
           }
           else{
-            // vl._keycb(vl,KLEFT);
             pb.next_ep(-1);
           }
           return true;
@@ -8179,7 +8152,11 @@ const pb={
           return true;
         }
       }
-      if (c==KLEFT||c==KRIGHT||c==KUP||c==KDOWN||c==KENTER){
+      else if (c==KLEFT||c==KRIGHT){
+        _API.last_key_source=0;
+        pb.track_keycb(pb.pb_tracks,c);
+      }
+      else if (c==KUP||c==KDOWN||c==KENTER){
         clk();
         pb.menu_show(c==KUP?1:2);
       }
