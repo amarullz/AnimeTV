@@ -7992,9 +7992,10 @@ const pb={
             var w=window.outerWidth;
             var w4=w/5;
             if (x<w4){
-              var v=_JSAPI.setBrightness((c==KUP)?-25:25);
+              var v=_JSAPI.setBrightness((c==KUP)?-10:10);
               var bv = Math.floor((v / 255.0) * 100);
               pb.osd('<c>light_mode</c> Brightness<div class="progress"><b style="width:'+bv+'%"></b></div>');
+              pb.pb._minmove=window.outerWidth*0.01;
             }
             else if (x>w-w4){
               var v=_JSAPI.setVolume((c==KUP)?-10:10);
@@ -8009,6 +8010,7 @@ const pb={
                 vi='volume_down';
               }
               pb.osd('<c>'+vi+'</c> Volume<div class="progress"><b style="width:'+v+'%"></b></div>');
+              pb.pb._minmove=window.outerWidth*0.01;
             }
             else{
               _KEYEV(c);
@@ -8019,11 +8021,11 @@ const pb={
           if (!pb.pb.classList.contains('menushow')){
             _API.last_key_source=1;
             pb.track_keycb(pb.pb_tracks,c);
+            pb.pb._minmove=window.outerWidth*0.01;
           }
           else if (pb.motions.evtarget(pb.pb_tracks)){
             pb.motions.track_action(evt);
             pb.pb._minmove=2;
-            pb.pb._lockDirection=1;
           }
         }
         else if (c==KENTER){
@@ -8093,6 +8095,15 @@ const pb={
       pb.pb_touch_next.onclick=function(){
         if (!this.classList.contains('hide')){
           pb.next_ep(1);
+        }
+      };
+      pb.pb_event_skip.onclick=function(){
+        if (pb.onskip){
+          if (pb.skip_val>0){
+            clk();
+            pb.vid_cmd('seek',pb.skip_val);
+            return true;
+          }
         }
       };
       pb.motions.initialized=true;
@@ -9070,6 +9081,7 @@ const pb={
     pb.load_open_stat=0;
     // _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
     pb.open_uri=uri;
+    pb.pb_touch_actions.classList.add('hide');
 
     if (noclean){
       pb.pb_meta.classList.add('active');
@@ -17295,6 +17307,7 @@ const touchHelper={
             this._cb(KUP, evt);
           }
         }
+        this._lockDirection=2;
         /* Update Values */
         this._xDown = xUp;
         this._yDown = yUp;
@@ -17314,6 +17327,7 @@ const touchHelper={
             this._cb(KLEFT, evt);
           }
         }
+        this._lockDirection=1;
         /* Update Values */
         this._xDown = xUp;
         this._yDown = yUp;

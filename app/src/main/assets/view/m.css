@@ -1462,6 +1462,7 @@ c.loader {
   transition: all var(--tim-4s) var(--interpolation);
   opacity: 0;
   transform: translateX(5vw);
+  pointer-events: none;
 }
 
 #pb_desc {
@@ -1476,6 +1477,8 @@ c.loader {
   display: -webkit-box;
   -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
+  pointer-events: none;
+  max-height:calc(100vh - 26vw);
 }
 
 #pb_desc b {
@@ -1656,7 +1659,7 @@ c.loader {
 #pb_touch_actions #pb_touch_iactions c{
   display: inline-block;
   padding: 1.5vw;
-  background-color: rgba(0,0,0,.4);
+  background-color: rgba(25,25,25,.4);
   border-radius: var(--fs-30vw);
   font-size: var(--fs-30vw);
   line-height: var(--fs-30vw);
@@ -1677,8 +1680,7 @@ c.loader {
   height: var(--fs-60vw);
 }
 #pb_touch_actions #pb_touch_iactions c:hover{
-  background-color: var(--accent-1);
-  color: #000;
+  background-color: var(--primary-2);
 }
 .istouch #pb_touch_actions #pb_touch_iactions c.hide{
   visibility: hidden !important;
@@ -1708,10 +1710,11 @@ c.loader {
 #pb_osd #pb_osd_inner{
   display: inline-block;
   font-size: var(--fs-14vw);
-  background-color: rgba(0,0,0,.5);
+  background-color: rgba(25,25,25,.4);
   border-radius: 1vw;
   padding: .5vw 1vw .5vw 1vw;
   text-align: left;
+  color:rgba(255,255,255,.8);
 }
 #pb_osd #pb_osd_inner .progress{
   border-radius: 1vw;
@@ -1723,8 +1726,8 @@ c.loader {
   overflow: hidden;
   position: relative;
   text-align: left;
-  background-color: #000;
-  border: .1vw solid rgba(255,255,255,.4);
+  background-color: rgba(0,0,0,.8);
+  border: .1vw solid rgba(255,255,255,.5);
   padding:.1vw;
   margin-top: .5vw;
   margin-bottom: .5vw;
@@ -2307,6 +2310,17 @@ c.loader {
     opacity:0
   }
 }
+@keyframes pb_event_skip_keyframe_nohide {
+  0% {
+    opacity:1
+  }
+  80% {
+    opacity:1
+  }
+  100% {
+    opacity:.3
+  }
+}
 #pb_event_skip.active {
   visibility: visible;
   opacity: 0;
@@ -2315,6 +2329,14 @@ c.loader {
 #pb:not(.menushow) #pb_event_skip.active{
   opacity:1;
   animation: pb_event_skip_keyframe 4s linear forwards;
+}
+.istouch #pb:not(.menushow) #pb_event_skip.active{
+  opacity:1;
+  animation: pb_event_skip_keyframe_nohide 4s linear forwards;
+}
+#pb_event_skip:hover{
+  background-color: rgba(200,200,200,.7);
+  opacity: 1 !important;
 }
 #pb_event_skip span {
   position: relative;
