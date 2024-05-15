@@ -5791,6 +5791,7 @@ const pb={
       _API.setKey(home.keycb);
       home.list_init();
       _API.setUri("/home");
+      _JSAPI.setLandscape(false);
     }
     else{
       pb.pb_loading.classList.add('active');
@@ -9198,6 +9199,8 @@ const pb={
   open_uri:"",
   open:function(uri, ttid, noclean, startpos){
     console.log("ATVLOG pb.open -> "+noclean+" / "+ttid+" / "+startpos+" -> "+uri);
+    _JSAPI.setLandscape(true);
+
     pb.video_tmp_start_pos=0;
     pb.pb_action_streamtype.classList.remove('active');
     pb.load_open_stat=0;

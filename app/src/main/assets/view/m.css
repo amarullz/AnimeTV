@@ -707,7 +707,6 @@ c.loader {
   background: transparent !important;
 }
 .animetv_header_banner div.animetv_logo c{
-  position: absolute;
   margin-left: calc(-.2vw - var(--fs-20vw));
   opacity: 0;
   visibility: hidden;
@@ -720,6 +719,11 @@ c.loader {
   visibility: visible;
   opacity: 1;
   transform: rotate(0deg);
+}
+
+#home_homepage c,
+#home_mylist c{
+  display: none;
 }
 
 /* ------------------------------ search ----------------------------- */

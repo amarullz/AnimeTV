@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.Build;
@@ -37,6 +38,12 @@ public class MainActivity extends FragmentActivity {
   public static String ARG_TIP=null;
   public static String ARG_POS=null;
   public static String ARG_SD=null;
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    aView.setFullscreen(newConfig.orientation);
+  }
 
   public void updateInstance(Bundle savedInstanceState){
     /* Load Arguments */

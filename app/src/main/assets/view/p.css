@@ -97,15 +97,27 @@
 }
 
 /* Home Header */
+.animetv_header{
+  transition:
+    transform var(--tim-3s) var(--interpolation),
+    background-color var(--tim-7s) var(--interpolation);
+}
+.animetv_header_banner .animetv_logo{
+  padding-left:0;
+  padding-right:0;
+  line-height:var(--fs-17vw);
+  font-size: var(--fs-17vw);
+}
 .animetv_header.scrolled{
-  transform: translateY(-10vh);
+  transform: translateY(0) !important;
+  background-color: #202020;
 }
 .animetv_header_banner{
-  padding:3vh 5vh 0 5vh;
+  padding:6vh 5vw 1vh 5vw;
 }
 .animetv_header_banner div{
   padding:0 1vh 0 1vh;
-  margin-right: .4vh;
+  margin-right: .2vh;
   text-shadow: 0 .1vh .2vh #000 !important;
 }
 .animetv_header_banner #home_schedule,
@@ -161,6 +173,50 @@
   margin-left: calc(-.2vh - var(--fs-20vw));
 }
 
+.animetv_header_banner div.animetv_logo c{
+  display: none !important;
+}
+#home_search{
+  float: right;
+}
+.animetv_header_banner #home_homepage span,
+.animetv_header_banner #home_search span,
+.animetv_header_banner #home_voice{
+  display: none !important;
+}
+.animetv_header_banner #home_settings,
+.animetv_header_banner #home_schedule,
+.animetv_header_banner #home_homepage,
+.animetv_header_banner #home_search{
+  padding:.5vh;
+  width: 3vh;
+  line-height: 3vh;
+  text-align: center;
+  margin-left: .5vh;
+  margin-right: 0;
+  position: relative;
+  z-index:4;
+  margin-top:-.2vh;
+}
+.animetv_header_banner #home_settings c,
+.animetv_header_banner #home_schedule c,
+.animetv_header_banner #home_homepage c,
+.animetv_header_banner #home_search c{
+  display: inline-block !important;
+  font-size: var(--fs-20vw);
+  line-height: 3vh;
+  width: 3vh;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  border-radius: 3vh;
+  margin-top:-.2vh;
+}
+.animetv_header .animetv_header_banner #home_schedule:after,
+.animetv_header .animetv_header_banner #home_settings:after{
+  display: none !important;
+}
+
 /* ------------------------------ search ----------------------------- */
 
 
@@ -168,46 +224,55 @@
 .home_slideshow{
   padding:0;
   width:100vw;
-  height:50vh;
+  height:60vh;
 }
+/* .home_list_loader .z-loader{
+  margin-top: 10vh;
+} */
 #home_slide_touch{
   width:100vw;
-  height:50vh;
+  height:60vh;
 }
 #home_slide_holder{
   width:100vw;
   height:100vh;
-  margin-bottom: -57.5vh;
+  margin-bottom: -47.5vh;
 }
 .home_slideshow p div{
   width:100vw;
-  height:50vh;
+  height:60vh;
+}
+.home_slideshow p div span.infobox span.infovalue span.info:before{
+  display: block;
+  margin-bottom: .5vh;
+  max-width: 30vw;
+  text-align: center;
 }
 .home_slideshow p div:before{
   background: linear-gradient(80deg, var(--primary-bg) 0%, rgba(0, 0, 0, 0) 60%),
     linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 60%, var(--primary-bg) 98%);
 }
 .home_slideshow p div .img_holder{
-  height: 49.9vh;
+  height: 59.9vh;
 }
 .home_slideshow p div .iframe_holder,
 .home_slideshow p div img{
   max-width: 100vw;
-  min-height: 50vh;
+  min-height: 60vh;
 }
 .home_slideshow p div img.isthumb{
   width: 100vw;
 }
 .home_slideshow.active p div.active .iframe_holder{
   width: 100vw;
-  height: 50vh;
+  height: 60vh;
 }
 .home_slideshow.active p div .iframe_holder iframe{
   width: 100vw !important;
-  height: 50vh !important;
+  height: 60vh !important;
 }
 .home_slideshow p div span.infobox{
-  left:5vh;
+  left:5vw;
   top:10vh;
   bottom:12vh;
   width:80vw;
@@ -232,8 +297,8 @@
   padding-top:1.5vh;
 }
 #home_slide_pager{
-  top:40vh;
-  right: 5vh;
+  top:50vh;
+  right: 5vw;
   border-radius: 2vh;
   padding: .3vh;
   line-height: .5vh;
@@ -251,20 +316,20 @@
 
 /* ------------------------------ home paging ----------------------------- */
 #home_pageschedule{
-  padding-top:8vh;
-  min-height:100vh;
+  padding-top:11vh;
+  min-height:70vh;
 }
 .home_list_loader b{
   padding-top: 2vh;
 }
 #home_pageschedule .home_list_loader{
-  top:40vh;
+  top:30vh;
 }
 #home_slide .home_list_loader{
-  top:15vh;
+  top:25vh;
 }
 #home_pagelist{
-  padding-top:8vh;
+  padding-top:11vh;
 }
 #home_time{
   display: none !important;
@@ -282,7 +347,7 @@
 .home_opt_list,
 .home_tabs,
 .home_list {
-  padding: 0 5vh 1vh 5vh;
+  padding: 0 5vw 1vh 5vw;
 }
 .home_list {
   min-height: 20vh;
@@ -291,7 +356,7 @@
   min-height: 3vh;
 }
 .home_list p:empty::after {
-  left: 5vh;
+  left: 5vw;
   line-height: 16vh;
 }
 .view-informative .home_list p:empty::after{
@@ -396,10 +461,11 @@
   width: 34vh;
 }
 #settings_scroll{
-  top:6vh;
+  top:10vh;
 }
 #settings h5{
   line-height: 6vh;
+  padding-top: 4vh;
   padding-left: 2vh;
   height:6vh;
   border-bottom: .1vh solid #111;
@@ -597,7 +663,7 @@
 #sidebar_contents{
   width:18vh;
   padding: 2vh;
-  padding-top: 2vh;
+  padding-top: 6vh;
   transform: translateX(-5vh);
 }
 .sidebar_profile{

@@ -66,7 +66,7 @@
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleInstance"
             android:logo="@mipmap/ic_launcher"
-            android:screenOrientation="landscape">
+            android:screenOrientation="sensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
