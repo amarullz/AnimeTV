@@ -90,7 +90,7 @@ html {
     margin: 0;
     padding: 0;
     font-family: robotoc, Arial, Helvetica, sans-serif;
-    font-size: var(--fs-10vw);
+    font-size: 1vw;
     font-weight: normal;
     background: #000 !important;
     color: #fff;

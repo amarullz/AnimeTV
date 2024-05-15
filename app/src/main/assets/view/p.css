@@ -583,6 +583,19 @@
   bottom:25vh;
   height:50vh;
 }
+#malview #malview_loading{
+  line-height: 4vh;
+  bottom: 25vh;
+}
+#malview #malview_loading .z-loader{
+  width: 2vh;
+  height: 2vh;
+}
+#malview #malview_loading .z-loader:after,
+#malview #malview_loading .z-loader:before {
+  border: .25vh solid #fff;
+}
+
 
 .view-bigfont #malview_info,
 #malview_info{
@@ -688,16 +701,6 @@
   top:0;
   width:17vh;
   height:22vh;
-}
-#malview #malview_loading{
-  position: absolute;
-  left:0;
-  right:0;
-  line-height: 4vh;
-  bottom: 9vh;
-  text-align: center;
-  font-size: var(--fs-14vw);
-  display: none;
 }
 
 

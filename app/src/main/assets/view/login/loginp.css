@@ -1,0 +1,70 @@
+body,
+html {
+  font-size: 1vh;
+}
+.login_logo{
+  width: 15vh;
+  height: 7vh;
+  bottom: .5vh;
+  right: .5vh;
+}
+.user_sel{
+  padding-bottom:5.5vh;
+}
+.user_sel:before{
+  font-size:3.5vh;
+  margin-bottom: 2vh;
+}
+.pin .pin_keypad,
+.user_item {
+    margin:1vh;
+    font-size:2.2vh;
+    width:15vh;
+    margin-top:3vh;
+    margin-bottom:2vh;
+}
+.user_item img{
+    width: 14vh;
+    height: 14vh;
+    border-radius: 15vh;
+    border: .8vh solid transparent;
+    margin-bottom: .5vh;
+}
+.user_item .user_name{
+    width:15vh;
+}
+
+.pin{
+  padding:1vh;
+  border-radius: .8vh;
+  width:45vh;
+  max-width: 90vw;
+  box-shadow: 0 .28vh .56vh rgba(0, 0, 0, 0.25), 0 .2vh .2vh rgba(0, 0, 0, 0.22);
+}
+
+.pin .pin_keypad{
+  width:28vh;
+  margin-left: 1vh;
+}
+.pin .pin_keypad .pin_key{
+  font-size:2.5vh;
+  line-height:3vh;
+  width:8vh;
+  margin:.5vh;
+  border-radius: .5vh;
+}
+.pin .pin_keypad .pin_value{
+  padding-top: 1vh;
+  padding-bottom: 1vh;
+}
+.pin .pin_keypad .pin_value b{
+  width:5vh;
+  height:4vh;
+  line-height:4vh;
+  font-size:3vh;
+  border-radius: .5vh;
+  margin: .5vh;
+}
+.pin .pin_keypad .pin_key.active{
+  box-shadow: 0 .03vh .06vh rgba(0, 0, 0, 0.16), 0 .03vh .06vh rgba(0, 0, 0, 0.23);
+}
