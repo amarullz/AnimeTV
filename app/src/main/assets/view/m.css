@@ -3740,6 +3740,7 @@ c.loader {
 .view-bigfont #malview #malview_info_detail_button{
   right:20.8vw;
 }
+#malview #malview_info_detail_button:hover,
 #malview #malview_info_detail_button.active{
   background-color: var(--primary-1);
   width:calc(var(--fs-15vw) * 4.3);

@@ -15848,7 +15848,7 @@ const _MAL={
       }
 
       if (trailer_avail){
-        hl._playtrailer=$n('div','alsd_button',null,hl._tools,'<c>play_arrow</c> Play Trailer');
+        hl._playtrailer=$n('div','alsd_button',null,hl._tools,'<c>play_arrow</c> <l>Play</l> Trailer');
       }
       hl._addmal=$n('div','alsd_button alsd_button_right',null,hl._tools,'');
       hl._addmal._mid=d.idMal;
@@ -15860,7 +15860,7 @@ const _MAL={
           x._curr=x._dat.my_list_status.status;
         }
         else{
-          x.innerHTML='<c>bookmark_add</c> Add to MAL';
+          x.innerHTML='<c>bookmark_add</c> <l>Add to</l> MAL';
         }
       };
       hl._addmal._update();
@@ -15885,14 +15885,14 @@ const _MAL={
         hl._addal._curr=d.mediaListEntry.status;
         hl._addal._mid=d.mediaListEntry.id;
         hl._addal._aid=d.id;
-        hl._addal.innerHTML='<c>bookmark</c> AniList '+ucfirst(d.mediaListEntry.status,true);
+        hl._addal.innerHTML='<c>bookmark</c> <l>AniList</l>'+ucfirst(d.mediaListEntry.status,true);
         hl._addal._myinfo=$n('div','alsd_button alsd_button_full',null,hl._vleft,ucfirst(d.mediaListEntry.status,true));
       }
       else{
         hl._addal._curr='';
         hl._addal._mid=0;
         hl._addal._aid=d.id;
-        hl._addal.innerHTML='<c>bookmark_add</c>Add to AniList';
+        hl._addal.innerHTML='<c>bookmark_add</c><l>Add to</l> AniList';
         hl._addal._myinfo=$n('div','alsd_button alsd_button_full',null,hl._vleft,"Not on your list");
       }
       if (trailer_avail){
@@ -15937,12 +15937,13 @@ const _MAL={
         return o?o:'-';
       }
       
-      kv('interests','Genres',nlbr(special(d.genres.join('\n'))),'',1);
+      kv('interests','Genres',nlbr(special(d.genres.join(', '))),'',1);
       kv('calendar_clock','Start Date',fuzD(d.startDate),'',1);
       kv('event_available','End Date',fuzD(d.endDate),'',1);
       kv('menu_book','Source',special(((d.source?d.source:'')+'').replace(/_/g,' ')),'',1);
       kv('captive_portal','Country',special(d.countryOfOrigin?d.countryOfOrigin:'-'),'',1);
-      kv('routine','Season',special(d.season?d.season:'-')+special(d.seasonYear?' '+d.seasonYear:''),'',1);
+      kv('routine','Season',special(d.season?d.season:'-'),'',1);
+      kv('calendar_month','Year',special(d.seasonYear?d.seasonYear:'-'),'',1);
       // kv('calendar_today','Year',special(d.seasonYear?d.seasonYear:'-'),'',1);
 
       var stud='-';
@@ -16009,7 +16010,7 @@ const _MAL={
         console.warn("Play YT");
         hl._ytfpaused=true;
         hl._ytferror=false;
-        hl._playtrailer.innerHTML='<c>pause</c> Pause Trailer';
+        hl._playtrailer.innerHTML='<c>pause</c> Pause <l>Trailer</l>';
       }
     }
     else if (vcmd=='yt-pause' || vcmd=='yt-end'){
@@ -16017,7 +16018,7 @@ const _MAL={
         console.warn("Pause YT");
         hl._ytfpaused=false;
         hl._ytferror=false;
-        hl._playtrailer.innerHTML='<c>play_arrow</c> Play Trailer';
+        hl._playtrailer.innerHTML='<c>play_arrow</c> <l>Play</l> Trailer';
       }
     }
     else if (vcmd=='yt-error'){
@@ -16025,7 +16026,7 @@ const _MAL={
         console.warn("Error YT");
         hl._ytfpaused=true;
         hl._ytferror=true;
-        hl._playtrailer.innerHTML='<c>close</c> Close Trailer';
+        hl._playtrailer.innerHTML='<c>close</c> Close <l>Trailer</l>';
       }
     }
   },
@@ -16143,7 +16144,7 @@ const _MAL={
                   _MAL.alset_del(hl._addal._mid, function(v){
                     if (v){
                       hl._addal._curr='';
-                      hl._addal.innerHTML='<c>bookmark_add</c>Add to AniList';
+                      hl._addal.innerHTML='<c>bookmark_add</c><l>Add to</l> AniList';
                       hl._addal._myinfo.innerHTML="Not on your list";
                       home.init_mylist(true);
                       _API.showToast("Deleted from AniList...");
@@ -16159,7 +16160,7 @@ const _MAL={
                 _MAL.alset_list(hl._addal._aid, ssel, function(v){
                   if (v){
                     hl._addal._curr=ssel;
-                    hl._addal.innerHTML='<c>bookmark</c> AniList '+ucfirst(ssel,1);
+                    hl._addal.innerHTML='<c>bookmark</c> <l>AniList</l> '+ucfirst(ssel,1);
                     hl._addal._myinfo.innerHTML=ucfirst(ssel,1);
                     home.init_mylist(true);
                     _API.showToast("Saved to AniList "+ucfirst(ssel,1));

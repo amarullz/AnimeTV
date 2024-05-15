@@ -110,7 +110,8 @@ body *{
     left:0;
     right: 0;
     bottom: 0;
-    transition: all .3s cubic-bezier(.25, .8, .25, 1);
+    transition: opacity .3s cubic-bezier(.25, .8, .25, 1),
+    visibility .3s cubic-bezier(.25, .8, .25, 1);
 }
 #animetv.hide{
     opacity:0;
@@ -153,7 +154,8 @@ img.usr_wallpaper{
     background: transparent !important;
     opacity: 0;
     visibility: hidden;
-    transition: all 4s cubic-bezier(.25, .8, .25, 1);
+    transition: opacity 4s cubic-bezier(.25, .8, .25, 1),
+        visibility 4s cubic-bezier(.25, .8, .25, 1);
 }
 .usr_wallpaper.hide{
     opacity: 0 !important;
