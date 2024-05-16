@@ -11743,6 +11743,85 @@ const home={
       }
     };
 
+    home.home_scroll_mask.__pull=$('home_pull_refresh');
+    /* Pull to Refresh */
+    touchHelper.gestureReg(home.home_scroll_mask,
+      function(c,e){
+        if (c==KUP){
+          if (this.scrollTop==0){
+            if (!this.__ispull){
+              const firstTouch = touchHelper.getTouch(e);
+              this.__ispull=true;
+              this.__last_y=0;
+              this.__first_y=firstTouch.clientY;
+              this._minmove=1;
+              this.__pull.style.transform='';
+              this.__pull.style.opacity='';
+              this.__pull.classList.remove('refreshing');
+              this.__pull.classList.remove('cancel_refresh');
+              this.__pulled=false;
+              console.log("PULL-START: "+this.__last_y);
+            }
+          }
+        }
+      },window.outerHeight*0.05,null,true,
+      function(e,g,m){
+        if (this.__ispull){
+          this.__last_y=m.clientY-this.__first_y;
+          var max=window.outerHeight * 0.24;
+          var min=window.outerHeight * 0.1;
+          var cv=this.__last_y * 1.5;
+          if (cv>max){
+            cv=max;
+            this.__pulled=true;
+          }
+          else{
+            this.__pulled=false;
+          }
+          var pc = (cv*360)/max;
+          var opa = cv/parseFloat(max);
+          this.__pull.style.opacity=opa;
+          this.__pull.style.transform='translateY('+(cv-min)+'px) rotate('+(pc-360)+'deg)';
+          console.log("PULL: "+this.__last_y);
+        }
+      },function(e,g){
+        if (this.__ispull){
+          console.log("RELEASE: "+this.__last_y);
+          if (this.__pulled){
+            this.__pull.classList.add('refreshing');
+            g.__pull.style.transform='';
+            this.__pull.style.opacity='';
+
+            var sel=0;
+            for (var i=0;i<home.homepages.length;i++){
+              if (home.homepages[i].classList.contains('active')){
+                sel=i;
+                break;
+              }
+            }
+            if (sel==0){
+              home.init_homepage(true);
+            }
+            else if (sel==1){
+              home.init_mylist(true);
+            }
+            else if (sel==2){
+              home.schedule_init(true);
+            }
+          }
+          else{
+            this.__pull.style.transform='';
+            this.__pull.style.opacity='';
+            this.__pull.classList.add('cancel_refresh');
+          }
+          
+        }
+        this.__last_y=0;
+        this.__pulled=false;
+        this.__ispull=false;
+      }
+    );
+
     // container click
     $('popupcontainer').onclick=function(ev){
       if (ev.target==this){
