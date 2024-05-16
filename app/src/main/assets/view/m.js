@@ -11837,6 +11837,7 @@ const home={
               this._minmove=1;
               this.__pull.style.transform='';
               this.__pull.style.opacity='';
+              this.__pull.innerHTML='refresh';
               this.__pull.classList.remove('refreshing');
               this.__pull.classList.remove('cancel_refresh');
               this.__pulled=false;
@@ -11849,8 +11850,13 @@ const home={
         if (this.__ispull){
           this.__last_y=m.clientY-this.__first_y;
           var max=window.outerHeight * 0.24;
+          var maxrot=window.outerHeight * 0.4;
           var min=window.outerHeight * 0.1;
           var cv=this.__last_y * 1.5;
+          var rot=cv;
+          if (rot>maxrot){
+            rot=maxrot;
+          }
           if (cv>max){
             cv=max;
             this.__pulled=true;
@@ -11858,7 +11864,7 @@ const home={
           else{
             this.__pulled=false;
           }
-          var pc = (cv*360)/max;
+          var pc = (rot*360)/max;
           var opa = cv/parseFloat(max);
           this.__pull.style.opacity=opa;
           this.__pull.style.transform='translateY('+(cv-min)+'px) rotate('+(pc-360)+'deg)';
@@ -11869,6 +11875,7 @@ const home={
           console.log("RELEASE: "+this.__last_y);
           if (this.__pulled){
             this.__pull.classList.add('refreshing');
+            this.__pull.innerHTML='progress_activity';
             g.__pull.style.transform='';
             this.__pull.style.opacity='';
 
@@ -11890,6 +11897,7 @@ const home={
             }
           }
           else{
+            this.__pull.innerHTML='refresh';
             this.__pull.style.transform='';
             this.__pull.style.opacity='';
             this.__pull.classList.add('cancel_refresh');
