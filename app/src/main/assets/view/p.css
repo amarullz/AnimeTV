@@ -279,6 +279,15 @@
   max-width: 100vw;
   min-height: 60vh;
 }
+.home_slideshow p div img{
+  transition: object-position 5s linear, opacity 5s linear;
+  object-position: 30% 50%;
+}
+.home_slideshow p div.active img{
+  transition: object-position 30s linear, opacity 5s linear;
+  transform: scale(1) !important;
+  object-position: 90% 50%;
+}
 .home_slideshow p div img.isthumb{
   width: 100vw;
 }

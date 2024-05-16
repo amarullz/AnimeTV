@@ -9970,7 +9970,9 @@ const home={
 
         }catch(ee){}
       }
-      pb.menu_select(home.home_slide,home.home_slide.P.firstElementChild);
+      requestAnimationFrame(function(){
+        pb.menu_select(home.home_slide,home.home_slide.P.firstElementChild);
+      });
       home.home_list_autoslide();
     }
   },
@@ -10249,7 +10251,9 @@ const home={
           _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
         }catch(ee){}
       }
-      pb.menu_select(g,g.P.firstElementChild);
+      requestAnimationFrame(function(){
+        pb.menu_select(g,g.P.firstElementChild);
+      });
       home.home_list_autoslide();
     }
     if (has_trailer){
