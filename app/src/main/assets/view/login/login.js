@@ -398,6 +398,11 @@ const login = {
         /* PIN KEYPAD */
         var pin=$n('div', 'pin', null, pinhold, '');
         login.pin=pinhold;
+        pinhold.onclick=function(ev){
+            if (ev.target==this){
+                _KEYEV(KBACK);
+            }
+        }
         pinhold._pin=pin;
         pin._usr = $n('div', 'user_item active', null, pin, '');
         pin._img = $n('img', '', { src: login.ppimg(0) }, pin._usr, '');
