@@ -723,7 +723,7 @@ c.loader {
   opacity: 1;
   transform: rotate(0deg);
 }
-
+#search_logo c,
 #home_homepage c,
 #home_mylist c{
   display: none;

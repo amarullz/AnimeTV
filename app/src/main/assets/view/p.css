@@ -108,11 +108,24 @@
   bottom:0 !important;
   left:0 !important;
   right: 0 !important;
-  /*  background: linear-gradient(180deg, rgba(0,0,0,.8), rgba(0,0,0,0) 100%); */
   padding-bottom: var(--sys-nav-height) !important;
   padding-top: 2vw !important;
+}
+#search_header.animetv_header{
+  top:0 !important;
+  bottom: auto !important;
+  left:0 !important;
+  right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: var(--sys-stat-height) !important;
+  padding-bottom: 2vw !important;
+}
+#search_header.animetv_header,
+#home_header.animetv_header{
   background-color: var(--primary-1) !important;
 }
+#search_header.animetv_header #search_header_banner div:not(:hover):not(#search_kw_holder),
 #home_header.animetv_header #home_header_banner div:not(:hover){
   background-color: transparent !important;
   color: rgba(255,255,255,.8) !important;
@@ -120,9 +133,7 @@
 .animetv_header.scrolled{
   transform: translateY(100%);
 }
-.animetv_header_banner{
-  padding:calc(2vh + var(--sys-stat-height)) 5vw 1vh 5vw;
-}
+#search_header.animetv_header_banner,
 #home_header_banner.animetv_header_banner{
   padding:.5vw 2vw .5vh 2vw;
 }
@@ -183,7 +194,6 @@
 .animetv_header_banner div.animetv_logo c{
   margin-left: calc(-.2vh - var(--fs-20vw));
 }
-#search_logo,
 .animetv_header_banner div.animetv_logo c{
   display: none !important;
 }
@@ -193,6 +203,8 @@
 .animetv_header_banner #home_homepage{
   margin-left: 2vh;
 }
+#search_kbd,
+#search_logo span,
 .animetv_header_banner #home_logo span,
 .animetv_header_banner #home_voice,
 .animetv_header_banner #home_mylist span,
@@ -200,6 +212,9 @@
 .animetv_header_banner #home_search span{
   display: none;
 }
+#search_anilist,
+#search_voice,
+#search_logo,
 .animetv_header_banner #home_logo,
 .animetv_header_banner #home_settings,
 .animetv_header_banner #home_schedule,
@@ -219,6 +234,13 @@
   background-color: transparent;
   color: rgba(255,255,255,.8);
 }
+#search_anilist{
+  width:auto !important;
+  line-height: 3vh !important;
+}
+#search_anilist:hover,
+#search_voice:hover,
+#search_logo:hover,
 .animetv_header_banner #home_logo:hover,
 .animetv_header_banner #home_settings:hover,
 .animetv_header_banner #home_schedule:hover,
@@ -228,11 +250,14 @@
   background-color: rgba(0,0,0,.4) !important;
   color: #fff !important;
 }
+#search_logo c,
 .animetv_header_banner #home_logo c{
   transform: none !important;
   opacity: 1 !important;
   visibility: visible !important;
 }
+#search_voice c,
+#search_logo c,
 .animetv_header_banner #home_logo c,
 .animetv_header_banner #home_settings c,
 .animetv_header_banner #home_schedule c,
@@ -257,10 +282,10 @@
 
 /* ------------------------------ search ----------------------------- */
 #search_content{
-  margin-top:30vh;
+  margin-top:calc(20vh + var(--sys-stat-height));
 }
 .istouch #search_content{
-  margin-top:16vh;
+  margin-top:calc(15vh + var(--sys-stat-height));
 }
 .animetv_header #search_kw_holder{
   position: relative;
@@ -269,6 +294,7 @@
   border-radius: 5vh;
   padding-left:1vh;
   margin-top:1vh;
+  margin-bottom: 1vw;
   text-align: center;
 }
 .animetv_header #search_kw{
@@ -280,7 +306,14 @@
   padding-right: 2vh;
 }
 .animetv_header_banner #search_voice.animetv_voice.onvoice:before{
-  width:38vw;
+  /* width:28vw; */
+  width: 3vh;
+}
+.animetv_header_banner .animetv_voice.onvoice:before{
+  display: none !important;
+}
+#search {
+  background: var(--primary-bg) !important;
 }
 
 /* ------------------------------ slideshow ----------------------------- */
@@ -424,8 +457,14 @@
 .home_opt_list {
   min-height: 3vh;
 }
+.home_list p:empty{
+  left:auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
 .home_list p:empty::after {
-  left: 5vw;
+  left: 0;
+  margin-right: 0 !important;
   line-height: 16vh;
 }
 .view-informative .home_list p:empty::after{
@@ -885,6 +924,21 @@
 #anilist_detail .alsd_desc{
   padding:.5vh;
   min-height:5vh;
+}
+
+/* ------------------------------ pb_menu ----------------------------- */
+.pb_menu>p {
+  left: -5vh;
+  padding-left: 5vh;
+}
+.istouch .pb_menu>p>div:last-child{
+  margin-right: 5vh !important;
+}
+.pb_menu>p>div {
+  padding: .2vh .8vh .2vh .8vh;
+  border-radius: .2vh;
+  margin-bottom: .2vh;
+  margin-left:.5vh;
 }
 
 
