@@ -54,6 +54,9 @@ ttl{
 }
 
 :root {
+  --sys-nav-height:0px;
+  --sys-stat-height:0px;
+
   --primary-bg: #030004;
   --primary-1: #406;
   --primary-2: #608;

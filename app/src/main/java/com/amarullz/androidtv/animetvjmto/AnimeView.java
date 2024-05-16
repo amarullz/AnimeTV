@@ -26,11 +26,13 @@ import android.text.Html;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -51,6 +53,7 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
@@ -121,15 +124,31 @@ import javax.crypto.spec.SecretKeySpec;
     Log.d(_TAG,"ATVLOG Current Sys Brightness = "+sysBrightness);
   }
 
+  public int sysheightNav=0;
+  public int sysheightStat=0;
+
+  public void updateInsets(){
+    sysheightStat=0;
+    sysheightNav=0;
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+      WindowInsets insets =
+          activity.getWindowManager().getCurrentWindowMetrics().getWindowInsets();
+      sysheightStat =
+          px2dp(insets.getInsets(WindowInsetsCompat.Type.statusBars()).top);
+      sysheightNav =
+          px2dp(insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom);
+    }
+  }
+
   public void setFullscreen(int orientation){
     if (orientation==0) {
       orientation = activity.getResources().getConfiguration().orientation;
     }
+
     if (orientation == Configuration.ORIENTATION_PORTRAIT) {
       activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
       activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
       activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-
       View decorView = activity.getWindow().getDecorView();
       int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE
           | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
@@ -150,6 +169,18 @@ import javax.crypto.spec.SecretKeySpec;
       decorView.setSystemUiVisibility(uiOptions);
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
           WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+    }
+    if (webView!=null){
+      updateInsets();
+      AsyncTask.execute(() ->activity.runOnUiThread(() -> {
+          if (webView != null) {
+            webView.evaluateJavascript(
+                "try{__INSETCHANGE(_JSAPI.getSysHeight(false),_JSAPI.getSysHeight(true));}catch(e)" +
+                    "{}",
+                null);
+          }
+        }
+      ));
     }
   }
 
@@ -195,6 +226,9 @@ import javax.crypto.spec.SecretKeySpec;
   public int dp2px(float dpValue) {
     final float scale = activity.getResources().getDisplayMetrics().density;
     return (int) (dpValue * scale + 0.5f);
+  }
+  public int px2dp(float px){
+    return (int) (px / ((float) activity.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT));
   }
   public boolean listPrompt(String message, ChromePromptCallback result){
     try{
@@ -358,7 +392,6 @@ import javax.crypto.spec.SecretKeySpec;
       USE_WEB_VIEW_ASSETS=false;
     }
 
-    setFullscreen(0);
     VERSION_INIT();
 
 //    cfProgress=activity.findViewById(R.id.cfprogress);
@@ -370,6 +403,8 @@ import javax.crypto.spec.SecretKeySpec;
     webView.setBackgroundColor(Color.TRANSPARENT);
     webviewInitConfig(webView);
 //    webviewInitConfig(webView2);
+
+    setFullscreen(0);
 
     audioManager =
         (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
@@ -1601,6 +1636,15 @@ import javax.crypto.spec.SecretKeySpec;
       });
     }
     //
+
+    @JavascriptInterface
+    public int getSysHeight(boolean nav){
+      updateInsets();
+      if (nav){
+        return sysheightNav;
+      }
+      return sysheightStat;
+    }
   }
 
   public int profile_sel=-1;

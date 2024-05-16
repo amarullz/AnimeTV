@@ -24,6 +24,7 @@ const __SOURCE_DOMAINS=[
   ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx']
 ];
 
+/* video res change */
 var __VIDRESW=0;
 var __VIDRESH=0;
 window.__VIDRESCB=function(w,h){
@@ -33,6 +34,23 @@ window.__VIDRESCB=function(w,h){
     pb.cfg_update_el("quality");
   }catch(e){}
 };
+/* sysnav change */
+var __SYSHNAV=0;
+var __SYSHSTAT=0;
+window.__INSETCHANGE=function(s,n){
+  __SYSHNAV=n;
+  __SYSHSTAT=s;
+  document.documentElement.style.setProperty("--sys-nav-height", n+"px");
+  document.documentElement.style.setProperty("--sys-stat-height", s+"px");
+  console.log("INSET: "+s+" / "+n);
+};
+requestAnimationFrame(function(){
+  try{
+    __INSETCHANGE(_JSAPI.getSysHeight(false),_JSAPI.getSysHeight(true));
+  }catch(e){
+    __INSETCHANGE(0,0);
+  }
+});
 
 const __SD_NAME = __SD+". "+(__SOURCE_NAME[__SD-1]);
 var __SD_DOMAIN = "";

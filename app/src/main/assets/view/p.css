@@ -366,7 +366,7 @@
   display: none;
 }
 #home_about span{
-  padding:.5vh 0 2vh 0;
+  padding:.5vh 0 calc(2vh + var(--sys-nav-height)) 0;
   text-shadow: .2vh .2vh .2vh #000;
 }
 
@@ -489,11 +489,12 @@
   width: 34vh;
 }
 #settings_scroll{
-  top:10vh;
+  top:calc(6vh + var(--sys-stat-height));
+  padding-bottom: var(--sys-nav-height) !important;
 }
 #settings h5{
   line-height: 6vh;
-  padding-top: 4vh;
+  padding-top: var(--sys-stat-height) !important;
   padding-left: 2vh;
   height:6vh;
   border-bottom: .1vh solid #111;
