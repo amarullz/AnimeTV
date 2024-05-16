@@ -1631,7 +1631,7 @@ import javax.crypto.spec.SecretKeySpec;
           activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
         else{
-          activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+          activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
         }
       });
     }
