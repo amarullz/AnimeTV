@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -94,16 +96,36 @@ public class MainActivity extends FragmentActivity {
     }
   }
 
+  private void initRefreshRate(){
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      Window w = getWindow();
+      WindowManager.LayoutParams p = w.getAttributes();
+      Display.Mode[] modes = getDisplay().getSupportedModes();
+      //find display mode with max hz
+      int maxMode = 0;
+      float maxHZ = 60f;
+      for (Display.Mode m : modes) {
+        if (maxHZ < m.getRefreshRate()) {
+          maxHZ = m.getRefreshRate();
+          maxMode = m.getModeId();
+        }
+      }
+      p.preferredDisplayModeId = maxMode;
+      w.setAttributes(p);
+      Log.d("ATVLOG", "Max Mode Value : " + maxHZ);
+    }
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
 //     initLogcat();
+
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     setContentView(R.layout.activity_main);
 
+    initRefreshRate();
     initBluetooth();
-
     updateInstance(savedInstanceState);
     aView=new AnimeView(this);
   }
