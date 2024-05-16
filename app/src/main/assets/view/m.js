@@ -10595,7 +10595,7 @@ const home={
           "MAL Tabbed "+_MAL.auth.user,
           true,
           null,
-          ["mal","malplan"]
+          ["mal"]
         ]
       );
       mylist.push(
@@ -10620,8 +10620,7 @@ const home={
           },
           "MAL Plan to Watch "+_MAL.auth.user,
           false,
-          null,
-          ["maltab"]
+          null
         ]
       );
     }
@@ -10656,7 +10655,7 @@ const home={
           "AniList Tabbed "+_MAL.alauth.user,
           true,
           null,
-          ["anilist","anilistplan"]
+          ["anilist"]
         ]
       );
 
@@ -10684,8 +10683,7 @@ const home={
           },
           "AniList Plan to Watch "+_MAL.alauth.user,
           false,
-          null,
-          ["anilisttab"]
+          null
         ]
       );
     }
