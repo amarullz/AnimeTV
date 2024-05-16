@@ -10361,8 +10361,8 @@ const home={
         var opa=el.__mvx/(window.outerWidth*0.3);
         opa=(opa>1)?1:opa;
         n.style.opacity=opa;
-        sel.style.transform='translateX('+x+'px)';
-        n.style.transform='translateX('+(f+x)+'px)';
+        sel.style.transform='translateX('+Math.floor(x)+'px)';
+        n.style.transform='translateX('+Math.ceil(f+x)+'px)';
       }
     },
     function(evt,el){

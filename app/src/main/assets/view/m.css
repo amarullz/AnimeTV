@@ -968,11 +968,12 @@ c.loader {
 }
 .home_slideshow p div:before{
   content: ' ';
-  right: 0;
-  top:0;
-  bottom:0;
+  right: -1vw;
+  top:-1vw;
+  bottom:-1vw;
+  left:-1vw;
   position: absolute;
-  width:100vw;
+  width:102vw;
   display: block;
   margin:0;
   padding: 0;
