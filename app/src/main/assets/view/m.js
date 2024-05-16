@@ -11847,7 +11847,7 @@ const home={
       function(c,e){
         if (c==KUP){
           if (this.scrollTop==0){
-            if (!this.__ispull){
+            if (!this.__ispull && !pb.pb.classList.contains('active') && !home.search.search.classList.contains('active')){
               const firstTouch = touchHelper.getTouch(e);
               this.__ispull=true;
               this.__last_y=0;
