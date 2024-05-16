@@ -5397,7 +5397,9 @@ const pb={
   cfgexitmode_name:[
     'Exit directly',
     'Confirm to exit',
-    'Back to login screen'
+    'Back to login screen',
+    'Open sidebar before exit',
+    'Sidebar to login screen'
   ],
   cfg_save:function(){
     _JSAPI.storeSet(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
@@ -5431,7 +5433,7 @@ const pb={
       }
       else if (key=='exitmode'){
         var ls=toInt(_JSAPI.storeGet("exitmode","0"));
-        if (ls<0||ls>2){
+        if (ls<0||ls>4){
           ls=0;
         }
         el.lastElementChild.innerHTML=pb.cfgexitmode_name[ls];
@@ -7324,7 +7326,7 @@ const pb={
       }
       else if (key=="exitmode"){
         var ls=toInt(_JSAPI.storeGet("exitmode","0"));
-        if (ls<0||ls>2){
+        if (ls<0||ls>4){
           ls=0;
         }
         listOrder.showList(
@@ -10948,6 +10950,7 @@ const home={
   sidebar:{
     contents:$('sidebar_contents'),
     sel:0,
+    opentype:0,
     onsidebar:false,
     profile:null,
     items:[],
@@ -11018,13 +11021,84 @@ const home={
       home.sidebar.itemAction(elm,c);
       return false;
     },
+    update_items:function(pc){
+      if (pc!=home.sidebar.sel){
+        var elm=home.sidebar.items[home.sidebar.sel];
+        elm.classList.remove('active');
+        elm=home.sidebar.items[pc];
+        elm.classList.add('active');
+        if (elm._items){
+          if (!elm._checked){
+            elm._items.classList.remove('active');
+          }
+        }
+        home.sidebar.sel=pc;
+        return true;
+      }
+      return false;
+    },
     keycb:function(c){
       var pc=home.sidebar.sel;
       var elm=home.sidebar.items[pc];
       if (c==KBACK || c==KMENU){
-        clk();
-        $('sidebar').classList.remove('active');
-        home.sidebar.onsidebar=false;
+        if (home.sidebar.opentype==2 || home.sidebar.opentype==3){
+          /* Back to sidebar */
+          if (pc!=0 || (c==KMENU)){
+            // close + reset
+            clk();
+            home.sidebar.update_items(0);
+            $('sidebar').classList.remove('active');
+            home.sidebar.opentype=0;
+            home.sidebar.onsidebar=false;
+          }
+          else if (c==KBACK){
+            if (home.sidebar.opentype==3){
+              if ((home.profiles.users.length>1)||(home.profiles.me.p)){
+                // logout
+                clk();
+                home.profiles.logout();
+                return true;
+              }
+            }
+            // exit
+            clk();
+            _JSAPI.appQuit();
+          }
+          return true;
+        }
+        else if (home.sidebar.opentype==1){
+          /* Click logo / menu key */
+          if (pc==0 || c==KMENU){
+            // close + reset
+            clk();
+            home.sidebar.update_items(0);
+            $('sidebar').classList.remove('active');
+            home.sidebar.opentype=0;
+            home.sidebar.onsidebar=false;
+          }
+          else{
+            clk();
+            home.sidebar.update_items(0);
+          }
+          return true;
+        }
+        else if (home.sidebar.opentype==0){
+          /* Direct open */
+          if (pc==0){
+            // close + reset
+            clk();
+            home.sidebar.update_items(0);
+            $('sidebar').classList.remove('active');
+            home.sidebar.opentype=0;
+            home.sidebar.onsidebar=false;
+            return false; 
+          }
+          else{
+            clk();
+            home.sidebar.update_items(0);
+          }
+          return true;
+        }
         return true;
       }
       else if (c==KUP){
@@ -11039,21 +11113,25 @@ const home={
             if (!elm._items.classList.contains('active')){
               clk();
               elm._items.classList.add('active');
+              return true;
             }
           }
           else if (c==KRIGHT){
             if (elm._items.classList.contains('active') && !elm._checked){
               clk();
               elm._items.classList.remove('active');
+              return true;
             }
           }
-          return true;
         }
-        if (pb.cfg_data.directsidebar){
-          $('sidebar').classList.remove('active');
-          home.sidebar.onsidebar=false;
-        }
-        return false;
+        
+        clk();
+        home.sidebar.update_items(0);
+        $('sidebar').classList.remove('active');
+        home.sidebar.onsidebar=false;
+        var ot=home.sidebar.opentype;
+        home.sidebar.opentype=0;
+        return (ot==0)?false:true;
       }
       else if (c==KENTER){
         if (elm._action=='source'){
@@ -11074,15 +11152,7 @@ const home={
       }
       if (pc!=home.sidebar.sel){
         clk();
-        elm.classList.remove('active');
-        elm=home.sidebar.items[pc];
-        elm.classList.add('active');
-        if (elm._items){
-          if (!elm._checked){
-            elm._items.classList.remove('active');
-          }
-        }
-        home.sidebar.sel=pc;
+        home.sidebar.update_items(pc);
       }
       return true;
     }
@@ -11630,6 +11700,7 @@ const home={
   },
   init_sidebar_mode:function(){
     home.sidebar.onsidebar=false;
+    home.sidebar.opentype=0;
     if (pb.cfg_data.directsidebar){
       $('sidebar').classList.remove('active');
       home.header_items[5]=$('sidebar');
@@ -11688,7 +11759,12 @@ const home={
 
       $('sidebar').onclick=function(ev){
         if (ev.target==this){
-          window._KEYEV(KBACK,1);
+          // window._KEYEV(KBACK,1);
+          clk();
+          home.sidebar.update_items(0);
+          $('sidebar').classList.remove('active');
+          home.sidebar.opentype=0;
+          home.sidebar.onsidebar=false;
         }
       };
       home.sidebar.contents.onclick=function(){
@@ -13963,16 +14039,20 @@ const home={
         }
       }
       else if (hsel==5){
+        clk();
         $('sidebar').classList.add('active');
         home.sidebar.onsidebar=true;
+        home.sidebar.opentype=1;
       }
       else{
         home.header_keycb(home.home_header,KENTER);
       }
     }
     else if (me==$('home_logo')){
+      clk();
       $('sidebar').classList.add('active');
       home.sidebar.onsidebar=true;
+      home.sidebar.opentype=1;
     }
   },
   header_keycb:function(g,c){
@@ -13997,6 +14077,7 @@ const home={
       }
       if (pb.cfg_data.directsidebar){
         home.sidebar.onsidebar=(hsel==5);
+        home.sidebar.opentype=0;
       }
       home.header_items_selected=hsel;
     }
@@ -14106,6 +14187,7 @@ const home={
         if (!pb.cfg_data.directsidebar){
           $('sidebar').classList.add('active');
           home.sidebar.onsidebar=true;
+          home.sidebar.opentype=1;
         }
       }
       else if (sel==6){
@@ -14300,10 +14382,11 @@ const home={
     }
 
     if (home.sidebar.onsidebar){
-      if (!pb.cfg_data.directsidebar){
-        return home.sidebar.keycb(c);
-      }
-      else if (home.sidebar.keycb(c)){
+      // if (!pb.cfg_data.directsidebar){
+      //   return home.sidebar.keycb(c);
+      // }
+      // else 
+      if (home.sidebar.keycb(c)){
         return true;
       }
     }
@@ -14333,6 +14416,11 @@ const home={
               _JSAPI.appQuit();
             }
           }
+          else if (em==3 || em==4){
+            $('sidebar').classList.add('active');
+            home.sidebar.onsidebar=true;
+            home.sidebar.opentype=(em==4)?3:2;
+          }
           return true;
         }
         else{
@@ -14357,6 +14445,7 @@ const home={
       clk();
       $('sidebar').classList.add('active');
       home.sidebar.onsidebar=true;
+      home.sidebar.opentype=1;
       return true;
     }
 
