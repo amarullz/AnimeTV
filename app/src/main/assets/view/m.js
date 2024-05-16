@@ -11841,7 +11841,6 @@ const home={
               this.__pull.classList.remove('refreshing');
               this.__pull.classList.remove('cancel_refresh');
               this.__pulled=false;
-              console.log("PULL-START: "+this.__last_y);
             }
           }
         }
@@ -11868,11 +11867,9 @@ const home={
           var opa = cv/parseFloat(max);
           this.__pull.style.opacity=opa;
           this.__pull.style.transform='translateY('+(cv-min)+'px) rotate('+(pc-360)+'deg)';
-          console.log("PULL: "+this.__last_y);
         }
       },function(e,g){
         if (this.__ispull){
-          console.log("RELEASE: "+this.__last_y);
           if (this.__pulled){
             this.__pull.classList.add('refreshing');
             this.__pull.innerHTML='progress_activity';
@@ -11902,7 +11899,6 @@ const home={
             this.__pull.style.opacity='';
             this.__pull.classList.add('cancel_refresh');
           }
-          
         }
         this.__last_y=0;
         this.__pulled=false;
