@@ -5767,7 +5767,11 @@ const pb={
     pb.vid=null;
     pb.vid_reset_stat();
     pb.pb_vid.innerHTML='';
+    
     _API.setVideo('');
+    _JSAPI.videoSetMeta("","","");
+    _JSAPI.videoHaveNP(false,false);
+
     pb.pb_track_val.style.width="0%";
     pb.pb_iactions.style.transform='';
 
@@ -8467,7 +8471,7 @@ const pb={
       }
     }
 
-    var next_id = pb.ep_index + 1; 
+    var next_id = pb.ep_index + 1;
     if (next_id>=0 && next_id<pb.data.ep.length){
       pb.pb_touch_next.classList.remove('hide');
     }
@@ -9214,6 +9218,22 @@ const pb={
       pb.menu_show(1);
       _API.setKey(pb.keycb);
     });
+
+    try{
+      _JSAPI.videoSetMeta(
+        (pb.cfg_data.jptitle?(pb.data.title_jp?pb.data.title_jp:pb.data.title):(pb.data.title?pb.data.title:pb.data.title_jp)),
+        pb.ep_title,
+        pb.data.poster?pb.data.poster:pb.data.banner);
+
+      _JSAPI.videoHaveNP(false,false);
+    }catch(e){
+      console.log("JSAPI videoSetMeta Err="+e);
+    }
+    try{
+      _JSAPI.videoHaveNP((pb.ep_index + 1)<pb.data.ep.length,(pb.ep_index - 1)>=0);
+    }catch(e){
+      console.log("JSAPI videoHaveNP Err="+e);
+    }
   },
   load_open_stat:0,
   open_uri:"",

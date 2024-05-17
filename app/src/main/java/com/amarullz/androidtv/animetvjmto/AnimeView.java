@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -55,6 +56,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
@@ -617,27 +619,43 @@ import javax.crypto.spec.SecretKeySpec;
           videoSize.pixelWidthHeightRatio);
       setVideoSize(videoSize.width,videoSize.height);
     });
+
+
     videoPlayer.addAnalyticsListener(new AnalyticsListener() {
       @Override
       public void onPlaybackStateChanged(EventTime eventTime, int state) {
         AnalyticsListener.super.onPlaybackStateChanged(eventTime, state);
         Log.d(_TAG, "ANL: onPlaybackStateChanged="+state);
+        me().mediaSetDuration(videoPlayer.getDuration());
+        me().mediaSetPosition(eventTime.currentPlaybackPositionMs);
       }
 
       @Override
-      public void onTracksChanged(EventTime eventTime, Tracks tracks) {
-        AnalyticsListener.super.onTracksChanged(eventTime, tracks);
+      public void onIsPlayingChanged(EventTime eventTime, boolean isPlaying) {
+        AnalyticsListener.super.onIsPlayingChanged(eventTime, isPlaying);
+        me().mediaSetState(isPlaying?PlaybackState.STATE_PLAYING:
+            PlaybackState.STATE_PAUSED,eventTime.currentPlaybackPositionMs);
+      }
 
-        Log.d(_TAG, "ANL: TrackChanged="+tracks);
+      @Override
+      public void onPlaybackParametersChanged(EventTime eventTime, PlaybackParameters playbackParameters) {
+        AnalyticsListener.super.onPlaybackParametersChanged(eventTime,
+            playbackParameters);
+        me().mediaSetSpeed(playbackParameters.speed);
+        me().mediaSetPosition(eventTime.currentPlaybackPositionMs);
       }
     });
+  }
 
+  public MainActivity me(){
+    return (MainActivity) activity;
   }
 
   public void videoSetSource(String url){
     try {
       if (url.equals("")) {
         videoPlayer.setMediaUri(null);
+        me().mSession.setActive(false);
       } else {
         if (url.endsWith("#dash")) {
           Log.d(_TAG,"VIDEO-SET-SOURCE (DASH) : "+url);
@@ -659,6 +677,7 @@ import javax.crypto.spec.SecretKeySpec;
           Log.d(_TAG,"VIDEO-SET-SOURCE (HLS) : "+url);
           videoPlayer.setMediaUri(Uri.parse(url));
         }
+        me().mSession.setActive(true);
       }
     }catch(Exception ignored){}
   }
@@ -1372,6 +1391,16 @@ import javax.crypto.spec.SecretKeySpec;
             videoPlayerPause();
         }catch (Exception ignored){}
       });
+    }
+
+    @JavascriptInterface
+    public void videoSetMeta(String title, String artist, String poster){
+      me().mediaSetMeta(title,artist,poster);
+    }
+
+    @JavascriptInterface
+    public void videoHaveNP(boolean n, boolean p){
+      me().mediaSetPrevNext(n,p);
     }
 
     @JavascriptInterface

@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.Build;
@@ -192,12 +193,12 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_MEDIA_PAUSE:
       case KeyEvent.KEYCODE_MEDIA_PLAY:
       case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-        if (mSession==null){
+//        if (mSession==null){
           c=402;
-        }
+//        }
         break;
-      case 402:
-        c=402; break;
+//      case 402:
+//        c=402; break;
 
       case KeyEvent.KEYCODE_MEDIA_STEP_FORWARD:
       case KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD:
@@ -240,7 +241,6 @@ public class MainActivity extends FragmentActivity {
 
   @Override
   protected void onStop() {
-    mediaButtonStop();
     aView.updatePlayNext();
     super.onStop();
   }
@@ -249,12 +249,10 @@ public class MainActivity extends FragmentActivity {
   protected void onStart() {
     super.onStart();
     aView.onStartPause(true);
-    mediaButtonStart();
   }
 
   @Override
   protected void onPause() {
-    mediaButtonStop();
     aView.onStartPause(false);
     super.onPause();
   }
@@ -283,8 +281,6 @@ public class MainActivity extends FragmentActivity {
 
   /* BLUETOOTH MEDIA KEY HANDLER */
   public MediaSession mSession=null;
-  public Timer mediaButtonTimer=null;
-  public int mediaCurrentState=PlaybackState.STATE_PAUSED;
   public void initBluetooth(){
     try {
       mSession = new MediaSession(this, getPackageName());
@@ -306,7 +302,7 @@ public class MainActivity extends FragmentActivity {
           MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
               MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS
       );
-      mSession.setActive(true);
+
       mSession.setCallback(new MediaSession.Callback() {
         @Override
         public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
@@ -319,22 +315,61 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public void onPlay() {
-//          Log.d("KEYEV","ONPLAY");
-          sendKeyEvent(402, KeyEvent.ACTION_DOWN);
-          sendKeyEvent(402, KeyEvent.ACTION_UP);
-          mediaCurrentState=PlaybackState.STATE_PLAYING;
-          mediaSetState();
+          Log.d("ATVLOG_MEDIA","MEDIA-SESSION ONPLAY");
+          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.ACTION_DOWN);
+          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.ACTION_UP);
           super.onPlay();
         }
 
         @Override
         public void onPause() {
-//          Log.d("KEYEV","ONPAUSE");
-          sendKeyEvent(402, KeyEvent.ACTION_DOWN);
-          sendKeyEvent(402, KeyEvent.ACTION_UP);
-          mediaCurrentState=PlaybackState.STATE_PAUSED;
-          mediaSetState();
+          Log.d("ATVLOG_MEDIA","MEDIA-SESSION ONPAUSE");
+          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.ACTION_DOWN);
+          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.ACTION_UP);
           super.onPause();
+        }
+
+        @Override
+        public void onSkipToNext() {
+          Log.d("ATVLOG_MEDIA","MEDIA-SESSION onSkipToNext");
+          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT, KeyEvent.ACTION_DOWN);
+          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT, KeyEvent.ACTION_UP);
+          super.onSkipToNext();
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+          Log.d("ATVLOG_MEDIA","MEDIA-SESSION onSkipToPrevious");
+          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS, KeyEvent.ACTION_DOWN);
+          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS, KeyEvent.ACTION_UP);
+          super.onSkipToPrevious();
+        }
+
+        @Override
+        public void onStop() {
+          Log.d("ATVLOG_MEDIA","MEDIA-SESSION ONSTOP");
+          runOnUiThread(()->{
+            try {
+              if (aView!=null && aView.webView!=null) {
+                aView.webView.evaluateJavascript("try{pb.vid_cmd('pause',0);" +
+                    "}catch(e){}", null);
+              }
+            }catch(Exception ignored){}
+          });
+          super.onStop();
+        }
+
+        @Override
+        public void onSeekTo(long pos) {
+          runOnUiThread(()->{
+            try {
+              if (aView!=null && aView.webView!=null) {
+                aView.webView.evaluateJavascript("try{pb.vid_cmd('seek'," + pos + "/1000.0);" +
+                    "}catch(e){}", null);
+              }
+            }catch(Exception ignored){}
+          });
+          super.onSeekTo(pos);
         }
 
       });
@@ -342,47 +377,93 @@ public class MainActivity extends FragmentActivity {
       mSession=null;
     }
   }
-  public void mediaSetState(){
+
+  public long _metaPosition=0;
+  public int _metaState=0;
+  public boolean _metaHaveNext=false;
+  public boolean _metaHavePrev=false;
+  public float _metaSpeed=1f;
+
+  public void mediaSetPrevNext(boolean haveNext, boolean havePrev) {
+    _metaHaveNext=haveNext;
+    _metaHavePrev=havePrev;
+    Log.d("ATVLOG_MEDIA","mediaSetPrevNext="+_metaHaveNext+" / "+_metaHavePrev);
+    updateMediaState();
+  }
+
+  public void mediaSetState(int mediaState,long pos) {
+    _metaState=mediaState;
+    _metaPosition=pos;
+    Log.d("ATVLOG_MEDIA","mediaSetState="+mediaState+" / "+pos);
+    updateMediaState();
+  }
+
+  public void mediaSetPosition(long pos) {
+    _metaPosition=pos;
+    Log.d("ATVLOG_MEDIA","mediaSetPosition="+pos);
+    updateMediaState();
+  }
+
+  public void mediaSetSpeed(float s) {
+    _metaSpeed=s;
+    Log.d("ATVLOG_MEDIA","mediaSetSpeed="+s);
+    updateMediaState();
+  }
+
+  public void updateMediaState(){
+    if (mSession==null){
+      return;
+    }
     try {
       PlaybackState state = new PlaybackState.Builder()
           .setActions(
               PlaybackState.ACTION_PLAY_PAUSE |
                   PlaybackState.ACTION_PLAY |
                   PlaybackState.ACTION_PAUSE |
-                  PlaybackState.ACTION_SKIP_TO_NEXT |
-                  PlaybackState.ACTION_SKIP_TO_PREVIOUS |
-                  PlaybackState.ACTION_FAST_FORWARD |
-                  PlaybackState.ACTION_REWIND
+                  (_metaHaveNext?PlaybackState.ACTION_SKIP_TO_NEXT:0L) |
+                  (_metaHavePrev?PlaybackState.ACTION_SKIP_TO_PREVIOUS:0L) |
+                  PlaybackState.ACTION_SEEK_TO
           )
-          .setState(mediaCurrentState, 0, 1f,
+          .setState(_metaState, _metaPosition, _metaSpeed,
               SystemClock.elapsedRealtime())
           .build();
       mSession.setPlaybackState(state);
     } catch (Exception ignored) {
     }
   }
-  public void mediaButtonStop(){
-    if (mediaButtonTimer!=null) {
-      mediaButtonTimer.cancel();
-      mediaButtonTimer=null;
-    }
-  }
-  public void mediaButtonStart(){
-    if (mediaButtonTimer!=null) {
-      mediaButtonTimer.cancel();
-      mediaButtonTimer=null;
-    }
-    if (mSession!=null) {
-      TimerTask mediaButtonTask = new TimerTask() {
-        @Override
-        public void run() {
-          mediaSetState();
 
-        }
-      };
-      mediaButtonTimer = new Timer();
-      mediaButtonTask.run();
-      mediaButtonTimer.scheduleAtFixedRate(mediaButtonTask, 0, 10000);
+  public long _metaDuration=-1L;
+  public String _metaTitle="";
+  public String _metaArtist="";
+  public String _metaUrl="";
+
+  public void mediaSetDuration(long duration){
+    _metaDuration=(duration<0)?-1L:duration;
+    Log.d("ATVLOG_MEDIA","mediaSetDuration="+_metaDuration);
+    updateMetadata();
+  }
+
+  public void mediaSetMeta(String title, String artist, String url) {
+    _metaTitle=title;
+    _metaArtist=artist;
+    _metaUrl=url;
+    Log.d("ATVLOG_MEDIA","mediaSetMeta="+title);
+    updateMetadata();
+  }
+  public void updateMetadata(){
+    if (mSession==null){
+      return;
+    }
+    try {
+      MediaMetadata.Builder b=new MediaMetadata.Builder();
+      b.putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, _metaTitle+" - "+_metaArtist);
+      b.putString(MediaMetadata.METADATA_KEY_TITLE, _metaTitle);
+      b.putString(MediaMetadata.METADATA_KEY_ARTIST, _metaArtist);
+      b.putString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI, _metaUrl);
+      b.putString(MediaMetadata.METADATA_KEY_ART_URI, _metaUrl);
+      b.putLong(MediaMetadata.METADATA_KEY_DURATION, _metaDuration);
+      mSession.setMetadata(b.build());
+    } catch (Exception ignored) {
     }
   }
 }
