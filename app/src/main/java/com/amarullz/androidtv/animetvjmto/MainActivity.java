@@ -418,8 +418,6 @@ public class MainActivity extends FragmentActivity {
       PlaybackState state = new PlaybackState.Builder()
           .setActions(
               PlaybackState.ACTION_PLAY_PAUSE |
-                  PlaybackState.ACTION_PLAY |
-                  PlaybackState.ACTION_PAUSE |
                   (_metaHaveNext?PlaybackState.ACTION_SKIP_TO_NEXT:0L) |
                   (_metaHavePrev?PlaybackState.ACTION_SKIP_TO_PREVIOUS:0L) |
                   PlaybackState.ACTION_SEEK_TO
