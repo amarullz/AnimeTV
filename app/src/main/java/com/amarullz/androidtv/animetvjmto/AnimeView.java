@@ -1645,6 +1645,14 @@ import javax.crypto.spec.SecretKeySpec;
       }
       return sysheightStat;
     }
+
+    @JavascriptInterface
+    public boolean getHaveTouchscreen(){
+      if (activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
+        return true;
+      }
+      return false;
+    }
   }
 
   public int profile_sel=-1;

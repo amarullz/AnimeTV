@@ -17565,13 +17565,19 @@ const listOrder={
 
 (function(){
   if (_USE_TOUCH){
-    function regtouch_global(){
+    if (_JSAPI.getHaveTouchscreen()){
       _TOUCH=true;
       body.classList.add('istouch');
-      document.removeEventListener("touchstart", regtouch_global, false);
-      return true;
     }
-    document.addEventListener('touchstart', regtouch_global, false);
+    else{
+      function regtouch_global(){
+        _TOUCH=true;
+        body.classList.add('istouch');
+        document.removeEventListener("touchstart", regtouch_global, false);
+        return true;
+      }
+      document.addEventListener('touchstart', regtouch_global, false);
+    }
     return;
   }
 
