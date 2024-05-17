@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -132,14 +133,26 @@ import javax.crypto.spec.SecretKeySpec;
   public void updateInsets(){
     sysheightStat=0;
     sysheightNav=0;
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-      WindowInsets insets =
-          activity.getWindowManager().getCurrentWindowMetrics().getWindowInsets();
-      sysheightStat =
-          px2dp(insets.getInsets(WindowInsetsCompat.Type.statusBars()).top);
-      sysheightNav =
-          px2dp(insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom);
+//    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+//      WindowInsets insets =
+//          activity.getWindowManager().getCurrentWindowMetrics().getWindowInsets();
+//      sysheightStat =
+//          px2dp(insets.getInsets(WindowInsetsCompat.Type.statusBars()).top);
+//      sysheightNav =
+//          px2dp(insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom);
+//    }
+
+    Resources resources = activity.getResources();
+    int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+    if (resourceId > 0) {
+      sysheightNav=px2dp(resources.getDimensionPixelSize(resourceId));
     }
+    resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+    if (resourceId > 0) {
+      sysheightStat=px2dp(resources.getDimensionPixelSize(resourceId));
+    }
+
+    Log.d(_TAG,"SYS-BAR Size: "+sysheightStat+" / "+sysheightNav);
   }
 
   public void setFullscreen(int orientation){
