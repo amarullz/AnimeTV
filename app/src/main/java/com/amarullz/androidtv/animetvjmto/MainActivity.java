@@ -149,6 +149,7 @@ public class MainActivity extends FragmentActivity {
     }
     return super.onKeyDown(keyCode, event);
   }
+
   private boolean sendKeyEvent(int code, int evtype){
     int c=0;
     boolean send = (evtype == KeyEvent.ACTION_DOWN);
@@ -193,12 +194,8 @@ public class MainActivity extends FragmentActivity {
       case KeyEvent.KEYCODE_MEDIA_PAUSE:
       case KeyEvent.KEYCODE_MEDIA_PLAY:
       case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-//        if (mSession==null){
-          c=402;
-//        }
+        c = 402;
         break;
-//      case 402:
-//        c=402; break;
 
       case KeyEvent.KEYCODE_MEDIA_STEP_FORWARD:
       case KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD:
@@ -281,6 +278,17 @@ public class MainActivity extends FragmentActivity {
 
   /* BLUETOOTH MEDIA KEY HANDLER */
   public MediaSession mSession=null;
+
+  public void mediaExec(String cmd, long p){
+    runOnUiThread(()->{
+      try {
+        if (aView!=null && aView.webView!=null && aView.webViewReady) {
+          aView.webView.evaluateJavascript("try{pb.vid_cmd('"+cmd+"',"+p+");" +
+              "}catch(e){}", null);
+        }
+      }catch(Exception ignored){}
+    });
+  }
   public void initBluetooth(){
     try {
       mSession = new MediaSession(this, getPackageName());
@@ -316,16 +324,14 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onPlay() {
           Log.d("ATVLOG_MEDIA","MEDIA-SESSION ONPLAY");
-          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.ACTION_DOWN);
-          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.ACTION_UP);
+          mediaExec("play",0);
           super.onPlay();
         }
 
         @Override
         public void onPause() {
           Log.d("ATVLOG_MEDIA","MEDIA-SESSION ONPAUSE");
-          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.ACTION_DOWN);
-          sendKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.ACTION_UP);
+          mediaExec("pause",0);
           super.onPause();
         }
 
@@ -348,27 +354,13 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onStop() {
           Log.d("ATVLOG_MEDIA","MEDIA-SESSION ONSTOP");
-          runOnUiThread(()->{
-            try {
-              if (aView!=null && aView.webView!=null) {
-                aView.webView.evaluateJavascript("try{pb.vid_cmd('pause',0);" +
-                    "}catch(e){}", null);
-              }
-            }catch(Exception ignored){}
-          });
+          mediaExec("pause",0);
           super.onStop();
         }
 
         @Override
         public void onSeekTo(long pos) {
-          runOnUiThread(()->{
-            try {
-              if (aView!=null && aView.webView!=null) {
-                aView.webView.evaluateJavascript("try{pb.vid_cmd('seek'," + pos + "/1000.0);" +
-                    "}catch(e){}", null);
-              }
-            }catch(Exception ignored){}
-          });
+          mediaExec("seek",pos/1000);
           super.onSeekTo(pos);
         }
 
@@ -418,6 +410,8 @@ public class MainActivity extends FragmentActivity {
       PlaybackState state = new PlaybackState.Builder()
           .setActions(
               PlaybackState.ACTION_PLAY_PAUSE |
+                  PlaybackState.ACTION_PLAY |
+                  PlaybackState.ACTION_PAUSE |
                   (_metaHaveNext?PlaybackState.ACTION_SKIP_TO_NEXT:0L) |
                   (_metaHavePrev?PlaybackState.ACTION_SKIP_TO_PREVIOUS:0L) |
                   PlaybackState.ACTION_SEEK_TO
