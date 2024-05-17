@@ -29,8 +29,6 @@ import androidx.media3.common.util.UnstableApi;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @UnstableApi /*
  * Main Activity class that loads {@link MainFragment}.
