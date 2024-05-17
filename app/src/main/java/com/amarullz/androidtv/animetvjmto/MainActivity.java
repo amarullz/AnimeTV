@@ -215,7 +215,15 @@ public class MainActivity extends FragmentActivity {
     if (code>=KeyEvent.KEYCODE_0 && code<=KeyEvent.KEYCODE_9){
       c=48+(code-KeyEvent.KEYCODE_0);
     }
-//    Log.d("KEYEV","Code = "+code+" / "+evtype);
+
+    if (c==402 && send){
+      if (lastPlayPause<System.currentTimeMillis()){
+        lastPlayPause=System.currentTimeMillis()+1100;
+      }
+      else{
+        send=false;
+      }
+    }
     if (c>0&&aView.webViewReady) {
       if (send) {
         aView.webView.evaluateJavascript(
@@ -280,6 +288,14 @@ public class MainActivity extends FragmentActivity {
   public MediaSession mSession=null;
 
   public void mediaExec(String cmd, long p){
+    if (cmd.equals("pause")||cmd.equals("play")){
+      if (lastPlayPause<System.currentTimeMillis()){
+        lastPlayPause=System.currentTimeMillis()+1100;
+      }
+      else{
+        return;
+      }
+    }
     runOnUiThread(()->{
       try {
         if (aView!=null && aView.webView!=null && aView.webViewReady) {
@@ -289,6 +305,8 @@ public class MainActivity extends FragmentActivity {
       }catch(Exception ignored){}
     });
   }
+
+  public long lastPlayPause=0;
   public void initBluetooth(){
     try {
       mSession = new MediaSession(this, getPackageName());
