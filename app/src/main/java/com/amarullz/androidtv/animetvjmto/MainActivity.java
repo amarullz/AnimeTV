@@ -101,22 +101,28 @@ public class MainActivity extends FragmentActivity {
         Window w = getWindow();
         WindowManager.LayoutParams p = w.getAttributes();
         Display.Mode[] modes = getDisplay().getSupportedModes();
+        Display.Mode cmode = getDisplay().getMode();
+        Log.d("ATVLOG",
+            "Current Mode "+cmode.getModeId()+" : " + cmode.getPhysicalWidth() + "x"+cmode.getPhysicalHeight()+"@"+cmode.getRefreshRate()+"hz");
+
         //find display mode with max hz
-        int maxMode = 0;
+        int maxMode = -1;
         float maxHZ = 60f;
-        int maxWidth = 240;
         for (Display.Mode m : modes) {
-          if (maxWidth <= m.getPhysicalHeight()) {
-            maxWidth = m.getPhysicalWidth();
-            if (maxHZ <= m.getRefreshRate()) {
+          Log.d("ATVLOG",
+              "Mode "+m.getModeId()+" : " + m.getPhysicalWidth() + "x"+m.getPhysicalHeight()+"@"+m.getRefreshRate()+"hz");
+          if (cmode.getPhysicalHeight() == m.getPhysicalHeight() && cmode.getPhysicalWidth() == m.getPhysicalWidth()) {
+            if (cmode.getRefreshRate() <= m.getRefreshRate()) {
               maxHZ = m.getRefreshRate();
               maxMode = m.getModeId();
             }
           }
         }
-        p.preferredDisplayModeId = maxMode;
-        w.setAttributes(p);
-        Log.d("ATVLOG", "Max Mode Value : " + maxWidth + "@" + maxHZ + "hz");
+        if (maxMode>-1){
+          p.preferredDisplayModeId = maxMode;
+          w.setAttributes(p);
+          Log.d("ATVLOG", "Max Mode Value : " + maxHZ + "hz");
+        }
       }
       Log.d("ATVLOG", "Have Touch Screen");
     }
