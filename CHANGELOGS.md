@@ -1,4 +1,85 @@
 # Changelogs
+- **5.0.0** 🍦
+  - Features
+    - Add Parental Control
+      - Age rating not available in list so it still shown there, but on popup or playback it will be blocked
+      - Source 6 have rating in list, so anime with higher rating will be blocked right in the list
+      - Source 5 will be hidden if user have rating lower than R+
+      - All 18+ item in list will be hidden if user have lower age rating than R+
+    - Add Full Touch Support
+      - Add double tap at edge to fast forward/rewind
+      - Add touch action buttons (play/pause, prev, next, close)
+      - Tap+hold -+ episode to jump episode
+    - Add portrait layout and auto-orientation
+      - Home screen portrait layout
+      - Search portrait layout
+      - Relayout anime popup & anilist detail in portrait
+      - Who's Wathing page portrait layout
+      - Settings and other component in portrait
+      - Playback will force orientation to landscape
+    - Add Auto MAL/AniList Tracking features - configurable
+    - Add OSD on playback (volume, brightness, seeking)
+    - Using device optimal refresh rate, for device with >60hz refresh rate (90,120,144hz). All UI will looks so fluid now. Android 11+
+    - Implement MediaSession for media remote control
+  - Application
+    - Add back to sidebar before exit
+    - Add bluetooth media key support
+    - Fix playnext and leanback androidtv list
+    - Add support androidtv PlayNext for all sources
+    - Auto switch source on playnext launch
+    - Auto switch source on androidtv home list launch
+    - Add support for HLS multiple audio on source 6
+    - Use higher quality banner image for slideshow
+    - Fix play/pause key on keyboard or remote
+    - Fix playing episode bigger than available episode
+    - Fix MAL login failed message
+    - Add Switch page on select settings
+    - Add Seek Value settings
+    - Fix MAL & AniList qr login on touch devices
+    - Add proper touch support for slideshow
+    - Allow (MAL/AniList) plan+tabbed list to be selected on MyList customize
+    - Fix media play/pause event conflict
+    - Detect if device have touchscreen
+  - UI & UX
+    - Add playback speed dialog
+    - Add pull to refresh
+    - Tweak closing sidebar behavior
+    - Add interface color preview in selection
+    - Add stream server dialog selector
+    - Add video resolution info on Auto quality
+    - Add video selection quality for source 6
+    - Show streaming server name on stream button
+    - Hide quality selection on unsupported server (mp4upload & filemoon)
+    - Tweak quality selection item display
+    - Add support for source-6 HLS quality selection
+    - Add resolution info on quality selection
+    - Minimize source 6 switch episode timing
+    - Fix quality button not show current quality
+    - Tweak slideshow image masker gradient
+    - Add stream type selection
+    - Move add watchlist into genres row
+    - Slideshow object-position transition for portrait
+    - Move mirror positions
+    - Add DASH streaming quality selection
+    - Tweak dialog display and transition
+    - Add slideshow slowly scaling animation for image only
+    - Hide playback speed button on unsupported android version
+    - Auto change quality icon
+    - Supporting android insets - Make sure no element hidden (untouchable) below navbar and statusbar
+    - Set tap outside pin window (who's watching) as back action
+  - Networking, API and Sources
+    - Fix animeflix with gogocdne stream server
+    - Fix animeflix idinfo fetch
+    - Add support for filemoon stream server
+    - Add mp4upload support for source 1+2 streaming server
+    - Wait until VRF library loaded before playback for source 1
+    - Clear launch argument after opening playback
+    - Make BirdStream (dash-based) as main server for source 6
+    - Add banner cache in free kv db
+    - Add auto-submit banner url on playback to kv-database with AniList anime-id as key
+  - Others
+    - Fix Anilist prevented profile picture to load
+    - Add related & recommendation from AniList for source 5 & 6
 - **4.8.0** 🪂
   - Features
     - Add text opacity selection for subtitle style
