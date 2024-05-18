@@ -16,3 +16,5 @@ local.properties
 /.idea/deploymentTargetDropDown.xml
 keystore/debug.keystore
 .idea/render.experimental.xml
+/node_modules
+/package-lock.json

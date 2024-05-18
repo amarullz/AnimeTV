@@ -1,0 +1,19 @@
+{
+  "name": "animetv",
+  "version": "5.0.0",
+  "description": "AnimeTV",
+  "main": "tools/electron/src/animetv.js",
+  "scripts": {
+    "start": "electron .",
+    "pack-win": "electron-packager . ParkingClient --overwrite --platform=win32 --arch=x64 --prune=true --out=tools/electron/builds --asar --ignore=^/ --extra-resource=app/src/main/assets --extra-resource=tools/electron --icon=tools/electron/icon.ico",
+    "pack-linux": "electron-packager . ParkingClient --overwrite --platform=linux --arch=x64 --prune=true --out=tools/electron/builds --asar --ignore=^/ --extra-resource=app/src/main/assets --extra-resource=tools/electron",
+    "pack-linux-armv7": "electron-packager . ParkingClient --overwrite --platform=linux --arch=armv7 --prune=true --out=tools/electron/builds --asar --ignore=^/ --extra-resource=app/src/main/assets --extra-resource=tools/electron",
+    "pack-linux-arm64": "electron-packager . ParkingClient --overwrite --platform=linux --arch=arm64 --prune=true --out=tools/electron/builds --asar --ignore=^/ --extra-resource=app/src/main/assets --extra-resource=tools/electron"
+  },
+  "author": "amarullz.com",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "electron": "^30.0.6",
+    "electron-packager": "npm:@electron/packager@<18.1"
+  }
+}
