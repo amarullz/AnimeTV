@@ -8,10 +8,10 @@
   "stream_domain2": "mcloud.bz",
   "update": "1.1-240410",
 
-  "appnum": 480,
-  "appver": "4.8.0",
+  "appnum": 500,
+  "appver": "5.0.0",
   "appsize": "5.94 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/4.8.0/animetv-4.8.0.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.0.0/animetv-5.0.0.apk",
   "appnote": 
-    "- Revamp all dialog UI\nAdd text opacity for subtitle style\n- Fix episode when adding to watchlist\n- Revamp user profile management"
+    "- Add Parental Control\n- Add Full Touch Support\n- Add portrait layout and auto-orientation\n- Add Auto MAL/AniList Tracking features\n- Add OSD on playback\n- Implement MediaSession for media remote control\n- Fix various source issue\n- Fix, tweaks and optimize various ui"
 }
