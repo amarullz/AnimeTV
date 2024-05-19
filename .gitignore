@@ -18,3 +18,4 @@ keystore/debug.keystore
 .idea/render.experimental.xml
 /node_modules
 /package-lock.json
+/electron/builds

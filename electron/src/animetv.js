@@ -41,7 +41,7 @@ const main={
         webSecurity: false,
         nodeIntegration: true,
         contextIsolation: true,
-        preload: common.path("/tools/electron/src/preload.js"),
+        preload: common.path("/electron/src/preload.js"),
       }
     });
 

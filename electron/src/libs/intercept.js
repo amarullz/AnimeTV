@@ -82,7 +82,7 @@ const intercept={
         var p = url.pathname.substring(8);
         p = p.split('?')[0];
         p = p.split('#')[0];
-        console.log("[NET][VIEW]: "+p);
+        console.log("[NET][VIEW]: "+p+" -> "+common.viewRequest(p));
         return net.fetch(common.viewRequest(p));
       }
       else if (url.pathname.startsWith("/__proxy/")) {
