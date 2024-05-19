@@ -35,8 +35,8 @@ const main={
       show: true,
       width: dw,
       height: dh,
-      minWidth: dw,
-      minHeight: dh,
+      minWidth: 1280,
+      minHeight: 760,
       webPreferences: {
         webSecurity: false,
         nodeIntegration: true,
