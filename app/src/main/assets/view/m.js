@@ -7775,10 +7775,12 @@ const pb={
               //   g.scrollLeft=g._margin;
               // else
               //   g.scrollLeft=0;
-              if (g._margin)
-                $scroll(g,g._margin,true);
-              else
-                $scroll(g,0,true);
+              if (g.classList.contains('active')){
+                if (g._margin)
+                  $scroll(g,g._margin,true);
+                else
+                  $scroll(g,0,true);
+              }
             }
             else{
               if (g._margin)
@@ -7802,10 +7804,38 @@ const pb={
     return false;
   },
 
+  menu_arrow_click:function(){
+    var g=this.parentElement.parentElement;
+    if (this.classList.contains('right')){
+      if (g.scrollLeft<g.scrollWidth){
+        g._noscroll=true;
+        $scroll(g,g.scrollLeft+window.outerWidth*0.5,1,100);
+      }
+    }
+    else{
+      if (g.scrollLeft>0){
+        g._noscroll=true;
+        $scroll(g,g.scrollLeft-window.outerWidth*0.5,1,100);
+      }
+    }
+  },
+  menu_arrow_wheel:function(ev){
+    var g=this.parentElement.parentElement;
+    if (ev.deltaY < 0){
+      $scroll(g,g.scrollLeft-window.outerWidth*0.5,1,100);
+    }
+    else if (event.deltaY > 0)
+    {
+      $scroll(g,g.scrollLeft+window.outerWidth*0.5,1,100);
+    }
+    ev.preventDefault();
+  },
+
   /* menu key handler */
   menu_init:function(g){
     g._keycb=pb.menu_keycb;
     g._scrollLast=0;
+    g.___hover=0;
     g.onscrollend=function(){
       if (this.scrollLeft>=this.scrollWidth-(this.offsetWidth*1.2)){
         if (this._scrollLast!=this.scrollWidth){
@@ -7832,6 +7862,28 @@ const pb={
         this._target_n=el;
         this.__update();
         pb.menu_keycb(this,KENTER,2);
+      }
+    };
+    g.onmouseover=function(){
+      if (!this.___arrows){
+        if (this.classList.contains('home_list')){
+          this.___arrows=$n('div','home_list_arrows',null,null,'');
+          this.insertBefore(this.___arrows,this.P);
+          this.___arrows_right=$n('c','right',null,this.___arrows,'arrow_right');
+          this.___arrows_left=$n('c','left',null,this.___arrows,'arrow_left');
+          this.___arrows_right.onclick=this.___arrows_left.onclick=pb.menu_arrow_click;
+          this.___arrows_right.addEventListener("wheel",pb.menu_arrow_wheel);
+          this.___arrows_left.addEventListener("wheel",pb.menu_arrow_wheel);
+          this.classList.add('onhover');
+        }
+      }
+      else{
+        this.classList.add('onhover');
+      }
+    };
+    g.onmouseout=function(){
+      if (this.___arrows){
+        this.classList.remove('onhover');
       }
     };
   },
@@ -14742,11 +14794,19 @@ const _MAL={
     }
     xhttp.setRequestHeader("X-Org-Prox", "https://anilist.co");
     xhttp.setRequestHeader("X-Ref-Prox", "https://anilist.co/");
-    xhttp.setRequestHeader("Post-Body", encodeURIComponent(JSON.stringify({
-      query: q,
-      variables: vars
-    })));
-    xhttp.send();
+    if (_ISELECTRON){
+      xhttp.send(JSON.stringify({
+        query: q,
+        variables: vars
+      }));
+    }
+    else{
+      xhttp.setRequestHeader("Post-Body", encodeURIComponent(JSON.stringify({
+        query: q,
+        variables: vars
+      })));
+      xhttp.send();
+    }
   },
   alset_list:function(id, stat, cb){
     _MAL.alreq(`mutation($id: Int){

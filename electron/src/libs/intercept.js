@@ -86,7 +86,7 @@ const intercept={
         return net.fetch(common.viewRequest(p));
       }
       else if (url.pathname.startsWith("/__proxy/")) {
-        var realurl = url.pathname.substring(9);
+        var realurl = req.url.substring(req.url.indexOf('/__proxy/')+9);
         console.log("[NET][PROXY]: "+realurl);
 
         let body=intercept.checkHeaders(req.headers);
@@ -94,6 +94,7 @@ const intercept={
           method: req.method,
           headers: req.headers,
           body: body?body:req.body,
+          duplex: 'half',
           bypassCustomProtocolHandlers: true
         });
       }
@@ -105,6 +106,7 @@ const intercept={
             method: req.method,
             headers: req.headers,
             body: req.body,
+            duplex: 'half',
             bypassCustomProtocolHandlers: true
           });
           let body=await f.text();
@@ -120,6 +122,7 @@ const intercept={
             method: req.method,
             headers: req.headers,
             body: req.body,
+            duplex: 'half',
             bypassCustomProtocolHandlers: true
           });
 
@@ -147,6 +150,7 @@ const intercept={
           method: req.method,
           headers: req.headers,
           body: req.body,
+          duplex: 'half',
           bypassCustomProtocolHandlers: true
         });
       }

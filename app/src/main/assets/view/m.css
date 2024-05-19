@@ -503,6 +503,7 @@ c.loader {
   vertical-align: middle;
   text-shadow: 0 .1vw .2vw #000 !important;
   outline: none;
+  cursor: pointer;
 }
 .animetv_header_banner div c{
   font-size:var(--fs-12vw);
@@ -904,6 +905,7 @@ c.loader {
   left: 0;
   top: 0;
   z-index: 22;
+  cursor: pointer;
 }
 #home_slide_holder{
   padding:0;
@@ -1132,12 +1134,12 @@ c.loader {
 #home_slide.home_list>p>div img.loaded{
   opacity:1;
 }
-:not(.ui_performance_scale) .home_slideshow p div img{
+/* :not(.ui_performance_scale) .home_slideshow p div img{
   transform: scale(1);
 }
 :not(.ui_performance_scale) .home_slideshow p div.active img{
   transform: scale(1.1);
-}
+} */
 .home_slideshow p div span.infobox span.infovalue span.info{
   display: block;
   padding-top:1.5vw;
@@ -1638,6 +1640,7 @@ c.loader {
   margin-left:.5vw;
   z-index:1;
   position: relative;
+  cursor: pointer;
 }
 .pb_menu>p>div:first-child{
   margin-left:0;
@@ -3052,6 +3055,46 @@ c.loader {
   text-align: left;
 }
 
+.home_list>.home_list_arrows{
+  position: sticky;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--tim-3s) var(--interpolation);
+  left:0;
+  top:0;
+  z-index: 20;
+  pointer-events: none;
+}
+.home_list.onhover>.home_list_arrows{
+  opacity: 1;
+  visibility: visible;
+}
+.home_list.onhover>.home_list_arrows c:hover{
+  background-color: var(--primary-1);
+}
+.home_list.onhover>.home_list_arrows c:active{
+  background-color: var(--accent-1);
+}
+.home_list>.home_list_arrows c{
+  pointer-events: all;
+  position: absolute;
+  width: var(--fs-25vw);
+  height: var(--fs-25vw);
+  line-height: var(--fs-25vw);
+  font-size: var(--fs-20vw);
+  text-align: center;
+  background-color: rgba(0,0,0,.8);
+  border-radius: var(--fs-25vw);
+  top:calc(2.5 * var(--fs-25vw));
+  cursor: pointer;
+}
+.home_list.onhover>.home_list_arrows c.left{
+  left: -4vw;
+}
+.home_list.onhover>.home_list_arrows c.right{
+  right: -4vw;
+}
+
 .home_list p div span.info .info_airtime{
   background-color: var(--primary-2);
 }
@@ -4145,7 +4188,7 @@ c.loader {
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide)>p>div{
   transition: transform var(--tim-3s) var(--interpolation) !important;
 }
-:not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide):hover>p>div.active,
+:not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide)>p>div:hover,
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active {
   transform: scale(1.06);
 }
