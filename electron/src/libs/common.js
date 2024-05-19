@@ -42,6 +42,10 @@ const common={
   injectPath(path){
     return common.path(common.inject_dir+path);
   },
+  injectRequest(path){
+    let injectpath = common.path(common.inject_dir+path);
+    return pathToFileURL(injectpath).toString();
+  },
   viewRequest(path){
     let viewpath = common.path(common.view_dir+path);
     return pathToFileURL(viewpath).toString();

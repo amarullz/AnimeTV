@@ -552,6 +552,7 @@ c.loader {
 }
 .animetv_header_banner #search_voice.animetv_voice.hide{
   visibility: hidden;
+  display: none;
 }
 .animetv_header_banner .animetv_voice c{
   font-size: var(--fs-17vw);
@@ -724,6 +725,12 @@ c.loader {
   opacity: 1;
   transform: rotate(0deg);
 }
+/* #search_logo{
+  margin-top:-.6vw;
+} */
+#search_header_banner{
+  margin-top:-.3vw;
+}
 #search_logo c,
 #home_homepage c,
 #home_mylist c{
@@ -752,6 +759,9 @@ c.loader {
   line-height: 2.8vw;
   font-size: var(--fs-17vw);
   margin-top: -.4vw;
+}
+.animetv_header #search_voice.hide+#search_kbd+#search_anilist+#search_kw_holder #search_kw{
+  width:55vw;
 }
 .animetv_header #search_kw{
   margin-left:.5vw;
@@ -3623,6 +3633,7 @@ c.loader {
   margin-right: .5vw;
   border-radius: .5vw;
   text-align: center;
+  cursor: pointer;
 }
 #anilist_detail .alsd_button c{
   position: relative;
@@ -3851,8 +3862,9 @@ c.loader {
 #malview #malview_info_detail_button.active{
   background-color: var(--primary-1);
   width:calc(var(--fs-15vw) * 4.3);
-  /* border-radius: .3vw; */
+  cursor: pointer;
 }
+#malview #malview_info_detail_button:hover:after,
 #malview #malview_info_detail_button.active:after{
   content:'More Info';
   font-size:var(--fs-10vw);
@@ -4025,6 +4037,7 @@ c.loader {
   background-color: #2a2a2a;
   box-sizing: border-box;
   line-height: 2.8vw;
+  cursor: pointer;
 }
 
 .istouch #malview_data div#malplay_ep c:first-child{

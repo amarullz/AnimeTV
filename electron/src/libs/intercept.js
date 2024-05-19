@@ -30,6 +30,7 @@ const intercept={
   },
 
   playerInjectString:"",
+  youtubeInjectString:"",
 
   init(){
     /* Register protocol scheme */
@@ -47,6 +48,7 @@ const intercept={
 
   start(){
     intercept.playerInjectString=common.readfile(common.injectPath("view_player.html"));
+    intercept.youtubeInjectString=common.readfile(common.injectPath("yt.html"));
     protocol.handle('https', intercept.handler);
   },
 
@@ -75,20 +77,45 @@ const intercept={
     return body;
   },
 
+  async fetchInject(url, req, inject){
+    let f=await net.fetch(url, {
+      method: req.method,
+      headers: req.headers,
+      body: req.body,
+      duplex: 'half',
+      bypassCustomProtocolHandlers: true
+    });
+    let body=await f.text();
+    return new Response(body+inject, {
+      status: f.status,
+      headers: f.headers
+    });
+  },
+
+  async fetchNormal(url, req){
+    return net.fetch(req.url, {
+      method: req.method,
+      headers: req.headers,
+      body: req.body,
+      duplex: 'half',
+      bypassCustomProtocolHandlers: true
+    });
+  },
   async handler(req){
     try{
       const url = new URL(req.url);
+      
       if (url.pathname.startsWith("/__view/")) {
         var p = url.pathname.substring(8);
         p = p.split('?')[0];
         p = p.split('#')[0];
-        console.log("[NET][VIEW]: "+p+" -> "+common.viewRequest(p));
         return net.fetch(common.viewRequest(p));
+      }
+      else if (url.pathname.startsWith("/__REDIRECT")) {
+        return net.fetch(common.injectRequest("redirect.html"));
       }
       else if (url.pathname.startsWith("/__proxy/")) {
         var realurl = req.url.substring(req.url.indexOf('/__proxy/')+9);
-        console.log("[NET][PROXY]: "+realurl);
-
         let body=intercept.checkHeaders(req.headers);
         return net.fetch(realurl, {
           method: req.method,
@@ -98,65 +125,66 @@ const intercept={
           bypassCustomProtocolHandlers: true
         });
       }
+      if (req.url.startsWith("https://www.youtube.com/embed/")||req.url.startsWith("https://www.youtube-nocookie.com/embed/")){
+        return intercept.fetchInject(req.url, req, intercept.youtubeInjectString);
+      }
+      else if (url.hostname.includes("youtube.com")||url.hostname.includes("youtube-nocookie.com")||url.hostname.includes("googlevideo.com")){
+        let accept=req.headers.get("accept");
+        if (accept!=null && (accept.includes("text/css")||accept.includes(
+            "image/"))){
+          return new Response(null, {status: 404});
+        }
+        if (req.url.endsWith("/endscreen.js")||
+          req.url.endsWith("/captions.js")||
+          req.url.endsWith("/embed.js")||
+          req.url.includes("/log_event?alt=json")||
+          req.url.includes(".com/ptracking")||
+          req.url.includes(".com/api/stats/")){
+          return new Response(null, {status: 404});
+        }
+        return intercept.fetchNormal(req.url, req);
+      }
       else if (intercept.domains.vidplays.indexOf(url.host)>-1){
         /* Injector */
         if (req.headers.get("accept").startsWith("text/html")){
-          console.log("[NET][STREAMER][MAIN-PAGE]: "+req.url);
-          let f=await net.fetch(req.url, {
-            method: req.method,
-            headers: req.headers,
-            body: req.body,
-            duplex: 'half',
-            bypassCustomProtocolHandlers: true
-          });
-          let body=await f.text();
-          return new Response(body+intercept.playerInjectString, {
-            status: f.status,
-            headers: f.headers
-          });
+          return intercept.fetchInject(req.url, req, intercept.playerInjectString);
         }
         else{
           req.headers.set('Origin','https://'+url.hostname);
           req.headers.set('Referer','https://'+url.hostname+'/');
-          let f=net.fetch(req.url, {
-            method: req.method,
-            headers: req.headers,
-            body: req.body,
-            duplex: 'half',
-            bypassCustomProtocolHandlers: true
-          });
-
+          let f=intercept.fetchNormal(req.url, req);
           if (url.pathname.startsWith("/mediainfo")){
-            console.log("[NET][STREAMER][MEDIAINFO]: "+req.url);
             let body=await (await f).text();
             common.execJs("__M3U8CB("+body+");");
-            f=net.fetch(req.url, {
-              method: req.method,
-              headers: req.headers,
-              body: req.body,
-              bypassCustomProtocolHandlers: true
-            });
+            f=intercept.fetchNormal(req.url, req);
           }
-          else{
-            console.log("[NET][STREAMER][OTHERS]: "+req.url);
-          }
-          
           return f;
         }
       }
+      else if (url.hostname.includes("rosebudemphasizelesson.com")||
+        url.hostname.includes("simplewebanalysis.com")||
+        url.hostname.includes("addthis.com")||
+        url.hostname.includes("amung.us")||
+        url.hostname.includes("www.googletagmanager.com")||
+        url.hostname.includes("megastatics.com")||
+        url.hostname.includes("ontosocietyweary.com")||
+        url.hostname.includes("doubleclick.net")||
+        url.hostname.includes("fonts.gstatic.com")||
+        url.hostname.includes("ggpht.com")||
+        url.hostname.includes("play.google.com")||
+        url.hostname.includes("www.google.com")||
+        url.hostname.includes("googleapis.com")
+      ){
+        /* BLOCK DNS */
+        return new Response(null, {status: 404});
+      }
       else {
-        console.log("[NET][DIRECT]: "+req.url);
-        return net.fetch(req.url, {
-          method: req.method,
-          headers: req.headers,
-          body: req.body,
-          duplex: 'half',
-          bypassCustomProtocolHandlers: true
-        });
+        return intercept.fetchNormal(req.url, req);
       }
     }catch(e){
       console.log(e);
     }
+    return intercept.fetchNormal(req.url, req);
   }
 };
 

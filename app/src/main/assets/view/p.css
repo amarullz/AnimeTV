@@ -125,6 +125,9 @@
 #home_header.animetv_header{
   background-color: var(--primary-1) !important;
 }
+#search_header_banner{
+  margin-top: 0;
+}
 #search_header.animetv_header #search_header_banner div:not(:hover):not(#search_kw_holder),
 #home_header.animetv_header #home_header_banner div:not(:hover){
   background-color: transparent !important;

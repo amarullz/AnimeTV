@@ -78,18 +78,32 @@ body, html{
     }
   }
   function init(){
+    var is_ended=false;
     vid.addEventListener("play", function(){
       $p('yt-play','');
+      is_ended=false;
       checkVid();
     });
     vid.addEventListener("ended", function(){
       $p('yt-end','');
+      is_ended=true;
       checkVid();
     });
     vid.addEventListener("pause", function(){
       $p('yt-pause','');
       checkVid();
     });
+    setInterval(function(){
+      if (is_ended){
+        $p('yt-end','');
+      }
+      else if (vid.paused){
+        $p('yt-pause','');
+      }
+      else{
+        $p('yt-play','');
+      }
+    },2000);
     window.addEventListener('message',function(e) {
         try{
             console.warn(["YT", e]);

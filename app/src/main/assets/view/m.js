@@ -7820,7 +7820,10 @@ const pb={
     }
   },
   menu_arrow_wheel:function(ev){
-    var g=this.parentElement.parentElement;
+    var g=this;
+    if (!this.P){
+      g=this.parentElement.parentElement;
+    }
     if (ev.deltaY < 0){
       $scroll(g,g.scrollLeft-window.outerWidth*0.5,1,100);
     }
@@ -7875,6 +7878,9 @@ const pb={
           this.___arrows_right.addEventListener("wheel",pb.menu_arrow_wheel);
           this.___arrows_left.addEventListener("wheel",pb.menu_arrow_wheel);
           this.classList.add('onhover');
+        }
+        else if (_ISELECTRON && this.classList.contains('pb_menu')){
+          this.addEventListener("wheel",pb.menu_arrow_wheel);
         }
       }
       else{
@@ -10134,7 +10140,7 @@ const home={
     var yturl='https://www.youtube-nocookie.com/embed/'+ytid+'?';
     yturl+='autoplay=1&';
     yturl+='*rel=0&showinfo=0&modestbranding=1&playsinline=1&start=0&widgetid=1';
-    if (pb.cfg_data.trailer<2){
+    if (!doloop && pb.cfg_data.trailer<2){
       yturl+='&mute=1';
     }
     yturl+='&controls=0&disablekb=1';
@@ -10170,6 +10176,7 @@ const home={
       }
       home.anilist_yt.initialized=true;
       window.addEventListener('message',function(e) {
+        console.warn(e.data);
         if (_MAL.pop.var.ondetail){
           var pd=JSON.parse(e.data);
           if (pd){
@@ -13174,6 +13181,13 @@ const home={
           g._page++;
           home.search.dosearch(g._page);
         }
+      };
+      rc._edgecb=function(g){
+        if (g._onload!=0) return;
+        if (g._page>60) return;
+        g._page++;
+        g._noscroll=true;
+        home.search.dosearch(g._page);
       };
     },
     kwcb:function(g,c){

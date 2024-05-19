@@ -26,7 +26,7 @@ const main={
   init(){
     var mainDisplay = screen.getPrimaryDisplay();
     var dw = mainDisplay.size.width * 3 / 4;
-    var dh = mainDisplay.size.height * 3 / 4;
+    var dh = Math.floor((mainDisplay.size.height * 3 / 4) * 1.05);
     
     /* Create new window */
     main.win=new BrowserWindow({
@@ -35,8 +35,8 @@ const main={
       show: true,
       width: dw,
       height: dh,
-      minHeight: 720,
-      minWidth: 1280,
+      minWidth: dw,
+      minHeight: dh,
       webPreferences: {
         webSecurity: false,
         nodeIntegration: true,
