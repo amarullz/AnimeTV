@@ -18,17 +18,32 @@
  * Description : Node/electron preload js
  *
  */
-const { contextBridge, ipcRenderer } = require("electron");
+const { remote, contextBridge, ipcRenderer } = require("electron");
 const send = (m, a) => ipcRenderer.send(m, a);
 const on = (m, c) => ipcRenderer.on(m, c);
 
 const vars={
-  profile_sel:0,
-  profile_prefix:'',
+  vars:{},
+  config:{},
+  window:null
 };
+
+async function invoke(c,d){
+  return await ipcRenderer.invoke(c,d).then();
+}
+
+/* Config Loader */
+(async function(){
+  let c=invoke('config-load','');
+  let v=invoke('vars-load','');
+  vars.config = await c.then();
+  vars.vars = await v.then();
+  console.log(vars);
+})();
 
 const api={
   /* app functions */
+  isElectron(){ return true; },
   appQuit() {
     send("main", "quit");
   },
@@ -37,7 +52,9 @@ const api={
   },
 
   /* videos */
-  videoSetUrl(url){},
+  videoSetUrl(url){
+    console.warn("SET VIDEO: "+url);
+  },
   videoSetPosition(pos){},
   videoPlay(play){},
   videoGetDuration(){ return 0 },
@@ -53,15 +70,34 @@ const api={
   getStreamType(){ return 0 },
 
   /* storage */
-  storeGet(key, def){ return def; },
-  storeSet(key, value){},
-  storeDel(key){},
+  storeGet(key, def){
+    if (key in vars.config){
+      return vars.config[key];
+    }
+    return def;
+  },
+  storeSet(key, value){
+    vars.config[key]=value;
+    invoke('config-save',JSON.stringify(vars.config));
+  },
+  storeDel(key){
+    if (key in vars.config){
+      delete vars.config[key];
+      invoke('config-save',JSON.stringify(vars.config));
+    }
+  },
 
   /* profiles */
-  profileGetSel(){ return vars.profile_sel; },
-  profileGetPrefix(){ return vars.profile_prefix; },
-  profileSetSel(v){ vars.profile_sel=v; },
-  profileSetPrefix(v){ vars.profile_prefix=v; },
+  profileGetSel(){ return vars.vars.profile_sel; },
+  profileGetPrefix(){ return vars.vars.profile_prefix; },
+  profileSetSel(v){ 
+    vars.vars.profile_sel=v; 
+    invoke('vars-save',JSON.stringify(vars.vars));
+  },
+  profileSetPrefix(v){
+    vars.vars.profile_prefix=v;
+    invoke('vars-save',JSON.stringify(vars.vars));
+  },
 
   /* network functions */
   dns(){ return "aniwave.to"; },

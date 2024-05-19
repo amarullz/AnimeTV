@@ -18,21 +18,63 @@
  * Description : Common libraries
  *
  */
- const { app, ipcMain } = require("electron");
+const { app, ipcMain } = require("electron");
 const path = require("path");
 const { pathToFileURL } = require('url')
+const fs = require("fs");
 
 const common={
   main:{
     /* animetv.js global object */
   },
+  config:{},
   view_dir:"/app/src/main/assets/view/",
+  inject_dir:"/app/src/main/assets/inject/",
   path(filename){
     return path.join(app.getAppPath(), filename);
+  },
+  readfile(fn){
+    if (fs.existsSync(fn)){
+      return fs.readFileSync(fn, "utf8");
+    }
+    return "";
+  },
+  injectPath(path){
+    return common.path(common.inject_dir+path);
   },
   viewRequest(path){
     let viewpath = common.path(common.view_dir+path);
     return pathToFileURL(viewpath).toString();
+  },
+  userPath(){
+    return app.getPath('userData');
+  },
+  configPath(){
+    return path.join(common.userPath(), "config.json");
+  },
+  configLoad(){
+    let cfg_path = common.configPath();
+    console.log("[CONFIG][LOAD] "+cfg_path);
+    if (fs.existsSync(cfg_path)){
+      try{
+        var fcfg=fs.readFileSync(cfg_path, "utf8");
+        var cfg_test=JSON.parse(fcfg);
+        if (typeof cfg_test === 'object'){
+          common.config=JSON.parse(fcfg);
+          console.log("[CONFIG][LOAD][LOADED]");
+        }
+      }catch(e){}
+    }
+  },
+  configSave(){
+    try{
+      console.log("[CONFIG][SAVE] Saved..");
+      let cfg_data = JSON.stringify(common.config, null, '\t');
+      fs.writeFileSync(common.configPath(),cfg_data, "utf8");
+    }catch(e){}
+  },
+  execJs(js){
+    common.main.win.webContents.executeJavaScript('try{'+js+'}catch(e){}');
   }
 };
 

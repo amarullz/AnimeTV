@@ -10,6 +10,7 @@ const __SD6=(__SD==6);
 /* is touch screen */
 var _USE_TOUCH=true;
 var _TOUCH=false;
+var _ISELECTRON=('isElectron' in _JSAPI);
 
 const __SOURCE_NAME=[
   'Aniwave', 'Anix', 'Hianime', 'Aniwatch', 'Animeflix', 'KickAss'
@@ -992,10 +993,18 @@ var kaas={
 /* ANIWAVE & ANIX SOURCE */
 if (__SD<=2){
   // Load VRF Function Online
-  $n('script','',{
-    src:'/__proxy/https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/vrf.js?'+$time()
-  },
-  document.body,'');
+  $ap('https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/vrf.js?'+$time(),function(r){
+    if (r.ok){
+      try{
+        eval(r.responseText+"\n\nwindow.VRF=VRF;");
+      }catch(e){}
+    }
+  });
+  // Load VRF Function Online
+  // $n('script','',{
+  //   src:'/__proxy/https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/vrf.js?'+$time()
+  // },
+  // document.body,'');
 }
 const wave={
   ns:'https://'+__DNS,
@@ -1907,12 +1916,15 @@ function $a(uri, cb, hdr, pd){
   return xhttp;
 }
 function $scroll(el,val,isHoriz,duration){
-  el[isHoriz?'scrollLeft':'scrollTop']=val;
+  if (!_TOUCH){
+    el[isHoriz?'scrollLeft':'scrollTop']=val;
+    return;
+  }
   var sid=el.__scroll_id=$tick();
   el.__scroll_duration = duration?duration:100;
   el.__scroll_end=$tick()+el.__scroll_duration;
   el.__scroll_duration = parseFloat(el.__scroll_duration);
-  el.__scroll_start=isHoriz?el.scrollLeft:el.scrollTop;
+  el.__scroll_start=(isHoriz?el.scrollLeft:el.scrollTop);
   el.__scroll_target=val;
   if (el.__scroll_to){
     clearTimeout(el.__scroll_to);
@@ -1932,14 +1944,15 @@ function $scroll(el,val,isHoriz,duration){
             return;
           }
           el[isHoriz?'scrollLeft':'scrollTop']=v;
-          el.__scroll_to=setTimeout(move,2);
+          el.__scroll_to=setTimeout(move,8);
         });
         return;
       }
     }
     el[isHoriz?'scrollLeft':'scrollTop']=el.__scroll_target;
+    return;
   }
-  el.__scroll_to=setTimeout(move,1);
+  el.__scroll_to=setTimeout(move,2);
 }
 
 /* proxy ajax */
@@ -6315,7 +6328,7 @@ const pb={
           }
         }catch(e){}
       }
-      if ((urivid /*&& !pb.cfg_data.html5player*/) || (__SD3)){
+      if ((urivid&&!_ISELECTRON /*&& !pb.cfg_data.html5player*/) || (__SD3)){
         if (urivid=="ERROR"){
           pb.playback_error(
             'PLAYBACK ERROR',
@@ -6413,6 +6426,9 @@ const pb={
         pb.pb_vid.innerHTML='';
         (function(){
           var iframe_src=pb.data.stream_vurl;
+          if (_ISELECTRON){
+            iframe_src+='&autostart=true';
+          }
           // if (pb.cfg_data.html5player && __SD<3){
           //   iframe_src+='&autostart=true';
           // }
@@ -6446,6 +6462,9 @@ const pb={
       // if (pb.cfg_data.html5player && __SD<3){
       //   iframe_src+='&autostart=true';
       // }
+      if (_ISELECTRON){
+        iframe_src+='&autostart=true';
+      }
       pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
     })();
   },
@@ -6827,7 +6846,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6){
+              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6&&!_ISELECTRON){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -7196,7 +7215,7 @@ const pb={
           function(chval){
             if (chval!==null){
               _API.vidSpeed=flist[toInt(chval)];
-              if (pb.cfg_data.html5player){
+              if (_ISELECTRON||pb.cfg_data.html5player){
                 pb.vid_cmd('speed',_API.vidSpeed);
               }
               else{
@@ -7207,19 +7226,6 @@ const pb={
           },
           true
         );
-
-        // _API.vidSpeed+=0.25;
-        // if (_API.vidSpeed>2.0){
-        //   _API.vidSpeed=0.5;
-        // }
-
-        // if (pb.cfg_data.html5player){
-        //   pb.vid_cmd('speed',_API.vidSpeed);
-        // }
-        // else{
-        // _API.videoSpeed(_API.vidSpeed);
-        // }
-        // pb.cfg_update_el(key);
       }
       else if (key=="quality"){
         var vlist=[];
@@ -7765,10 +7771,14 @@ const pb={
             }
             if (_TOUCH){
               g.P.style.transform='';
+              // if (g._margin)
+              //   g.scrollLeft=g._margin;
+              // else
+              //   g.scrollLeft=0;
               if (g._margin)
-                g.scrollLeft=g._margin;
+                $scroll(g,g._margin,true);
               else
-                g.scrollLeft=0;
+                $scroll(g,0,true);
             }
             else{
               if (g._margin)
@@ -14523,7 +14533,8 @@ const home={
         }
         if (_TOUCH){
           home.home_scroll.style.transform="";
-          home.home_scroll_mask.scrollTop=ty;
+          $scroll(home.home_scroll_mask,ty,0);
+          // home.home_scroll_mask.scrollTop=ty;
         }
         else{
           home.home_scroll.style.transform="translateY("+(0-ty)+"px)";
@@ -14533,7 +14544,8 @@ const home={
         home.home_header.classList.remove('scrolled');
         if (_TOUCH){
           home.home_scroll.style.transform="";
-          home.home_scroll_mask.scrollTop=0;
+          $scroll(home.home_scroll_mask,0,0);
+          // home.home_scroll_mask.scrollTop=0;
         }
         else{
           home.home_scroll.style.transform="";
