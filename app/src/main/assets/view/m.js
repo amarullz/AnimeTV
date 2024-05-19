@@ -8073,6 +8073,7 @@ const pb={
     osdi:$('pb_osd_inner'),
     osdto:null,
     initialized:false,
+    scroll_initialized:false,
     seekindicator:function(r){
       var si=$n('div','playback_seek_indicator '+(r?' right':''),null,pb.pb,'&nbsp;');
       setTimeout(function(){
@@ -8103,10 +8104,8 @@ const pb={
       if (ev.touches && ev.touches.length>0){
         x=ev.touches[0].clientX;
       }
-      else if ('screenX' in ev){
-        var rect=pb.pb_track.getBoundingClientRect();
-        x=ev.screenX-rect.x;
-        console.warn(x);
+      else if ('clientX' in ev){
+        x=ev.clientX;
       }
       else if (pb.pb.__ev_x){
         x=pb.pb.__ev_x;
@@ -8130,7 +8129,25 @@ const pb={
         }
       }
     },
+    init_scroll:function(){
+      if (pb.motions.scroll_initialized){
+        return;
+      }
+      pb.pb.addEventListener("wheel", event => {
+        if (event.deltaY < 0)
+        {
+          _KEYEV(KUP);
+        }
+        else if (event.deltaY > 0)
+        {
+          _KEYEV(KDOWN);
+        }
+      });
+      pb.motions.scroll_initialized=true;
+    },
     init:function(){
+      pb.motions.init_scroll();
+
       if (pb.motions.initialized){
         return;
       }
@@ -8267,6 +8284,7 @@ const pb={
           }
         }
       };
+
       pb.motions.initialized=true;
     },
 
@@ -17699,7 +17717,7 @@ const touchHelper={
     if (evt.touches){
       return evt.touches[0];
     }
-    return {clientX:evt.screenX,clientY:evt.screenY};
+    return {clientX:evt.clientX,clientY:evt.clientY};
   },
   tend:function(evt){
     if (!this._tIsMove){
@@ -17742,6 +17760,7 @@ const touchHelper={
     }
   },
   move:function(evt) {
+    console.warn(evt);
     if (!this._tIsDown){
       return;
     }
