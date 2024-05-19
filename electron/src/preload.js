@@ -164,7 +164,9 @@ const api={
   checkUpdate(){},
 
   /* may supported */
-  openIntentUri(u){},
+  openIntentUri(u){
+    invoke('intent-start',u);
+  },
   
 };
 

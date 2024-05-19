@@ -12671,17 +12671,22 @@ const home={
             colorLight : "#ffffff",
             correctLevel : QRCode.CorrectLevel.H
           });
-          $('popup_qrcode').onclick=function(){
-            clk();
+          if (shouldback && _ISELECTRON){
             _JSAPI.openIntentUri(uri);
-            if (home.ondonate==2){
-              return false;
-            }
-            else{
-              home.settings.close_qrcode();
-              return true;
-            }
-          };
+          }
+          else{
+            $('popup_qrcode').onclick=function(){
+              clk();
+              _JSAPI.openIntentUri(uri);
+              if (home.ondonate==2){
+                return false;
+              }
+              else{
+                home.settings.close_qrcode();
+                return true;
+              }
+            };
+          }
         }
         else{
           $('popup_qrcode').innerHTML=title;
@@ -15464,27 +15469,32 @@ const _MAL={
     }
     else{
       if (!isanilist && !logintype){
-        listOrder.showMenu(
-          "MyAnimeList Login Type",
-          [
-            {icon:'qr_code_scanner',title:"QRCode Web Authorization"},
-            {icon:'key',title:"Username + Password"}
-          ],
-          0,
-          function(chval){
-            if (chval===null){
-              return;
+        if (_ISELECTRON){
+          logintype=1;
+        }
+        else{
+          listOrder.showMenu(
+            "MyAnimeList Login Type",
+            [
+              {icon:'qr_code_scanner',title:"QRCode Web Authorization"},
+              {icon:'key',title:"Username + Password"}
+            ],
+            0,
+            function(chval){
+              if (chval===null){
+                return;
+              }
+              if (chval==1){
+                _JSAPI.malLogin();
+                return;
+              }
+              else{
+                _MAL.login(0,1);
+              }
             }
-            if (chval==1){
-              _JSAPI.malLogin();
-              return;
-            }
-            else{
-              _MAL.login(0,1);
-            }
-          }
-        );
-        return;
+          );
+          return;
+        }
       }
 
       home.settings.open_qrcode(

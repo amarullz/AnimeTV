@@ -18,7 +18,7 @@
  * Description : Node/electron main program
  *
  */
-const { app, BrowserWindow, dialog, screen, ipcMain, net, protocol } = require("electron");
+const { app, BrowserWindow, dialog, screen, ipcMain, shell } = require("electron");
 const common = require("./libs/common.js");
 const intercept = require("./libs/intercept.js");
 
@@ -52,6 +52,7 @@ const main={
     ipcMain.handle('config-save', main.handlerConfigSave);
     ipcMain.handle('vars-load', main.handlerVarsLoad);
     ipcMain.handle('vars-save', main.handlerVarsSave);
+    ipcMain.handle('intent-start', main.handlerIntent);
 
     /* Go home & show */
     main.goHome();
@@ -61,6 +62,9 @@ const main={
   vars:{
     profile_sel:-1,
     profile_prefix:''
+  },
+  handlerIntent(e,d){
+    shell.openExternal(d);
   },
   handlerVarsLoad(e,d){
     return main.vars;

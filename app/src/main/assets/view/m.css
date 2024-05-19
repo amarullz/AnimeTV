@@ -3539,6 +3539,7 @@ c.loader {
 #popup_qrcode{
   pointer-events: all;
   font-size:var(--fs-14vw);
+  cursor: pointer;
 }
 #qr_holder_value{
   text-align: center !important;
