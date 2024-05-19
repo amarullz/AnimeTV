@@ -2313,6 +2313,7 @@ c.loader {
   width: 100vw;
   height: 100vh;
   background: #000;
+  pointer-events: none !important;
 }
 
 #pb_vid iframe {

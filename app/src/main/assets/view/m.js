@@ -8103,6 +8103,11 @@ const pb={
       if (ev.touches && ev.touches.length>0){
         x=ev.touches[0].clientX;
       }
+      else if ('screenX' in ev){
+        var rect=pb.pb_track.getBoundingClientRect();
+        x=ev.screenX-rect.x;
+        console.warn(x);
+      }
       else if (pb.pb.__ev_x){
         x=pb.pb.__ev_x;
       }
@@ -17702,6 +17707,7 @@ const touchHelper={
         this._cb(KENTER, evt);
       }
     }
+    const endT = touchHelper.getTouch(evt);
     this._tIsMove=false;
     this._tIsDown=false;
     this._lockDirection=0;
@@ -17822,12 +17828,35 @@ const touchHelper={
     el.addEventListener('touchstart', touchHelper.start, true);
     el.addEventListener('touchmove', touchHelper.move, true);
     el.addEventListener('touchend', touchHelper.tend, true);
+
+    /* Mouse Handler */
+    el.__mousedown=function(ev){
+      document.addEventListener('mousemove', el.__mousemove, true);
+      document.addEventListener('mouseup', el.__mouseup, true);
+      return el.___MD(ev);
+    };
+    el.__mousemove=function(ev){
+      return el.___MM(ev);
+    };
+    el.__mouseup=function(ev){
+      document.removeEventListener('mousemove', el.__mousemove, true);
+      document.removeEventListener('mouseup', el.__mouseup, true);
+      return el.___MU(ev);
+    };
+    el.___MD=touchHelper.start;
+    el.___MM=touchHelper.move;
+    el.___MU=touchHelper.tend;
+    el.addEventListener('mousedown', el.__mousedown, true);
   },
   gestureUnreg:function(el){
     el._cb=null;
     el.removeEventListener('touchstart', touchHelper.start, true);
     el.removeEventListener('touchmove', touchHelper.move, true);
     el.removeEventListener('touchend', touchHelper.tend, true);
+
+    el.removeEventListener('mousedown', el.__mousedown, true);
+    document.removeEventListener('mousemove', el.__mousemove, true);
+    document.removeEventListener('mouseup', el.__mouseup, true);
   }
 };
 
