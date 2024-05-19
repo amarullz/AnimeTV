@@ -1710,6 +1710,11 @@ const wave={
         'Cache-Control':'no-cache'
       });
   },
+  vidEncode:function(videoID,k1,k2){
+    var encoded=VRF.rc4(k1,videoID);
+    encoded=VRF.rc4(k2,encoded);
+    return VRF.safeBtoa(encoded);
+  },
   vidplayGetMedia:function(u, cb){
     var vidLoc=u.substring(0,u.indexOf("?"));
     var vidSearch=u.substring(u.indexOf("?"));
@@ -1731,6 +1736,7 @@ const wave={
           slug+
           vidSearch;
         try{
+          console.warn("MEDIA-URL:: "+mediaUrl);
           cb(mediaUrl);
         }catch(e){}
         return;
@@ -1740,7 +1746,8 @@ const wave={
     /* Request Keys */
     wave.vidplayKeys(function(k){
       if (k){
-        vidDataId=_JSAPI.vidEncode(vidId,k[0],k[1]);
+        // vidDataId=_JSAPI.vidEncode(vidId,k[0],k[1]);
+        vidDataId=wave.vidEncode(vidId,k[0],k[1]);
         if (vidDataId){
           vidplayMediaCallback();
           return;
