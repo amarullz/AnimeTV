@@ -39,17 +39,32 @@ video{
   <video-js id="player"></video-js>
 <script>
 (function(){
+  videojs.Vhs.GOAL_BUFFER_LENGTH = 15;
+  videojs.Vhs.MAX_GOAL_BUFFER_LENGTH = 20;
   var huri=location.search;
   if (huri.length>0){
+    /* Send message to parent frame */
+    function $p(c,d){
+      var msg=JSON.stringify({
+        vcmd:c,
+        val:d
+      });
+      console.log("ATVLOG PostMessage "+msg);
+      parent.postMessage(msg,'*');
+    }
+
+    /* Prepare stream data */
     var dash=(location.hash==="#dash");
     var uri=huri.substring(1);
     var player=document.getElementById('player');
-
     var vtype='application/x-mpegURL';
     if (dash){
       vtype='application/dash+xml';
     }
+
+    /* Create player */
     var video=videojs('player',{
+      fluid: true,
       controls: false,
       autoplay: true,
       preload: 'auto',
@@ -59,6 +74,8 @@ video{
         type:vtype
       }]
     });
+
+    /* Set event listener */
     video.on('ready', function() {
       console.log('Ready');
     });
@@ -68,8 +85,55 @@ video{
     video.on('pause', function() {
       console.log('Pause');
     });
+    video.on('timeupdate', function() {
+      console.log('timeupdate: '+video.currentTime()+' / '+video.duration());
+      $p('time',{
+        position:video.currentTime(),
+        duration:video.duration()
+      });
+    });
+    video.on('ended', function() {
+      // this.dispose();
+      console.log('Ended');
+    });
+
+    /* Command Receiver */
+    function commandReceiver(c,v){
+      if (c=='play'){
+        video.play();
+      }
+      else if (c=='pause'){
+        video.pause();
+      }
+      else if (c=='seek'){
+        video.seek(v);
+      }
+      else if (c=='speed'){
+        try{
+          video.setPlaybackRate(v);
+        }catch(e){}
+      }
+      else if (c=='scale'){
+        try{
+            document.firstElementChild.className='scale-'+v;
+        }catch(e){}
+      }
+      else if (c=='ready'){
+        /*jwburstquality();*/
+      }
+    }
+    /* register message handler */
+    window.addEventListener('message',function(e) {
+      try{
+        var j=JSON.parse(e.data);
+        if ('vcmd' in j){
+          commandReceiver(j.vcmd,j.val);
+        }
+      }catch(e){}
+    });
+
+    /* Play */
     video._player=player;
-    video.play();
     window._vid=video;
   }
 })();
