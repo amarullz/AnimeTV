@@ -1953,7 +1953,7 @@ c.loader {
   font-size: var(--fs-30vw);
 }
 .vtt_style_proportional{
-  font-family: Roboto, sans-serif !important;
+  font-family: sans-serif !important;
 }
 .vtt_style_serif{
   font-family: Times, serif;
