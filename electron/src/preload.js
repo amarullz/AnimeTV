@@ -21,6 +21,7 @@
 const { remote, contextBridge, ipcRenderer } = require("electron");
 const send = (m, a) => ipcRenderer.send(m, a);
 const on = (m, c) => ipcRenderer.on(m, c);
+const CryptoJS = require("crypto-js");
 
 const vars={
   vars:{},
@@ -137,8 +138,16 @@ const api={
   },
 
   /* encryptions */
-  sha1sum(value) { return ""; },
-  aesDec(cipherText, key, ivhex) { return ""; },
+  sha1sum(value) { return CryptoJS.enc.Hex.stringify(CryptoJS.SHA1(value)); },
+  aesDec(cipherText, key, ivhex) { 
+    var val=CryptoJS.AES.decrypt(
+      CryptoJS.enc.Base64.parse(cipherText), 
+      CryptoJS.enc.Utf8.parse(key),{
+      iv:CryptoJS.enc.Utf8.parse(ivhex)
+    }).toString(CryptoJS.enc.Utf8);
+    console.warn([cipherText, key, ivhex, val]);
+    return val;
+  },
   vidEncode(vid, k1, k2){ return ""; },
 
   /* android specific */
