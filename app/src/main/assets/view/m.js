@@ -7967,15 +7967,6 @@ const pb={
     if (!this.P){
       g=this.parentElement.parentElement;
     }
-    // console.warn(ev);
-    // if (ev.deltaY <= -60){
-    //   $scroll(g,g.scrollLeft-window.outerWidth*0.5,1,100);
-    // }
-    // else if (ev.deltaY >= 60)
-    // {
-    //   $scroll(g,g.scrollLeft+window.outerWidth*0.5,1,100);
-    // }
-    // else 
     if (ev.deltaY<0){
       $scroll(g,g.scrollLeft+ev.deltaY,1,-1);
     }
@@ -7983,6 +7974,7 @@ const pb={
       $scroll(g,g.scrollLeft+ev.deltaY,1,-1);
     }
     ev.preventDefault();
+    ev.stopPropagation();
   },
 
   /* menu key handler */
