@@ -101,6 +101,11 @@ video{
       }]
     });
 
+    const vidVars={
+      res:'',
+      quality:0
+    };
+
     /* Compose Timing */
     function timing(){
       return {
@@ -109,11 +114,43 @@ video{
         buffer:video.bufferedEnd()
       };
     }
+    function resolution(){
+      return video.videoWidth()+","+video.videoHeight();
+    }
+    function setquality(v){
+      var res=[];
+      var ql=video.qualityLevels();
+      if (ql.length>0){
+        for (var i=0;i<ql.length;i++){
+          res.push(ql[i].height);
+        }
+        res.sort((a,b)=>{ return (b-a); });
+        var selHeight=(v>0 && (res.length>=v))?res[v-1]:0;
+        window._selHeight=selHeight;
+        window._rres=res;
+        for(var i = 0; i < ql.length; i++) {
+          if (v==0) {
+            ql[i].enabled = true;
+          } else if (selHeight==ql[i].height) {
+            ql[i].enabled = true;
+            window._sv=ql[i];
+          } else {
+            ql[i].enabled = false;
+          }
+        }
+        vidVars.res='';
+      }
+    }
+    window._sq=setquality;
 
     /* Set event listener */
     video.on('ready', function() {
       $p('ready',timing());
       console.log('Ready');
+    });
+    video.on('loadedmetadata',function(){
+      setquality(vidVars.quality);
+      console.warn("loadedmetadata");
     });
     video.on('play', function() {
       $p('play',1);
@@ -127,6 +164,11 @@ video{
       $p('seek',timing());
     });
     video.on('timeupdate', function() {
+      var res=resolution();
+      if (vidVars.res!=res){
+        $p('resolution',res);
+        vidVars.res=res;
+      }
       $p('time',timing());
     });
     video.on('ended', function() {
@@ -139,6 +181,10 @@ video{
     function commandReceiver(c,v){
       if (c=='play'){
         video.play();
+      }
+      else if (c=='quality'){
+        vidVars.quality=v;
+        setquality(v);
       }
       else if (c=='pause'){
         video.pause();
@@ -164,6 +210,8 @@ video{
         }
       }catch(e){}
     });
+
+    $p('initializing',1);
 
     /* Play */
     video._player=player;

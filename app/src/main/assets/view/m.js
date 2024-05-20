@@ -1847,7 +1847,7 @@ const wave={
       cb(null);
       return;
     }
-    
+
     wave.vidplayGetMedia(u,function(url){
       if (url){
         $ap(url,function(r){
@@ -2367,6 +2367,9 @@ const _API={
   videoInitCbInitialized:false,
   videoSrcValue:'',
   videoElectronPos:{},
+  videoElectronVars:{
+    resolution:0
+  },
   videoInitCb:function(){
     if (_API.videoInitCbInitialized){
       return;
@@ -2375,12 +2378,28 @@ const _API={
     window.addEventListener('message',function(e) {
       if (_API.videoSrcValue && e){
         try{
-          console.log("PLAYER-MSG = "+e.data);
           var pd=JSON.parse(e.data);
           if (pd){
             if ('vcmd' in pd){
+              if (pd.vcmd!='time'){
+                console.log("PLAYER-MSG = "+e.data);
+              }
               if (pd.vcmd=='time'){
                 _API.videoElectronPos=pd.val;
+              }
+              else if (pd.vcmd=='initializing'){
+                _API.videoPost('quality',pb.cfg_data.quality);
+                return;
+              }
+              else if (pd.vcmd=='ready'){
+                _API.videoPost('quality',pb.cfg_data.quality);
+              }
+              else if (pd.vcmd=='resolution'){
+                try{
+                  _API.videoElectronVars.resolution=pd.val.split(",");
+                  __VIDRESCB(_API.videoElectronVars.resolution[0],_API.videoElectronVars.resolution[1]);
+                  console.warn("GOT RESOLUTION: "+pd.val);
+                }catch(e){}
               }
               pb.vid_event(pd.vcmd,pd.val);
             }
@@ -5579,6 +5598,10 @@ const pb={
             el.lastElementChild.innerHTML="Auto "+__VIDRESH+"p";
             vr=toInt(__VIDRESH);
           }
+          else if (_ISELECTRON && __VIDRESH>0){
+            el.lastElementChild.innerHTML=pb.cfgquality_name[pb.cfg_data.quality]+" "+__VIDRESH+"p";
+            vr=__VIDRESH;
+          }
           else{
             el.lastElementChild.innerHTML=pb.sel_quality;
             vr=toInt(pb.sel_quality);
@@ -6279,7 +6302,7 @@ const pb={
     ];
 
     /* Auto Quality */
-    if (!__SD6 && pb.cfg_data.quality==0){
+    if (_ISELECTRON || (!__SD6 && pb.cfg_data.quality==0)){
       console.log("NO-PARSE AUTO M3u8 QUALITY="+pb.cfg_data.quality);
       pb.init_video_player_url(src);
       pb.cfg_update_el("quality");
@@ -6585,11 +6608,16 @@ const pb={
   reinit_video_delay:function(ms){
     clearTimeout(pb.reinit_video_to);
     pb.reinit_video_to=setTimeout(function(){
-      pb.startpos_val=pb.vid_stat.pos;
-      pb.init_video();
-      pb.cfg_update_el("hardsub");
-      pb.cfg_update_el("softsub");
-      pb.cfg_update_el("dub");
+      if (_ISELECTRON){
+        _API.videoPost('quality',pb.cfg_data.quality);
+      }
+      else{
+        pb.startpos_val=pb.vid_stat.pos;
+        pb.init_video();
+        pb.cfg_update_el("hardsub");
+        pb.cfg_update_el("softsub");
+        pb.cfg_update_el("dub");
+      }
     },ms);
   },
 
@@ -17976,7 +18004,6 @@ const touchHelper={
     }
   },
   move:function(evt) {
-    console.warn(evt);
     if (!this._tIsDown){
       return;
     }
