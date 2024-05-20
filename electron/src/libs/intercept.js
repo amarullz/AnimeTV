@@ -26,6 +26,10 @@ const intercept={
     vidplays: [
       "vid142.site",
       "mcloud.bz"
+    ],
+    streams:[
+      "megacloud.tv",
+      "rapid-cloud.co"
     ]
   },
 
@@ -52,19 +56,12 @@ const intercept={
     protocol.handle('https', intercept.handler);
   },
 
-  checkHeaders(h){
-    let body=null;
-    h.delete('Host');
-
+  checkOriginHeaders(h){
     if (h.has('Referer')){
       h.delete('Referer');
     }
     if (h.has('Origin')){
       h.delete('Origin');
-    }
-    if (h.has('Post-Body')){
-      body=decodeURIComponent(h.get('Post-Body'));
-      h.delete('Post-Body');
     }
     if (h.has('X-Ref-Prox')){
       h.set('Referer',h.get('X-Ref-Prox'));
@@ -74,7 +71,26 @@ const intercept={
       h.set('Origin',h.get('X-Org-Prox'));
       h.delete('X-Org-Prox');
     }
+  },
+
+  checkHeaders(h){
+    let body=null;
+    h.delete('Host');
+    if (h.has('Post-Body')){
+      body=decodeURIComponent(h.get('Post-Body'));
+      h.delete('Post-Body');
+    }
+    intercept.checkOriginHeaders(h);
     return body;
+  },
+
+  checkStream(h){
+    if (h.has("X-Stream-Prox")){
+      var hostStream=h.get("X-Stream-Prox");
+      // h.delete("X-Stream-Prox");
+      return hostStream+"";
+    }
+    return false;
   },
 
   async fetchInject(url, req, inject){
@@ -93,7 +109,7 @@ const intercept={
   },
 
   async fetchNormal(url, req){
-    return net.fetch(req.url, {
+    return net.fetch(url, {
       method: req.method,
       headers: req.headers,
       body: req.body,
@@ -104,7 +120,7 @@ const intercept={
   async handler(req){
     try{
       const url = new URL(req.url);
-      
+      const hostStream=intercept.checkStream(req.headers);
       if (url.pathname.startsWith("/__view/")) {
         var p = url.pathname.substring(8);
         p = p.split('?')[0];
@@ -131,7 +147,29 @@ const intercept={
           bypassCustomProtocolHandlers: true
         });
       }
-      if (req.url.startsWith("https://www.youtube.com/embed/")||req.url.startsWith("https://www.youtube-nocookie.com/embed/")){
+      else if(hostStream){
+        // if (req.headers.has('Referer')){
+        //   req.headers.delete('Referer');
+        // }
+        // if (req.headers.has('Origin')){
+        //   req.headers.delete('Origin');
+        // }
+        if (common.main.vars.sd<=2){
+          // req.headers.set('Origin','https://'+hostStream);
+          // req.headers.delete('Referer');
+          console.log("V1");
+        }
+        else{
+          // var h=hostStream.split(".");
+          // var h2=h[h.length-2]+"."+h[h.length-1];
+          // req.referrer=new URL('https://'+hostStream+'/');
+          req.headers.set('Referer','https://'+hostStream+'/');
+          req.headers.set('Origin','https://'+hostStream);
+          console.log("V2: "+hostStream);
+        }
+        return intercept.fetchNormal(req.url, req);
+      }
+      else if (req.url.startsWith("https://www.youtube.com/embed/")||req.url.startsWith("https://www.youtube-nocookie.com/embed/")){
         return intercept.fetchInject(req.url, req, intercept.youtubeInjectString);
       }
       else if (url.hostname.includes("youtube.com")||url.hostname.includes("youtube-nocookie.com")||url.hostname.includes("googlevideo.com")){
