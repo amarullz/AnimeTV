@@ -1927,6 +1927,14 @@ function $scroll(el,val,isHoriz,duration){
     el[isHoriz?'scrollLeft':'scrollTop']=val;
     return;
   }
+  if (duration && duration<0){
+    if (el.__scroll_to){
+      clearTimeout(el.__scroll_to);
+      el.__scroll_to=null;
+    }
+    el[isHoriz?'scrollLeft':'scrollTop']=val;
+    return;
+  }
   var sid=el.__scroll_id=$tick();
   el.__scroll_duration = duration?duration:100;
   el.__scroll_end=$tick()+el.__scroll_duration;
@@ -2260,13 +2268,15 @@ window._KEYEV=function(key, evSource){
 (function(){
   if (!_USE_TOUCH){
     window.addEventListener("wheel", event => {
-      if (event.deltaY < 0)
-      {
-        _KEYEV(KUP);
-      }
-      else if (event.deltaY > 0)
-      {
-        _KEYEV(KDOWN);
+      if (!_TOUCH){
+        if (event.deltaY <= -80)
+        {
+          _KEYEV(KUP);
+        }
+        else if (event.deltaY >= 80)
+        {
+          _KEYEV(KDOWN);
+        }
       }
     });
   }
@@ -6009,7 +6019,7 @@ const pb={
       pb.pb_touch_play.innerHTML='play_arrow';
     }
     else if (c=='time'){
-      console.warn(v);
+      // console.warn(v);
       pb.vid_stat.pos=v.position;
       pb.vid_stat.duration=v.duration;
       pb.track_update_pos();
@@ -7920,12 +7930,20 @@ const pb={
     if (!this.P){
       g=this.parentElement.parentElement;
     }
-    if (ev.deltaY < 0){
-      $scroll(g,g.scrollLeft-window.outerWidth*0.5,1,100);
+    // console.warn(ev);
+    // if (ev.deltaY <= -60){
+    //   $scroll(g,g.scrollLeft-window.outerWidth*0.5,1,100);
+    // }
+    // else if (ev.deltaY >= 60)
+    // {
+    //   $scroll(g,g.scrollLeft+window.outerWidth*0.5,1,100);
+    // }
+    // else 
+    if (ev.deltaY<0){
+      $scroll(g,g.scrollLeft+ev.deltaY,1,-1);
     }
-    else if (event.deltaY > 0)
-    {
-      $scroll(g,g.scrollLeft+window.outerWidth*0.5,1,100);
+    else if (ev.deltaY>0){
+      $scroll(g,g.scrollLeft+ev.deltaY,1,-1);
     }
     ev.preventDefault();
   },
@@ -8287,14 +8305,24 @@ const pb={
       if (pb.motions.scroll_initialized){
         return;
       }
+      pb.pb.__wheel_val=0;
+      pb.pb.__wheel_tick=0;
       pb.pb.addEventListener("wheel", event => {
-        if (event.deltaY < 0)
-        {
-          _KEYEV(KUP);
+        if (pb.pb.__wheel_tick<$tick()){
+          pb.pb.__wheel_val=0;
         }
-        else if (event.deltaY > 0)
+        pb.pb.__wheel_tick=$tick()+1000;
+        pb.pb.__wheel_val+=event.deltaY;
+        console.warn(pb.pb.__wheel_val);
+        if (pb.pb.__wheel_val <= -100)
         {
-          _KEYEV(KDOWN);
+          pb.pb.__wheel_val=0;
+          pb.keycb(KUP,1);
+        }
+        else if (pb.pb.__wheel_val >= 100)
+        {
+          pb.pb.__wheel_val=0;
+          pb.keycb(KDOWN,1);
         }
       });
       pb.motions.scroll_initialized=true;
@@ -8305,8 +8333,8 @@ const pb={
       if (pb.motions.initialized){
         return;
       }
-
       var me=pb.motions;
+      
 
       touchHelper.gestureReg(pb.pb,function(c,evt){
         if (c==KUP || c==KDOWN){
@@ -8447,7 +8475,7 @@ const pb={
   },
 
   /* Root Key Callback */
-  keycb:function(c){
+  keycb:function(c,isvirt){
     if (listOrder.onpopup){
       return listOrder.keycb(c);
     }
@@ -8503,8 +8531,10 @@ const pb={
         pb.menus[pb.menusel].classList.remove('active');
         if (--pb.menusel<0){
           pb.menusel=0;
-          pb.menu_hide();
-          return;
+          if (!isvirt){
+            pb.menu_hide();
+            return;
+          }
         }
         pb.menus[pb.menusel].classList.add('active');
         pb.menu_update();
