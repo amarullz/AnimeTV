@@ -30,6 +30,15 @@ video-js div{
 video{
   z-index: 99999 !important;
 }
+.scale-0 video{
+    object-fit: contain !important;
+}
+.scale-1 video{
+    object-fit: cover !important;
+}
+.scale-2 video{
+    object-fit: fill !important;
+}
     </style>
     <script>window.HELP_IMPROVE_VIDEOJS = false;</script>
     <script src="/__ui/video.min.js"></script>
@@ -39,8 +48,8 @@ video{
   <video-js id="player"></video-js>
 <script>
 (function(){
-  videojs.Vhs.GOAL_BUFFER_LENGTH = 15;
-  videojs.Vhs.MAX_GOAL_BUFFER_LENGTH = 20;
+  videojs.Vhs.GOAL_BUFFER_LENGTH = 30;
+  videojs.Vhs.MAX_GOAL_BUFFER_LENGTH = 35;
   var huri=location.search;
   if (huri.length>0){
     /* Send message to parent frame */
@@ -49,7 +58,7 @@ video{
         vcmd:c,
         val:d
       });
-      console.log("ATVLOG PostMessage "+msg);
+      // console.log("ATVLOG PostMessage "+msg);
       parent.postMessage(msg,'*');
     }
 
@@ -75,22 +84,33 @@ video{
       }]
     });
 
+    /* Compose Timing */
+    function timing(){
+      return {
+        position:video.currentTime(),
+        duration:video.duration(),
+        buffer:video.bufferedPercent()
+      };
+    }
+
     /* Set event listener */
     video.on('ready', function() {
+      $p('ready',timing());
       console.log('Ready');
     });
     video.on('play', function() {
+      $p('play',1);
       console.log('Play');
     });
     video.on('pause', function() {
+      $p('pause',0);
       console.log('Pause');
     });
+    video.on('seeking', function() {
+      $p('seek',timing());
+    });
     video.on('timeupdate', function() {
-      console.log('timeupdate: '+video.currentTime()+' / '+video.duration());
-      $p('time',{
-        position:video.currentTime(),
-        duration:video.duration()
-      });
+      $p('time',timing());
     });
     video.on('ended', function() {
       // this.dispose();
@@ -106,20 +126,15 @@ video{
         video.pause();
       }
       else if (c=='seek'){
-        video.seek(v);
+        video.currentTime(v);
       }
       else if (c=='speed'){
-        try{
-          video.setPlaybackRate(v);
-        }catch(e){}
+        video.playbackRate(v);
       }
       else if (c=='scale'){
-        try{
-            document.firstElementChild.className='scale-'+v;
-        }catch(e){}
+        document.firstElementChild.className='scale-'+v;
       }
       else if (c=='ready'){
-        /*jwburstquality();*/
       }
     }
     /* register message handler */
