@@ -1557,21 +1557,23 @@ c.loader {
 
 #pb_desc b span {
   display: inline-block;
-  background-color: rgba(20, 20, 20, .8);
+  background-color: rgba(10, 10, 10, .85);
   margin-right: .2vw;
   padding: .4vw .4vw .1vw .4vw;
-  border-radius: .1vw;
-  box-shadow: 0 .03vw .06vw rgba(0, 0, 0, 0.16), 0 .03vw .06vw rgba(0, 0, 0, 0.23);
+  border-radius: .25vw;
+  border: .1vw solid #060606;
+  /* box-shadow: 0 .03vw .06vw rgba(0, 0, 0, 0.16), 0 .03vw .06vw rgba(0, 0, 0, 0.23); */
   line-height: 1;
   font-weight: bold;
 }
 
 #pb_genres {
-  width: 40vw;
+  width: 50vw;
   font-size: var(--fs-10vw);
   opacity: 0;
   transform: translateX(20vw);
   padding-bottom: 1vw;
+  -webkit-mask-image: linear-gradient(90deg, #000 95%, rgba(0, 0, 0, 0)) !important;
 }
 
 #pb_settings.pb_menu {
@@ -1635,7 +1637,7 @@ c.loader {
 
 .pb_menu>p>div {
   display: inline-block;
-  background-color: rgba(180, 180, 180, .5);
+  background-color: rgba(160, 165, 167, .35);
   padding: .2vw .8vw .2vw .8vw;
   border-radius: .2vw;
   margin-right: 0;
@@ -1657,15 +1659,16 @@ c.loader {
 }
 
 .pb_menu.active>p>div {
-  background-color: rgba(255, 255, 255, .4);
+  background-color: rgba(250, 253, 255, .44);
 }
 
-.pb_menu>p>div.active {
+/* .pb_menu>p>div.active {
   background-color: var(--dimm-1);
-}
+} */
+
 .istouch .pb_menu>p>div:hover,
 .pb_menu.active>p>div.active {
-  background-color: var(--primary-2);
+  background-color: var(--primary-1);
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
   /* transform: scale(1.1); */
   z-index:2;
@@ -3052,8 +3055,7 @@ c.loader {
   padding: 0 !important;
   max-width: 12vw;
   transition: all var(--tim-3s) var(--interpolation);
-  box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
-  will-change: box-shadow;
+  /* box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24); */
   white-space: normal;
   text-align: right;
 }
@@ -3112,10 +3114,10 @@ c.loader {
   background-color: var(--primary-bg);
 }
 
-.home_list.active p div.active span.info {
-  /* opacity: 1; */
+/* .home_list.active p div.active span.info {
+  opacity: 1;
   box-shadow: 0 .28vw .56vw rgba(0, 0, 0, 0.25), 0 .2vw .2vw rgba(0, 0, 0, 0.22);
-}
+} */
 
 .home_list p div span.info span {
   background-color: var(--primary-bg);

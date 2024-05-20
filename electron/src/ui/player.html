@@ -47,8 +47,8 @@ video{
   <video-js id="player"></video-js>
 <script>
 (function(){
-  videojs.Vhs.GOAL_BUFFER_LENGTH = 30;
-  videojs.Vhs.MAX_GOAL_BUFFER_LENGTH = 35;
+  videojs.Vhs.GOAL_BUFFER_LENGTH = 15;
+  videojs.Vhs.MAX_GOAL_BUFFER_LENGTH = 20;
   var huri=location.search;
   if (huri.length>0){
     /* Send message to parent frame */
@@ -106,7 +106,7 @@ video{
       console.log('Pause');
     });
     video.on('seeking', function() {
-      $p('seek',timing());
+      // $p('seek',timing());
     });
     video.on('timeupdate', function() {
       $p('time',timing());

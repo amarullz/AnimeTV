@@ -6335,7 +6335,7 @@ const pb={
           }
         }catch(e){}
       }
-      if ((urivid&&!_ISELECTRON /*&& !pb.cfg_data.html5player*/) || (__SD3)){
+      if ((urivid /*&&!_ISELECTRON*/ /*&& !pb.cfg_data.html5player*/) || (__SD3)){
         if (urivid=="ERROR"){
           pb.playback_error(
             'PLAYBACK ERROR',
@@ -6434,7 +6434,7 @@ const pb={
         (function(){
           var iframe_src=pb.data.stream_vurl;
           if (_ISELECTRON){
-            iframe_src+='&autostart=true';
+            // iframe_src+='&autostart=true';
           }
           // if (pb.cfg_data.html5player && __SD<3){
           //   iframe_src+='&autostart=true';
@@ -6470,7 +6470,7 @@ const pb={
       //   iframe_src+='&autostart=true';
       // }
       if (_ISELECTRON){
-        iframe_src+='&autostart=true';
+        // iframe_src+='&autostart=true';
       }
       pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
     })();
@@ -6495,9 +6495,6 @@ const pb={
     _API.setVideo('');
     pb.lastkey=$tick();
     _API.setMessage(null);
-
-
-    
     requestAnimationFrame(function(){
       pb.state=1;
       pb.track_update_pos();
@@ -6649,6 +6646,8 @@ const pb={
           }
         }
         pb.updateStreamTypeInfo();
+        pb.init_video_vidcloud();
+        /*
         wave.vidplayGetData(pb.data.stream_vurl,function(r){
           if (r && r.result && r.result.sources){
             pb.video_tmp_start_pos=pb.startpos_val;
@@ -6658,6 +6657,7 @@ const pb={
           }
           pb.init_video_vidcloud();
         });
+        */
       }
     });
   },
@@ -6853,7 +6853,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6&&!_ISELECTRON){
+              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6 /*&&!_ISELECTRON*/ ){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -6877,6 +6877,7 @@ const pb={
                 
                 pb.pb_vid.innerHTML='';
                 if (__SD==1 || __SD==2){
+                  /*
                   wave.vidplayGetData(d.stream_vurl,function(r){
                     if (r && r.result && r.result.sources){
                       if (preloadVidCb(r)){
@@ -6886,6 +6887,8 @@ const pb={
                     _API.setVizCb(preloadVidCb);
                     $n('iframe','',{src:d.stream_vurl+(__SD5?"":"#NOPLAY"),frameborder:'0'},pb.pb_vid,'');
                   });
+                  */
+                  $n('iframe','',{src:d.stream_vurl+(__SD5?"":"#NOPLAY"),frameborder:'0'},pb.pb_vid,'');
                 }
                 else if (__SD3){
                   _API.setVizCb(preloadVidCb);
@@ -9034,6 +9037,8 @@ const pb={
       return;
     }
 
+    pb.init_video();
+
     pb.motions.init();
 
     pb.preload_started=0;
@@ -9294,7 +9299,7 @@ const pb={
       );
     }catch(e){}
 
-    pb.init_video();
+    // pb.init_video();
 
     /* ACTIONS */
     pb.pb_genres._midx=4;
