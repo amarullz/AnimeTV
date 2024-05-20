@@ -139,14 +139,16 @@ const api={
 
   /* encryptions */
   sha1sum(value) { return CryptoJS.enc.Hex.stringify(CryptoJS.SHA1(value)); },
-  aesDec(cipherText, key, ivhex) { 
+  aesDec(cipherText, key, ivhex) {
     var val=CryptoJS.AES.decrypt(
-      CryptoJS.enc.Base64.parse(cipherText), 
+      {
+        ciphertext: CryptoJS.enc.Base64.parse(cipherText),
+        salt: ""
+      }, 
       CryptoJS.enc.Utf8.parse(key),{
-      iv:CryptoJS.enc.Utf8.parse(ivhex)
-    }).toString(CryptoJS.enc.Utf8);
-    console.warn([cipherText, key, ivhex, val]);
-    return val;
+      iv:CryptoJS.enc.Hex.parse(ivhex)
+    });
+    return val.toString(CryptoJS.enc.Utf8);
   },
   vidEncode(vid, k1, k2){ return ""; },
 
