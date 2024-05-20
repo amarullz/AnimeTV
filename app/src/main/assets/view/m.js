@@ -915,11 +915,15 @@ var kaas={
           try{
             var srcData=JSON.parse(r.responseText);
             var encData=srcData.data.split(':');
-            var data=JSON.parse(_JSAPI.aesDec(
+            var decData=_JSAPI.aesDec(
               encData[0],
               vidKey,
               encData[1]
-            ));
+            );
+            console.warn(JSON.stringify(["AESDEC",encData[0],
+            vidKey,
+            encData[1], decData]));
+            var data=JSON.parse(decData);
             data.server_type=type;
             data.server_url=url;
             try{
