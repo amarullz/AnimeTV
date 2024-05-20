@@ -111,6 +111,12 @@ const intercept={
         p = p.split('#')[0];
         return net.fetch(common.viewRequest(p));
       }
+      else if (url.pathname.startsWith("/__ui/")) {
+        var p = url.pathname.substring(6);
+        p = p.split('?')[0];
+        p = p.split('#')[0];
+        return net.fetch(common.uiRequest(p));
+      }
       else if (url.pathname.startsWith("/__REDIRECT")) {
         return net.fetch(common.injectRequest("redirect.html"));
       }

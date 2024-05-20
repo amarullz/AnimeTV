@@ -53,6 +53,13 @@ const main={
     ipcMain.handle('vars-load', main.handlerVarsLoad);
     ipcMain.handle('vars-save', main.handlerVarsSave);
     ipcMain.handle('intent-start', main.handlerIntent);
+    ipcMain.handle('set-video', (e,d)=>{
+      if (d!=''){
+        main.win.loadURL("https://aniwave.to/__ui/player.html#"+d);
+      }
+    });
+
+    
 
     /* Go home & show */
     main.goHome();
@@ -99,6 +106,10 @@ const main={
       else if (input.key === "F5"){
         // go home
         main.goHome();
+      }
+      else if (input.key === "F8"){
+        // video player
+        main.win.loadURL("https://aniwave.to/__ui/player.html");
       }
       else{
         let c=0;

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AnimeTV Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <style>
+html, body{
+  margin:0;
+  padding:0;
+  background-color: #000;
+  overflow: hidden;
+}
+video-js, video{
+  display: block !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  top:0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden;
+  background-color: #000;
+}
+video-js div *,
+video-js div{
+  display: none !important;
+}
+video{
+  z-index: 99999 !important;
+}
+    </style>
+    <script>window.HELP_IMPROVE_VIDEOJS = false;</script>
+    <script src="/__ui/video.min.js"></script>
+    <script src="/__ui/videojs-http-streaming.min.js"></script>
+</head>
+<body>
+  <video-js id="player"></video-js>
+<script>
+(function(){
+  var huri=location.search;
+  if (huri.length>0){
+    var dash=(location.hash==="#dash");
+    var uri=huri.substring(1);
+    var player=document.getElementById('player');
+
+    var vtype='application/x-mpegURL';
+    if (dash){
+      vtype='application/dash+xml';
+    }
+    var video=videojs('player',{
+      controls: false,
+      autoplay: true,
+      preload: 'auto',
+      responsive:true,
+      sources: [{
+        src: uri,
+        type:vtype
+      }]
+    });
+    video.on('ready', function() {
+      console.log('Ready');
+    });
+    video.on('play', function() {
+      console.log('Play');
+    });
+    video.on('pause', function() {
+      console.log('Pause');
+    });
+    video._player=player;
+    video.play();
+    window._vid=video;
+  }
+})();
+</script>
+</body>
+</html>

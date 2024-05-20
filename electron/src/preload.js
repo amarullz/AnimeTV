@@ -54,6 +54,7 @@ const api={
   /* videos */
   videoSetUrl(url){
     console.warn("SET VIDEO: "+url);
+    invoke('set-video',url);
   },
   videoSetPosition(pos){},
   videoPlay(play){},

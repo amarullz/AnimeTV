@@ -30,6 +30,7 @@ const common={
   config:{},
   view_dir:"/app/src/main/assets/view/",
   inject_dir:"/app/src/main/assets/inject/",
+  ui_dir:"/electron/src/ui/",
   path(filename){
     return path.join(app.getAppPath(), filename);
   },
@@ -41,6 +42,10 @@ const common={
   },
   injectPath(path){
     return common.path(common.inject_dir+path);
+  },
+  uiRequest(path){
+    let uipath = common.path(common.ui_dir+path);
+    return pathToFileURL(uipath).toString();
   },
   injectRequest(path){
     let injectpath = common.path(common.inject_dir+path);
