@@ -6335,7 +6335,7 @@ const pb={
           }
         }catch(e){}
       }
-      if ((urivid /*&&!_ISELECTRON*/ /*&& !pb.cfg_data.html5player*/) || (__SD3)){
+      if ((urivid &&!_ISELECTRON /*&& !pb.cfg_data.html5player*/) || (__SD3)){
         if (urivid=="ERROR"){
           pb.playback_error(
             'PLAYBACK ERROR',
@@ -6434,7 +6434,7 @@ const pb={
         (function(){
           var iframe_src=pb.data.stream_vurl;
           if (_ISELECTRON){
-            // iframe_src+='&autostart=true';
+            iframe_src+='&autostart=true';
           }
           // if (pb.cfg_data.html5player && __SD<3){
           //   iframe_src+='&autostart=true';
@@ -6470,7 +6470,7 @@ const pb={
       //   iframe_src+='&autostart=true';
       // }
       if (_ISELECTRON){
-        // iframe_src+='&autostart=true';
+        iframe_src+='&autostart=true';
       }
       pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
     })();
@@ -6853,7 +6853,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6 /*&&!_ISELECTRON*/ ){
+              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6 &&!_ISELECTRON ){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -14086,7 +14086,7 @@ const home={
       return true;
     }
 
-    if (s.order_sel==1){
+    if (!_TOUCH && s.order_sel==1){
       // tools
       if (s.order[1]._sel){
         if (s.order[1]._sel._keycb){

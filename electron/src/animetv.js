@@ -55,7 +55,7 @@ const main={
     ipcMain.handle('intent-start', main.handlerIntent);
     ipcMain.handle('set-video', (e,d)=>{
       if (d!=''){
-        main.win.loadURL("https://aniwave.to/__ui/player.html?"+d);
+        // main.win.loadURL("https://aniwave.to/__ui/player.html?"+d);
       }
     });
 
