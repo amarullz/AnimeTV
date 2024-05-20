@@ -27,7 +27,7 @@ const intercept={
       "vid142.site",
       "mcloud.bz"
     ],
-    streams:[
+    aniwatch:[
       "megacloud.tv",
       "rapid-cloud.co"
     ]
@@ -170,8 +170,15 @@ const intercept={
           /* Other streaming */
           var h=hostStream.split(".");
           var host2=h[h.length-2]+"."+h[h.length-1];
-          req.headers.set('Referer','https://'+host2+'/');
-          req.headers.set('Origin','https://'+host2);
+          if (common.main.vars.sd==3||common.main.vars.sd==4){
+            req.headers.set('Referer','https://megacloud.tv/');
+            req.headers.set('Origin','https://megacloud.tv');
+          }
+          else{
+            req.headers.set('Referer','https://'+host2+'/');
+            req.headers.set('Origin','https://'+host2);
+          }
+          console.log("STREAM-HOST = " + host2);
         }
         return intercept.fetchNormal(req);
       }
@@ -193,6 +200,21 @@ const intercept={
           return intercept.fetchError();
         }
         return intercept.fetchNormal(req);
+      }
+      else if (intercept.domains.aniwatch.indexOf(url.host)>-1){
+        var accept=req.headers.get("Accept");
+        if (accept.startsWith("text/css")||accept.startsWith("image/")){
+          return intercept.fetchError();
+        }
+        var hdr={
+          "User-Agent":common.UAG,
+          "Referer":"https://aniwatchtv.to/"
+        };
+        return net.fetch(url, {
+          method: req.method,
+          headers: hdr,
+          bypassCustomProtocolHandlers: true
+        });
       }
       else if (intercept.domains.vidplays.indexOf(url.host)>-1){
         /* Injector */
@@ -229,6 +251,17 @@ const intercept={
         return intercept.fetchError();
       }
       else {
+        if (common.main.vars.sd==3||common.main.vars.sd==4){
+          if (url.pathname.endsWith("/master.m3u8")) {
+            var j={
+              result:{sources:[{
+                file:req.url
+              }]}
+            };
+            common.execJs("__M3U8CB("+JSON.stringify(j)+");");
+            return intercept.fetchError();
+          }
+        }
         return intercept.fetchNormal(req);
       }
     }catch(e){

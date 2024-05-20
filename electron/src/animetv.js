@@ -45,6 +45,7 @@ const main={
         preload: common.path("/electron/src/preload.js"),
       }
     });
+    main.win.webContents.setUserAgent(common.UAG);
 
     /* Init all handlers */
     ipcMain.on("main",main.handlerWin);
