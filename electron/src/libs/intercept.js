@@ -178,7 +178,6 @@ const intercept={
             req.headers.set('Referer','https://'+host2+'/');
             req.headers.set('Origin','https://'+host2);
           }
-          console.log("STREAM-HOST = " + host2);
         }
         return intercept.fetchNormal(req);
       }

@@ -1713,16 +1713,16 @@ c.loader {
   width:0;
   height:0;
 } */
+.istouch .menushow #pb_touch_actions.active.hide,
 .istouch .menushow #pb_touch_actions.active,
 #pb_actions.active {
   visibility: visible;
   opacity: 1;
 }
-.istouch .menushow #pb_touch_actions.active.hide{
+.istouch .menushow #pb_touch_actions.active.hide #pb_touch_iactions{
   visibility: hidden !important;
   opacity: 0 !important;
 }
-
 #pb_touch_actions #pb_touch_iactions{
   display: block;
   text-align: center;
@@ -1755,6 +1755,8 @@ c.loader {
   width: var(--fs-25vw);
   height: var(--fs-25vw);
   padding: 1vw;
+  visibility: visible;
+  opacity: 1;
 }
 #pb_touch_actions #pb_touch_iactions c#pb_touch_play{
   padding: 3vw;
