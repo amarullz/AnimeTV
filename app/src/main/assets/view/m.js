@@ -2413,15 +2413,19 @@ const _API={
   videoPost:function(c,v){
     if (_ISELECTRON){
       console.log("PLAYER-POST = "+c+" -> "+v);
-      pb.vid.contentWindow.postMessage(JSON.stringify({
-        vcmd:c,
-        val:v
-      }),'*');
       try{
         if (c=='seek'){
           _API.videoElectronPos.position=v;
         }
+        else if (c=='quality'){
+          __VIDRESW=0;
+          __VIDRESH=0;
+        }
       }catch(e){};
+      pb.vid.contentWindow.postMessage(JSON.stringify({
+        vcmd:c,
+        val:v
+      }),'*');
     }
   },
   videoSetUrl:function(src){
@@ -5516,7 +5520,7 @@ const pb={
   ],
   cfgquality_name:[
     "Auto",
-    "High Quality",
+    "High",
     "Medium",
     "Low"
   ],
@@ -5598,8 +5602,9 @@ const pb={
             el.lastElementChild.innerHTML="Auto "+__VIDRESH+"p";
             vr=toInt(__VIDRESH);
           }
-          else if (_ISELECTRON && __VIDRESH>0){
-            el.lastElementChild.innerHTML=pb.cfgquality_name[pb.cfg_data.quality]+" "+__VIDRESH+"p";
+          else if (_ISELECTRON){
+            el.lastElementChild.innerHTML=(pb.cfgquality_name[pb.cfg_data.quality]+" "+
+              (__VIDRESH?__VIDRESH+"p":"")).trim();
             vr=__VIDRESH;
           }
           else{
