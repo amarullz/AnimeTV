@@ -67,37 +67,26 @@ video{
     /* Prepare stream data */
     var dash=(location.hash==="#dash");
     var uri=huri.substring(1);
+    var puri=new URL(uri);
+    var purihost=puri.host;
     var player=document.getElementById('player');
     var vtype='application/x-mpegURL';
     if (dash){
       vtype='application/dash+xml';
     }
-    var puri=new URL(uri);
-    videojs.Vhs.xhr.beforeRequest = (options) => {
-      // console.warn(["XHR", options]);
-      if (!options.headers){
-        options.headers={};
-      }
-      options.headers['X-Stream-Prox']=puri.host;
-      return options;
-    };
-    // videojs.Vhs.xhr.beforeSend = request => {
-    //   requst.setRequestHeader('X-Stream-Prox', puri.host)
-    // };
-    // videojs.Vhs.xhr.beforeSend = (options) => {
-    //   options.beforeSend = (xhr) => {
-    //     xhr.setRequestHeader("X-Stream-Prox",puri.host);
-    //   };
-    //   return options;
-    // };
-
-    // const globalXhrRequestHook = (options) => {
-    //   options.beforeSend = (xhr) => {
-    //     xhr.setRequestHeader("X-Stream-Prox",puri.host);
-    //   };
-    //   return options;
-    // };
-    // videojs.Vhs.xhr.onRequest(globalXhrRequestHook);
+    else if (uri.indexOf("mp4upload.com")>-1){
+      vtype='video/mp4';
+      purihost="mp4upload.com";
+    }
+    if (!dash){
+      videojs.Vhs.xhr.beforeRequest = (options) => {
+        if (!options.headers){
+          options.headers={};
+        }
+        options.headers['X-Stream-Prox']=purihost;
+        return options;
+      };
+    }
 
     /* Create player */
     var video=videojs('player',{

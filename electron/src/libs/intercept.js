@@ -87,10 +87,14 @@ const intercept={
   checkStream(h){
     if (h.has("X-Stream-Prox")){
       var hostStream=h.get("X-Stream-Prox");
-      // h.delete("X-Stream-Prox");
+      h.delete("X-Stream-Prox");
       return hostStream+"";
     }
     return false;
+  },
+
+  fetchError(){
+    return new Response(null, {status: 404});
   },
 
   async fetchInject(url, req, inject){
@@ -108,15 +112,10 @@ const intercept={
     });
   },
 
-  async fetchNormal(url, req){
-    return net.fetch(url, {
-      method: req.method,
-      headers: req.headers,
-      body: req.body,
-      duplex: 'half',
-      bypassCustomProtocolHandlers: true
-    });
+  async fetchNormal(req){
+    return net.fetch(req,{ bypassCustomProtocolHandlers:true} );
   },
+
   async handler(req){
     try{
       const url = new URL(req.url);
@@ -147,27 +146,20 @@ const intercept={
           bypassCustomProtocolHandlers: true
         });
       }
+      else if (url.hostname.includes("mp4upload.com")){
+        req.headers.set('Referer','https://www.mp4upload.com/');
+        console.log("MP4UPLOAD: "+url);
+        return intercept.fetchNormal(req);
+      }
       else if(hostStream){
-        // if (req.headers.has('Referer')){
-        //   req.headers.delete('Referer');
-        // }
-        // if (req.headers.has('Origin')){
-        //   req.headers.delete('Origin');
-        // }
-        if (common.main.vars.sd<=2){
-          // req.headers.set('Origin','https://'+hostStream);
-          // req.headers.delete('Referer');
-          console.log("V1");
+        if (common.main.vars.sd>2){
+          /* Other streaming */
+          var h=hostStream.split(".");
+          var host2=h[h.length-2]+"."+h[h.length-1];
+          req.headers.set('Referer','https://'+host2+'/');
+          req.headers.set('Origin','https://'+host2);
         }
-        else{
-          // var h=hostStream.split(".");
-          // var h2=h[h.length-2]+"."+h[h.length-1];
-          // req.referrer=new URL('https://'+hostStream+'/');
-          req.headers.set('Referer','https://'+hostStream+'/');
-          req.headers.set('Origin','https://'+hostStream);
-          console.log("V2: "+hostStream);
-        }
-        return intercept.fetchNormal(req.url, req);
+        return intercept.fetchNormal(req);
       }
       else if (req.url.startsWith("https://www.youtube.com/embed/")||req.url.startsWith("https://www.youtube-nocookie.com/embed/")){
         return intercept.fetchInject(req.url, req, intercept.youtubeInjectString);
@@ -176,7 +168,7 @@ const intercept={
         let accept=req.headers.get("accept");
         if (accept!=null && (accept.includes("text/css")||accept.includes(
             "image/"))){
-          return new Response(null, {status: 404});
+          return intercept.fetchError();
         }
         if (req.url.endsWith("/endscreen.js")||
           req.url.endsWith("/captions.js")||
@@ -184,9 +176,9 @@ const intercept={
           req.url.includes("/log_event?alt=json")||
           req.url.includes(".com/ptracking")||
           req.url.includes(".com/api/stats/")){
-          return new Response(null, {status: 404});
+          return intercept.fetchError();
         }
-        return intercept.fetchNormal(req.url, req);
+        return intercept.fetchNormal(req);
       }
       else if (intercept.domains.vidplays.indexOf(url.host)>-1){
         /* Injector */
@@ -196,11 +188,11 @@ const intercept={
         else{
           req.headers.set('Origin','https://'+url.hostname);
           req.headers.set('Referer','https://'+url.hostname+'/');
-          let f=intercept.fetchNormal(req.url, req);
+          let f=intercept.fetchNormal(req);
           if (url.pathname.startsWith("/mediainfo")){
             let body=await (await f).text();
             common.execJs("__M3U8CB("+body+");");
-            f=intercept.fetchNormal(req.url, req);
+            return intercept.fetchError();
           }
           return f;
         }
@@ -220,15 +212,15 @@ const intercept={
         url.hostname.includes("googleapis.com")
       ){
         /* BLOCK DNS */
-        return new Response(null, {status: 404});
+        return intercept.fetchError();
       }
       else {
-        return intercept.fetchNormal(req.url, req);
+        return intercept.fetchNormal(req);
       }
     }catch(e){
       console.log(e);
     }
-    return intercept.fetchNormal(req.url, req);
+    return intercept.fetchNormal(req);
   }
 };
 
