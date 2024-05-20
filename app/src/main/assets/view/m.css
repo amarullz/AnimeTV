@@ -620,7 +620,7 @@ c.loader {
   width:21vw;
 }
 .animetv_header_banner #search_voice.animetv_voice.onvoice:before{
-  width:58.8vw;
+  width:59vw;
 }
 .animetv_header_banner .animetv_voice.onvoice c{
   text-shadow: none !important;
@@ -751,7 +751,8 @@ c.loader {
   border-radius: 5vw;
   position: absolute;
   padding-left:1vw;
-  margin-top:-.4vw;
+  margin-top:-.5vw;
+  vertical-align: middle;
 }
 .animetv_header #search_kw_holder c{
   text-shadow: none !important;
@@ -903,7 +904,8 @@ c.loader {
   left: 0;
   top: 0;
   white-space: nowrap;
-  background-color: var(--primary-bg);
+  /* background-color: var(--primary-bg); */
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary-1) 35%, #000) 0%, var(--primary-bg) 90%);
   box-sizing: border-box;
   display: block;
 }
@@ -945,7 +947,7 @@ c.loader {
   width:100vw;
   height:40vw;
   display: block;
-  background-color: var(--primary-bg);
+  /* background-color: var(--primary-bg); */
   overflow: hidden;
   position: absolute;
   top:0;
@@ -2804,6 +2806,7 @@ c.loader {
   z-index:0;
   transition: transform var(--tim-3s) var(--interpolation);
   will-change: transform;
+  background: linear-gradient(180deg, transparent 70%, color-mix(in srgb, var(--primary-1) 30%, rgba(0,0,0,.5)) 100%) !important;
 }
 #home_pull_refresh{
   position: absolute;

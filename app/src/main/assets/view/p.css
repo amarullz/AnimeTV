@@ -123,7 +123,8 @@
 }
 #search_header.animetv_header,
 #home_header.animetv_header{
-  background-color: var(--primary-1) !important;
+  background: var(--primary-1) !important;
+  background-color: color-mix(in srgb, var(--primary-1) 40%, rgba(0,0,0,.8)) !important;
 }
 #search_header_banner{
   margin-top: 0;
@@ -285,10 +286,10 @@
 
 /* ------------------------------ search ----------------------------- */
 #search_content{
-  margin-top:calc(20vh + var(--sys-stat-height));
+  margin-top:calc(22vh + var(--sys-stat-height));
 }
 .istouch #search_content{
-  margin-top:calc(15vh + var(--sys-stat-height));
+  margin-top:calc(17vh + var(--sys-stat-height));
 }
 .animetv_header #search_kw_holder{
   position: relative;
@@ -316,7 +317,7 @@
   display: none !important;
 }
 #search {
-  background: var(--primary-bg) !important;
+  background: color-mix(in srgb, var(--primary-1) 25%, #000) !important;
 }
 
 /* ------------------------------ slideshow ----------------------------- */
@@ -671,8 +672,8 @@
 .view-bigfont #malview,
 #malview {
   border-radius: .5vh;
-  right:10vw !important;
-  left:10vw !important;
+  right:4vw !important;
+  left:4vw !important;
   bottom:25vh;
   height:50vh;
 }
@@ -695,7 +696,7 @@
   left:0;
   top:22vh;
   right:0;
-  width:80vw;
+  width:92vw;
   bottom:0;
 }
 #malview_info div{
