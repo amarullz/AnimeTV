@@ -12272,7 +12272,15 @@ const home={
         pb.menu_clear(home.settings.styling);
         pb.menu_clear(home.settings.performance);
         pb.menu_clear(home.settings.more);
-        pb.menu_clear(home.settings.networks);
+        if (_ISELECTRON){
+          if (home.settings.networks.parentElement){
+            home.settings.networks.style.display='none';
+            home.settings.networks.parentElement.removeChild(home.settings.networks);
+          }
+        }
+        else{
+          pb.menu_clear(home.settings.networks);
+        }
         pb.menu_clear(home.settings.integration);
         pb.menu_clear(home.settings.about);
 
@@ -12534,43 +12542,47 @@ const home={
         */
 
         /* Networks */
-        home.settings.tools._s_httpclient=$n(
-          'div','',{
-            action:'*httpclient',
-            s_desc:"Select HTTP Client that works for your connection"
-          },
-          home.settings.networks.P,
-          '<c>public</c> HTTP Client<span class="value"></span>'
-        );
-
-        home.settings.tools._s_usedoh=$n(
-          'div','',{
-            action:'*usedoh',
-            s_desc:"Use dns over https for securely resolving domain name. Enable if your ISP blocked source domain (Only works with OkHttp)"
-          },
-          home.settings.networks.P,
-          '<c class="check">clear</c><c>encrypted</c> Use DoH'
-        );
-
-        if (home.profiles.isadmin()){
-          home.settings.tools._s_cachesz=$n(
+        if (_ISELECTRON){
+        }
+        else{
+          home.settings.tools._s_httpclient=$n(
             'div','',{
-              action:'*cachesz',
-              s_desc:"Set maximum disk cache size for HTTP Client. Only works for okHttp and Cronet"
+              action:'*httpclient',
+              s_desc:"Select HTTP Client that works for your connection"
             },
             home.settings.networks.P,
-            '<c>disc_full</c> Cache Size<span class="value"></span>'
+            '<c>public</c> HTTP Client<span class="value"></span>'
+          );
+
+          home.settings.tools._s_usedoh=$n(
+            'div','',{
+              action:'*usedoh',
+              s_desc:"Use dns over https for securely resolving domain name. Enable if your ISP blocked source domain (Only works with OkHttp)"
+            },
+            home.settings.networks.P,
+            '<c class="check">clear</c><c>encrypted</c> Use DoH'
+          );
+
+          if (home.profiles.isadmin()){
+            home.settings.tools._s_cachesz=$n(
+              'div','',{
+                action:'*cachesz',
+                s_desc:"Set maximum disk cache size for HTTP Client. Only works for okHttp and Cronet"
+              },
+              home.settings.networks.P,
+              '<c>disc_full</c> Cache Size<span class="value"></span>'
+            );
+          }
+
+          home.settings.tools._s_progcache=$n(
+            'div','',{
+              action:'*progcache',
+              s_desc:"Cache content progressively for better performance. Turn off if image or playback not working"
+            },
+            home.settings.networks.P,
+            '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
           );
         }
-
-        home.settings.tools._s_progcache=$n(
-          'div','',{
-            action:'*progcache',
-            s_desc:"Cache content progressively for better performance. Turn off if image or playback not working"
-          },
-          home.settings.networks.P,
-          '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
-        );
 
         
 
@@ -12641,7 +12653,8 @@ const home={
           home.settings.about.P,
           "<c>sports_esports</c> Discord Server"
         );
-        if (home.profiles.isadmin()){
+
+        if (!_ISELECTRON && home.profiles.isadmin()){
           home.settings.tools._s_checknightly=$n(
             'div','',{
               action:'*checknightly'
@@ -12706,11 +12719,15 @@ const home={
         home.settings.video,
         home.settings.styling,
         home.settings.performance,
-        home.settings.more,
-        home.settings.networks,
-        home.settings.integration,
-        home.settings.about
+        home.settings.more
       ];
+      if (!_ISELECTRON){
+        home.settings.menus.push(
+          home.settings.networks
+        );
+      }
+      home.settings.menus.push(home.settings.integration);
+      home.settings.menus.push(home.settings.about);
       for (var i=0;i<home.settings.menus.length;i++){
         home.settings.menus[i].classList.remove('active');
       }
