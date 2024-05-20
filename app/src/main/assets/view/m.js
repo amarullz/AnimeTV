@@ -2399,6 +2399,7 @@ const _API={
   },
   videoSetUrl:function(src){
     if (_ISELECTRON){
+      console.warn("ELECTRON VIDEO SRC = "+src);
       try{
         if (pb && 'pb_vid' in pb){
           _API.videoSrcValue=src;

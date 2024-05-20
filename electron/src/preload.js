@@ -34,10 +34,12 @@ async function invoke(c,d){
 
 /* Config Loader */
 (async function(){
-  let c=invoke('config-load','');
-  let v=invoke('vars-load','');
-  vars.config = await c.then();
-  vars.vars = await v.then();
+  // let c=invoke('config-load','');
+  // let v=invoke('vars-load','');
+  // vars.config = await c.then();
+  // vars.vars = await v.then();
+  vars.config =ipcRenderer.sendSync('config-load','');
+  vars.vars =ipcRenderer.sendSync('vars-load','');
   console.log(vars);
 })();
 
@@ -101,12 +103,20 @@ const api={
   },
 
   /* network functions */
-  dns(){ return "aniwave.to"; },
+  dns(){ return vars.vars.dns[vars.vars.sd]; },
   flix_dns(){ return "api.animeflix.dev"},
-  getSd(){ return 1 },
-  setSd(s){},
-  setSdomain(s){},
-  getSdomain(){ return ''; },
+  getSd(){ return vars.vars.sd; },
+  setSd(s){
+    vars.vars.sd=s;
+    vars.config.__sd=s;
+    invoke('vars-save',JSON.stringify(vars.vars));
+    invoke('config-save',JSON.stringify(vars.config));
+  },
+  setSdomain(s){
+    vars.vars.sd_domain=s;
+    invoke('vars-save',JSON.stringify(vars.vars));
+  },
+  getSdomain(){ return vars.vars.sd_domain; },
 
   /* networks config */
   setProgCache(v){},

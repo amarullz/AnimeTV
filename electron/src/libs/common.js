@@ -24,6 +24,14 @@ const { pathToFileURL } = require('url')
 const fs = require("fs");
 
 const common={
+  dns:[
+    "aniwave.to", /* default */
+    "aniwave.to",
+    "anix.to",
+    "hianime.to",
+    "aniwatchtv.to",
+    "animeflix.live", "kaas.to"
+  ],
   main:{
     /* animetv.js global object */
   },

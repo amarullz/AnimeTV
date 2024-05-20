@@ -49,38 +49,49 @@ const main={
     /* Init all handlers */
     ipcMain.on("main",main.handlerWin);
     main.win.webContents.on("before-input-event",main.handlerKeys);
-    ipcMain.handle('config-load', main.handlerConfigLoad);
+    ipcMain.on('config-load', main.handlerConfigLoad);
+    ipcMain.on('vars-load', main.handlerVarsLoad);
     ipcMain.handle('config-save', main.handlerConfigSave);
-    ipcMain.handle('vars-load', main.handlerVarsLoad);
     ipcMain.handle('vars-save', main.handlerVarsSave);
     ipcMain.handle('intent-start', main.handlerIntent);
     ipcMain.handle('set-url', (e,d)=>{
       if (d!=''){
-        main.win.loadURL("https://aniwave.to/__ui/player.html?"+d);
+        main.win.loadURL(d);
       }
     });
 
-    
+    /* init values */
+    if ('__sd' in common.config){
+      main.vars.sd=common.config.__sd;
+    }
+    main.vars.dns=common.dns;
 
     /* Go home & show */
     main.goHome();
     main.win.setMenu(null);
     main.win.show();
   },
+  dns(){
+    return common.dns[main.vars.sd];
+  },
   vars:{
     profile_sel:-1,
-    profile_prefix:''
+    profile_prefix:'',
+    sd:1,
+    sd_domain:''
   },
   handlerIntent(e,d){
     shell.openExternal(d);
   },
   handlerVarsLoad(e,d){
+    e.returnValue = main.vars;
     return main.vars;
   },
   handlerVarsSave(e,d){
     main.vars=JSON.parse(d);
   },
   handlerConfigLoad(e,d){
+    e.returnValue = common.config;
     return common.config;
   },
   handlerConfigSave(e,d){
@@ -91,7 +102,7 @@ const main={
     if (input.type === "keyDown") {
       if (input.key==="F10"){
         // Settings
-        main.win.loadURL("https://aniwave.to/__view/test.html");
+        main.win.loadURL("https://"+main.dns()+"/__view/test.html");
       }
       else if (input.key === "F12") {
         // dev console
@@ -110,7 +121,7 @@ const main={
       }
       else if (input.key === "F8"){
         // video player
-        main.win.loadURL("https://aniwave.to/__ui/player.html");
+        main.win.loadURL("https://"+main.dns()+"/__ui/player.html");
       }
       else{
         let c=0;
@@ -148,7 +159,7 @@ const main={
     }
   },
   goHome(){
-    main.win.loadURL("https://aniwave.to/__view/main.html");
+    main.win.loadURL("https://"+main.dns()+"/__view/main.html");
   },
   path(filename) {
     return path.join(app.getAppPath(), filename);
