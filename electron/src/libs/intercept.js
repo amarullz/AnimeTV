@@ -75,6 +75,20 @@ const intercept={
 
   checkHeaders(h){
     let body=null;
+    if (h.has('X-NoH-Proxy')){
+      h.delete('Host');
+      h.delete('Origin');
+      h.delete('Referer');
+      h.delete('X-NoH-Proxy');
+      if (h.has('X-Org-Prox')){
+        h.set('Origin',h.get('X-Org-Prox'));
+        h.set('Referer',h.get('X-Org-Prox'));
+      }
+      h.delete('X-Org-Prox');
+      h.delete('X-Ref-Prox');
+      return null;
+    }
+
     h.delete('Host');
     if (h.has('Post-Body')){
       body=decodeURIComponent(h.get('Post-Body'));
