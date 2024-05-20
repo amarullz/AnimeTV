@@ -174,6 +174,10 @@ const intercept={
             req.headers.set('Referer','https://megacloud.tv/');
             req.headers.set('Origin','https://megacloud.tv');
           }
+          else if (common.main.vars.sd==5){
+            req.headers.set('Referer','https://'+common.dns[5]+'/');
+            req.headers.set('Origin','https://'+common.dns[5]);
+          }
           else{
             req.headers.set('Referer','https://'+host2+'/');
             req.headers.set('Origin','https://'+host2);
