@@ -2346,6 +2346,67 @@ var clk=__clk_init();
 
 /***************************** API HANDLERS *****************************/
 const _API={
+  videoInitCbInitialized:false,
+  videoSrcValue:'',
+  videoElectronPos:{},
+  videoInitCb:function(){
+    if (_API.videoInitCbInitialized){
+      return;
+    }
+    _API.videoInitCbInitialized=true;
+    window.addEventListener('message',function(e) {
+      if (_API.videoSrcValue && e){
+        try{
+          console.log("PLAYER-MSG = "+e.data);
+          var pd=JSON.parse(e.data);
+          if (pd){
+            if ('vcmd' in pd){
+              if (pd.vcmd=='time'){
+                _API.videoElectronPos=pd.val;
+              }
+              pb.vid_event(pd.vcmd,pd.val);
+            }
+          }
+        }catch(x){
+          console.error(x);
+        }
+      }
+    });
+  },
+  videoPost:function(c,v){
+    if (_ISELECTRON){
+      console.log("PLAYER-POST = "+c+" -> "+v);
+      pb.vid.contentWindow.postMessage(JSON.stringify({
+        vcmd:c,
+        val:v
+      }),'*');
+      try{
+        if (c=='seek'){
+          _API.videoElectronPos.position=v;
+        }
+      }catch(e){};
+    }
+  },
+  videoSetUrl:function(src){
+    if (_ISELECTRON){
+      try{
+        if (pb && 'pb_vid' in pb){
+          _API.videoSrcValue=src;
+          if (src){
+            _API.videoInitCb();
+            pb.vid=$n('iframe','',{src:'/__ui/player.html?'+src,frameborder:'0'},pb.pb_vid,'');
+          }
+          else{
+            pb.pb_vid.innerHTML='';
+            pb.vid=null;
+          }
+        }
+      }catch(e){}
+    }else{
+      _JSAPI.videoSetUrl(src);
+    }
+  },
+
   /* USER-MANAGEMENT */
   user:'', /* current user prefix _API.user */
   user_prefix:'', /* current localStorage user prefix _API.user_prefix */
@@ -3925,6 +3986,9 @@ const _API={
   },
   vidInterval:null,
   videoGetPos:function(){
+    if (_ISELECTRON){
+      return _API.videoElectronPos;
+    }
     return {
       position:_JSAPI.videoGetPosition()/1000.0,
       duration:_JSAPI.videoGetDuration()/1000.0
@@ -3933,6 +3997,7 @@ const _API={
   videoScale:function(scale){
     _JSAPI.videoSetScale(scale);
   },
+
   videoPlay:function(){
     _JSAPI.videoPlay(true);
   },
@@ -3949,7 +4014,7 @@ const _API={
       _API.vidInterval=null;
     }
     if (src){
-      _JSAPI.videoSetUrl(src);
+      _API.videoSetUrl(src);
       var initialized=false;
       var isplayed=false;
       body.classList.remove('playback_on_video');
@@ -3998,7 +4063,7 @@ const _API={
     }
     else{
       body.classList.remove('playback_on_video');
-      _JSAPI.videoSetUrl("");
+      _API.videoSetUrl("");
     }
   },
 
@@ -5909,6 +5974,13 @@ const pb={
       // if (pb.cfg_data.html5player){
       //   pb.vid_cmd('scale',pb.cfg_data.scale);
       // }
+      if (_ISELECTRON){
+        pb.vid_cmd('scale',pb.cfg_data.scale);
+        pb.vid_cmd('speed',_API.vidSpeed);
+        if (pb.vid){
+          pb.vid.classList.add('ready');
+        }
+      }
       vtt.playback.buffering_set(true);
     }
     else if (c=='play'){
@@ -5922,6 +5994,13 @@ const pb={
       //   pb.vid_cmd('speed',_API.vidSpeed);
       //   pb.vid_cmd('scale',pb.cfg_data.scale);
       // }
+      if (_ISELECTRON){
+        pb.vid_cmd('scale',pb.cfg_data.scale);
+        pb.vid_cmd('speed',_API.vidSpeed);
+        if (pb.vid){
+          pb.vid.classList.add('ready');
+        }
+      }
     }
     else if (c=='pause'){
       vtt.playback.pause();
@@ -5930,6 +6009,7 @@ const pb={
       pb.pb_touch_play.innerHTML='play_arrow';
     }
     else if (c=='time'){
+      console.warn(v);
       pb.vid_stat.pos=v.position;
       pb.vid_stat.duration=v.duration;
       pb.track_update_pos();
@@ -5978,14 +6058,20 @@ const pb={
       if (c=='play'){
         pb.vid_stat.play=true;
         _API.videoPlay();
+        _API.videoPost('play',v);
       }
       else if (c=='pause'){
         pb.vid_stat.play=false;
         _API.videoPause();
+        _API.videoPost('pause',v);
       }
       else if (c=='seek'){
         pb.vid_stat.pos=v<0?0:v;
         _API.videoSeek(pb.vid_stat.pos);
+        _API.videoPost('seek',v);
+      }
+      else{
+        _API.videoPost(c,v);
       }
     };
     _API.setVideo(src,function(c,v){
@@ -6335,7 +6421,7 @@ const pb={
           }
         }catch(e){}
       }
-      if ((urivid &&!_ISELECTRON /*&& !pb.cfg_data.html5player*/) || (__SD3)){
+      if ((urivid /*&&!_ISELECTRON*/ /*&& !pb.cfg_data.html5player*/) || (__SD3)){
         if (urivid=="ERROR"){
           pb.playback_error(
             'PLAYBACK ERROR',
@@ -6433,9 +6519,9 @@ const pb={
         pb.pb_vid.innerHTML='';
         (function(){
           var iframe_src=pb.data.stream_vurl;
-          if (_ISELECTRON){
-            iframe_src+='&autostart=true';
-          }
+          // if (_ISELECTRON){
+          //   iframe_src+='&autostart=true';
+          // }
           // if (pb.cfg_data.html5player && __SD<3){
           //   iframe_src+='&autostart=true';
           // }
@@ -6469,9 +6555,9 @@ const pb={
       // if (pb.cfg_data.html5player && __SD<3){
       //   iframe_src+='&autostart=true';
       // }
-      if (_ISELECTRON){
-        iframe_src+='&autostart=true';
-      }
+      // if (_ISELECTRON){
+      //   iframe_src+='&autostart=true';
+      // }
       pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
     })();
   },
@@ -6798,7 +6884,7 @@ const pb={
     pb.pb_vid.innerHTML='';
     pb.vid_get_time_cb=pb.vid_cmd_cb=pb.vid=null;
     _API.setMessage(null);
-    // _JSAPI.videoSetUrl(pb.data.play_data.url);
+    // _JSAPI._API(pb.data.play_data.url);
     pb.init_video_mp4upload(pb.data.play_data.url);
   },
   flix_load_video:function(dd,loadss,cb){
@@ -6853,7 +6939,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6 &&!_ISELECTRON ){
+              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6/* &&!_ISELECTRON*/ ){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -10188,7 +10274,7 @@ const home={
       }
       home.anilist_yt.initialized=true;
       window.addEventListener('message',function(e) {
-        console.warn(e.data);
+        // console.warn(e.data);
         if (_MAL.pop.var.ondetail){
           var pd=JSON.parse(e.data);
           if (pd){

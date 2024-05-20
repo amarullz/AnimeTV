@@ -23,6 +23,9 @@ video-js, video{
   overflow: hidden;
   background-color: #000;
 }
+*{
+  pointer-events: none !important;
+}
 video-js div *,
 video-js div{
   display: none !important;
@@ -106,13 +109,14 @@ video{
       console.log('Pause');
     });
     video.on('seeking', function() {
-      // $p('seek',timing());
+      $p('seek',timing());
     });
     video.on('timeupdate', function() {
       $p('time',timing());
     });
     video.on('ended', function() {
       // this.dispose();
+      $p('complete',0);
       console.log('Ended');
     });
 
@@ -125,7 +129,7 @@ video{
         video.pause();
       }
       else if (c=='seek'){
-        video.currentTime(v);
+        video.currentTime(parseFloat(v));
       }
       else if (c=='speed'){
         video.playbackRate(v);

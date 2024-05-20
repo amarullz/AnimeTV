@@ -54,7 +54,7 @@ const api={
   /* videos */
   videoSetUrl(url){
     console.warn("SET VIDEO: "+url);
-    invoke('set-video',url);
+    // invoke('set-url',url);
   },
   videoSetPosition(pos){},
   videoPlay(play){},
@@ -64,7 +64,7 @@ const api={
   videoIsPlaying(){ return false },
   videoTracks(){},
   videoSetSpeed(speed){},
-  videoSupportSpeed(){ return false },
+  videoSupportSpeed(){ return true },
   videoSetScale(type){},
   setStreamType(type, clean){},
   setStreamServer(mirror, clean){},

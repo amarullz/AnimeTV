@@ -19,3 +19,4 @@ keystore/debug.keystore
 /node_modules
 /package-lock.json
 /electron/builds
+.idea/deploymentTargetSelector.xml

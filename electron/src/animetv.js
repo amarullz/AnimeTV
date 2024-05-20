@@ -37,6 +37,7 @@ const main={
       height: dh,
       minWidth: 1280,
       minHeight: 760,
+      icon:common.path("/tools/logo-design/animetv-logo/animetv-logo-square.png"),
       webPreferences: {
         webSecurity: false,
         nodeIntegration: true,
@@ -53,9 +54,9 @@ const main={
     ipcMain.handle('vars-load', main.handlerVarsLoad);
     ipcMain.handle('vars-save', main.handlerVarsSave);
     ipcMain.handle('intent-start', main.handlerIntent);
-    ipcMain.handle('set-video', (e,d)=>{
+    ipcMain.handle('set-url', (e,d)=>{
       if (d!=''){
-        // main.win.loadURL("https://aniwave.to/__ui/player.html?"+d);
+        main.win.loadURL("https://aniwave.to/__ui/player.html?"+d);
       }
     });
 
