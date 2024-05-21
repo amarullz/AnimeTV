@@ -78,6 +78,8 @@ const main={
   vars:{
     profile_sel:-1,
     profile_prefix:'',
+    stream_server:0,
+    stream_type:0,
     sd:1,
     sd_domain:''
   },

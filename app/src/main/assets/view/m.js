@@ -6614,10 +6614,10 @@ const pb={
   },
 
   reinit_video_to:null,
-  reinit_video_delay:function(ms){
+  reinit_video_delay:function(ms, isquality){
     clearTimeout(pb.reinit_video_to);
     pb.reinit_video_to=setTimeout(function(){
-      if (_ISELECTRON){
+      if (isquality&&_ISELECTRON){
         _API.videoPost('quality',pb.cfg_data.quality);
       }
       else{
@@ -7327,7 +7327,7 @@ const pb={
             function(chval){
               if (chval!=null){
                 _API.setStreamTypeValue(chval,1);
-                pb.reinit_video_delay(100);
+                pb.reinit_video_delay(100,false);
                 pb.cfg_update_el(key);
               }
             }
@@ -7340,7 +7340,7 @@ const pb={
         else if (key=="dub") sel=2;
         if (_API.currentStreamType!=sel){
           _API.setStreamTypeValue(sel,1);
-          pb.reinit_video_delay(100);
+          pb.reinit_video_delay(100,false);
         }
       }
       else if (key=="speed"){
@@ -7399,7 +7399,7 @@ const pb={
               pb.cfg_update_el(key);
               pb.cfg_save();
               if (pb.state){
-                pb.reinit_video_delay(1000);
+                pb.reinit_video_delay(1000,true);
               }
             }
           },

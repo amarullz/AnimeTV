@@ -69,9 +69,15 @@ const api={
   videoSetSpeed(speed){},
   videoSupportSpeed(){ return true },
   videoSetScale(type){},
-  setStreamType(type, clean){},
-  setStreamServer(mirror, clean){},
-  getStreamType(){ return 0 },
+  setStreamType(type, clean){
+    vars.vars.stream_type=type;
+    invoke('vars-save',JSON.stringify(vars.vars));
+  },
+  setStreamServer(mirror, clean){
+    vars.vars.stream_server=mirror;
+    invoke('vars-save',JSON.stringify(vars.vars));
+  },
+  getStreamType(){ return vars.vars.stream_type; },
 
   /* storage */
   storeGet(key, def){
