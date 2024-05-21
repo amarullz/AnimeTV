@@ -971,10 +971,6 @@ c.loader {
 #home_page .home_list{
   z-index: 10;
 }
-.istouch .home_list:before{
-  position: sticky;
-  left:0;
-}
 .home_slideshow p{
   transition: none;
   position: absolute;
