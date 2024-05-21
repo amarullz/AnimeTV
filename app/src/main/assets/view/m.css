@@ -2903,14 +2903,14 @@ c.loader {
 }
 #home_about span{
   padding:.5vw 0 2vw 0;
-  color:rgba(255,255,255,.6);
+  color:rgba(255,255,255,.4);
   text-shadow: .2vw .2vw .2vw #000;
   font-size:var(--fs-10vw);
   display: block;
 }
 #home_about span b{
   font-weight: normal;
-  color:rgba(255,255,255,.9);
+  color:rgba(255,255,255,.65);
   font-size:var(--fs-12vw);
 }
 

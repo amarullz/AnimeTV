@@ -478,7 +478,7 @@
   display: none;
 }
 #home_about span{
-  padding:.5vh 0 calc(2vh + var(--sys-nav-height)) 0;
+  padding:1vh 0 calc(3vh + var(--sys-nav-height)) 0;
   text-shadow: .2vh .2vh .2vh #000;
 }
 
@@ -708,8 +708,8 @@
   border-radius: .5vh;
   right:4vw !important;
   left:4vw !important;
-  bottom:25vh;
-  height:50vh;
+  bottom:20vh;
+  height:60vh;
 }
 #malview #malview_loading{
   line-height: 4vh;
@@ -835,10 +835,10 @@
 /* ------------------------------ anilist detail ----------------------------- */
 .view-bigfont #malview.anilist_detail,
 #malview.anilist_detail{
-  height:70vh;
-  bottom:15vh;
-  right:2vw !important;
-  left:2vw !important;
+  height:80vh;
+  bottom:10vh;
+  right:0 !important;
+  left:0 !important;
 }
 #anilist_detail .alsd_button{
   padding:0 .5vh 0 .5vh;
@@ -890,7 +890,7 @@
 }
 #anilist_detail img.alsd_poster{
   border-radius: .8vh;
-  margin-bottom: 1vh;
+  margin-bottom: 3vh;
   width:16vh;
   height:22vh;
   float: none !important;
@@ -920,8 +920,8 @@
   position:absolute !important;
   top:0 !important;
   left:0 !important;
-  width:98vw !important;
-  height:24.8vh !important;
+  width:100vw !important;
+  height:26.8vh !important;
   border-radius: 0 !important;
   margin-bottom: 0 !important;
   border-bottom: .1vw solid #000 !important;
@@ -936,7 +936,7 @@
 #anilist_detail .alsd_content h4 {
   position: absolute;
   left: 19vh;
-  top:3vh;
+  top: 3vh;
   right: 1.5vh;
   z-index: 10;
   color: #fff !important;
@@ -950,11 +950,12 @@
   text-shadow: none !important;
 }
 #anilist_detail .alsd_content .alsd_infobox{
-  position: absolute;
-  left: 19vh;
-  top:18vh;
-  right: 1.5vh;
-  z-index: 10;
+  /* position: absolute; */
+  /* left: 19vh; */
+  /* top:15vh; */
+  /* right: 1.5vh; */
+  /* z-index: 10; */
+  margin-bottom: 1vh;
 }
 #anilist_detail .alsd_content{
   padding-left: 0 !important;
@@ -1088,8 +1089,16 @@
 
 
 /******************************** SIDEBAR ***********************/
+#sidebar{
+  background:linear-gradient(90deg, 
+    #000 5%,
+    rgba(0, 0, 0, .8) 35%, 
+    rgba(0, 0, 0, .6) 70%, 
+    rgba(0, 0, 0, .3) 100%
+  );
+}
 #sidebar_contents{
-  width:18vh;
+  width:50vw;
   padding: 2vh;
   padding-top: calc(4vh + var(--sys-stat-height));
   transform: translateX(-5vh);
@@ -1117,9 +1126,9 @@
   padding-bottom: .5vh;
 }
 .sidebar_group .sidebar_item{
-  padding: 1vh;
-  border-radius: 5vh;
-  margin-bottom: .2vh;
+  padding: 2vh;
+  border-radius: 8vh;
+  margin-bottom: .4vh;
 }
 .sidebar_group .sidebar_item c{
   margin: -.5vh;
