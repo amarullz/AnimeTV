@@ -108,8 +108,9 @@
   bottom:0 !important;
   left:0 !important;
   right: 0 !important;
-  padding-bottom: var(--sys-nav-height) !important;
-  padding-top: 2vw !important;
+  margin-bottom: calc(var(--sys-nav-height) + 2vh) !important;
+  padding: 0 !important;
+  text-align: center !important;
 }
 #search_header.animetv_header{
   top:0 !important;
@@ -121,10 +122,17 @@
   padding-top: var(--sys-stat-height) !important;
   padding-bottom: 2vw !important;
 }
-#search_header.animetv_header,
-#home_header.animetv_header{
+#search_header.animetv_header{
   background: var(--primary-1) !important;
   background-color: color-mix(in srgb, var(--primary-1) 40%, rgba(0,0,0,.8)) !important;
+}
+#home_header.animetv_header #home_header_banner{
+  background-color: #222 !important;
+  border-radius: 10vh !important;
+  display: inline-block !important;
+  position: relative !important;
+  padding: .9vh .7vh .6vh .3vh !important;
+  box-shadow: 0 .01vh .03vh rgba(0, 0, 0, 0.12), 0 .01vh .02vh rgba(0, 0, 0, 0.24) !important;
 }
 #search_header_banner{
   margin-top: 0;
@@ -135,7 +143,7 @@
   color: rgba(255,255,255,.8) !important;
 }
 .animetv_header.scrolled{
-  transform: translateY(100%);
+  transform: translateY(calc(110% + calc(var(--sys-nav-height) + 2vh)));
 }
 #search_header.animetv_header_banner,
 #home_header_banner.animetv_header_banner{
@@ -425,8 +433,34 @@
 #home_pageschedule{
   padding-top:calc(2vh + var(--sys-stat-height));
 }
+#home_pagelist:before,
+#home_pageschedule:before{
+  display: block;
+  font-size: var(--fs-40vw);
+  line-height: 2;
+  padding-left: 5vw;
+  padding-bottom: 2vh;
+}
+#home_pageschedule:before{
+  content: 'Airing Schedule';
+}
+#home_pagelist:before{
+  content: 'MyList';
+}
+#home_pageschedule,
+#home_pagelist,
+#home_page{
+  transform: translateY(2vh) scale(.7);
+}
+#home_pageschedule.active,
+#home_pagelist.active,
+#home_page.active{
+  transform: translateX(0) scale(1);
+}
+
+#home_pagelist,
 #home_pageschedule{
-  min-height:70vh;
+  min-height:100vh;
 }
 .home_list_loader b{
   padding-top: 2vh;
@@ -570,7 +604,7 @@
 
 /* ------------------------------ settings ----------------------------- */
 #settings_inner {
-  width: 34vh;
+  width: 100vw;
 }
 #settings_scroll{
   top:calc(6vh + var(--sys-stat-height));
@@ -605,7 +639,7 @@
   height: 1.5vh;
 }
 .settings_group p div{
-  padding:1.2vh 5vh 1.2vh 6vh;
+  padding:1.6vh 5vh 1.6vh 6vh;
 }
 .settings_group p div c.check{
   margin-right: -4vh;
@@ -1027,7 +1061,7 @@
   max-height:75vh;
 }
 #listorder .settings_group p div{
-  padding:1vh 5vh 1vh 6vh;
+  padding:1.6vh 5vh 1.6vh 6vh;
 }
 #listorder .settings_group p div>c:not(.check){
   margin-left: -4vh;
