@@ -12891,16 +12891,18 @@ const home={
         $('popupcontainer').className='active';
         $('aboutpopup').className='active'; 
         if (uri){
-          var h='<div id="qr_holder_value"></div>'+title;
-          $('popup_qrcode').innerHTML=h;
-          new QRCode("qr_holder_value", {
-            text: uri,
-            width: 256,
-            height: 256,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-          });
+          var qrurl='https://api.qrserver.com/v1/create-qr-code/?size=256x256&data='+encodeURIComponent(uri);
+          $('popup_qrcode').innerHTML='<div id="qr_holder_value"><img src="'+qrurl+'"></div>'+title;
+          // var h='<div id="qr_holder_value"></div>'+title;
+          // $('popup_qrcode').innerHTML=h;
+          // new QRCode("qr_holder_value", {
+          //   text: uri,
+          //   width: 256,
+          //   height: 256,
+          //   colorDark : "#000000",
+          //   colorLight : "#ffffff",
+          //   correctLevel : QRCode.CorrectLevel.H
+          // });
           if (shouldback && _ISELECTRON){
             _JSAPI.openIntentUri(uri);
           }
