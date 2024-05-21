@@ -11677,61 +11677,106 @@ const home={
         }
       );
     },
-    set_pin:function(uid, cb){
+    set_pin:function(uid, cb, pinok){
       var usr=home.profiles.find(uid,false);
       if (!usr){
         cb();
         return false;
       }
-      if (uid==_API.user_prefix){
+      if (uid==_API.user_prefix && !pinok){
         if (usr.p){
-          var cp=_API.textPrompt(
+          _API.textPrompt(
             "Input your current PIN",undefined,
-            true, 4, ''
+            true, 4, '',function(cp){
+              if (cp && cp.value!=usr.p){
+                _API.showToast("PIN is Invalid");
+                cb();
+                return false;
+              }
+              home.profiles.set_pin(uid,cb,1);
+              return true;
+            }
           );
-          if (cp!=usr.p){
-            _API.showToast("PIN is Invalid");
-            cb();
-            return false;
-          }
+          return true;
         }
       }
-      while (true){
-        var v=_API.textPrompt(
-          "Set Pin","&bull; Use <b>4 Numeric</b> as PIN<br>&bull; Leave <b>empty</b> to clear pin",
-          true, 4, ''
-        );
-        if (v!=null){
-          if (v){
-            if (v.length==4){
-              var v2=_API.textPrompt(
-                "Confirm Pin","&bull; Input PIN again to confirm",
-                true, 4, ''
-              );
-              if (v2==v){
-                usr.p=v;
+      _API.textPrompt(
+        "Set Pin","&bull; Use <b>4 Numeric</b> as PIN<br>&bull; Leave <b>empty</b> to clear pin",
+        true, 4, '', function(vr){
+          if (vr){
+            var v=vr.value;
+            if (v){
+              if (v.length==4){
+                _API.textPrompt(
+                  "Confirm Pin","&bull; Input PIN again to confirm",
+                  true, 4, '', function(vr2){
+                    if (vr2 && vr2.value==v){
+                      usr.p=v;
+                      home.profiles.save();
+                      _API.showToast("PIN has been changed");
+                    }
+                    else if (confirm('Change PIN Failed.\nPIN Confirmation not match\n\nTry Again?')){
+                      home.profiles.set_pin(uid,cb,1);
+                      return;
+                    }
+                    cb();
+                  }
+                );
+                return;
+              }
+              else if (confirm('Change PIN Failed.\nPlease use 4 numeric for pin\n\nTry Again?')){
+                home.profiles.set_pin(uid,cb,1);
+                return;
+              }
+            }
+            else if (usr.p){
+              if (confirm("Remove PIN?")){
+                usr.p='';
                 home.profiles.save();
-                _API.showToast("PIN has been changed");
-              }
-              else if (confirm('Change PIN Failed.\nPIN Confirmation not match\n\nTry Again?')){
-                continue;
+                _API.showToast("PIN has been removed");
               }
             }
-            else if (confirm('Change PIN Failed.\nPlease use 4 numeric for pin\n\nTry Again?')){
-              continue;
-            }
           }
-          else if (usr.p){
-            if (confirm("Remove PIN?")){
-              usr.p='';
-              home.profiles.save();
-              _API.showToast("PIN has been removed");
-            }
-          }
+          cb();
         }
-        break;
-      }
-      cb();
+      );
+
+      // while (true){
+      //   var v=_API.textPrompt(
+      //     "Set Pin","&bull; Use <b>4 Numeric</b> as PIN<br>&bull; Leave <b>empty</b> to clear pin",
+      //     true, 4, ''
+      //   );
+      //   if (v!=null){
+      //     if (v){
+      //       if (v.length==4){
+      //         var v2=_API.textPrompt(
+      //           "Confirm Pin","&bull; Input PIN again to confirm",
+      //           true, 4, ''
+      //         );
+      //         if (v2==v){
+      //           usr.p=v;
+      //           home.profiles.save();
+      //           _API.showToast("PIN has been changed");
+      //         }
+      //         else if (confirm('Change PIN Failed.\nPIN Confirmation not match\n\nTry Again?')){
+      //           continue;
+      //         }
+      //       }
+      //       else if (confirm('Change PIN Failed.\nPlease use 4 numeric for pin\n\nTry Again?')){
+      //         continue;
+      //       }
+      //     }
+      //     else if (usr.p){
+      //       if (confirm("Remove PIN?")){
+      //         usr.p='';
+      //         home.profiles.save();
+      //         _API.showToast("PIN has been removed");
+      //       }
+      //     }
+      //   }
+      //   break;
+      // }
+      // cb();
       return true;
     },
     open:function(uid,sel,endcb){
