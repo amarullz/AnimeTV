@@ -619,6 +619,9 @@
   border-radius: 0 .5vh .5vh 0;
   border:.15vh solid var(--accent-1);
 }
+.home_list>.home_list_arrows c{
+  top:10vh;
+}
 
 .home_list p div i {
   left: .4vh;

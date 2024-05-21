@@ -840,7 +840,7 @@ c.loader {
   white-space: nowrap;
   overflow-x: auto;
   text-align: center;
-  height:6vh;
+  height:7vh;
   width: 100% !important;
 }
 .istouch #search_history::-webkit-scrollbar{
@@ -3017,7 +3017,8 @@ c.loader {
   position: sticky;
   opacity: 0;
   visibility: hidden;
-  transition: all var(--tim-3s) var(--interpolation);
+  transition: opacity var(--tim-3s) var(--interpolation),
+    visible var(--tim-3s) var(--interpolation);
   left:0;
   top:0;
   z-index: 20;
@@ -3043,7 +3044,7 @@ c.loader {
   text-align: center;
   background-color: rgba(0,0,0,.8);
   border-radius: var(--fs-25vw);
-  top:calc(2.5 * var(--fs-25vw));
+  top:7vw;
   cursor: pointer;
 }
 .home_list.onhover>.home_list_arrows c.left{
