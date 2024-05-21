@@ -554,7 +554,7 @@
 .home_list p div span.info {
   top: .7vh;
   right: .6vh;
-  max-width: 12vh;
+  max-width: 15vh;
 }
 .home_list p div span.info.info_bottom{
   top: calc(21vh - calc(var(--fs-8vw) * 1.4));
