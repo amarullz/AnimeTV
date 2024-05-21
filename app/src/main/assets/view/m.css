@@ -971,6 +971,10 @@ c.loader {
 #home_page .home_list{
   z-index: 10;
 }
+.istouch .home_list:before{
+  position: sticky;
+  left:0;
+}
 .home_slideshow p{
   transition: none;
   position: absolute;
@@ -2637,7 +2641,7 @@ c.loader {
   color: #aaa;
   height: var(--fs-13vw);
 }
-.istouch .pb_menu.home_tabs>p:before,
+/* .istouch .pb_menu.home_tabs>p:before, */
 .istouch .home_opt_list:before,
 .istouch .home_list:before{
   position: sticky;
