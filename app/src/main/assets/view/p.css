@@ -631,6 +631,9 @@
   height: .3vh;
 }
 
+#home_scroll{
+  background: linear-gradient(180deg, transparent 70%, color-mix(in srgb, var(--primary-1) 30%, rgba(0,0,0,.5)) 100%) !important;
+}
 
 /* ------------------------------ settings ----------------------------- */
 #settings_inner {
