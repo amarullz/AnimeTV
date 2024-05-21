@@ -60,6 +60,9 @@ const main={
         main.win.loadURL(d);
       }
     });
+    ipcMain.handle('exec-js', (e,d)=>{
+      common.execJs(d);
+    });
 
     /* init values */
     if ('__sd' in common.config){

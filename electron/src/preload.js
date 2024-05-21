@@ -180,7 +180,19 @@ const api={
   playNextClear(){},
   playNextRegister(){},
   playNextMeta(t,d,p,u,i,sd){},
-  videoSetMeta(title,artist,poster){},
+  videoSetMeta(title,artist,poster){
+    var bd={
+      title: title,
+      artist: artist,
+      album: title+" - "+artist,
+      artwork: [
+          { src: poster }
+      ]
+    };
+    invoke('exec-js',
+      'navigator.mediaSession.metadata=new MediaMetadata('+JSON.stringify(bd)+')'
+    );
+  },
   videoHaveNP(n,p){},
   voiceSearch(){},
   voiceClose(){},
