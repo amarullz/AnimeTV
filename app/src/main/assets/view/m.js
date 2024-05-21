@@ -4757,6 +4757,9 @@ const vtt={
       _JSAPI.videoBufferPercent();
       requestAnimationFrame(function(){
         var pc=_JSAPI.videoBufferPercent();
+        if (_ISELECTRON && _API.videoElectronPos.buffer && _API.videoElectronPos.duration){
+          pc=_API.videoElectronPos.buffer/_API.videoElectronPos.duration * 100;
+        }
         if (pb.pb_track_buffer._curr!=pc){
           pb.pb_track_buffer._curr=pc;
           if (pb.pb_track_buffer._curr>0){
