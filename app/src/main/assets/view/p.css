@@ -363,6 +363,7 @@
   padding:0;
   width:100vw;
   height:60vh;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary-1) 35%, #000) 0%, var(--primary-bg) 90%);
 }
 #home_slide_touch{
   width:100vw;
@@ -376,6 +377,7 @@
 .home_slideshow p div{
   width:100vw;
   height:60vh;
+  background-color: transparent;
 }
 .home_slideshow p div span.infobox span.infovalue span.info:before{
   display: block;
@@ -1136,6 +1138,35 @@
 #listorder .listorder_title.profile{
   padding:1.6vh;
 }
+
+
+
+#listorder .listorder_dialog_holder,
+#listorder .listorder_message{
+  padding:1.5vh 1.5vh 0 1.5vh;
+}
+#listorder .listorder_dialog_holder{
+  padding:1vh 1vh 0 1vh;
+}
+#listorder .listorder_dialog_button,
+#listorder .listorder_input{
+  padding: .6vh;
+  margin:1vh;
+  border-radius: .4vh;
+}
+#listorder .listorder_dialog_button{
+  border-radius: .6vh;
+  margin-left: .5vh;
+  margin-right: .5vh;
+  width:40%;
+}
+#listorder .listorder_input{
+  width: calc(100% - 2vh);
+}
+#listorder #listorder_window.inputdialog{
+  width:36vh;
+}
+
 
 
 /******************************** SIDEBAR ***********************/

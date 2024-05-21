@@ -942,8 +942,7 @@ c.loader {
   left: 0;
   top: 0;
   white-space: nowrap;
-  /* background-color: var(--primary-bg); */
-  background: linear-gradient(180deg, color-mix(in srgb, var(--primary-1) 35%, #000) 0%, var(--primary-bg) 90%);
+  background-color: var(--primary-bg);
   box-sizing: border-box;
   display: block;
 }
@@ -962,10 +961,10 @@ c.loader {
   width:100vw;
   height:100vw;
   margin-bottom: -67.5vw;
-  background: linear-gradient(180deg, var(--primary-bg) 46%, rgba(0, 0, 0, 0) 100%);
   overflow: hidden;
   position: relative;
   z-index: 1;
+  background: linear-gradient(180deg, var(--primary-bg) 46%, rgba(0, 0, 0, 0) 100%);
 }
 #home_page .home_tabs,
 #home_page .home_list{
@@ -985,7 +984,7 @@ c.loader {
   width:100vw;
   height:40vw;
   display: block;
-  /* background-color: var(--primary-bg); */
+  background-color: var(--primary-bg);
   overflow: hidden;
   position: absolute;
   top:0;
@@ -1020,7 +1019,6 @@ c.loader {
 .home_slideshow p div.active{
   opacity:1;
   z-index: 4;
-  background-color: #000;
 }
 .home_slideshow p div:before{
   content: ' ';
@@ -4299,15 +4297,30 @@ c.loader {
   text-align: center; 
 }
 
-
+#listorder .listorder_dialog_holder,
 #listorder .listorder_message{
   display: block;
-  padding:1vw 1.5vw 0 1.5vw;
+  padding:1.5vw 1.5vw 0 1.5vw;
   text-align: left;
-  font-size: var(--fs-12vw);
+  font-size: var(--fs-15vw);
   color: #aaa;
-  line-height: 1.5;
+  line-height: 1.4;
 }
+#listorder .listorder_message b{
+  color:#fff;
+}
+#listorder .listorder_message h6{
+  padding:0;
+  margin:0;
+  font-size: var(--fs-20vw);
+  color:#fff;
+  line-height: 1.8;
+}
+#listorder .listorder_dialog_holder{
+  text-align: center;
+  padding:1vw 1vw 0 1vw;
+}
+#listorder .listorder_dialog_button,
 #listorder .listorder_input{
   border: none !important;
   font-size: var(--fs-15vw);
@@ -4316,9 +4329,26 @@ c.loader {
   box-sizing: border-box;
   background-color: #111;
   color: #fff;
-  width: calc(100% - 2vw);
   margin:1vw;
   border-radius: .4vw;
+}
+#listorder .listorder_dialog_button{
+  border-radius: .6vw;
+  display: inline-block !important;
+  width:45%;
+  cursor: pointer;
+  margin-left: .5vw;
+  margin-right: .5vw;
+}
+#listorder .listorder_dialog_button:hover{
+  background-color: var(--primary-2);
+}
+#listorder .listorder_dialog_button:active,
+#listorder .listorder_dialog_button.active{
+  background-color: var(--primary-1);
+}
+#listorder .listorder_input{
+  width: calc(100% - 2vw);
 }
 #listorder #listorder_window.inputdialog{
   width:30vw;

@@ -2618,6 +2618,13 @@ const _API={
     _JSAPI.asyncPrompt(JSON.stringify(d),cb_n);
   },
 
+  confirm:function(title,text,cb){
+    listOrder.showConfirm(title,text,cb);
+  },
+  alert:function(title,text,cb){
+    listOrder.showConfirm(title,text,cb,true);
+  },
+
   confirmDialog:function(title,text,ishtml){
     var d={
       "title":title,
@@ -7718,9 +7725,11 @@ const pb={
                 pb.cfg_update_el(key);
               }
               else{
-                if (confirm("Clear AnimeTV Cache?")){
-                  _JSAPI.clearCache();
-                }
+                _API.confirm("Clear Cache","Clear AnimeTV Cache?",function(cnf){
+                  if (cnf){
+                    _JSAPI.clearCache();
+                  }
+                });
               }
             }
           }
@@ -8938,29 +8947,33 @@ const pb={
             return;
           }
           else if (list[v].id=="delanilist"){
-            if (!confirm("Remove from AniList?")){
-              return;
-            }
-            _MAL.alset_del(pb.MAL.myanilist.id, function(n){
-              if (n){
-                list_save_finish(v);
-              }
-              else{
-                _API.showToast("Remove from AniList failed...");
+            _API.confirm("Remove AniList",
+              "Remove this anime from your AniList?",function(cnf){
+              if (cnf){
+                _MAL.alset_del(pb.MAL.myanilist.id, function(n){
+                  if (n){
+                    list_save_finish(v);
+                  }
+                  else{
+                    _API.showToast("Remove from AniList failed...");
+                  }
+                });
               }
             });
             return;
           }
           else if (list[v].id=="delmal"){
-            if (!confirm("Remove from MAL?")){
-              return;
-            }
-            _MAL.set_del(pb.MAL.mal.id, function(n){
-              if (n){
-                list_save_finish(v);
-              }
-              else{
-                _API.showToast("Remove from MAL failed...");
+            _API.confirm("Remove MAL",
+              "Remove this anime from your MAL?",function(cnf){
+              if (cnf){
+                _MAL.set_del(pb.MAL.mal.id, function(n){
+                  if (n){
+                    list_save_finish(v);
+                  }
+                  else{
+                    _API.showToast("Remove from MAL failed...");
+                  }
+                });
               }
             });
             return;
@@ -11739,8 +11752,16 @@ const home={
                       home.profiles.save();
                       _API.showToast("PIN has been changed");
                     }
-                    else if (confirm('Change PIN Failed.\nPIN Confirmation not match\n\nTry Again?')){
-                      home.profiles.set_pin(uid,cb,1);
+                    else{
+                      _API.confirm("Change PIN Failed",
+                        "PIN Confirmation not match<br>Try Again?",
+                        function(cnf){
+                          if (cnf){
+                            home.profiles.set_pin(uid,cb,1);
+                            return;
+                          }
+                          cb();
+                      });
                       return;
                     }
                     cb();
@@ -11748,59 +11769,36 @@ const home={
                 );
                 return;
               }
-              else if (confirm('Change PIN Failed.\nPlease use 4 numeric for pin\n\nTry Again?')){
-                home.profiles.set_pin(uid,cb,1);
+              else{
+                _API.confirm("Change PIN Failed",
+                  "Please use 4 numeric for pin<br>Try Again?",
+                  function(cnf){
+                    if (cnf){
+                      home.profiles.set_pin(uid,cb,1);
+                      return;
+                    }
+                    cb();
+                });
                 return;
               }
             }
             else if (usr.p){
-              if (confirm("Remove PIN?")){
-                usr.p='';
-                home.profiles.save();
-                _API.showToast("PIN has been removed");
-              }
+              _API.confirm("Remove PIN",
+                "Are you sure you want to remove user PIN?",
+                function(cnf){
+                  if (cnf){
+                    usr.p='';
+                    home.profiles.save();
+                    _API.showToast("PIN has been removed");
+                  }
+                  cb();
+              });
+              return;
             }
           }
           cb();
         }
       );
-
-      // while (true){
-      //   var v=_API.textPrompt(
-      //     "Set Pin","&bull; Use <b>4 Numeric</b> as PIN<br>&bull; Leave <b>empty</b> to clear pin",
-      //     true, 4, ''
-      //   );
-      //   if (v!=null){
-      //     if (v){
-      //       if (v.length==4){
-      //         var v2=_API.textPrompt(
-      //           "Confirm Pin","&bull; Input PIN again to confirm",
-      //           true, 4, ''
-      //         );
-      //         if (v2==v){
-      //           usr.p=v;
-      //           home.profiles.save();
-      //           _API.showToast("PIN has been changed");
-      //         }
-      //         else if (confirm('Change PIN Failed.\nPIN Confirmation not match\n\nTry Again?')){
-      //           continue;
-      //         }
-      //       }
-      //       else if (confirm('Change PIN Failed.\nPlease use 4 numeric for pin\n\nTry Again?')){
-      //         continue;
-      //       }
-      //     }
-      //     else if (usr.p){
-      //       if (confirm("Remove PIN?")){
-      //         usr.p='';
-      //         home.profiles.save();
-      //         _API.showToast("PIN has been removed");
-      //       }
-      //     }
-      //   }
-      //   break;
-      // }
-      // cb();
       return true;
     },
     open:function(uid,sel,endcb){
@@ -11908,43 +11906,47 @@ const home={
               return;
             }
             else if (menu[v].id=="delete"){
-              if (confirm("Are you sure you want to delete user '"+usr.n+"'?")){
-                var un=home.profiles.find(uid,true);
-                if ((un>0)&&(uid!='')){
-                  home.profiles.users.splice(un,1);
-                  home.profiles.save();
-                  _API.showToast("User has been deleted");
+              _API.confirm("Delete User",
+                "Are you sure you want to delete user <b>"+usr.n+"</b>?",function(cnf){
+                if (cnf){
+                  var un=home.profiles.find(uid,true);
+                  if ((un>0)&&(uid!='')){
+                    home.profiles.users.splice(un,1);
+                    home.profiles.save();
+                    _API.showToast("User has been deleted");
 
-                  /* delete all pref */
-                  try{
-                    _JSAPI.storeDel(uid+"pb_cfg");
-                    _JSAPI.storeDel(uid+"mal_auth");
-                    _JSAPI.storeDel(uid+"anilist_auth");
-                    _JSAPI.storeDel(uid+"theme");
-                    _JSAPI.storeDel(uid+"list_history");
-                    _JSAPI.storeDel(uid+"list_fav");
-                    _JSAPI.storeDel(uid+"_anix_list_history");
-                    _JSAPI.storeDel(uid+"_anix_list_fav");
-                    _JSAPI.storeDel(uid+"search_history");
-                    _JSAPI.storeDel(uid+"search_config");
-                    _JSAPI.storeDel(uid+"_listorder_mylist");
+                    /* delete all pref */
+                    try{
+                      _JSAPI.storeDel(uid+"pb_cfg");
+                      _JSAPI.storeDel(uid+"mal_auth");
+                      _JSAPI.storeDel(uid+"anilist_auth");
+                      _JSAPI.storeDel(uid+"theme");
+                      _JSAPI.storeDel(uid+"list_history");
+                      _JSAPI.storeDel(uid+"list_fav");
+                      _JSAPI.storeDel(uid+"_anix_list_history");
+                      _JSAPI.storeDel(uid+"_anix_list_fav");
+                      _JSAPI.storeDel(uid+"search_history");
+                      _JSAPI.storeDel(uid+"search_config");
+                      _JSAPI.storeDel(uid+"_listorder_mylist");
 
-                    /* SD */
-                    _JSAPI.storeDel(uid+"sd");
-                    for (var i=1;i<=6;i++){
-                      _JSAPI.storeDel(uid+"sdomain_"+i);
+                      /* SD */
+                      _JSAPI.storeDel(uid+"sd");
+                      for (var i=1;i<=6;i++){
+                        _JSAPI.storeDel(uid+"sdomain_"+i);
+                      }
+                    }catch(e){}
+                    if (endcb){
+                      endcb(true);
+                      return;
                     }
-                  }catch(e){}
-                  if (endcb){
-                    endcb(true);
-                    return;
                   }
+                  home.profiles.open(uid,v,endcb);
                 }
-              }
-              else{
-                home.profiles.open(uid,v,endcb);
-                return;
-              }
+                else{
+                  home.profiles.open(uid,v,endcb);
+                }
+              });
+              return;
             }
           }
           if (endcb){
@@ -13878,19 +13880,25 @@ const home={
           if (kw){
             if (g._isclear){
               clk();
-              if(confirm("Clear search history?")){
-                home.search.history.clear();
-                home.search.src.init_search_history();
-              }
+              _API.confirm("Clear Search History",
+                "Are you sure you want to <b>clear all</b> search history?",function(cnf){
+                if (cnf){
+                  home.search.history.clear();
+                  home.search.src.init_search_history();
+                }
+              });
               return true;
             }
             else{
               clk();
               if (g._isdel){
-                if(confirm("Delete '"+kw+"' from search history?")){
-                  home.search.history.del(kw);
-                  home.search.src.init_search_history();
-                }
+                _API.confirm("Delete History",
+                  "Delete <b>"+kw+"</b> from search history?",function(cnf){
+                  if (cnf){
+                    home.search.history.del(kw);
+                    home.search.src.init_search_history();
+                  }
+                });
               }
               else{
                 s.keyword.value=kw;
@@ -14605,14 +14613,25 @@ const home={
                 );
               }
               else if (chval==2){
-                if (!confirm('WARNING!!!\n\nThis action will clear your watch history, and can\'t be restored.\n\nYou want to continue?')){
-                  return;
-                }
-                if (confirm('WARNING!!!\n\nYou Have '+(list.history.list.length)+' anime in your watch history.\nClear it now?')){
-                  list.history={detail:{},list:[]};
-                  list.save(list.history,'list_history');
-                  home.init_mylist(true);
-                }
+                _API.confirm("Clear Watch History",
+                  "<h6><c>warning</c> WARNING!!!</h6>"+
+                  "This action will clear your watch history, and <b>can't be restored</b>.<br>"+
+                  "<b>You want to continue?</b>",
+                  function(cnf1){
+                    if (cnf1){
+                      _API.confirm("Confirm Watch History",
+                        "<h6><c>warning</c> WARNING!!!</h6>"+
+                        "You Have <b>"+(list.history.list.length)+"</b> anime in your watch history.<br>"+
+                        "<b>Clear it now?</b>",
+                        function(cnf){
+                          if (cnf){
+                            list.history={detail:{},list:[]};
+                            list.save(list.history,'list_history');
+                            home.init_mylist(true);          
+                          }
+                      });
+                    }
+                });
               }
             }
           }
@@ -14848,9 +14867,13 @@ const home={
             _JSAPI.appQuit();
           }
           else if (em==1){
-            if (confirm("Exit AnimeTV?")){
-              _JSAPI.appQuit();
-            }
+            _API.confirm("AnimeTV",
+              "<b><c>door_open</c> Exit AnimeTV?</b>",
+              function(cnf){
+                if (cnf){
+                  _JSAPI.appQuit();
+                }
+            });
           }
           else if (em==2){
             if ((home.profiles.users.length>1)||(home.profiles.me.p)){
@@ -15772,18 +15795,26 @@ const _MAL={
   },
   login:function(isanilist,logintype){
     if (_MAL.token && !isanilist){
-      if (confirm('Are you sure you want to logout MyAnimeList integration?')){
-        _JSAPI.storeDel(_API.user_prefix+"mal_auth");
-        _API.showToast("MyAnimeList logout sucessfull...");
-        _API.reload();
-      }
+      _API.confirm("Logout MAL",
+        "Are you sure you want to logout MyAnimeList integration?",
+        function(cnf){
+          if (cnf){
+            _JSAPI.storeDel(_API.user_prefix+"mal_auth");
+            _API.showToast("MyAnimeList logout sucessfull...");
+            _API.reload();
+          }
+      });
     }
     else if (_MAL.altoken && isanilist){
-      if (confirm('Are you sure you want to logout AniList integration?')){
-        _JSAPI.storeDel(_API.user_prefix+"anilist_auth");
-        _API.showToast("AniList logout sucessfull...");
-        _API.reload();
-      }
+      _API.confirm("Logout AniList",
+        "Are you sure you want to logout AniList integration?",
+        function(cnf){
+          if (cnf){
+            _JSAPI.storeDel(_API.user_prefix+"anilist_auth");
+            _API.showToast("AniList logout sucessfull...");
+            _API.reload();
+          }
+      });
     }
     else{
       if (!isanilist && !logintype){
@@ -16774,21 +16805,25 @@ const _MAL={
             $('popupcontainer').className='active';
             if (chval!=null){
               if (chval==6){
-                /* delete */
-                if (confirm('Are you sure you want to remove it from AniList?')){
-                  _MAL.alset_del(hl._addal._mid, function(v){
-                    if (v){
-                      hl._addal._curr='';
-                      hl._addal.innerHTML='<c>bookmark_add</c><l>Add to</l> AniList';
-                      hl._addal._myinfo.innerHTML="Not on your list";
-                      home.init_mylist(true);
-                      _API.showToast("Deleted from AniList...");
+                _API.confirm("Remove from AniList",
+                  "Are you sure you want to remove it from AniList?",
+                  function(cnf){
+                    $('popupcontainer').className='active';
+                    if (cnf){
+                      _MAL.alset_del(hl._addal._mid, function(v){
+                        if (v){
+                          hl._addal._curr='';
+                          hl._addal.innerHTML='<c>bookmark_add</c><l>Add to</l> AniList';
+                          hl._addal._myinfo.innerHTML="Not on your list";
+                          home.init_mylist(true);
+                          _API.showToast("Deleted from AniList...");
+                        }
+                        else{
+                          _API.showToast("Deleting AniList failed...");
+                        }
+                      });
                     }
-                    else{
-                      _API.showToast("Deleting AniList failed...");
-                    }
-                  });
-                }
+                });
               }
               else{
                 var ssel = st[chval];
@@ -16850,19 +16885,24 @@ const _MAL={
             if (chval!=null){
               if (chval==5){
                 /* delete */
-                if (confirm('Are you sure you want to remove it from MAL?')){
-                  _MAL.set_del(hl._addmal._mid, function(v){
-                    if (v){
-                      hl._addmal._dat.my_list_status.status='';
-                      hl._addmal._update();
-                      home.init_mylist(true);
-                      _API.showToast("Deleted from MAL...");
+                _API.confirm("Remove from MAL",
+                  "Are you sure you want to remove it from MAL?",
+                  function(cnf){
+                    $('popupcontainer').className='active';
+                    if (cnf){
+                      _MAL.set_del(hl._addmal._mid, function(v){
+                        if (v){
+                          hl._addmal._dat.my_list_status.status='';
+                          hl._addmal._update();
+                          home.init_mylist(true);
+                          _API.showToast("Deleted from MAL...");
+                        }
+                        else{
+                          _API.showToast("Deleting MAL failed...");
+                        }
+                      });
                     }
-                    else{
-                      _API.showToast("Deleting MAL failed...");
-                    }
-                  });
-                }
+                });
               }
               else{
                 var ssel = st[chval];
@@ -17425,6 +17465,9 @@ const listOrder={
         window._KEYEV(KBACK,1);
         return;
       }
+      if (listOrder.popuptype==6){
+        return;
+      }
       if (listOrder.popuptype==5){
         listOrder.group.focus();
         return;
@@ -17623,6 +17666,75 @@ const listOrder={
       inp.selectionStart = l;
       inp.selectionEnd = l;
     },10);
+  },
+  confirmKeyCb:function(c){
+    if (c==KBACK){
+      clk();
+      listOrder.changed=false;
+      listOrder.close();
+      return true;
+    }
+    else if (c==KENTER){
+      clk();
+      listOrder.close();
+      return true;
+    }
+    else if (c==KLEFT||c==KRIGHT){
+      if (listOrder.title_el._btnno){
+        if (listOrder.title_el._btnno.classList.contains('active')){
+          listOrder.title_el._btnyes.classList.add('active');
+          listOrder.title_el._btnno.classList.remove('active');
+          listOrder.changed=true;
+        }
+        else{
+          listOrder.title_el._btnyes.classList.remove('active');
+          listOrder.title_el._btnno.classList.add('active');
+          listOrder.changed=false;
+        }
+      }
+      return true;
+    }
+    return false;
+  },
+  showConfirm:function(title,message,cb,isalert,nohtml){
+    listOrder.popuptype=6;
+    listOrder.cb=cb;
+    listOrder.win.className='inputdialog';
+    listOrder.onpopup=true;
+    listOrder.win.innerHTML='';
+    listOrder.changed=true;
+    listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(title));
+    listOrder.title_el._msg=$n('div','listorder_message',null,listOrder.win,nohtml?special(message):message);
+    listOrder.group=$n('div','listorder_dialog_holder',null,listOrder.win,'');
+    if (isalert){
+      listOrder.title_el._btnyes=$n('div','listorder_dialog_button active',
+        null,listOrder.group,"OK"
+      );
+      listOrder.title_el._btnno=null;
+    }
+    else{
+      listOrder.title_el._btnyes=$n('div','listorder_dialog_button active',
+        null,listOrder.group,"YES"
+      );
+      listOrder.title_el._btnno=$n('div','listorder_dialog_button',
+        null,listOrder.group,"NO"
+      );
+      listOrder.title_el._btnno.onclick=function(){
+        listOrder.changed=false;
+        clk();
+        listOrder.close();
+        return true;
+      };
+    }
+    listOrder.title_el._btnyes.onclick=function(){
+      listOrder.changed=true;
+      clk();
+      listOrder.close();
+      return true;
+    };
+    $('popupcontainer').className='active onpopup';
+    listOrder.holder.classList.add('active');
+    listOrder.regclick();
   },
   showList:function(winTitle,list,sel,cb,ishtml,deficon,forcesel){
     listOrder.list_sel=sel;
@@ -17888,7 +18000,11 @@ const listOrder={
     },300);
     
     if (tmpcb){
-      if (ptype==5){
+      if (ptype==6){
+        tmpcb(listOrder.changed);
+        listOrder.changed=false;
+      }
+      else if (ptype==5){
         if (listOrder.currInputValue!=null){
           tmpcb({
             value:listOrder.currInputValue
@@ -17957,6 +18073,9 @@ const listOrder={
     }
     else if (listOrder.popuptype==5){
       return listOrder.inputKeyCb(c);
+    }
+    else if (listOrder.popuptype==6){
+      return listOrder.confirmKeyCb(c);
     }
     if (c==KBACK){
       clk();
