@@ -1004,6 +1004,19 @@
 #listorder .listorder_tips{
   padding:.6vh;
 }
+#listorder .listorder_message{
+  padding:1vh 1.5vh 0 1.5vh;
+}
+#listorder .listorder_input{
+  padding: .6vh;
+  width: calc(100% - 2vh);
+  margin:1vh;
+  border-radius: .4vh;
+}
+#listorder #listorder_window.inputdialog{
+  width:50vw;
+}
+
 #listorder .listorder_tips{
   border-top: .1vh solid #282828;
 }

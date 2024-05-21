@@ -2576,6 +2576,10 @@ const _API={
   },
 
   textPrompt:function(title,message,ispin,maxlen,dv,cb,nohtml){
+    if (_ISELECTRON){
+      listOrder.showInput(title,message,ispin,maxlen,dv,cb,nohtml);
+      return;
+    }
     var d={
       'type':'text',
       'title':title,
@@ -17340,6 +17344,10 @@ const listOrder={
         window._KEYEV(KBACK,1);
         return;
       }
+      if (listOrder.popuptype==5){
+        listOrder.group.focus();
+        return;
+      }
       while(el){
         if (el.parentElement==this){
           el=null;
@@ -17471,6 +17479,69 @@ const listOrder={
     listOrder.holder.classList.add('active');
     listOrder.autoScroll(listOrder.group,listOrder.group._sel);
     listOrder.regclick();
+  },
+  inputKeyCb:function(c){
+    if (c==KBACK){
+      clk();
+      listOrder.currInputValue=null;
+      listOrder.close();
+      return true;
+    }
+    else if (c==KENTER){
+      clk();
+      listOrder.currInputValue=listOrder.group.value;
+      listOrder.close();
+      return true;
+    }
+    else if (c==KLEFT||c==KRIGHT){
+      var p=listOrder.group.selectionStart;
+      p+=(c==KLEFT)?-1:1;
+      if (p>=0 && p<=listOrder.group.value.length){
+        listOrder.group.selectionEnd=listOrder.group.selectionStart=p;
+      }
+      listOrder.group.focus();
+      return true;
+    }
+    return false;
+  },
+  currInputValue:null,
+  showInput:function(title,message,ispin,maxlen,dv,cb,nohtml){
+    listOrder.popuptype=5;
+    listOrder.cb=cb;
+    listOrder.win.className='inputdialog';
+    listOrder.onpopup=true;
+    listOrder.win.innerHTML='';
+    listOrder.currInputValue=dv?dv:null;
+    listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(title));
+    listOrder.title_el._msg=$n('div','listorder_message',null,listOrder.win,nohtml?special(message):message);
+    var inp=$n('input','listorder_input',{
+        type:ispin?'password':'text',
+        maxlength:maxlen?maxlen:10,
+        value:dv?dv:'',
+        spellcheck:"false"
+      },listOrder.win,''
+    );
+    listOrder.group=inp;
+
+    if (ispin){
+      inp.oninput=function(){
+        var cv=this.value;
+        var rv=cv.replace(/\D/g,'');
+        if (rv!=cv){
+          this.value=rv;
+        }
+      };
+    }
+
+    $('popupcontainer').className='active onpopup';
+    listOrder.holder.classList.add('active');
+    listOrder.regclick();
+    setTimeout(function(){
+      inp.focus();
+      var l=inp.value.length;
+      inp.selectionStart = l;
+      inp.selectionEnd = l;
+    },10);
   },
   showList:function(winTitle,list,sel,cb,ishtml,deficon,forcesel){
     listOrder.list_sel=sel;
@@ -17736,7 +17807,18 @@ const listOrder={
     },300);
     
     if (tmpcb){
-      if (ptype==2){
+      if (ptype==5){
+        if (listOrder.currInputValue!=null){
+          tmpcb({
+            value:listOrder.currInputValue
+          });
+        }
+        else{
+          tmpcb(null);
+        }
+        listOrder.currInputValue=null;
+      }
+      else if (ptype==2){
         if (listOrder.group._sel && (listOrder.list_sel!=listOrder.group._sel._id)){
           tmpcb(listOrder.group._sel._id);
         }
@@ -17791,6 +17873,9 @@ const listOrder={
   keycb:function(c){
     if (listOrder.popuptype==1){
       return listOrder.imgKeyCb(c);
+    }
+    else if (listOrder.popuptype==5){
+      return listOrder.inputKeyCb(c);
     }
     if (c==KBACK){
       clk();

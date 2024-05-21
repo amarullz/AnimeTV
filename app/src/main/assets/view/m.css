@@ -4337,6 +4337,32 @@ c.loader {
   padding:.6vw;
   text-align: center; 
 }
+
+
+#listorder .listorder_message{
+  display: block;
+  padding:1vw 1.5vw 0 1.5vw;
+  text-align: left;
+  font-size: var(--fs-12vw);
+  color: #aaa;
+  line-height: 1.5;
+}
+#listorder .listorder_input{
+  border: none !important;
+  font-size: var(--fs-15vw);
+  text-align: center;
+  padding: .6vw;
+  box-sizing: border-box;
+  background-color: #111;
+  color: #fff;
+  width: calc(100% - 2vw);
+  margin:1vw;
+  border-radius: .4vw;
+}
+#listorder #listorder_window.inputdialog{
+  width:30vw;
+}
+
 #listorder .listorder_tips{
   background-color: #1e1e1e;
   color: #888;
