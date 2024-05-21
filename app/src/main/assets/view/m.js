@@ -1993,6 +1993,12 @@ function $img(src){
   }
   return src;
 }
+function $aimg(cvi){
+  if (cvi.large){
+    return cvi.large;
+  }
+  return cvi.medium;
+}
 
 function $imgcdn(src){
   try{
@@ -9039,7 +9045,7 @@ const pb={
                 var malid="anilistmedia_"+d.id;
                 _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
                 var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
-                hl._img=$n('img','',{loading:'lazy',src:$img(d.coverImage.large)},hl,'');
+                hl._img=$n('img','',{loading:'lazy',src:$img($aimg(d.coverImage))},hl,'');
                 hl._title=$n('b','',{
                   jp:d.title.romaji?d.title.romaji:d.title.english
                 },hl,tspecial(
@@ -10540,7 +10546,7 @@ const home={
           }
 
           hl._img=$n('img',d.bannerImageIsThumb?'isthumb':'',{loading:'lazy',src:''},hl._imgh,'');
-          loadBannerImage(hl._img, d.id, $img(d.bannerImage?d.bannerImage:d.coverImage.large));
+          loadBannerImage(hl._img, d.id, $img(d.bannerImage?d.bannerImage:$aimg(d.coverImage)));
 
           hl._viewbox=$n('span','infobox',null,hl,'');
           hl._view=$n('span','infovalue',null,hl._viewbox,'');
@@ -10588,6 +10594,7 @@ const home={
           }
           coverImage{
             large
+            medium
             color
           }
           trailer {
@@ -13292,6 +13299,7 @@ const home={
       }
       coverImage{
         large
+        medium
       }
       startDate {
         year
@@ -14686,7 +14694,7 @@ const home={
         var isAired=(d.airIn<0);
 
         var hl=$n('div','',{action:"#"+malid,arg:''},schedules.days_el[animeDay].P,'');
-        hl._img=$n('img','',{loading:'lazy',src:$img(d.coverImage.large)},hl,'');
+        hl._img=$n('img','',{loading:'lazy',src:$img($aimg(d.coverImage))},hl,'');
         hl._title=$n('b','',{jp:d.title.romaji?d.title.romaji:d.title.english},hl,tspecial(d.title.english?d.title.english:d.title.romaji));
 
         var airTime=d.airDate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
@@ -15186,6 +15194,7 @@ const _MAL={
           }
           coverImage{
             large
+            medium
             color
           }
           status
@@ -15316,6 +15325,7 @@ const _MAL={
             }
             coverImage{
               large
+              medium
             }
             status
             duration
@@ -15370,7 +15380,7 @@ const _MAL={
           _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
           var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
           
-          hl._img=$n('img','',{loading:'lazy',src:$img(d.coverImage.large)},hl,'');
+          hl._img=$n('img','',{loading:'lazy',src:$img($aimg(d.coverImage))},hl,'');
           hl._title=$n('b','',{
               jp:d.title.romaji?d.title.romaji:d.title.english
             },hl,tspecial(
@@ -15544,6 +15554,7 @@ const _MAL={
             }
             coverImage{
               large
+              medium
             }
             episodes
             status
@@ -15565,6 +15576,7 @@ const _MAL={
               }
               coverImage{
                 large
+                medium
               }
               episodes
               status
@@ -15648,6 +15660,7 @@ const _MAL={
           }
           coverImage{
             large
+            medium
           }
           startDate {
             year
@@ -15704,6 +15717,7 @@ const _MAL={
             }
             coverImage{
               large
+              medium
               color
             }
             status
@@ -15997,7 +16011,7 @@ const _MAL={
           var malid="anilist_"+d.id;
           _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
           var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
-          hl._img=$n('img','',{loading:'lazy',src:$img(d.media.coverImage.large)},hl,'');
+          hl._img=$n('img','',{loading:'lazy',src:$img($aimg(d.media.coverImage))},hl,'');
           _MAL.aldata[malid]._elm=hl;
           hl._title=$n('b','',{jp:d.media.title.romaji?d.media.title.romaji:d.media.title.english},hl,tspecial(d.media.title.english?d.media.title.english:d.media.title.romaji));
           var infotxt='';
@@ -16418,7 +16432,7 @@ const _MAL={
       var d=v.match;
       var hl=$n('div','alsd_container',null,_MAL.pop.detail_holder,'');
       hl._vleft=$n('div','alsd_left_container alsd_keyval',null,hl,'');
-      hl._img=$n('img','alsd_poster',{loading:'lazy',src:$img(d.coverImage.large)},hl._vleft,'');
+      hl._img=$n('img','alsd_poster',{loading:'lazy',src:$img($aimg(d.coverImage))},hl._vleft,'');
 
       hl._tools=$n('div','alsd_tools',null,_MAL.pop.detail_holder,'');
       hl._btn=[];
