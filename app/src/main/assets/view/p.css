@@ -294,10 +294,10 @@
 
 /* ------------------------------ search ----------------------------- */
 #search_content{
-  margin-top:calc(27vh + var(--sys-stat-height));
+  margin-top:calc(25vh + var(--sys-stat-height));
 }
 .istouch #search_content{
-  margin-top:calc(24vh + var(--sys-stat-height));
+  margin-top:calc(22vh + var(--sys-stat-height));
 }
 .istouch #search_history{
   height:4vh;
@@ -307,6 +307,9 @@
 }
 .istouch #search_history>div span{
   padding: .5vh 1.2vh .5vh 1.2vh;
+}
+#search_history div span b{
+  max-width: 20vh;
 }
 
 .animetv_header #search_kw_holder{

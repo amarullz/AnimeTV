@@ -864,6 +864,7 @@ c.loader {
 
 #search_history div.clear_history span{
   background-color: transparent;
+  white-space: nowrap;
 }
 #search_history div span c{
   margin-right: .5vw;

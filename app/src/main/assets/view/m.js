@@ -13968,6 +13968,17 @@ const home={
         var n=0;
         var found=[];
         if (fkw){
+          if (_TOUCH){
+            var rsts=addh("---","Reset",'clear');
+            rsts._isclear=true;
+            rsts.classList.add('clear_history');
+            rsts._keycb=function(x,y,z){
+              clk();
+              home.search.src.keyword.value='';
+              home.search.src.update_history();
+              home.search.src.keyword.focus();
+            };
+          }
           for (var i=0;i<hist.length;i++){
             var io=slugString(hist[i]).indexOf(fkw);
             if (io>=0){
