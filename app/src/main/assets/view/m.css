@@ -1719,6 +1719,13 @@ c.loader {
   width:0;
   height:0;
 } */
+.istouch #pb_touch_actions,
+.istouch #pb_touch_actions *{
+  pointer-events: none !important;
+}
+.istouch #pb_touch_actions c{
+  pointer-events: all !important;
+}
 .istouch .menushow #pb_touch_actions.active.hide,
 .istouch .menushow #pb_touch_actions.active,
 #pb_actions.active {

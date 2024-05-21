@@ -8416,6 +8416,7 @@ const pb={
           }
         }
         else if (c==KENTER){
+          var prevent=true;
           if (!pb.pb.classList.contains('menushow')){
             var x=pb.pb.__ev_x;
             var w=window.outerWidth;
@@ -8457,6 +8458,14 @@ const pb={
           }
           else if (pb.pb.__ev_target==pb.pb || pb.pb.__ev_target==pb.pb_meta){
             pb.menu_hide();
+          }
+          else{
+            prevent=false;
+          }
+
+          if (prevent){
+            evt.preventDefault();
+            evt.stopImmediatePropagation();
           }
         }
       },null,null,true);

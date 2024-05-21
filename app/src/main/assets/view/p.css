@@ -1,25 +1,5 @@
 :root {
   /* font size */
-  --fs-7vw: .7vh;
-  --fs-8vw: .8vh;
-  --fs-10vw: 1vh;
-  --fs-11vw: 1.1vh;
-  --fs-12vw: 1.2vh;
-  --fs-13vw: 1.3vh;
-  --fs-14vw: 1.4vh;
-  --fs-15vw: 1.5vh;
-  --fs-17vw: 1.7vh;
-  --fs-20vw: 2vh;
-  --fs-22vw: 2.2vh;
-  --fs-25vw: 2.5vh;
-  --fs-30vw: 3vh;
-  --fs-40vw: 4vh;
-  --fs-60vw: 6vh;
-  --fs-100vw: 10vh;
-}
-
-.view-bigfont {
-  /* big font size */
   --fs-7vw: .9vh;
   --fs-8vw: 1vh;
   --fs-10vw: 1.2vh;
@@ -38,7 +18,7 @@
   --fs-100vw: 10vh;
 }
 
-.view-bigfont.view-biggerfont {
+.view-bigfont {
   /* big font size */
   --fs-7vw: 1.1vh;
   --fs-8vw: 1.2vh;
@@ -58,24 +38,44 @@
   --fs-100vw: 10vh;
 }
 
+.view-bigfont.view-biggerfont {
+  /* big font size */
+  --fs-7vw: 1.4vh;
+  --fs-8vw: 1.5vh;
+  --fs-10vw: 1.7vh;
+  --fs-11vw: 1.8vh;
+  --fs-12vw: 1.9vh;
+  --fs-13vw: 2.0vh;
+  --fs-14vw: 2.1vh;
+  --fs-15vw: 2.2vh;
+  --fs-17vw: 2.3vh;
+  --fs-20vw: 2.7vh;
+  --fs-22vw: 2.9vh;
+  --fs-25vw: 3.2vh;
+  --fs-30vw: 3.7vh;
+  --fs-40vw: 4.7vh;
+  --fs-60vw: 6.7vh;
+  --fs-100vw: 10.2vh;
+}
+
 .view-bigfont.view-biggest {
   /* big font size */
-  --fs-7vw: 1.2vh;
-  --fs-8vw: 1.3vh;
-  --fs-10vw: 1.5vh;
-  --fs-11vw: 1.6vh;
-  --fs-12vw: 1.7vh;
-  --fs-13vw: 1.8vh;
-  --fs-14vw: 1.9vh;
-  --fs-15vw: 2vh;
-  --fs-17vw: 2.1vh;
-  --fs-20vw: 2.5vh;
-  --fs-22vw: 2.7vh;
-  --fs-25vw: 3vh;
-  --fs-30vw: 3.5vh;
-  --fs-40vw: 4.5vh;
-  --fs-60vw: 6.5vh;
-  --fs-100vw: 10vh;
+  --fs-7vw: 1.6vh;
+  --fs-8vw: 1.7vh;
+  --fs-10vw: 1.9vh;
+  --fs-11vw: 2.0vh;
+  --fs-12vw: 2.1vh;
+  --fs-13vw: 2.2vh;
+  --fs-14vw: 2.3vh;
+  --fs-15vw: 2.4vh;
+  --fs-17vw: 2.5vh;
+  --fs-20vw: 2.9vh;
+  --fs-22vw: 3.1vh;
+  --fs-25vw: 3.4vh;
+  --fs-30vw: 3.9vh;
+  --fs-40vw: 4.9vh;
+  --fs-60vw: 6.9vh;
+  --fs-100vw: 10.4vh;
 }
 
 
@@ -539,8 +539,8 @@
   margin-left:.5vh;
   border-radius: .3vh;
   outline: .01vh solid #333 !important;
-  width: 12vh;
-  height: 17vh;
+  width: 16vh;
+  height: 22vh;
 }
 .home_list>p>div img {
   width: 12vh;
@@ -557,7 +557,7 @@
   max-width: 12vh;
 }
 .home_list p div span.info.info_bottom{
-  top: calc(16.2vh - calc(var(--fs-8vw) * 1.4));
+  top: calc(21vh - calc(var(--fs-8vw) * 1.4));
   left: .6vh;
 }
 
@@ -582,7 +582,7 @@
   margin-top:-.1vh;
 }
 .home_list p div span.info_ep_havenext{
-  top: 13.5vh;
+  top: 17.5vh;
   left: .4vh;
   line-height: 2vh;
   width: 3vh;
@@ -982,30 +982,30 @@
 
 /* ------------------------------ view informative ----------------------------- */
 .view-informative .home_list {
-  min-height: calc(var(--fs-20vw) + 20.7vh);
+  min-height: calc(var(--fs-20vw) + 26.7vh);
 }
 .view-informative .home_list:not(#home_slide)>p>div {
-  height: calc(var(--fs-20vw) + 18.6vh);
+  height: calc(var(--fs-20vw) + 23.6vh);
   border-radius: .4vh !important;
 }
 .view-informative .home_list:not(#home_slide)>p>div img {
   top:.5vh;
   left:.4vh;
-  width: 11.2vh;
-  height: 16vh;
+  width: 15.2vh;
+  height: 21vh;
   border-radius: .3vh;
 }
 .istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
 .view-informative .home_list:not(#home_slide).active>p>div.active:before{
-  width: 12.2vh;
-  height: 17vh;
+  width: 16.2vh;
+  height: 22vh;
   border-radius: .5vh;
   left:-.1vh;
 }
 :not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
-  width: 12vh;
-  height: 16.8vh;
+  width: 16vh;
+  height: 21.8vh;
   left:0vh !important;
   top:.1vh !important;
 }
