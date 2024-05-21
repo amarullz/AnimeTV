@@ -1026,7 +1026,7 @@
   height: 21vh;
   border-radius: .3vh;
 }
-.istouch.view-informative .home_list:not(#home_slide)>p>div:active:before,
+.istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
 .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   width: 16.2vh;
   height: 22vh;

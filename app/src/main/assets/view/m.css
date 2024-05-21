@@ -840,7 +840,7 @@ c.loader {
   white-space: nowrap;
   overflow-x: auto;
   text-align: center;
-  height:5.5vh;
+  height:6vh;
   width: 100% !important;
 }
 .istouch #search_history::-webkit-scrollbar{
@@ -1706,6 +1706,9 @@ c.loader {
   background-color: var(--dimm-1);
 } */
 
+.istouch .pb_menu>p>div:hover{
+  background-color: var(--primary-3);
+}
 .istouch .pb_menu>p>div:active,
 .pb_menu.active>p>div.active {
   background-color: var(--primary-1);
@@ -1812,6 +1815,10 @@ c.loader {
 }
 #pb_touch_close:hover,
 #pb_touch_actions #pb_touch_iactions c:hover{
+  background-color: var(--primary-1);
+}
+#pb_touch_close:active,
+#pb_touch_actions #pb_touch_iactions c:active{
   background-color: var(--primary-2);
 }
 .istouch #pb_touch_actions #pb_touch_iactions c.hide{
@@ -2678,7 +2685,7 @@ c.loader {
   height: 17vw;
   opacity:1;
 }
-.istouch .home_list>p>div:active,
+.istouch .home_list>p>div:hover,
 .home_list>p>div.active{
   background-color: var(--primary-1);
 }
@@ -3408,6 +3415,11 @@ c.loader {
 .istouch .settings_group p div.active:hover,
 .istouch .settings_group.active p div.active:hover,
 .istouch .settings_group p div:hover{
+  background-color: #1a1a1a;
+}
+.istouch .settings_group p div.active:active,
+.istouch .settings_group.active p div.active:active,
+.istouch .settings_group p div:active{
   background-color: #111;
 }
 .settings_group p div c.check{
@@ -3703,9 +3715,12 @@ c.loader {
 #anilist_detail .alsd_button.alsd_button_right{
   float: right;
 }
-.istouch #anilist_detail .alsd_button:hover,
-#anilist_detail .alsd_button.active{
+.istouch #anilist_detail .alsd_button:hover{
   background-color: var(--primary-3) !important;
+}
+.istouch #anilist_detail .alsd_button:active,
+#anilist_detail .alsd_button.active{
+  background-color: var(--primary-1) !important;
 }
 #anilist_detail .alsd_container{
   position: absolute;
@@ -3912,10 +3927,15 @@ c.loader {
 }
 #malview #malview_info_detail_button:hover,
 #malview #malview_info_detail_button.active{
-  background-color: var(--primary-1);
+  background-color: var(--primary-3);
   width:calc(var(--fs-15vw) * 4.3);
   cursor: pointer;
 }
+#malview #malview_info_detail_button.active,
+#malview #malview_info_detail_button:active{
+  background-color: var(--primary-1);
+}
+#malview #malview_info_detail_button:active:after,
 #malview #malview_info_detail_button:hover:after,
 #malview #malview_info_detail_button.active:after{
   content:'More Info';
@@ -4105,7 +4125,10 @@ c.loader {
 .istouch #malview_data div#malplay_ep c:hover{
   color: var(--accent-1);
 }
-.istouch #malview_data div:not(.disable):hover,
+.istouch #malview_data div:not(.disable):hover{
+  background-color: var(--primary-2);
+}
+.istouch #malview_data div:not(.disable):active,
 #malview_data div.active{
   background-color: var(--primary-1);
   box-shadow: 0 .03vw .06vw rgba(0, 0, 0, 0.16), 0 .03vw .06vw rgba(0, 0, 0, 0.23) !important;
@@ -4258,7 +4281,7 @@ c.loader {
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active {
   transform: scale(1.06);
 }
-.istouch.view-informative .home_list:not(#home_slide)>p>div:active:before,
+.istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
 .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   content:' ';
   display: block;
@@ -4518,6 +4541,7 @@ c.loader {
   padding: 1vw;
   margin-bottom: 2vw;
   color:#fff;
+  cursor: pointer;
 }
 .sidebar_profile.hide{
   display: none;
@@ -4526,6 +4550,9 @@ c.loader {
 .sidebar_profile.active{
   background-color: #fff;
   color:#000;
+}
+.istouch .sidebar_profile.active:active{
+  color:var(--primary-1);
 }
 .ui_performance .sidebar_profile img,
 .sidebar_profile img{
@@ -4574,6 +4601,7 @@ c.loader {
   border-radius: 5vw;
   margin-bottom: .2vw;
   color:#fff;
+  cursor: pointer;
 }
 .sidebar_group .sidebar_item c{
   line-height: var(--fs-14vw);
@@ -4615,8 +4643,13 @@ c.loader {
 }
 .istouch .sidebar_profile:hover,
 .istouch .sidebar_group .sidebar_item:hover{
-  background-color: var(--primary-1);
+  background-color: color-mix(in srgb, var(--primary-1) 50%, #000);
 }
+.istouch .sidebar_profile:active,
+.istouch .sidebar_group .sidebar_item:active{
+  background-color: color-mix(in srgb, var(--primary-1) 25%, #000);
+}
+.istouch .sidebar_group .sidebar_item.active:active,
 .istouch .sidebar_group .sidebar_item.active:hover,
 .sidebar_group .sidebar_item.active{
   background-color: #fff;
@@ -4665,6 +4698,7 @@ c.loader {
   margin-right:-.5vw;
   margin-bottom:-.5vw;
   vertical-align: top;
+  cursor: pointer;
 }
 .imgpicker_group .imgpicker_item.checked:after{
   position: absolute;
@@ -4684,6 +4718,10 @@ c.loader {
 .istouch .imgpicker_group .imgpicker_item.active:hover,
 .istouch .imgpicker_group .imgpicker_item:hover{
   border-color: var(--primary-3);
+}
+.istouch .imgpicker_group .imgpicker_item.active:active,
+.istouch .imgpicker_group .imgpicker_item:active{
+  border-color: var(--primary-1);
 }
 .imgpicker_group .imgpicker_item img{
   width: 10vw;
