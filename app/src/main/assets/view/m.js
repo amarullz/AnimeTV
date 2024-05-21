@@ -12113,17 +12113,15 @@ const home={
       hl._domain=$n('i','',null,hl._txt,'@'+seldomain);
       home.sidebar.items.push(hl);
 
+      home.sidebar.contents.onclick=
       $('sidebar').onclick=function(ev){
         if (ev.target==this){
-          // window._KEYEV(KBACK,1);
           clk();
           home.sidebar.update_items(0);
           $('sidebar').classList.remove('active');
           home.sidebar.opentype=0;
           home.sidebar.onsidebar=false;
         }
-      };
-      home.sidebar.contents.onclick=function(){
         return false;
       };
     }
@@ -12807,9 +12805,10 @@ const home={
       home.settings.update(0,0);
       pb.pb.classList.add('onsettings');
       home.settings.settings.classList.add('active');
+      var settings_back=$('settings_title_back');
       home.settings.settings.onclick=function(e){
         var el=e.target;
-        if (el==this){
+        if (el==this || el==settings_back){
           window._KEYEV(KBACK,1);
           return;
         }

@@ -653,6 +653,20 @@
   height:6vh;
   border-bottom: .1vh solid #111;
 }
+#settings h5 c{
+  display: inline-block;
+  margin:-1vh;
+  margin-right: 1vh;
+  padding: 1vh;
+  border-radius: 10vh;
+  cursor: pointer;
+}
+#settings h5 c:hover{
+  background-color: #333;
+}
+#settings h5 c:active{
+  background-color: var(--primary-1);
+}
 #settings .pb_menu{
   padding-top:.5vh;
   padding-bottom:.5vh;

@@ -3222,6 +3222,9 @@ c.loader {
   height:6vw;
   border-bottom: .1vw solid #111;
 }
+#settings h5 c{
+  display: none;
+}
 #settings.active #settings_inner{
   transform: translateX(0);
   opacity: 1;
