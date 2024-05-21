@@ -390,6 +390,14 @@ const login = {
         if (login.default_user<login.users.length){
             login.sel=login.default_user;
         }
+        if (location.hash.indexOf("#pp=")>-1){
+            try{
+                var ss=parseInt(location.hash.substring(4));
+                if (!isNaN(ss) && ss>=0 && ss<login.users.length){
+                    login.sel=ss;
+                }
+            }catch(e){}
+        }
         login.usersel[login.sel].classList.add('active');
         login.update_theme();
 

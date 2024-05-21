@@ -11474,9 +11474,10 @@ const home={
       _JSAPI.storeSet("users",JSON.stringify(home.profiles.users));
     },
     logout:function(){
+      var cprof=_JSAPI.profileGetSel();
       _JSAPI.profileSetSel(-1);
       _JSAPI.profileSetPrefix("");
-      location='/__view/login/login.html';
+      location='/__view/login/login.html'+(cprof>=0?"#pp="+cprof:"");
     },
     init:function(){
       if (_JSAPI.profileGetSel()==-1){
