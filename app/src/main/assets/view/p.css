@@ -198,7 +198,10 @@
 .animetv_header_banner div.selected:before{
   bottom:-.5vh;
   border-bottom: .25vh solid #fff;
+  opacity: 1 !important;
+  transform: scaleX(1) !important;
 }
+
 .istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover,
 .animetv_header.active .animetv_header_banner div.active{
   border-radius: 2vh;
@@ -259,6 +262,18 @@
 .animetv_header_banner #home_mylist:hover,
 .animetv_header_banner #home_homepage:hover,
 .animetv_header_banner #home_search:hover{
+  background-color: transparent !important;
+  color: #fff !important;
+}
+#search_anilist:active,
+#search_voice:active,
+#search_logo:active,
+.animetv_header_banner #home_logo:active,
+.animetv_header_banner #home_settings:active,
+.animetv_header_banner #home_schedule:active,
+.animetv_header_banner #home_mylist:active,
+.animetv_header_banner #home_homepage:active,
+.animetv_header_banner #home_search:active{
   background-color: rgba(0,0,0,.4) !important;
   color: #fff !important;
 }
@@ -286,6 +301,8 @@
   z-index: 10;
   border-radius: 3vh;
   margin-top:-.2vh;
+  margin-left: -.4vh !important;
+  padding-left: 0 !important;
 }
 .animetv_header .animetv_header_banner #home_schedule:after,
 .animetv_header .animetv_header_banner #home_settings:after{
@@ -1009,14 +1026,14 @@
   height: 21vh;
   border-radius: .3vh;
 }
-.istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
+.istouch.view-informative .home_list:not(#home_slide)>p>div:active:before,
 .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   width: 16.2vh;
   height: 22vh;
   border-radius: .5vh;
   left:-.1vh;
 }
-:not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide)>p>div:hover:before,
+:not(.ui_performance_scale) .istouch.view-informative .home_list:not(#home_slide)>p>div:active:before,
 :not(.ui_performance_scale) .view-informative .home_list:not(#home_slide).active>p>div.active:before{
   width: 16vh;
   height: 21.8vh;

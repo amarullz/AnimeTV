@@ -12136,9 +12136,11 @@ const home={
 
     if (pb.cfg_data.homylist){
       home.init_mylist(true);
+      home.update_homepages(1,1);
     }
     else{
       home.init_homepage(true);
+      home.update_homepages(0,1);
     }
 
     _API.setKey(home.keycb);
@@ -14428,8 +14430,8 @@ const home={
     $('home_pageschedule')
   ],
 
-  update_homepages:function(n){
-    if (home.col_selected==n){
+  update_homepages:function(n,force){
+    if (!force && home.col_selected==n){
       return false;
     }
     for (var i=0;i<home.homepages.length;i++){
