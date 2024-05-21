@@ -748,7 +748,7 @@ c.loader {
   margin-top:25vw;
 }
 .istouch #search_content{
-  margin-top:8vw;
+  margin-top:13vw;
 }
 .animetv_header #search_kw_holder{
   background-color: #fff;
@@ -789,8 +789,12 @@ c.loader {
   padding: 2vw 5vw 1vw 5vw;
   position: relative;
 }
-.istouch #search_tools{
+.istouch #search_tools>div:not(#search_history){
   display: none;
+}
+.istouch #search_history{
+  width:auto !important;
+  position: relative;
 }
 #search_tools>div{
   display: inline-block;
@@ -832,6 +836,32 @@ c.loader {
   color:#aaa;
   white-space: nowrap;
 }
+.istouch #search_history{
+  white-space: nowrap;
+  overflow-x: auto;
+  text-align: center;
+  height:5.5vh;
+  width: 100% !important;
+}
+.istouch #search_history::-webkit-scrollbar{
+  width:0;
+  height:0;
+}
+.istouch #search_history>div{
+  display: inline-block !important;
+  margin-right:.2vw;
+  cursor: pointer;
+}
+.istouch #search_history>div span{
+  padding: .5vw 1.2vw .5vw 1.2vw;
+}
+.istouch #search_history>div:hover span{
+  background-color: var(--primary-1);
+}
+.istouch #search_history>div.clear_history:hover span{
+  background-color: #600 !important;
+}
+
 #search_history div.clear_history span{
   background-color: transparent;
 }
@@ -839,6 +869,7 @@ c.loader {
   margin-right: .5vw;
   vertical-align: middle;
 }
+.istouch #search_history div span c:hover,
 #search_history div span c.clear{
   border-radius: 4vw;
   background-color: #900;

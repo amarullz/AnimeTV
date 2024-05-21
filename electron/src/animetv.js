@@ -35,7 +35,7 @@ const main={
       show: true,
       width: dw,
       height: dh,
-      minWidth: 1280,
+      minWidth: 760,
       minHeight: 760,
       icon:common.path("/tools/logo-design/animetv-logo/animetv-logo-square.png"),
       webPreferences: {

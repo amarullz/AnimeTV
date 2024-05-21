@@ -13928,6 +13928,19 @@ const home={
           home.search.src.update_history_to=null;
         },200);
       },
+      item_history_click:function(ev){
+        if (ev.target==this._ico && !this._isclear){
+          this._isdel=true;
+        }
+        else{
+          this._isdel=false;
+        }
+        this._keycb(null,this,KENTER);
+      },
+      item_history_contextmenu:function(ev){
+        this._isdel=true;
+        this._keycb(null,this,KENTER);
+      },
       init_search_history:function(){
         var s=home.search.src;
         var hist=home.search.history.data;
@@ -13940,6 +13953,15 @@ const home={
           var u=$n('span','',null,h,'');
           h._ico=$n('c','',null,u,ic);
           $n('b','',null,u,special(t));
+          h._ico._ori_ic=ic;
+          h._ico.onmouseover=function(){
+            this.innerHTML='clear';
+          };
+          h._ico.onmouseout=function(){
+            this.innerHTML=this._ori_ic;
+          };
+          h.onclick=home.search.src.item_history_click;
+          h.oncontextmenu=home.search.src.item_history_contextmenu;
           return h;
         }
         var fkw=slugString(s.kwclean(1));
@@ -14057,6 +14079,9 @@ const home={
         .replace(/  /g, " ");
         home.search.src.update_history();
       }
+      else{
+        home.search.src.update_history();
+      }
     },
     kwfocus:function(){
       if (_TOUCH){
@@ -14106,6 +14131,21 @@ const home={
       }
       else{
         anilist_el.firstElementChild.innerHTML='check';
+      }
+
+      if (!s.history.__wheelinit){
+        s.history.__wheelinit=true;
+        s.history.addEventListener("wheel",function(ev){
+          var g=s.history;
+          if (ev.deltaY<0){
+            $scroll(g,g.scrollLeft+ev.deltaY,1,-1);
+          }
+          else if (ev.deltaY>0){
+            $scroll(g,g.scrollLeft+ev.deltaY,1,-1);
+          }
+          ev.preventDefault();
+          ev.stopPropagation();
+        });
       }
 
       pb.menu_clear(home.search.genres);

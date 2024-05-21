@@ -294,11 +294,21 @@
 
 /* ------------------------------ search ----------------------------- */
 #search_content{
-  margin-top:calc(22vh + var(--sys-stat-height));
+  margin-top:calc(27vh + var(--sys-stat-height));
 }
 .istouch #search_content{
-  margin-top:calc(17vh + var(--sys-stat-height));
+  margin-top:calc(24vh + var(--sys-stat-height));
 }
+.istouch #search_history{
+  height:4vh;
+}
+.istouch #search_history>div{
+  margin-right:.4vh !important;
+}
+.istouch #search_history>div span{
+  padding: .5vh 1.2vh .5vh 1.2vh;
+}
+
 .animetv_header #search_kw_holder{
   position: relative;
   display: block;
