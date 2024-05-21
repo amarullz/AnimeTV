@@ -663,6 +663,12 @@ c.loader {
   opacity: 1;
   transform: scale(1);
 }
+.istouch .animetv_header.active .animetv_header_banner #home_schedule:not(:hover):after,
+.istouch .animetv_header.active .animetv_header_banner #home_settings:not(:hover):after{
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transform: scale(.5) !important;
+}
 
 .animetv_header_banner #home_time{
   float: right;
