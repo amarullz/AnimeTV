@@ -17681,6 +17681,7 @@ const listOrder={
     }
     else if (c==KLEFT||c==KRIGHT){
       if (listOrder.title_el._btnno){
+        clk();
         if (listOrder.title_el._btnno.classList.contains('active')){
           listOrder.title_el._btnyes.classList.add('active');
           listOrder.title_el._btnno.classList.remove('active');
