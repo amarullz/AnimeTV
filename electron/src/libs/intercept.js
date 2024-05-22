@@ -192,13 +192,27 @@ const intercept={
       /* Proxy Request */
       else if (url.pathname.startsWith("/__proxy/")) {
         var realurl = req.url.substring(req.url.indexOf('/__proxy/')+9);
-        let body=intercept.checkHeaders(req.headers);
+        let h=req.headers;
+        let body=intercept.checkHeaders(h);
+        let method=req.method;
+
+        /* kaas post */
+        if (h.has('X-Post-Prox')){
+          h.set('Content-Type',h.get('X-Post-Prox'))
+          h.delete('Post-Body');
+          realurl=realurl.substring(0,realurl.indexOf('?'));
+          body=decodeURIComponent(url.search.substring(1));
+          method='POST';
+          console.log("KAAS REQ: "+realurl+" || "+body);
+        }
+
+        /* fetch proxy */
         return net.fetch(realurl,{
-          method: req.method,
+          method: method,
           headers: req.headers,
           body: body?body:req.body,
           duplex: 'half',
-          bypassCustomProtocolHandlers: req.method=='post'
+          bypassCustomProtocolHandlers: false
         });
       }
 
