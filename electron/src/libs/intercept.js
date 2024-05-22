@@ -22,12 +22,38 @@ const { net, protocol } = require("electron");
 const common = require("./common.js");
 const axios = require('axios');
 const stream = require('stream');
+const https = require('https');
+const DoH = require('doh-js-client').DoH
+const dns = new DoH('google');
 
 /* Create axios http instance */
 const instance = axios.create({
-  dnsServer: '8.8.8.8',
-  responseType: 'stream'
+  dnsServer: '1.1.1.1',
+  responseType: 'stream',
+  adapter: 'http'
 });
+
+/* set DoH */
+https.globalAgent = new https.Agent({
+  keepAlive: true,
+  lookup: (hostname, options, callback) => {
+    dns.resolve(hostname, 'A')
+      .then(function (record) {
+        var a=[];
+        for (var i=0;i<record.length;i++){
+          a.push({
+            address: record[i].address,
+            family: (record[i].type)==1?4:6
+          });
+        }
+        callback(undefined,a);
+      })
+      .catch(function (err) {
+        callback(true,null);
+      });
+  }
+});
+
 
 /* intercept class */
 const intercept={
@@ -151,12 +177,15 @@ const intercept={
       for (const pair of req.headers.entries()) {
         hdr[pair[0]]=pair[1];
       }
-      instance.request({
+      let opt={
         method: req.method,
         url: req.url,
-        headers: hdr,
-        data:req.body?(await intercept.streamToString(req.body)):''
-      }).then(function(res) {
+        headers: hdr
+      };
+      if (req.body){
+        opt.data=await intercept.streamToString(req.body);
+      }
+      instance.request(opt).then(function(res) {
         var rs = new stream.PassThrough();
         res.data.pipe(rs);
         resolvCallback(
@@ -347,7 +376,7 @@ const intercept={
         return intercept.fetchStream(req);
       }
     }catch(e){
-      console.log(e);
+      console.log("LOG_ERR: "+e);
     }
     return intercept.fetchStream(req);
   }

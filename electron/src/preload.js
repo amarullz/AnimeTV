@@ -35,13 +35,8 @@ async function invoke(c,d){
 
 /* Config Loader */
 (async function(){
-  // let c=invoke('config-load','');
-  // let v=invoke('vars-load','');
-  // vars.config = await c.then();
-  // vars.vars = await v.then();
   vars.config =ipcRenderer.sendSync('config-load','');
   vars.vars =ipcRenderer.sendSync('vars-load','');
-  console.log(vars);
 })();
 
 const api={
@@ -56,7 +51,7 @@ const api={
 
   /* videos */
   videoSetUrl(url){
-    console.warn("SET VIDEO: "+url);
+    // console.warn("SET VIDEO: "+url);
     // invoke('set-url',url);
   },
   videoSetPosition(pos){},
