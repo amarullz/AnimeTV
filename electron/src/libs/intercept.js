@@ -38,6 +38,7 @@ const instance = axios.create({
 /* set DoH */
 https.globalAgent = new https.Agent({
   maxSockets:30,
+  maxTotalSockets:256,
   keepAlive: true,
   lookup: (hostname, options, callback) => {
     if (common.main.vars.httpclient==2){
@@ -197,7 +198,8 @@ const intercept={
         res.data.pipe(rs);
         resolvCallback(
           new Response(rs, {
-            status: res.status
+            status: res.status,
+            headers: res.headers
           })
         );
       }).catch(function(err) {
@@ -315,25 +317,20 @@ const intercept={
 
       /* Aniwatch stream meta fetcher */
       else if (intercept.domains.aniwatch.indexOf(url.host)>-1){
+        console.log("V: "+req.url);
         var accept=req.headers.get("Accept");
-        if (accept.startsWith("text/css")||accept.startsWith("image/")){
+        if (accept && (accept.startsWith("text/css")||accept.startsWith("image/"))){
           return intercept.fetchError();
         }
-        var hdr={
-          "User-Agent":common.UAG,
-          "Referer":"https://aniwatchtv.to/"
-        };
-        return net.fetch(url, {
-          method: req.method,
-          headers: hdr,
-          bypassCustomProtocolHandlers: false
-        });
+        req.headers.set("Referer","https://aniwatchtv.to/");
+        return intercept.fetchStream(req);
       }
 
       /* Vidplay stream meta fetcher */
       else if (intercept.domains.vidplays.indexOf(url.host)>-1){
+        var accept=req.headers.get("accept");
         /* Injector */
-        if (req.headers.get("accept").startsWith("text/html")){
+        if (accept && accept.startsWith("text/html")){
           return intercept.fetchInject(req.url, req, intercept.playerInjectString);
         }
         else{
