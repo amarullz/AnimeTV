@@ -26,7 +26,7 @@ const main={
   init(){
     var mainDisplay = screen.getPrimaryDisplay();
     var dw = mainDisplay.size.width * 3 / 4;
-    var dh = Math.floor((mainDisplay.size.height * 3 / 4) * 1.05);
+    var dh = mainDisplay.size.height * 3 / 4;
     
     /* Create new window */
     main.win=new BrowserWindow({
@@ -72,6 +72,7 @@ const main={
     main.vars.dns=common.dns;
 
     /* Go home & show */
+    main.win.setContentSize(dw, dh);
     main.goHome();
     main.win.setMenu(null);
     main.win.show();
@@ -107,16 +108,12 @@ const main={
   },
   handlerKeys(e,input){
     if (input.type === "keyDown") {
-      if (input.key==="F10"){
-        // Settings
-        main.win.loadURL("https://"+main.dns()+"/__view/test.html");
-      }
-      else if (input.key === "F12") {
+      if (input.key === "F12") {
         // dev console
         main.win.webContents.toggleDevTools();
-      } else if (input.key === "F11"){
+      } else if (input.key === "F10" || input.key === "F11"){
         // fullscreen
-        main.win.fullScreen = !main.win.isFullScreen();
+        main.fullScreen(!main.isFullScreen());
       }
       else if (input.key === "F1"){
         // reload
@@ -156,8 +153,8 @@ const main={
     }
   },
   handlerWin(event, arg){
-    if (arg == "fullscreen") main.win.fullScreen = true;
-    else if (arg == "no-fullscreen") main.win.fullScreen = false;
+    if (arg == "fullscreen") main.fullScreen(true);
+    else if (arg == "no-fullscreen") main.fullScreen(false);
     else if (arg == "home") main.goHome();
     else if (arg == "quit") app.exit();
     else if (arg == "restart"){
@@ -170,6 +167,22 @@ const main={
   },
   path(filename) {
     return path.join(app.getAppPath(), filename);
+  },
+  fullScreen(stat){
+    if (process.platform !== "darwin"){
+      main.win.setFullScreen(stat);
+    }
+    else{
+      main.win.setSimpleFullScreen(!main.isSimpleFullScreen());
+    }
+  },
+  isFullScreen(){
+    if (process.platform !== "darwin"){
+      return main.win.isFullScreen();
+    }
+    else{
+      return main.win.isSimpleFullScreen();
+    }
   }
 };
 

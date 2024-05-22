@@ -149,6 +149,7 @@ video{
       }
     }
     window._sq=setquality;
+    var need_send_play=false;
 
     /* Set event listener */
     video.on('ready', function() {
@@ -160,8 +161,14 @@ video{
       console.warn("loadedmetadata");
     });
     video.on('play', function() {
-      $p('play',1);
-      console.log('Play');
+      if (video.duration()>0){
+        $p('time',timing());
+        $p('play',1);
+        console.log('Play');
+      }
+      else{
+        need_send_play=true;
+      }
     });
     video.on('pause', function() {
       $p('pause',0);
@@ -177,6 +184,14 @@ video{
         vidVars.res=res;
       }
       $p('time',timing());
+      if (need_send_play){
+        if (video.duration()>0){
+          need_send_play=false;
+          if (!video.paused()){
+            $p('play',1);
+          }
+        }
+      }
     });
     video.on('ended', function() {
       // this.dispose();

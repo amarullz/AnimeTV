@@ -617,7 +617,7 @@ var kaas={
           src:vd
         };
       }
-      od.mirror=JSON.parse(JSON.stringify(md));
+      od.mirror=JSON.parse(JSON.stringify(ismirror?(bs?bs:md):md));
       return od;
     }
 
@@ -5894,11 +5894,13 @@ const pb={
         pb.pb_track_skip2
       ];
       var cd=pb.vid_stat.duration;
-      for (var i=0;(i<pb.data.skip.length) && (i<2);i++){
-        var l=(pb.data.skip[i][0] / cd) * 100.0;
-        var r=(pb.data.skip[i][1] / cd) * 100.0;
-        tsk[i].style.left=l+"%";
-        tsk[i].style.width=(r-l)+"%";
+      if (cd>0){
+        for (var i=0;(i<pb.data.skip.length) && (i<2);i++){
+          var l=(pb.data.skip[i][0] / cd) * 100.0;
+          var r=(pb.data.skip[i][1] / cd) * 100.0;
+          tsk[i].style.left=l+"%";
+          tsk[i].style.width=(r-l)+"%";
+        }
       }
     }
   },
@@ -7378,7 +7380,7 @@ const pb={
           function(chval){
             if (chval!==null){
               _API.vidSpeed=flist[toInt(chval)];
-              if (_ISELECTRON||pb.cfg_data.html5player){
+              if (_ISELECTRON/*||pb.cfg_data.html5player*/){
                 pb.vid_cmd('speed',_API.vidSpeed);
               }
               else{
@@ -18416,7 +18418,7 @@ const touchHelper={
     }
   },
   gestureReg:function(el,cb,minmove,activeclass,nocancel,movecb,endcb){
-    console.warn(["register touch", el]);
+    // console.warn(["register touch", el]);
     try{
       touchHelper.gestureUnreg(el);
     }catch(e){}
