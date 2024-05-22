@@ -23,8 +23,10 @@ const common = require("./common.js");
 const axios = require('axios');
 const stream = require('stream');
 const https = require('https');
-const DoH = require('doh-js-client').DoH
-const dns = new DoH('google');
+const dns = require('dns');
+const DoH = require('doh-js-client').DoH;
+const dns_google = new DoH('google');
+const dns_cloudflare = new DoH('cloudflare');
 
 /* Create axios http instance */
 const instance = axios.create({
@@ -35,9 +37,14 @@ const instance = axios.create({
 
 /* set DoH */
 https.globalAgent = new https.Agent({
+  maxSockets:30,
   keepAlive: true,
   lookup: (hostname, options, callback) => {
-    dns.resolve(hostname, 'A')
+    if (common.main.vars.httpclient==2){
+      return dns.lookup(hostname, options, callback);
+    }
+    var doh_dns=(common.main.vars.httpclient==0)?dns_google:dns_cloudflare;
+    doh_dns.resolve(hostname, 'A')
       .then(function (record) {
         var a=[];
         for (var i=0;i<record.length;i++){

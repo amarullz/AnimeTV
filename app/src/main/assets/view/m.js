@@ -5506,6 +5506,11 @@ const pb={
     'Generic HttpClient',
     'Cronet - Chromium Networking'
   ],
+  cfghttpclient_electron_name:[
+    'Google DNS',
+    'Cloudflare DNS',
+    'Disable DoH'
+  ],
 
   cfglistprog_name:[
     'Start playing',
@@ -5745,7 +5750,10 @@ const pb={
           el.lastElementChild.innerHTML=pb.cfg_data[key]+" seconds";
         }
         else if (key=='httpclient'){
-          el.lastElementChild.innerHTML=pb.cfghttpclient_name[pb.cfg_data[key]];
+          if (_ISELECTRON)
+            el.lastElementChild.innerHTML=pb.cfghttpclient_electron_name[pb.cfg_data[key]];
+          else
+            el.lastElementChild.innerHTML=pb.cfghttpclient_name[pb.cfg_data[key]];
         }
         else if (key=='listprog'){
           el.lastElementChild.innerHTML=pb.cfglistprog_name[pb.cfg_data[key]];
@@ -7539,8 +7547,8 @@ const pb={
       else if (key=="httpclient"){
         // pb.state=0;
         listOrder.showList(
-          "HTTP Client",
-          pb.cfghttpclient_name,
+          _ISELECTRON?"DoH Provider":"HTTP Client",
+          _ISELECTRON?pb.cfghttpclient_electron_name:pb.cfghttpclient_name,
           pb.cfg_data.httpclient,
           function(chval){
             if (chval!=null){
@@ -12350,15 +12358,7 @@ const home={
         pb.menu_clear(home.settings.styling);
         pb.menu_clear(home.settings.performance);
         pb.menu_clear(home.settings.more);
-        if (_ISELECTRON){
-          if (home.settings.networks.parentElement){
-            home.settings.networks.style.display='none';
-            home.settings.networks.parentElement.removeChild(home.settings.networks);
-          }
-        }
-        else{
-          pb.menu_clear(home.settings.networks);
-        }
+        pb.menu_clear(home.settings.networks);
         pb.menu_clear(home.settings.integration);
         pb.menu_clear(home.settings.about);
 
@@ -12621,6 +12621,14 @@ const home={
 
         /* Networks */
         if (_ISELECTRON){
+          home.settings.tools._s_httpclient=$n(
+            'div','',{
+              action:'*httpclient',
+              s_desc:"Select secure domain provider"
+            },
+            home.settings.networks.P,
+            '<c>encrypted</c> DoH Provider<span class="value"></span>'
+          );
         }
         else{
           home.settings.tools._s_httpclient=$n(
@@ -12797,15 +12805,10 @@ const home={
         home.settings.video,
         home.settings.styling,
         home.settings.performance,
-        home.settings.more
+        home.settings.more,
+        home.settings.networks,
+        home.settings.integration,home.settings.about
       ];
-      if (!_ISELECTRON){
-        home.settings.menus.push(
-          home.settings.networks
-        );
-      }
-      home.settings.menus.push(home.settings.integration);
-      home.settings.menus.push(home.settings.about);
       for (var i=0;i<home.settings.menus.length;i++){
         home.settings.menus[i].classList.remove('active');
       }

@@ -123,7 +123,10 @@ const api={
   /* networks config */
   setProgCache(v){},
   setDOH(v){},
-  setHttpClient(v){},
+  setHttpClient(v){
+    vars.vars.httpclient=v;
+    invoke('vars-save',JSON.stringify(vars.vars));
+  },
   getCacheSz(){ return 100; },
   setCacheSz(s){},
   clearCache(){},

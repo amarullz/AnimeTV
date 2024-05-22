@@ -86,6 +86,7 @@ const main={
     stream_server:0,
     stream_type:0,
     sd:1,
+    httpclient:0,
     sd_domain:''
   },
   handlerIntent(e,d){
