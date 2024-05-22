@@ -31,6 +31,7 @@ const instance = axios.create({
 
 /* intercept class */
 const intercept={
+  /* stream domain names */
   domains:{
     vidplays: [
       "vid142.site",
@@ -42,15 +43,16 @@ const intercept={
     ]
   },
 
+  /* init constant strings & register protocol */
   playerInjectString:"",
   youtubeInjectString:"",
-
   init(){
     intercept.playerInjectString=common.readfile(common.injectPath("view_player.html"));
     intercept.youtubeInjectString=common.readfile(common.injectPath("yt.html"));
     protocol.handle('https', intercept.handler);
   },
 
+  /* check and modify for origin and referer */
   checkOriginHeaders(h){
     if (h.has('Referer')){
       h.delete('Referer');
@@ -68,6 +70,7 @@ const intercept={
     }
   },
 
+  /* check and modify proxy headers */
   checkHeaders(h){
     let body=null;
     if (h.has('X-NoH-Proxy')){
@@ -93,6 +96,7 @@ const intercept={
     return body;
   },
 
+  /* check stream identification headers */
   checkStream(h){
     if (h.has("X-Stream-Prox")){
       var hostStream=h.get("X-Stream-Prox");
@@ -102,14 +106,17 @@ const intercept={
     return false;
   },
 
+  /* return blocked response */
   fetchError(){
     return new Response(null, {status: 404});
   },
 
+  /* generic fetch */
   async fetchNormal(req){
     return net.fetch(req,{ bypassCustomProtocolHandlers:true} );
   },
 
+  /* fetch with injected string */
   async fetchInject(url, req, inject, bypass){
     let f=await net.fetch(url, {
       method: req.method,
@@ -125,6 +132,7 @@ const intercept={
     });
   },
 
+  /* convert readable stream to string */
   async streamToString(stream) {
     const chunks = [];
     for await (const chunk of stream) {
@@ -203,7 +211,6 @@ const intercept={
           realurl=realurl.substring(0,realurl.indexOf('?'));
           body=decodeURIComponent(url.search.substring(1));
           method='POST';
-          console.log("KAAS REQ: "+realurl+" || "+body);
         }
 
         /* fetch proxy */
@@ -219,7 +226,6 @@ const intercept={
       /* Streamings */
       else if (url.hostname.includes("mp4upload.com")){
         req.headers.set('Referer','https://www.mp4upload.com/');
-        console.log("MP4UPLOAD: "+url);
         return intercept.fetchStream(req);
       }
       else if(hostStream){
