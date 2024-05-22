@@ -8555,7 +8555,7 @@ const pb={
 
     pb.lastkey=$tick();
 
-    if (c==KPLAY){
+    if (c==KPLAY||c==32){ /* space */
       if (pb.state){
         if (!pb.vid_stat.play)
           pb.vid_cmd('play',0);
