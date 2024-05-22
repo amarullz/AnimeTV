@@ -23,6 +23,13 @@ const common = require("./common.js");
 const axios = require('axios');
 const stream = require('stream');
 
+/* Create axios http instance */
+const instance = axios.create({
+  dnsServer: '8.8.8.8',
+  responseType: 'stream'
+});
+
+/* intercept class */
 const intercept={
   domains:{
     vidplays: [
@@ -39,20 +46,6 @@ const intercept={
   youtubeInjectString:"",
 
   init(){
-    /* Register protocol scheme */
-    // protocol.registerSchemesAsPrivileged([
-    //   {
-    //     scheme: 'https',
-    //     privileges: {
-    //       standard: true,
-    //       secure: true,
-    //       supportFetchAPI: false
-    //     }
-    //   }
-    // ]);
-  },
-
-  start(){
     intercept.playerInjectString=common.readfile(common.injectPath("view_player.html"));
     intercept.youtubeInjectString=common.readfile(common.injectPath("yt.html"));
     protocol.handle('https', intercept.handler);
@@ -113,13 +106,17 @@ const intercept={
     return new Response(null, {status: 404});
   },
 
-  async fetchInject(url, req, inject){
+  async fetchNormal(req){
+    return net.fetch(req,{ bypassCustomProtocolHandlers:true} );
+  },
+
+  async fetchInject(url, req, inject, bypass){
     let f=await net.fetch(url, {
       method: req.method,
       headers: req.headers,
       body: req.body,
       duplex: 'half',
-      bypassCustomProtocolHandlers: true
+      bypassCustomProtocolHandlers: bypass?true:false
     });
     let body=await f.text();
     return new Response(body+inject, {
@@ -127,22 +124,30 @@ const intercept={
       headers: f.headers
     });
   },
-  async fetchNormal(req){
-    return net.fetch(req,{ bypassCustomProtocolHandlers:true} );
+
+  async streamToString(stream) {
+    const chunks = [];
+    for await (const chunk of stream) {
+      chunks.push(Buffer.from(chunk));
+    }
+    return Buffer.concat(chunks).toString("utf-8");
   },
+
+  /* Backend Http Client */
   async fetchStream(req){
-    return new Promise(function(resolvCallback, rejectCallback) {
-      var hdr={};
+    return new Promise(async function(resolvCallback, rejectCallback) {
+      var hdr={
+        'User-Agent':common.UAG
+      };
+      req.headers.delete('User-Agent');
       for (const pair of req.headers.entries()) {
         hdr[pair[0]]=pair[1];
       }
-      hdr['user-agent']=common.UAG;
-      axios({
+      instance.request({
         method: req.method,
         url: req.url,
         headers: hdr,
-        dnsServer: '8.8.8.8',
-        responseType: 'stream'
+        data:req.body?(await intercept.streamToString(req.body)):''
       }).then(function(res) {
         var rs = new stream.PassThrough();
         res.data.pipe(rs);
@@ -152,31 +157,39 @@ const intercept={
           })
         );
       }).catch(function(err) {
-        console.warn(err);
         rejectCallback();
       });
     });
   },
 
+  /* HTTP Request Habdler */
   async handler(req){
     try{
       const url = new URL(req.url);
       const hostStream=intercept.checkStream(req.headers);
+
+      /* Main View */
       if (url.pathname.startsWith("/__view/")) {
         var p = url.pathname.substring(8);
         p = p.split('?')[0];
         p = p.split('#')[0];
         return net.fetch(common.viewRequest(p));
       }
+
+      /* UI Player */
       else if (url.pathname.startsWith("/__ui/")) {
         var p = url.pathname.substring(6);
         p = p.split('?')[0];
         p = p.split('#')[0];
         return net.fetch(common.uiRequest(p));
       }
+
+      /* Redirect Script */
       else if (url.pathname.startsWith("/__REDIRECT")) {
         return net.fetch(common.injectRequest("redirect.html"));
       }
+
+      /* Proxy Request */
       else if (url.pathname.startsWith("/__proxy/")) {
         var realurl = req.url.substring(req.url.indexOf('/__proxy/')+9);
         let body=intercept.checkHeaders(req.headers);
@@ -185,9 +198,11 @@ const intercept={
           headers: req.headers,
           body: body?body:req.body,
           duplex: 'half',
-          bypassCustomProtocolHandlers: true
+          bypassCustomProtocolHandlers: req.method=='post'
         });
       }
+
+      /* Streamings */
       else if (url.hostname.includes("mp4upload.com")){
         req.headers.set('Referer','https://www.mp4upload.com/');
         console.log("MP4UPLOAD: "+url);
@@ -220,8 +235,10 @@ const intercept={
         }
         return intercept.fetchStream(req);
       }
+
+      /* Youtube */
       else if (req.url.startsWith("https://www.youtube.com/embed/")||req.url.startsWith("https://www.youtube-nocookie.com/embed/")){
-        return intercept.fetchInject(req.url, req, intercept.youtubeInjectString);
+        return intercept.fetchInject(req.url, req, intercept.youtubeInjectString, true);
       }
       else if (url.hostname.includes("youtube.com")||url.hostname.includes("youtube-nocookie.com")||url.hostname.includes("googlevideo.com")){
         let accept=req.headers.get("accept");
@@ -237,8 +254,10 @@ const intercept={
           req.url.includes(".com/api/stats/")){
           return intercept.fetchError();
         }
-        return intercept.fetchStream(req);
+        return intercept.fetchNormal(req);
       }
+
+      /* Aniwatch stream meta fetcher */
       else if (intercept.domains.aniwatch.indexOf(url.host)>-1){
         var accept=req.headers.get("Accept");
         if (accept.startsWith("text/css")||accept.startsWith("image/")){
@@ -251,9 +270,11 @@ const intercept={
         return net.fetch(url, {
           method: req.method,
           headers: hdr,
-          bypassCustomProtocolHandlers: true
+          bypassCustomProtocolHandlers: false
         });
       }
+
+      /* Vidplay stream meta fetcher */
       else if (intercept.domains.vidplays.indexOf(url.host)>-1){
         /* Injector */
         if (req.headers.get("accept").startsWith("text/html")){
@@ -271,6 +292,8 @@ const intercept={
           return f;
         }
       }
+
+      /* Blacklisted */
       else if (url.hostname.includes("rosebudemphasizelesson.com")||
         url.hostname.includes("simplewebanalysis.com")||
         url.hostname.includes("addthis.com")||
@@ -285,9 +308,10 @@ const intercept={
         url.hostname.includes("www.google.com")||
         url.hostname.includes("googleapis.com")
       ){
-        /* BLOCK DNS */
         return intercept.fetchError();
       }
+
+      /* Default */
       else {
         if (common.main.vars.sd==3||common.main.vars.sd==4){
           if (url.pathname.endsWith("/master.m3u8")) {

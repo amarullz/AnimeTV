@@ -188,12 +188,11 @@ const main={
 
 /* Init startup */
 common.main=main;
-intercept.init();
 common.configLoad();
 
 /* When application ready */
 app.whenReady().then(() => {
-  intercept.start();
+  intercept.init();
   main.init();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0){
