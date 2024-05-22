@@ -20,6 +20,8 @@
  */
 const { net, protocol } = require("electron");
 const common = require("./common.js");
+const axios = require('axios');
+const stream = require('stream');
 
 const intercept={
   domains:{
@@ -38,16 +40,16 @@ const intercept={
 
   init(){
     /* Register protocol scheme */
-    protocol.registerSchemesAsPrivileged([
-      {
-        scheme: 'https',
-        privileges: {
-          standard: true,
-          secure: true,
-          supportFetchAPI: false
-        }
-      }
-    ]);
+    // protocol.registerSchemesAsPrivileged([
+    //   {
+    //     scheme: 'https',
+    //     privileges: {
+    //       standard: true,
+    //       secure: true,
+    //       supportFetchAPI: false
+    //     }
+    //   }
+    // ]);
   },
 
   start(){
@@ -125,9 +127,35 @@ const intercept={
       headers: f.headers
     });
   },
-
   async fetchNormal(req){
     return net.fetch(req,{ bypassCustomProtocolHandlers:true} );
+  },
+  async fetchStream(req){
+    return new Promise(function(resolvCallback, rejectCallback) {
+      var hdr={};
+      for (const pair of req.headers.entries()) {
+        hdr[pair[0]]=pair[1];
+      }
+      hdr['user-agent']=common.UAG;
+      axios({
+        method: req.method,
+        url: req.url,
+        headers: hdr,
+        dnsServer: '8.8.8.8',
+        responseType: 'stream'
+      }).then(function(res) {
+        var rs = new stream.PassThrough();
+        res.data.pipe(rs);
+        resolvCallback(
+          new Response(rs, {
+            status: res.status
+          })
+        );
+      }).catch(function(err) {
+        console.warn(err);
+        rejectCallback();
+      });
+    });
   },
 
   async handler(req){
@@ -152,7 +180,7 @@ const intercept={
       else if (url.pathname.startsWith("/__proxy/")) {
         var realurl = req.url.substring(req.url.indexOf('/__proxy/')+9);
         let body=intercept.checkHeaders(req.headers);
-        return net.fetch(realurl, {
+        return net.fetch(realurl,{
           method: req.method,
           headers: req.headers,
           body: body?body:req.body,
@@ -163,7 +191,7 @@ const intercept={
       else if (url.hostname.includes("mp4upload.com")){
         req.headers.set('Referer','https://www.mp4upload.com/');
         console.log("MP4UPLOAD: "+url);
-        return intercept.fetchNormal(req);
+        return intercept.fetchStream(req);
       }
       else if(hostStream){
         if (common.main.vars.sd>2){
@@ -181,7 +209,8 @@ const intercept={
           else{
             if (req.headers.has("X-Dash-Prox")){
               req.headers.delete('X-Dash-Prox');
-              return intercept.fetchNormal(req);
+              req.headers.delete('Referer');
+              req.headers.set('Origin','https://'+host2);
             }
             else{
               req.headers.set('Referer','https://'+host2+'/');
@@ -189,7 +218,7 @@ const intercept={
             }
           }
         }
-        return intercept.fetchNormal(req);
+        return intercept.fetchStream(req);
       }
       else if (req.url.startsWith("https://www.youtube.com/embed/")||req.url.startsWith("https://www.youtube-nocookie.com/embed/")){
         return intercept.fetchInject(req.url, req, intercept.youtubeInjectString);
@@ -208,7 +237,7 @@ const intercept={
           req.url.includes(".com/api/stats/")){
           return intercept.fetchError();
         }
-        return intercept.fetchNormal(req);
+        return intercept.fetchStream(req);
       }
       else if (intercept.domains.aniwatch.indexOf(url.host)>-1){
         var accept=req.headers.get("Accept");
@@ -233,7 +262,7 @@ const intercept={
         else{
           req.headers.set('Origin','https://'+url.hostname);
           req.headers.set('Referer','https://'+url.hostname+'/');
-          let f=intercept.fetchNormal(req);
+          let f=intercept.fetchStream(req);
           if (url.pathname.startsWith("/mediainfo")){
             let body=await (await f).text();
             common.execJs("__M3U8CB("+body+");");
@@ -271,12 +300,12 @@ const intercept={
             return intercept.fetchError();
           }
         }
-        return intercept.fetchNormal(req);
+        return intercept.fetchStream(req);
       }
     }catch(e){
       console.log(e);
     }
-    return intercept.fetchNormal(req);
+    return intercept.fetchStream(req);
   }
 };
 

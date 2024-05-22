@@ -173,7 +173,7 @@ const main={
       main.win.setFullScreen(stat);
     }
     else{
-      main.win.setSimpleFullScreen(!main.isSimpleFullScreen());
+      main.win.setSimpleFullScreen(stat);
     }
   },
   isFullScreen(){
