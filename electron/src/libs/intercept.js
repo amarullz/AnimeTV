@@ -317,7 +317,6 @@ const intercept={
 
       /* Aniwatch stream meta fetcher */
       else if (intercept.domains.aniwatch.indexOf(url.host)>-1){
-        console.log("V: "+req.url);
         var accept=req.headers.get("Accept");
         if (accept && (accept.startsWith("text/css")||accept.startsWith("image/"))){
           return intercept.fetchError();
