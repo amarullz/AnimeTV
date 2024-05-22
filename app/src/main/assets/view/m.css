@@ -93,6 +93,10 @@ ttl{
 
   /* interpolation */
   --interpolation: cubic-bezier(.25, .8, .25, 1);
+
+  --transition-5s: opacity var(--tim-5s) var(--interpolation), visibility var(--tim-5s) var(--interpolation), transform var(--tim-5s) var(--interpolation);
+  --transition-3s: opacity var(--tim-3s) var(--interpolation), visibility var(--tim-3s) var(--interpolation), transform var(--tim-3s) var(--interpolation);
+  --transition-2s: opacity var(--tim-2s) var(--interpolation), visibility var(--tim-2s) var(--interpolation), transform var(--tim-2s) var(--interpolation);
 }
 
 .view-bigfont {
@@ -651,7 +655,7 @@ c.loader {
   opacity: 0;
   transform: scale(.5);
   visibility: hidden;
-  transition: all var(--tim-3s) var(--interpolation);
+  transition:var(--transition-3s);
   text-shadow: 0 .1vw .1vw #000 !important;
   outline: none;
 }
@@ -691,7 +695,7 @@ c.loader {
   border-bottom: .25vw solid #fff;
   opacity: 1;
   transform: scaleX(1);
-  transition: all var(--tim-3s) var(--interpolation);
+  transition:var(--transition-3s);
 }
 .istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover.selected:before,
 .animetv_header.active .animetv_header_banner div.active.selected:before{
@@ -721,7 +725,7 @@ c.loader {
   margin-left: calc(-.2vw - var(--fs-20vw));
   opacity: 0;
   visibility: hidden;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition:var(--transition-2s);
   position: absolute;
   transform: rotate(-90deg);
 }
@@ -1378,7 +1382,7 @@ c.loader {
   justify-content: center;
   text-shadow: 0 0 .1vw #000;
 
-  transition: all 0.3s var(--interpolation);
+  transition:var(--transition-3s);
   visibility: visible;
   opacity: 1;
   /* transform: scale(1); */
@@ -1514,7 +1518,7 @@ c.loader {
   top: 40vh;
   font-size: var(--fs-10vw);
   text-shadow: 0 0 .1vw #000, 0 0 .2vw #000;
-  transition: all var(--tim-5s) var(--interpolation);
+  transition: var(--transition-5s);
   opacity: 0;
   visibility: hidden;
   z-index: 10;
@@ -1548,7 +1552,7 @@ c.loader {
   padding: 5vw;
   font-size: var(--fs-13vw);
   text-shadow: 0 0 .5vw #000, .05vw .05vw .05vw #000;
-  transition: all var(--tim-5s) var(--interpolation);
+  transition: var(--transition-5s);
   opacity: 0;
   visibility: hidden;
   z-index: 30;
@@ -1564,7 +1568,7 @@ c.loader {
   width: 40vw;
   padding-bottom: var(--fs-15vw);
   font-weight: bold;
-  transition: all var(--tim-4s) var(--interpolation);
+  transition: var(--transition-3s);
   opacity: 0;
   transform: translateX(5vw);
   pointer-events: none;
@@ -1574,7 +1578,7 @@ c.loader {
   width: 50vw;
   line-height: 1.5;
   margin-bottom: 1.5vw;
-  transition: all var(--tim-7s) var(--interpolation);
+  transition: var(--transition-5s);
   opacity: 0;
   transform: translateX(15vw);
   overflow: hidden;
@@ -1623,7 +1627,7 @@ c.loader {
   transform: translateX(25vw);
   position: absolute;
   bottom: 5vw;
-  transition: all var(--tim-10s) var(--interpolation);
+  transition:var(--transition-3s);
   padding-bottom: 1vw;
 }
 
@@ -1645,7 +1649,7 @@ c.loader {
   white-space: nowrap;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(90deg, #000 95%, rgba(0, 0, 0, 0));
-  transition: all var(--tim-8s) var(--interpolation);
+  transition:var(--transition-3s);
 }
 
 .pb_menu>p {
@@ -1730,7 +1734,7 @@ c.loader {
   left:0;
   right:0;
   bottom:0;
-  transition: all var(--tim-5s) var(--interpolation);
+  transition: var(--transition-5s);
   opacity: 0;
   visibility: hidden;
   z-index: 50;
@@ -2029,7 +2033,7 @@ c.loader {
   text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000;
   font-size: var(--fs-13vw);
   border-radius: .3vw;
-  transition: all var(--tim-5s) var(--interpolation);
+  transition: var(--transition-5s);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
   opacity: 0;
   z-index: 20;
@@ -2065,7 +2069,7 @@ c.loader {
   background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .95) 100%);
   text-shadow: 0 0 .2vw #000, .05vw .05vw .05vw #000;
   transform: translateY(calc(100vh - 4vw));
-  transition: all var(--tim-4s) var(--interpolation);
+  transition: var(--transition-3s);
 }
 
 #pb_lists {
@@ -2084,7 +2088,7 @@ c.loader {
   font-size: var(--fs-12vw);
   font-weight: bold;
   padding-bottom: .5vw;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: var(--transition-2s);
   position: relative;
   color: #ccc;
   height: 1.5vw;
@@ -2108,7 +2112,7 @@ c.loader {
   height: 1vw;
   visibility: hidden;
   opacity: 0;
-  transition: all var(--tim-10s) var(--interpolation);
+  transition:var(--transition-3s);
   transform: translateX(-10vw);
   background-color: var(--primary-2);
   color: #fff;
@@ -2250,7 +2254,7 @@ c.loader {
 #pb_tracks {
   padding: 2.5vw 5vw 1vw 5vw;
   position: relative;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition:var(--transition-3s);
   will-change: opacity;
   opacity: .8;
 }
@@ -2293,7 +2297,7 @@ c.loader {
   padding: 0;
   text-align: center;
   vertical-align: middle;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: var(--transition-2s);
   text-shadow: 0 0 .2vw #000 !important;
   will-change: text-shadow;
 }
@@ -2323,7 +2327,7 @@ c.loader {
   border-radius: .5vw;
   outline: .05vw solid rgba(255, 255, 255, .4);
   box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24);
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: var(--transition-2s);
   will-change: transform;
 }
 
@@ -2335,7 +2339,7 @@ c.loader {
   background: var(--primary-3);
   background: linear-gradient(180deg, var(--dimm-1), var(--dimm-1) 100%);
   transition: width 0.15s var(--interpolation);
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: var(--transition-2s);
   will-change: transform, width;
   z-index:2;
 }
@@ -2408,7 +2412,7 @@ c.loader {
   z-index: 20;
   visibility: visible;
   opacity: 1;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: var(--transition-2s);
   text-shadow: 0 0 .1vw #000, 0 0 .1vw #000, 0 0 .4vw #000;
   will-change: opacity;
   pointer-events: none;
@@ -2433,7 +2437,7 @@ c.loader {
   border-radius: .3vw;
   box-shadow: 0 .17vw .4vw rgba(0, 0, 0, 0.25), 0 .15vw .15vw rgba(0, 0, 0, 0.22);
   overflow: hidden;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: var(--transition-2s);
   visibility: hidden;
   opacity: 0;
 }
@@ -2526,7 +2530,7 @@ c.loader {
 #home {
   position: absolute;
   z-index: 2;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: var(--transition-2s);
   display: block;
   /* inset: 0; */
   top:0;
@@ -2541,7 +2545,7 @@ c.loader {
 .home_list {
   padding: 0 5vw 1vw 5vw;
   position: relative;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: var(--transition-2s);
   /* opacity: .8; */
   will-change: transform, opacity;
 }
@@ -2633,7 +2637,7 @@ c.loader {
   font-size: var(--fs-13vw);
   font-weight: bold;
   padding-bottom: .5vw;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition:var(--transition-2s);
   position: relative;
   color: #aaa;
   height: var(--fs-13vw);
@@ -2701,7 +2705,7 @@ c.loader {
 }
 
 .home_list>p>div img {
-  transition: all var(--tim-2s) var(--interpolation);
+  transition:var(--transition-2s);
 }
 
 .home_list>p>div b {
@@ -2941,7 +2945,7 @@ c.loader {
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
-  transition: all var(--tim-3s) var(--interpolation);
+  transition:var(--transition-3s);
   /* transform: scale(1.2); */
   opacity: 0;
   visibility: hidden;
@@ -2972,7 +2976,7 @@ c.loader {
   line-height: 7vw;
   outline: none;
   border-radius: 1.5vw;
-  transition: all var(--tim-3s) var(--interpolation);
+  transition: var(--transition-3s);
 }
 
 #search_keyword.active {
@@ -3000,7 +3004,7 @@ c.loader {
   line-height: 1.4;
   padding: 0 !important;
   max-width: 12vw;
-  transition: all var(--tim-3s) var(--interpolation);
+  transition:var(--transition-2s);
   /* box-shadow: 0 .01vw .03vw rgba(0, 0, 0, 0.12), 0 .01vw .02vw rgba(0, 0, 0, 0.24); */
   white-space: normal;
   text-align: right;
@@ -3186,7 +3190,7 @@ c.loader {
   width: 34vw;
   box-sizing: border-box;
   background: #222;
-  transition: all var(--tim-3s) var(--interpolation);
+  transition: var(--transition-3s);
   transform: translateX(50%);
   opacity: 0;
   visibility: hidden;
@@ -3280,7 +3284,7 @@ c.loader {
   display: block;
   font-size: var(--fs-12vw);
   padding: .5vw 2vw .5vw 2vw;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition: color var(--tim-2s) var(--interpolation);
   position: relative;
   height: 1.5vw;
 }
@@ -3335,11 +3339,10 @@ c.loader {
   height:1.6vw;
   border-radius: 1.8vw;
   content: 'clear';
-  background: #eee;
+  background-color: #eee;
   left:.2vw;
   top:.2vw;
-  transition: all var(--tim-2s) var(--interpolation);
-
+  transition: left var(--tim-2s) var(--interpolation),right var(--tim-2s) var(--interpolation),background-color var(--tim-2s) var(--interpolation);
   will-change: left, right;
 
   text-indent: 0;
@@ -3372,7 +3375,7 @@ c.loader {
 
 .settings_group p div c.check.checked:after{
   left:2.1vw;
-  background: #fff;
+  background-color: #fff;
   content: 'check';
 }
 .settings_group p div>c:not(.check){
@@ -3489,7 +3492,7 @@ c.loader {
   opacity: 0;
   transform: scale(.5);
   visibility: hidden;
-  transition: all var(--tim-3s) var(--interpolation);
+  transition:var(--transition-3s);
   will-change: transform, opacity;
   font-weight: bold;
   pointer-events: none;
@@ -3567,7 +3570,7 @@ c.loader {
   background-color: #181818;
 }
 #malview #anilist_detail{
-  transition: all var(--tim-3s) var(--interpolation);
+  transition: var(--transition-3s);
   visibility: hidden;
   opacity: 0;
   z-index:50;
@@ -3811,7 +3814,7 @@ c.loader {
   font-size:var(--fs-15vw);
   line-height:1;
   white-space: nowrap;
-  transition: all var(--tim-2s) var(--interpolation);
+  transition:var(--transition-2s);
   width:var(--fs-17vw);
   overflow: hidden;
 }
@@ -4439,7 +4442,7 @@ c.loader {
   );
   visibility: hidden;
   opacity: 0;
-  transition: all var(--tim-3s) var(--interpolation);
+  transition:var(--transition-3s);
 }
 #sidebar.active{
   visibility: visible;
@@ -4455,7 +4458,7 @@ c.loader {
   padding-top: 2vw;
   overflow-y: hidden;
   transform: translateX(-5vw);
-  transition: all var(--tim-3s) var(--interpolation);
+  transition:var(--transition-3s);
   -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0,#000 2vw);
 }
 #sidebar.active #sidebar_contents{
