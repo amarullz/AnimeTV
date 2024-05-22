@@ -2411,6 +2411,7 @@ c.loader {
   transition: all var(--tim-2s) var(--interpolation);
   text-shadow: 0 0 .1vw #000, 0 0 .1vw #000, 0 0 .4vw #000;
   will-change: opacity;
+  pointer-events: none;
 }
 
 #pb.menushow #pb_events {
@@ -2419,6 +2420,7 @@ c.loader {
 }
 
 #pb_event_skip {
+  pointer-events: all;
   display: block;
   font-size: var(--fs-14vw);
   padding: .5vw 1.5vw .5vw 1.5vw;

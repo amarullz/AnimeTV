@@ -8438,39 +8438,44 @@ const pb={
         else if (c==KENTER){
           var prevent=true;
           if (!pb.pb.classList.contains('menushow')){
-            var x=pb.pb.__ev_x;
-            var w=window.outerWidth;
-            var w4=w/5;
-            var t=(x<w4)?1:((x>w-w4)?2:0);
-            if (pb.motions.smenuto){
-              clearTimeout(pb.motions.smenuto);
-              pb.motions.smenuto=null;
-            }
-            if (t>0){
-              if (pb.motions.smenutick>$tick()-280){
-                _API.last_key_source=0;
-                pb.motions.smenutick=$tick();
-                if (t==1){
-                  pb.track_keycb(pb.pb_tracks,KLEFT);
-                  pb.motions.seekindicator(0);
+            if (pb.pb.__ev_target==pb.pb){
+              var x=pb.pb.__ev_x;
+              var w=window.outerWidth;
+              var w4=w/5;
+              var t=(x<w4)?1:((x>w-w4)?2:0);
+              if (pb.motions.smenuto){
+                clearTimeout(pb.motions.smenuto);
+                pb.motions.smenuto=null;
+              }
+              if (t>0){
+                if (pb.motions.smenutick>$tick()-280){
+                  _API.last_key_source=0;
+                  pb.motions.smenutick=$tick();
+                  if (t==1){
+                    pb.track_keycb(pb.pb_tracks,KLEFT);
+                    pb.motions.seekindicator(0);
+                  }
+                  else{
+                    pb.track_keycb(pb.pb_tracks,KRIGHT);
+                    pb.motions.seekindicator(1);
+                  }
                 }
                 else{
-                  pb.track_keycb(pb.pb_tracks,KRIGHT);
-                  pb.motions.seekindicator(1);
+                  pb.motions.smenutick=$tick();
+                  pb.motions.smenuto=setTimeout(function(){
+                    pb.motions.smenuto=null;
+                    pb.lastkey=$tick();
+                    pb.menu_show(2);
+                  },300);
                 }
               }
-              else{
-                pb.motions.smenutick=$tick();
-                pb.motions.smenuto=setTimeout(function(){
-                  pb.motions.smenuto=null;
-                  pb.lastkey=$tick();
-                  pb.menu_show(2);
-                },300);
+              else {
+                pb.lastkey=$tick();
+                pb.menu_show(2);
               }
             }
-            else {
-              pb.lastkey=$tick();
-              pb.menu_show(2);
+            else{
+              prevent=false;
             }
           }
           else if (pb.motions.evtarget(pb.pb_tracks)){
