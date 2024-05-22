@@ -179,8 +179,14 @@ const intercept={
             req.headers.set('Origin','https://'+common.dns[5]);
           }
           else{
-            req.headers.set('Referer','https://'+host2+'/');
-            req.headers.set('Origin','https://'+host2);
+            if (req.headers.has("X-Dash-Prox")){
+              req.headers.delete('X-Dash-Prox');
+              return intercept.fetchNormal(req);
+            }
+            else{
+              req.headers.set('Referer','https://'+host2+'/');
+              req.headers.set('Origin','https://'+host2);
+            }
           }
         }
         return intercept.fetchNormal(req);
