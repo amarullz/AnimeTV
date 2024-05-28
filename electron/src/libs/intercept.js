@@ -152,6 +152,7 @@ const intercept={
 
   /* fetch with injected string */
   async fetchInject(url, req, inject, bypass){
+    req.headers.set('X-Bypass-Req','true');
     let f=await net.fetch(url, {
       method: req.method,
       headers: req.headers,
@@ -211,6 +212,14 @@ const intercept={
   /* HTTP Request Habdler */
   async handler(req){
     try{
+      /* Bypass request */
+      if (req.headers.has("X-Bypass-Req")){
+        req.headers.delete("X-Bypass-Req");
+        console.log("ByPass Request: "+req.url);
+        return intercept.fetchStream(req);
+      }
+
+      /* Non-ByPass requests */
       const url = new URL(req.url);
       const hostStream=intercept.checkStream(req.headers);
 
