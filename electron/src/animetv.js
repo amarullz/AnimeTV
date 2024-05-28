@@ -72,7 +72,7 @@ const main={
     main.vars.dns=common.dns;
 
     /* Go home & show */
-    main.win.setContentSize(dw, dh);
+    // main.win.setContentSize(dw, dh);
     main.goHome();
     main.win.setMenu(null);
     main.win.show();
