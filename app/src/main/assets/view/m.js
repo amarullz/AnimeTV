@@ -8396,7 +8396,6 @@ const pb={
         }
         pb.pb.__wheel_tick=$tick()+1000;
         pb.pb.__wheel_val+=event.deltaY;
-        console.warn(pb.pb.__wheel_val);
         if (pb.pb.__wheel_val <= -100)
         {
           pb.pb.__wheel_val=0;
@@ -16272,6 +16271,15 @@ const _MAL={
       kw,null,1,0,season,year
     );
 
+    var ntype='';
+    if (!isanilist){
+      ntype=(d.node.media_type+'').toLowerCase();
+    }
+    else{
+      ntype=(dmedia.format+'').toLowerCase();
+    }
+    ntype=ntype.trim();
+
     $a(uri,function(r){
       if (r.ok){
         var rd=home.search.parse(r.responseText);
@@ -16313,7 +16321,12 @@ const _MAL={
             else{
               if ((slugString(rd[i].title,'')==slkw)||(slugString(rd[i].title_jp,'')==slkw)){
                 sel=rd[i];
-                break;
+                if (!ntype){
+                  break;
+                }
+                else if (ntype && rd[i].type && rd[i].type.toLowerCase()==ntype){
+                  break;
+                }
               }
             }
           }
