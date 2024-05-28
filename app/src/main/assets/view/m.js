@@ -3590,8 +3590,22 @@ const _API={
   },
 
   /*** Toast ***/
+  toastElectronTo:null,
   showToast:function(txt){
-    _JSAPI.showToast(txt);
+    if (_ISELECTRON){
+      if (_API.toastElectronTo){
+        clearTimeout(_API.toastElectronTo);
+        _API.toastElectronTo=null;
+      }
+      $('animetv_toast').innerHTML='<div>'+special(txt)+'</div>';
+      $('animetv_toast').classList.add('active');
+      _API.toastElectronTo=setTimeout(function(){
+        $('animetv_toast').classList.remove('active');
+      },2000);
+    }
+    else{
+      _JSAPI.showToast(txt);
+    }
   },
 
   /*** FETCH AJAX ***/
@@ -6080,6 +6094,9 @@ const pb={
         pb.vid_cmd('speed',_API.vidSpeed);
         if (pb.vid){
           pb.vid.classList.add('ready');
+        }
+        if (pb.state<2){
+          pb.vid_event('ready',0);
         }
       }
       pb.menu_autohide();

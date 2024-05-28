@@ -479,6 +479,31 @@ c.loader {
 }
 
 
+/* ---------------------- ELECTRON TOAST ---------------------- */
+#animetv_toast{
+  position: absolute;
+  z-index: 999999999;
+  bottom: 4%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  transition: var(--transition-3s);
+  opacity: 0;
+  visibility: hidden;
+}
+#animetv_toast.active{
+  opacity: 1;
+  visibility: visible;
+}
+#animetv_toast div{
+  display: inline-block;
+  padding: 0 var(--fs-10vw) 0 var(--fs-10vw);
+  font-size: var(--fs-15vw);
+  background-color: rgba(20,20,20,.9);
+  line-height: 1.8;
+  color: #fff;
+  border-radius: var(--fs-40vw);
+}
 
 
 
