@@ -20,3 +20,4 @@ keystore/debug.keystore
 /package-lock.json
 /electron/builds
 .idea/deploymentTargetSelector.xml
+electron/src/version.js

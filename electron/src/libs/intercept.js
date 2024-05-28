@@ -215,7 +215,6 @@ const intercept={
       /* Bypass request */
       if (req.headers.has("X-Bypass-Req")){
         req.headers.delete("X-Bypass-Req");
-        console.log("ByPass Request: "+req.url);
         return intercept.fetchStream(req);
       }
 

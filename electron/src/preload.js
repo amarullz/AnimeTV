@@ -18,10 +18,20 @@
  * Description : Node/electron preload js
  *
  */
+const os = require("os");
+const process = require("process");
 const { remote, contextBridge, ipcRenderer } = require("electron");
 const send = (m, a) => ipcRenderer.send(m, a);
 const on = (m, c) => ipcRenderer.on(m, c);
 const CryptoJS = require("crypto-js");
+
+/* Versions */
+var versions;
+try{
+  versions=require("./version.js");
+}catch(e){
+  versions=require("../ver.js");
+}
 
 const vars={
   vars:{},
@@ -132,13 +142,13 @@ const api={
   clearCache(){},
 
   /* versioning */
-  dnsver(){ return '1.0-ELECTRON'; },
+  dnsver(){ return 'Electron '+process.versions.electron; },
   getVersion(type){
     if (type==0)
-      return "5.0.0";
+      return versions.version;
     else if (type==2)
       return "500";
-    return "2307210136";
+    return versions.build+"/"+os.platform()+"-"+os.arch();
   },
 
   /* encryptions */

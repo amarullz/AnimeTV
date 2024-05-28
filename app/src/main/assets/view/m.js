@@ -4139,9 +4139,13 @@ const _API={
   try{
     var verel=$('home_version');
     if (_JSAPI){
+      var srv=_JSAPI.dnsver();
+      if (!_ISELECTRON){
+        srv="Server "+srv;
+      }
       verel.innerHTML="<b>AnimeTV "+_JSAPI.getVersion(0)+" "+
         "&copy; 2023-2024 amarullz.com</b><br />Build "+_JSAPI.getVersion(1)
-        +" - Server "+_JSAPI.dnsver()+" - Source "+__SD_NAME;
+        +" - "+srv+" - Source "+__SD_NAME;
     }
   }catch(e){}
 
