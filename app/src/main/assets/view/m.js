@@ -5256,6 +5256,7 @@ const pb={
     performance:[true,false,true,true,false],
     autoskip:false,
     autonext:true,
+    closeconfirm:false,
     // html5player:false,
     skipfiller:false,
     jptitle:false,
@@ -5298,6 +5299,8 @@ const pb={
       var j=JSON.parse(itm);
       if (j){
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
+        pb.cfg_data.closeconfirm=('closeconfirm' in j)?(j.closeconfirm?true:false):false;
+        
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         // pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
         pb.cfg_data.dubaudio=('dubaudio' in j)?(j.dubaudio?true:false):false;
@@ -5425,6 +5428,7 @@ const pb={
       }
     }
     pb.cfg_data.autoskip=false;
+    pb.cfg_data.closeconfirm=false;
     pb.cfg_data.autonext=true;
     // pb.cfg_data.html5player=false;
     pb.cfg_data.dubaudio=false;
@@ -5802,6 +5806,8 @@ const pb={
     else{
       pb.cfg_update_el('animation');
       pb.cfg_update_el('autoskip');
+      pb.cfg_update_el('closeconfirm');
+      
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('dubaudio');
       
@@ -8555,7 +8561,9 @@ const pb={
       };
       pb.pb_touch_close.onclick=function(){
         clk();
-        pb.reset(1,0);
+        if (!pb.close_confirm()){
+          pb.reset(1,0);
+        }
       }
       pb.pb_event_skip.onclick=function(){
         if (pb.onskip){
@@ -8678,15 +8686,17 @@ const pb={
         pb.menu_show(c==KUP?1:2);
       }
       else if (c==KBACK){
-        if (pb.menu_hide_tick>$tick()){
-          /* prevent accidential back */
-          clk();
-          pb.reset(1,0);
-        }
-        else{
-          clk();
-          _API.showToast("Press back again to close playback...");
-          pb.menu_hide_tick=$tick()+1000;
+        if (!pb.close_confirm()){
+          if (pb.menu_hide_tick>$tick()){
+            /* prevent accidential back */
+            clk();
+            pb.reset(1,0);
+          }
+          else{
+            clk();
+            _API.showToast("Press back again to close playback...");
+            pb.menu_hide_tick=$tick()+1000;
+          }
         }
       }
     }
@@ -9557,6 +9567,17 @@ const pb={
     }catch(e){
       console.log("JSAPI videoHaveNP Err="+e);
     }
+  },
+  close_confirm:function(){
+    if (pb.cfg_data.closeconfirm){
+      _API.confirm(false,"Close the playback?",function(cnf){
+        if (cnf){
+          pb.reset(1,0);
+        }
+      });
+      return true;
+    }
+    return false;
   },
   load_open_stat:0,
   open_uri:"",
@@ -12420,6 +12441,7 @@ const home={
           home.settings.video.P,
           '<c class="check">clear</c><c>footprint</c> Auto Skip Intro'
         );
+
         home.settings.tools._s_skipfiller=$n(
           'div','',{
             action:'*skipfiller'
@@ -12449,6 +12471,15 @@ const home={
           home.settings.video.P,
           '<c>fast_forward</c> Seek Value<span class="value"></span>'
         );
+        home.settings.tools._s_closeconfirm=$n(
+          'div','',{
+            action:'*closeconfirm',
+            s_desc:'Show confirm dialog before closing playback'
+          },
+          home.settings.video.P,
+          '<c class="check">clear</c><c>cancel_presentation</c> Close Confirmation'
+        );
+
         home.settings.tools._s_preloadep=$n(
           'div','',{
             action:'*preloadep',
@@ -14902,7 +14933,7 @@ const home={
             _JSAPI.appQuit();
           }
           else if (em==1){
-            _API.confirm("AnimeTV",
+            _API.confirm(false,
               "<b><c>door_open</c> Exit AnimeTV?</b>",
               function(cnf){
                 if (cnf){
@@ -17753,8 +17784,15 @@ const listOrder={
     listOrder.onpopup=true;
     listOrder.win.innerHTML='';
     listOrder.changed=true;
-    listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(title));
-    listOrder.title_el._msg=$n('div','listorder_message',null,listOrder.win,nohtml?special(message):message);
+    var msg_class='listorder_message';
+    if (title){
+      listOrder.title_el=$n('div','listorder_title',null,listOrder.win,special(title));
+    }
+    else{
+      listOrder.title_el={};
+      msg_class+=' list_center';
+    }
+    listOrder.title_el._msg=$n('div',msg_class,null,listOrder.win,nohtml?special(message):message);
     listOrder.group=$n('div','listorder_dialog_holder',null,listOrder.win,'');
     if (isalert){
       listOrder.title_el._btnyes=$n('div','listorder_dialog_button active',

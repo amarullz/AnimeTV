@@ -4336,6 +4336,9 @@ c.loader {
   color: #aaa;
   line-height: 1.4;
 }
+#listorder .listorder_message.list_center{
+  text-align: center;
+}
 #listorder .listorder_message b{
   color:#fff;
 }
