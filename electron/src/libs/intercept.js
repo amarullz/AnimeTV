@@ -275,6 +275,7 @@ const intercept={
         return intercept.fetchUrl(realurl,req,method,body);
       }
 
+      /* custom source domain name */
       else if (url.hostname==common.main.dns()){
         if (common.main.vars.sd_domain){
           var nurl=req.url.replace('://'+common.main.dns(),'://'+common.main.vars.sd_domain);

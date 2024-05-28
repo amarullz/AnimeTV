@@ -6063,12 +6063,12 @@ const pb={
         }
       }
       vtt.playback.buffering_set(true);
+      pb.menu_autohide();
     }
     else if (c=='play'){
       pb.vid_stat.play=true;
       pb.pb_track_ctl.innerHTML='pause';
       pb.pb_touch_play.innerHTML='pause';
-      pb.menu_autohide();
       pb.setskip_track(1);
       vtt.playback.play();
       // if (pb.cfg_data.html5player){
@@ -6082,6 +6082,7 @@ const pb={
           pb.vid.classList.add('ready');
         }
       }
+      pb.menu_autohide();
     }
     else if (c=='pause'){
       vtt.playback.pause();
@@ -8191,7 +8192,7 @@ const pb={
   },
   menu_hide:function(){
     clearTimeout(pb.menu_autohide_to);
-    pb.menu_hide_tick=$tick();
+    // pb.menu_hide_tick=$tick();
     pb.menus[pb.menusel].classList.remove('active');
     pb.menusel=0;
     pb.menus[pb.menusel].classList.add('active');
@@ -8657,15 +8658,15 @@ const pb={
         pb.menu_show(c==KUP?1:2);
       }
       else if (c==KBACK){
-        if (pb.menu_hide_tick+1000<$tick()){
+        if (pb.menu_hide_tick>$tick()){
           /* prevent accidential back */
           clk();
           pb.reset(1,0);
         }
         else{
           clk();
-          _API.showToast("Press back again to close watching...");
-          pb.menu_hide_tick=0;
+          _API.showToast("Press back again to close playback...");
+          pb.menu_hide_tick=$tick()+1000;
         }
       }
     }
