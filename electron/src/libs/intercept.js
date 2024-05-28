@@ -150,6 +150,17 @@ const intercept={
     return net.fetch(req,{ bypassCustomProtocolHandlers:true} );
   },
 
+  async fetchUrl(url, req, method, body){
+    req.headers.set('X-Bypass-Req','true');
+    return net.fetch(url,{
+      method: method?method:req.method,
+      headers: req.headers,
+      body: body?body:req.body,
+      duplex: 'half',
+      bypassCustomProtocolHandlers: false
+    });
+  },
+
   /* fetch with injected string */
   async fetchInject(url, req, inject, bypass){
     req.headers.set('X-Bypass-Req','true');
@@ -258,15 +269,19 @@ const intercept={
           body=decodeURIComponent(url.search.substring(1));
           method='POST';
         }
+        h.delete('Host');
 
         /* fetch proxy */
-        return net.fetch(realurl,{
-          method: method,
-          headers: req.headers,
-          body: body?body:req.body,
-          duplex: 'half',
-          bypassCustomProtocolHandlers: false
-        });
+        return intercept.fetchUrl(realurl,req,method,body);
+      }
+
+      else if (url.hostname==common.main.dns()){
+        if (common.main.vars.sd_domain){
+          var nurl=req.url.replace('://'+common.main.dns(),'://'+common.main.vars.sd_domain);
+          req.headers.delete('Host');
+          return intercept.fetchUrl(nurl,req);
+        }
+        return intercept.fetchStream(req);
       }
 
       /* Streamings */
