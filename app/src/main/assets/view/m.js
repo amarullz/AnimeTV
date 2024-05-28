@@ -8424,6 +8424,9 @@ const pb={
           if (pb.pb.classList.contains('menushow')){
             _KEYEV(c);
           }
+          else if (_ISELECTRON){
+            _KEYEV(c);
+          }
           else{
             var x=pb.pb.__ev_x;
             var w=window.outerWidth;
@@ -8525,7 +8528,8 @@ const pb={
         }
       },null,null,true);
 
-      pb.pb.onmousemove=pb.pb.ontouchmove=function(){
+      // pb.pb.onmousemove=
+      pb.pb.ontouchmove=function(){
         if (pb.pb.classList.contains('menushow')){
           pb.lastkey=$tick();
         }
