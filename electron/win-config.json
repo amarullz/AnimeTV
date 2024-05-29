@@ -1,0 +1,7 @@
+{
+    "dest": "electron/builds/",
+    "icon": "electron/animetv.ico",
+    "tags": [
+      "Video"
+    ]
+  }
