@@ -369,6 +369,10 @@ const intercept={
         }
       }
 
+      else if (url.hostname.includes("fonts.gstatic.com")||url.hostname.includes("fonts.googleapis.com")){
+        return intercept.fetchStream(req);
+      }
+
       /* Blacklisted */
       else if (url.hostname.includes("rosebudemphasizelesson.com")||
         url.hostname.includes("simplewebanalysis.com")||
@@ -378,7 +382,6 @@ const intercept={
         url.hostname.includes("megastatics.com")||
         url.hostname.includes("ontosocietyweary.com")||
         url.hostname.includes("doubleclick.net")||
-        url.hostname.includes("fonts.gstatic.com")||
         url.hostname.includes("ggpht.com")||
         url.hostname.includes("play.google.com")||
         url.hostname.includes("www.google.com")||

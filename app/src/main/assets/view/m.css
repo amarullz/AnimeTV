@@ -2017,7 +2017,7 @@ c.loader {
   font-weight: 300 !important;
 }
 .vtt_style_normal{
-  font-weight: 500 !important;
+  font-weight: 400 !important;
 }
 .vtt_style_bold{
   font-weight: 700 !important;
@@ -2025,6 +2025,20 @@ c.loader {
 .vtt_style_bolder{
   font-weight: 900 !important;
 }
+
+.vtt_style_thin b{
+  font-weight: 500 !important;
+}
+.vtt_style_normal b{
+  font-weight: 700 !important;
+}
+.vtt_style_bold b {
+  font-weight: 900 !important;
+}
+.vtt_style_bolder b{
+  font-weight: 900 !important;
+}
+
 .vtt_style_small{
   font-size: var(--fs-20vw);
 }
@@ -2033,6 +2047,9 @@ c.loader {
 }
 .vtt_style_large{
   font-size: var(--fs-30vw);
+}
+.vtt_style_extra_large{
+  font-size: calc(var(--fs-30vw) + calc(var(--fs-7vw) / 3));
 }
 .vtt_style_proportional{
   font-family: sans-serif !important;
@@ -2043,8 +2060,32 @@ c.loader {
 .vtt_style_condensed{
   font-family: robotoc, Arial, Helvetica, sans-serif;
 }
-.vtt_style_monospace{
-  font-family: 'roboto slab', monospace;
+.vtt_style_outfit{
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.1;
+}
+.vtt_style_merriweather{
+  font-family: "Merriweather", serif;
+}
+.vtt_style_philosopher{
+  font-family: "Philosopher", sans-serif;
+  line-height: 1.1;
+}
+.vtt_style_salsa{
+  font-family: "Salsa", sans-serif;
+  line-height: 1.1;
+}
+.vtt_style_reddit_sans{
+  font-family: "Reddit Sans", sans-serif;
+  line-height: 1.1;
+}
+.vtt_style_exo{
+  font-family: "Exo", sans-serif;
+  line-height: 1.1;
+}
+.vtt_style_merienda{
+  font-family: "Merienda", cursive, sans-serif;
+  line-height: 1.2;
 }
 
 #pb_action_streamtype{

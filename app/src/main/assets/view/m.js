@@ -4300,9 +4300,30 @@ const vtt={
     for (var i=0;i<vtt.style_order.length;i++){
       stn.push(vtt.style_get(n,i,2));
     }
+    var font_family=vtt.style_get(n,0,1).toLowerCase();
+    vtt.set_font_family(font_family);
     cn=stn.join(' ');
     vtt.h.className=cn;
     $('vtt_subtitle_preview').className=cn;
+  },
+  font_family_el:{},
+  set_font_family:function(ff){
+    function rmel(n){
+      if (n in vtt.font_family_el){
+        vtt.font_family_el[n].parentElement.removeChild(vtt.font_family_el[n]);
+        vtt.font_family_el[n]=null;
+        delete vtt.font_family_el[n];
+      }
+    }
+    rmel('preload1');
+    rmel('preload2');
+    rmel('link');
+    console.warn('Font Family: '+ff);
+    if (ff in vtt.google_font_family){
+      vtt.font_family_el['preload1']=$n('link','',{'href':'https://fonts.googleapis.com','rel':'preconnect'},document.head,'');
+      vtt.font_family_el['preload2']=$n('link','',{'href':'https://fonts.gstatic.com','rel':'preconnect','crossorigin':'crossorigin'},document.head,'');
+      vtt.font_family_el['link']=$n('link','',{'href':vtt.google_font_family[ff],'rel':'stylesheet'},document.head,'');
+    }
   },
   sel:0,
   substyle:0,
@@ -4310,6 +4331,15 @@ const vtt={
     'english','portuguese (brazil)','spanish (latin_america)',
     'Spanish','Arabic','French','German','Italian','Russian'
   ],
+  google_font_family:{
+    'salsa':'https://fonts.googleapis.com/css2?family=Salsa&display=swap',
+    'outfit':'https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap',
+    'merriweather':'https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap',
+    'philosopher':'https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&display=swap',
+    'reddit_sans':'https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap',
+    'exo':'https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap',
+    'merienda':'https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&display=swap',
+  },
   style_type:[
     'Font Type',
     'Font Size',
@@ -4331,12 +4361,20 @@ const vtt={
       "Serif",
       "Proportional",
       "Condensed",
-      "Monospace"
+      "Salsa",
+      "Outfit",
+      "Merriweather",
+      "Philosopher",
+      "Reddit Sans",
+      "Exo",
+
+      "Merienda"
     ],
     [
       "Large",
       "Medium",
       "Small",
+      "Extra Large"
     ],
     [
       "Normal",
