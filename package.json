@@ -20,7 +20,6 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "electron": "^30.0.6",
-    "electron-installer-debian": "^3.2.0",
     "electron-installer-dmg": "^4.0.0",
     "electron-installer-windows": "^3.0.0",
     "electron-packager": "npm:@electron/packager@<18.1"
