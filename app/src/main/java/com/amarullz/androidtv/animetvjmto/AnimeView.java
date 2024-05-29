@@ -1000,6 +1000,13 @@ import javax.crypto.spec.SecretKeySpec;
       Log.d(_TAG, "sendM3U8Req = " + m3u8data);
       sendM3U8Req(m3u8data);
     }
+    else if (host.contains("fonts.gstatic.com")||
+        host.contains("fonts.googleapis.com")){
+      if (Conf.PROGRESSIVE_CACHE) {
+        return super.shouldInterceptRequest(view, request);
+      }
+      return aApi.defaultRequest(view,request);
+    }
     else if (host.contains("rosebudemphasizelesson.com")||
             host.contains("simplewebanalysis.com")||
       host.contains("addthis.com")||
@@ -1008,7 +1015,6 @@ import javax.crypto.spec.SecretKeySpec;
         host.contains("megastatics.com")||
       host.contains("ontosocietyweary.com")||
         host.contains("doubleclick.net")||
-        host.contains("fonts.gstatic.com")||
         host.contains("ggpht.com")||
         host.contains("play.google.com")||
         host.contains("www.google.com")||
