@@ -26,6 +26,14 @@ function clk() {
         _JSAPI.playClick();
     }
 }
+/* proxy image */
+var __IMGCDNL=_JSAPI.storeGet("imgcdnl","1");
+function $imgnl(src, maxw){
+    if (__IMGCDNL!="1"){
+        return src;
+    }
+    return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w='+maxw+'&we';
+}
 
 /* Key codes */
 const KUP = 38;
@@ -105,11 +113,11 @@ const login = {
         var usr = login.users[id];
         if (usr){
             if (usr.im){
-                return usr.im;
+                return $imgnl(usr.im,256);
             }
-            return login.ppic_base+'pic/'+(usr.i)+'.png';
+            return $imgnl(login.ppic_base+'pic/'+(usr.i)+'.png',256);
         }
-        return login.ppic_base+"pic/0.png";
+        return $imgnl(login.ppic_base+"pic/0.png",256);
     },
     ppname: function (id) {
         var usr = login.users[id];
@@ -336,7 +344,7 @@ const login = {
                             if ('src' in j.bgimg){
                                 u.bg=j.bgimg.src;
                                 if (u.bg){
-                                    u.wp=$n('img', 'usr_wallpaper hide', {src:login.wallpaper_base+u.bg}, login.h, '');
+                                    u.wp=$n('img', 'usr_wallpaper hide', {src:$imgnl(login.wallpaper_base+u.bg,screen.width)}, login.h, '');
                                     u.wp.onload=function(){
                                         this.classList.remove('hide');
                                     };

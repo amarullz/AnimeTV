@@ -1983,8 +1983,30 @@ function $ap(uri, cb, hdr){
   return $a("/__proxy/"+uri,cb, hdr);
 }
 
+var __IMGCDNL=toInt(_JSAPI.storeGet("imgcdnl","1"));
+
+/* proxy image */
+function $imgnl(src, maxw){
+  if (__IMGCDNL!=1){
+    return src;
+  }
+  return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w='+maxw+'&we';
+}
+
 /* proxy image */
 function $img(src){
+  if (src && __IMGCDNL==1){
+    if (__SD6 && src.substring(0,1)=='/' && (src.indexOf("/poster/")>-1 || src.indexOf("/thumbnail/")>-1)){
+      return $imgnl('https://'+__DNS+src, 256);
+    }
+    else if (
+      src.indexOf("//img.flawlessfiles.com/")>-1||
+      src.indexOf("//cdn.noitatnemucod.net/")>-1||
+      src.indexOf("//img.zorores.com/")>-1){
+      return $imgnl(src, 256);
+    }
+  }
+
   if (!src || ((src+'')=='undefined')){
     return '/__view/noimg.jpg';
   }
@@ -2529,7 +2551,8 @@ const _API={
 
   bgimg_update:function(){
     if (pb.cfg_data.bgimg.src){
-      $('animebg').style.backgroundImage='url('+_API.wallpaper_base+pb.cfg_data.bgimg.src+')';
+      var main_url = _API.wallpaper_base+pb.cfg_data.bgimg.src;
+      $('animebg').style.backgroundImage='url('+$imgnl(main_url, screen.width)+')';
       $('animebg').className='';
     }
     else{
@@ -5633,6 +5656,14 @@ const pb={
       else if (key=='cachesz'){
         el.lastElementChild.innerHTML=_JSAPI.getCacheSz()+" MB";
       }
+      else if (key=='useimgcdn'){
+        var iscnd=(__IMGCDNL==1);
+        el.firstElementChild.innerHTML=iscnd?'check':'clear';
+        if (iscnd)
+          el.firstElementChild.classList.add('checked');
+        else
+          el.firstElementChild.classList.remove('checked');
+      }
       else if (key=='ccstyle'){
         el.lastElementChild.innerHTML=vtt.stylename(pb.cfg_data.ccstyle);
       }
@@ -5866,6 +5897,7 @@ const pb={
       pb.cfg_update_el('lang');
 
       pb.cfg_update_el('cachesz');
+      pb.cfg_update_el('useimgcdn');
     }
   },
   cfg:function(v){
@@ -7737,6 +7769,12 @@ const pb={
         pb.cfg_save();
         pb.updateanimation();
       }
+      else if (key=='useimgcdn'){
+        // Update Home
+        __IMGCDNL=(__IMGCDNL==1)?0:1;
+        _JSAPI.storeSet("imgcdnl",__IMGCDNL+'');
+        pb.cfg_update_el(key);
+      }
       else if (key=='cachesz'){
         var csz=_JSAPI.getCacheSz();
         var sel=6;
@@ -8744,7 +8782,7 @@ const pb={
         }
         var hl=$n('div',d.active?'playing':'',{action:action_value,arg:pb.tip_value+';1'},pb.pb_episodes.P,special(d.ep)+adh);
         if (d.img){
-          hl.style.backgroundImage='linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .6)), url('+d.img+')';
+          hl.style.backgroundImage='linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .6)), url('+$img(d.img)+')';
           hl.classList.add('hasbg');
         }
         if (d.title)
@@ -10694,7 +10732,7 @@ const home={
       }
     }`,{
       page:0,
-      perPage:15
+      perPage:8
     },function(v){
       if (v){
         try{
@@ -11598,11 +11636,11 @@ const home={
       var usr=home.profiles.find(uid,false);
       if (usr){
         if (usr.im){
-          return usr.im;
+          return $imgnl(usr.im,128);
         }
-        return _API.ppic_base+'pic/'+(usr.i)+'.png';
+        return $imgnl(_API.ppic_base+'pic/'+(usr.i)+'.png',128);
       }
-      return _API.ppic_base+"pic/0.png";
+      return $imgnl(_API.ppic_base+"pic/0.png",128);
     },
     ppname:function(uid){
       var usr=home.profiles.find(uid,false);
@@ -12723,6 +12761,16 @@ const home={
             },
             home.settings.networks.P,
             '<c class="check">clear</c><c>fact_check</c> Progressive Cache'
+          );
+        }
+        if (home.profiles.isadmin()){
+          home.settings.tools._s_useimgcdn=$n(
+            'div','',{
+              action:'*useimgcdn',
+              s_desc:"Use image CDN from wsrv.nl to improve cache and performance"
+            },
+            home.settings.networks.P,
+            '<c class="check">clear</c><c>cleaning_bucket</c> Use Image CDN'
           );
         }
 
