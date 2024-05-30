@@ -17151,7 +17151,7 @@ const _MAL={
             var ob={
               'url':openurl,
               'title':_MAL.pop.var.title,
-              'title':_MAL.pop.var.title_jp,
+              'title_jp':_MAL.pop.var.title_jp,
               'poster':_MAL.pop.var.img,
               'ep':obep,
               'episode':"EPISODE-"+obep,
