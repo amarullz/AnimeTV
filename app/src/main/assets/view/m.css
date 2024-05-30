@@ -36,7 +36,7 @@
 }
 .notready,
 .notready #animebg{
-  background: #060606 !important;
+  background: #000 !important;
 }
 
 .mainbgimage.nonactive {
@@ -974,6 +974,7 @@ c.loader {
   /* background-color: var(--primary-bg); */
   box-sizing: border-box;
   display: block;
+  background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.85) 70%, rgba(0, 0, 0, 0) 100%);
 }
 #home_slide_touch{
   width:100vw;
@@ -1015,7 +1016,6 @@ c.loader {
   height:40vw;
   display: block;
   /* background-color: var(--primary-bg); */
-  background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.85) 70%, rgba(0, 0, 0, 0) 100%);
   overflow: hidden;
   position: absolute;
   top:0;
@@ -1090,13 +1090,19 @@ c.loader {
   top:0;
   max-width: 80vw;
   min-height: 40vw;
-  background-color: var(--primary-bg);
+  background-color: #000;
   object-fit: cover;
-  transition: transform 18s linear, opacity 5s linear;
-  transform-origin: center 80%;
-
+}
+.home_slideshow p div img{
   -webkit-mask-image:
     linear-gradient(85deg, rgba(0,0,0,0) 5%, #000 70%) !important;
+  transition: transform 18s linear, opacity 5s linear;
+  transform-origin: center 80%;
+}
+.home_slideshow p div .iframe_holder{
+  -webkit-mask-image:
+    linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 20%) !important;
+  transition: opacity var(--tim-5s) linear;
 }
 .home_slideshow p div img.isthumb{
   width: 80vw;
@@ -2948,7 +2954,7 @@ c.loader {
   bottom:0;
   /* background-image: 
     linear-gradient(180deg, #000, rgba(0, 0, 0, .3) 100%); */
-  background-color: rgba(0,0,0,.3);
+  background-color: rgba(0,0,0,.4);
 }
 
 #animebg.bg1 {
