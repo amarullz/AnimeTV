@@ -971,7 +971,7 @@ c.loader {
   left: 0;
   top: 0;
   white-space: nowrap;
-  background-color: var(--primary-bg);
+  /* background-color: var(--primary-bg); */
   box-sizing: border-box;
   display: block;
 }
@@ -993,7 +993,8 @@ c.loader {
   overflow: hidden;
   position: relative;
   z-index: 1;
-  background: linear-gradient(180deg, var(--primary-bg) 46%, rgba(0, 0, 0, 0) 100%);
+  /* background: linear-gradient(180deg, var(--primary-bg) 46%, rgba(0, 0, 0, 0) 100%); */
+  /* background: linear-gradient(180deg, #000 30%, rgba(0, 0, 0, 0) 80%); */
 }
 #home_page .home_tabs,
 #home_page .home_list{
@@ -1013,7 +1014,8 @@ c.loader {
   width:100vw;
   height:40vw;
   display: block;
-  background-color: var(--primary-bg);
+  /* background-color: var(--primary-bg); */
+  background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.85) 70%, rgba(0, 0, 0, 0) 100%);
   overflow: hidden;
   position: absolute;
   top:0;
@@ -1049,7 +1051,7 @@ c.loader {
   opacity:1;
   z-index: 4;
 }
-.home_slideshow p div:before{
+/* .home_slideshow p div:before{
   content: ' ';
   right: -1vw;
   top:-1vw;
@@ -1063,7 +1065,7 @@ c.loader {
   background: linear-gradient(80deg, var(--primary-bg) 28%, rgba(0, 0, 0, 0) 64%),
     linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 60%, var(--primary-bg) 98%);
   z-index: 8;
-}
+} */
 .home_slideshow p div .img_holder{
   position: absolute;
   top:0;
@@ -1075,6 +1077,10 @@ c.loader {
   margin: 0;
   overflow: hidden;
   display: block;
+}
+.home_slideshow p div{
+  -webkit-mask-image:
+    linear-gradient(180deg, #000 90%, rgba(0,0,0,0) 100%) !important;
 }
 .home_slideshow p div .iframe_holder,
 .home_slideshow p div img{
@@ -1088,6 +1094,9 @@ c.loader {
   object-fit: cover;
   transition: transform 18s linear, opacity 5s linear;
   transform-origin: center 80%;
+
+  -webkit-mask-image:
+    linear-gradient(85deg, rgba(0,0,0,0) 5%, #000 70%) !important;
 }
 .home_slideshow p div img.isthumb{
   width: 80vw;
@@ -2927,7 +2936,8 @@ c.loader {
   background-position: center center;
   z-index: 0;
   background-image: none;
-  background-color: var(--primary-bg);
+  background-color: #000; 
+  /* var(--primary-bg); */
 }
 #animebg::before{
   content: ' ';
@@ -2936,8 +2946,9 @@ c.loader {
   left:0;
   right:0;
   bottom:0;
-  background-image: 
-    linear-gradient(180deg, var(--primary-bg), rgba(0, 0, 0, .5) 100%);
+  /* background-image: 
+    linear-gradient(180deg, #000, rgba(0, 0, 0, .3) 100%); */
+  background-color: rgba(0,0,0,.3);
 }
 
 #animebg.bg1 {
@@ -2980,18 +2991,18 @@ c.loader {
 
 #animebg.bg0 {
   background-image: none !important;
-  background-color: var(--primary-bg) !important;
+  background-color: #000 !important;
 }
 #animebg.bg0::before{
   display: none;
 }
 .ui_performance #animebg.bg0 + #home #home_scroll{
   background-image: none;
-  background-color: var(--primary-bg) !important;
+  background-color: #000 !important;
 }
 .ui_performance #animebg.bg0{
   background-image: none !important;
-  background-color: var(--primary-bg) !important;
+  background-color: #000 !important;
 }
 
 
