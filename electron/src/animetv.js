@@ -19,6 +19,17 @@
  *
  */
 const { app, BrowserWindow, dialog, screen, ipcMain, shell } = require("electron");
+
+/* squirrel install */
+if (process.platform === 'win32'){
+  const args = require('./win/args.js');
+  const squirrel = require('./win/squirrel.js');
+  const cmd = args.parseArguments(app, process.argv.slice(1)).squirrelCommand;
+  if (squirrel.handleCommand(app, cmd)) {
+    return;
+  }
+}
+
 const common = require("./libs/common.js");
 const intercept = require("./libs/intercept.js");
 

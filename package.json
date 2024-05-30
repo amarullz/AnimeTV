@@ -1,13 +1,13 @@
 {
   "name": "animetv",
   "version": "5.1.3",
-  "description": "AnimeTV",
+  "description": "AnimeTV for Desktop",
   "main": "electron/src/animetv.js",
   "scripts": {
     "start": "electron .",
     "build-debug-apk": "gradlew assembleDebug",
     "build-release-apk": "gradlew assembleRelease",
-    "pack-win": "node electron/ver.js build && electron-packager . animetv --overwrite --platform=win32  --arch=x64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png --icon=electron/animetv.ico",
+    "pack-win": "node electron/ver.js build && electron-packager . AnimeTV --overwrite --platform=win32  --arch=x64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png --icon=electron/animetv.ico",
     "pack-linux": "node electron/ver.js build && electron-packager . animetv --overwrite --platform=linux  --arch=x64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png",
     "pack-linux-arm64": "node electron/ver.js build && electron-packager . animetv --overwrite --platform=linux  --arch=arm64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png",
     "pack-mac": "node electron/ver.js build && electron-packager . animetv --overwrite --platform=darwin --arch=arm64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png --icon=electron/animetv.icns && cd ./electron/builds/animetv-darwin-arm64/ && electron-installer-dmg animetv.app animetv-mac-arm64 && cd ../../../",
@@ -16,7 +16,11 @@
     "build-linux-arm64": "npm run pack-linux-arm64 && electron-installer-debian --src electron/builds/animetv-linux-x64 --arch aarch64 --config electron/deb-config.json",
     "build-win": "npm run pack-win && electron-installer-windows --src electron/builds/animetv-win32-x64 --config electron/win-config.json"
   },
-  "author": "amarullz.com",
+  "author": {
+    "name": "amarullz.com",
+    "email": "support@amarullz.com",
+    "url": "http://amarullz.com/"
+  },
   "license": "Apache-2.0",
   "devDependencies": {
     "electron": "^30.0.6",
@@ -27,6 +31,8 @@
   "dependencies": {
     "axios": "^1.7.2",
     "crypto-js": "^4.2.0",
-    "doh-js-client": "^0.2.1"
+    "doh-js-client": "^0.2.1",
+    "fs-plus": "^3.1.1",
+    "yargs": "^17.7.2"
   }
 }

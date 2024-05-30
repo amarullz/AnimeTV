@@ -1,7 +1,13 @@
 {
     "dest": "electron/builds/",
     "icon": "electron/animetv.ico",
+    "noMsi":true,
     "tags": [
       "Video"
-    ]
+    ],
+    "options":{
+      "productName":"AnimeTV",
+      "description":"AnimeTV for Windows",
+      "noMsi":true
+    }
   }
