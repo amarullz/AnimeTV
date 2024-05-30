@@ -4808,7 +4808,7 @@ c.loader {
   text-shadow: .1vw .1vw .1vw #000;
   cursor:pointer;
   transition: var(--transition-3s);
-  opacity:.4;
+  opacity:.3;
 }
 .playback_menu_hide .electron-fullscreen{
   opacity:0;

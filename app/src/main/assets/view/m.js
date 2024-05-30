@@ -2396,7 +2396,7 @@ const _API={
     if (!_ISELECTRON){
       return;
     }
-    _API.fullscreenEl=$n('c','electron-fullscreen',{title:'Fullscreen'},$('animetv'),'');
+    _API.fullscreenEl=$n('c','electron-fullscreen',null,$('animetv'),'');
     _API.fullscreenEl.onclick=function(){
       _JSAPI.toggleFullscreen();
     };
@@ -2404,6 +2404,7 @@ const _API={
   },
   fullscreenCb:function(s){
     _API.fullscreenEl.innerHTML=s?'fullscreen_exit':'fullscreen';
+    _API.fullscreenEl.setAttribute('title',s?'Exit Fullscreen':'Fullscreen');
   },
 
   videoInitCbInitialized:false,

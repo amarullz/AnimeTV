@@ -136,10 +136,6 @@ const main={
         // go home
         main.goHome();
       }
-      else if (input.key === "F8"){
-        // video player
-        main.win.loadURL("https://"+main.dns()+"/__ui/player.html");
-      }
       else{
         let c=0;
         let send = (input.type=="keyDown");
