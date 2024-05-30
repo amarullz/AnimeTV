@@ -1,8 +1,8 @@
 {
-    "dest": "electron/builds/",
-    "icon": "electron/animetv.png",
-    "compression": "gzip",
-    "categories": [
-      "Video"
-    ]
-  }
+  "dest": "electron/builds/",
+  "icon": "electron/animetv.png",
+  "compression": "gzip",
+  "categories": [
+    "Video"
+  ]
+}
