@@ -109,15 +109,22 @@ const login = {
         }
         return retidx?0:null;
     },
-    ppimg: function (id) {
+    ppimgv: function (id) {
         var usr = login.users[id];
         if (usr){
             if (usr.im){
-                return $imgnl(usr.im,256);
+                return usr.im;
             }
-            return $imgnl(login.ppic_base+'pic/'+(usr.i)+'.png',256);
+            return login.ppic_base+'pic/'+(usr.i)+'.png';
         }
-        return $imgnl(login.ppic_base+"pic/0.png",256);
+        return login.ppic_base+"pic/0.png";
+    },
+    ppimg:function(uid){
+        var pp=login.ppimgv(uid);
+        if (pp.indexOf(login.ppic_base)>-1){
+            return $imgnl(pp,256);
+        }
+        return pp;
     },
     ppname: function (id) {
         var usr = login.users[id];

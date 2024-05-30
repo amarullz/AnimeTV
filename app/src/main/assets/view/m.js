@@ -11670,15 +11670,22 @@ const home={
     },
     users:[],
     me:null,
-    ppimg:function(uid){
+    ppimgv:function(uid){
       var usr=home.profiles.find(uid,false);
       if (usr){
         if (usr.im){
-          return $imgnl(usr.im,128);
+          return usr.im;
         }
-        return $imgnl(_API.ppic_base+'pic/'+(usr.i)+'.png',128);
+        return _API.ppic_base+'pic/'+(usr.i)+'.png';
       }
-      return $imgnl(_API.ppic_base+"pic/0.png",128);
+      return _API.ppic_base+"pic/0.png";
+    },
+    ppimg:function(uid){
+      var pp=home.profiles.ppimgv(uid);
+      if (pp.indexOf(_API.ppic_base)>-1){
+        return $imgnl(pp,128);
+      }
+      return pp;
     },
     ppname:function(uid){
       var usr=home.profiles.find(uid,false);
