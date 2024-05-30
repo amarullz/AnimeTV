@@ -2722,6 +2722,7 @@ c.loader {
   position: relative;
   color: #aaa;
   height: var(--fs-13vw);
+  text-shadow: 0 .1vw .2vw #000;
 }
 /* .istouch .pb_menu.home_tabs>p:before, */
 .istouch .home_opt_list:before,
@@ -2753,6 +2754,8 @@ c.loader {
   margin-top:-1vw;
 }
 
+.home_opt_list:hover:before,
+.home_list:hover:before,
 .home_opt_list.active:before,
 .home_list.active:before {
   color: #fff;
@@ -2954,7 +2957,7 @@ c.loader {
   bottom:0;
   /* background-image: 
     linear-gradient(180deg, #000, rgba(0, 0, 0, .3) 100%); */
-  background-color: rgba(0,0,0,.4);
+  background-color: rgba(0,0,0,.5);
 }
 
 #animebg.bg1 {
@@ -4298,7 +4301,9 @@ c.loader {
   white-space: normal !important;
   background-color: transparent !important;
   color: rgba(255,255,255,.5) !important;
+  text-shadow: 0 .1vw .2vw #000;
 }
+.view-informative .home_list:not(#home_slide)>p>div:hover b,
 .view-informative .home_list:not(#home_slide).active>p>div.active b {
   color: #fff !important;
 }
