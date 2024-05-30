@@ -58,6 +58,15 @@ const api={
   reloadHome(){
     send("main", "home");
   },
+  toggleFullscreen(){
+    send("main", "toggle-fullscreen");
+  },
+  getFullscreen(){
+    return vars.vars.fullscreen;
+  },
+  fullscreenCb(s){
+    vars.vars.fullscreen=s;
+  },
 
   /* videos */
   videoSetUrl(url){

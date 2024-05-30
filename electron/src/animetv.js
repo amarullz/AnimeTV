@@ -98,7 +98,8 @@ const main={
     stream_type:0,
     sd:1,
     httpclient:0,
-    sd_domain:''
+    sd_domain:'',
+    fullscreen:false,
   },
   handlerIntent(e,d){
     shell.openExternal(d);
@@ -167,6 +168,7 @@ const main={
   handlerWin(event, arg){
     if (arg == "fullscreen") main.fullScreen(true);
     else if (arg == "no-fullscreen") main.fullScreen(false);
+    else if (arg == "toggle-fullscreen") main.fullScreen(!main.isFullScreen());
     else if (arg == "home") main.goHome();
     else if (arg == "quit") app.exit();
     else if (arg == "restart"){
@@ -187,6 +189,10 @@ const main={
     else{
       main.win.setSimpleFullScreen(stat);
     }
+    main.vars.fullscreen=stat;
+    common.execJs(
+      "_JSAPI.fullscreenCb(" + (stat?"true":"false") + ");_API.fullscreenCb(" + (stat?"true":"false") + ")"
+    );
   },
   isFullScreen(){
     if (process.platform !== "darwin"){

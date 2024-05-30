@@ -2392,6 +2392,20 @@ var clk=__clk_init();
 
 /***************************** API HANDLERS *****************************/
 const _API={
+  electronInitFullscreen:function(){
+    if (!_ISELECTRON){
+      return;
+    }
+    _API.fullscreenEl=$n('c','electron-fullscreen',{title:'Fullscreen'},$('animetv'),'');
+    _API.fullscreenEl.onclick=function(){
+      _JSAPI.toggleFullscreen();
+    };
+    _API.fullscreenCb(_JSAPI.getFullscreen());
+  },
+  fullscreenCb:function(s){
+    _API.fullscreenEl.innerHTML=s?'fullscreen_exit':'fullscreen';
+  },
+
   videoInitCbInitialized:false,
   videoSrcValue:'',
   videoElectronPos:{},
@@ -6027,6 +6041,7 @@ const pb={
     _API.setVideo('');
     _JSAPI.videoSetMeta("","","");
     _JSAPI.videoHaveNP(false,false);
+    body.classList.remove('playback_menu_hide');
 
     pb.pb_track_val.style.width="0%";
     pb.pb_iactions.style.transform='';
@@ -8301,8 +8316,10 @@ const pb={
     pb.pb_iactions.style.transform='';
     pb.pb.classList.remove('menushow');
     pb.skipauto_update(1);
+    body.classList.add('playback_menu_hide');
   },
   menu_show:function(pos){
+    body.classList.remove('playback_menu_hide');
     pb.pb.classList.add('menushow');
     pb.menus[pb.menusel].classList.remove('active');
     pb.menusel=(pos===undefined?2:pos);
@@ -18662,5 +18679,6 @@ const touchHelper={
     home.init();
     _API.bgimg_update();
     body.classList.remove('notready');
+    _API.electronInitFullscreen();
   }
 })();

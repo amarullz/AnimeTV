@@ -1810,6 +1810,9 @@ c.loader {
   visibility: visible;
   opacity: 1;
 }
+.istouch #pb:not(.menushow) #pb_touch_close,
+.istouch #pb:not(.menushow) #pb_touch_iactions,
+.istouch .menushow #pb_touch_actions.active.hide #pb_touch_close,
 .istouch .menushow #pb_touch_actions.active.hide #pb_touch_iactions{
   visibility: hidden !important;
   opacity: 0 !important;
@@ -1833,6 +1836,8 @@ c.loader {
   vertical-align: middle;
   color: #fff;
   margin: 0 4vw 0 4vw;
+  visibility: hidden;
+  cursor: pointer;
   pointer-events: all;
 }
 #pb_touch_close{
@@ -1848,6 +1853,10 @@ c.loader {
   padding: 1vw;
   visibility: visible;
   opacity: 1;
+}
+.istouch .menushow #pb_touch_close,
+.istouch .menushow #pb_touch_actions #pb_touch_iactions c{
+  visibility: visible;
 }
 #pb_touch_actions #pb_touch_iactions c#pb_touch_play{
   padding: 3vw;
@@ -4786,4 +4795,25 @@ c.loader {
 }
 .imgpicker_group .imgpicker_item.active b{
   visibility: visible;
+}
+
+.electron-fullscreen{
+  position:absolute;
+  z-index: 99999999;
+  top:0;
+  left:0;
+  font-size: var(--fs-15vw);
+  padding: 1vw;
+  color: #fff;
+  text-shadow: .1vw .1vw .1vw #000;
+  cursor:pointer;
+  transition: var(--transition-3s);
+  opacity:.4;
+}
+.playback_menu_hide .electron-fullscreen{
+  opacity:0;
+}
+.electron-fullscreen:hover,
+.playback_menu_hide .electron-fullscreen:hover{
+  opacity:1;
 }
