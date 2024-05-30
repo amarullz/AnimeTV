@@ -4876,7 +4876,7 @@ const vtt={
           s+=i+';';
           var vt=vtt.getobj(o[i]);
           if (vt){
-            v.push(vt);
+            v.push('<span>'+vt+'</span>');
           }
         }
         else if (p<o[i].ts){
@@ -6242,8 +6242,9 @@ const pb={
       }
       else if (c=='seek'){
         pb.vid_stat.pos=v<0?0:v;
+        pb.track_update_pos();
         _API.videoSeek(pb.vid_stat.pos);
-        _API.videoPost('seek',v);
+        _API.videoPost('seek',pb.vid_stat.pos);
       }
       else{
         _API.videoPost(c,v);
@@ -8348,12 +8349,17 @@ const pb={
   track_keycb:function(g,c){
     if (c==KLEFT||c==KRIGHT){
       var fw=(_API.last_key_source==1&&c==KLEFT)||(_API.last_key_source!=1&&c==KRIGHT);
+      var sv=0;
       if (fw)
-        pb.vid_cmd('seek',pb.vid_get_time().position+pb.cfg_data.seekvalue);
+        sv=pb.vid_get_time().position+pb.cfg_data.seekvalue;
       else{
-        pb.vid_cmd('seek',pb.vid_get_time().position-pb.cfg_data.seekvalue);
+        sv=pb.vid_get_time().position-pb.cfg_data.seekvalue;
         vtt.set('');
       }
+      if (sv<0){
+        sv=0;
+      }
+      pb.vid_cmd('seek',sv);
       pb.track_update_pos();
       if (!pb.pb.classList.contains('menushow')){
         var vi=(fw)?'fast_forward':'fast_rewind';
