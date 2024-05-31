@@ -4884,6 +4884,9 @@ c.loader {
   .large-ui-list .home_slideshow p div .img_holder{
     height: 54.9vw;
   }
+  .large-ui-list #home_slide_pager{
+    top:45vw;
+  }
   .large-ui-list .home_slideshow p div .iframe_holder,
   .large-ui-list .home_slideshow p div img{
     max-width: 100vw;
