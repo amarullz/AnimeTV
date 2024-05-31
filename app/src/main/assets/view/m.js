@@ -5309,6 +5309,12 @@ const pb={
     //   document.body.classList.remove('view-informative');
     // }
     // else{
+    if (pb.cfg_data.largeui){
+      document.body.classList.add('large-ui-list');
+    }
+    else{
+      document.body.classList.remove('large-ui-list');
+    }
     document.body.classList.add('view-informative');
     // }
 
@@ -5337,6 +5343,7 @@ const pb={
     skipfiller:false,
     jptitle:false,
     // compactlist:false,
+    largeui:false,
     directsidebar:true,
     showclock:true,
     progcache:true,
@@ -5392,6 +5399,8 @@ const pb={
         
         
         // pb.cfg_data.compactlist=('compactlist' in j)?(j.compactlist?true:false):false;
+        pb.cfg_data.largeui=('largeui' in j)?(j.largeui?true:false):false;
+        
         pb.cfg_data.showclock=('showclock' in j)?(j.showclock?true:false):true;
         pb.cfg_data.directsidebar=('directsidebar' in j)?(j.directsidebar?true:false):true;
         pb.cfg_data.directpage=('directpage' in j)?(j.directpage?true:false):true;
@@ -5521,6 +5530,7 @@ const pb={
     pb.cfg_data.usedoh=true;
     
     // pb.cfg_data.compactlist=false;
+    pb.cfg_data.largeui=false;
     pb.cfg_data.directsidebar=true;
     pb.cfg_data.directpage=true;
     
@@ -5917,6 +5927,7 @@ const pb={
       pb.cfg_update_el('usedoh');
       
       // pb.cfg_update_el('compactlist');
+      pb.cfg_update_el('largeui');
       pb.cfg_update_el('directsidebar');
       pb.cfg_update_el('directpage');
       
@@ -7810,6 +7821,13 @@ const pb={
       //   pb.cfg_save();
       //   pb.updateanimation();
       // }
+      else if (key=='largeui'){
+        // Update Home
+        pb.cfg_data.largeui=!pb.cfg_data.largeui;
+        pb.cfg_update_el(key);
+        pb.cfg_save();
+        pb.updateanimation();
+      }
       else if (key=='directsidebar'){
         // Update Home
         pb.cfg_data.directsidebar=!pb.cfg_data.directsidebar;
@@ -12682,6 +12700,15 @@ const home={
         //   home.settings.performance.P,
         //   '<c class="check">clear</c><c>unfold_less</c> Compact List'
         // );
+
+        home.settings.tools._s_largeui=$n(
+          'div','',{
+            action:'*largeui',
+            s_desc:"Use bigger UI on anime list"
+          },
+          home.settings.performance.P,
+          '<c class="check">clear</c><c>settings_overscan</c> Large UI'
+        );
         
         home.settings.tools._s_showclock=$n(
           'div','',{
