@@ -53,6 +53,7 @@ const main={
       webPreferences: {
         webSecurity: false,
         nodeIntegration: true,
+        nodeIntegrationInSubFrames:true,
         contextIsolation: true,
         preload: common.path("/electron/src/preload.js"),
       }

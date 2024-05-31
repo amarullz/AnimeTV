@@ -67,6 +67,16 @@ const api={
   fullscreenCb(s){
     vars.vars.fullscreen=s;
   },
+  varSet(k,v){ 
+    vars.vars[k]=JSON.parse(JSON.stringify(v));
+    invoke('vars-save',JSON.stringify(vars.vars));
+  },
+  varGet(k,def){
+    if (k in vars.vars){
+      return JSON.parse(JSON.stringify(vars.vars[k]));
+    }
+    return def;
+  },
 
   /* videos */
   videoSetUrl(url){

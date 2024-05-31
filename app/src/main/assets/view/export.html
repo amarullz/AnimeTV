@@ -1,0 +1,120 @@
+<script>
+const host=location.host;
+const source_domains=[
+  "aniwave.to",
+  "anix.to",
+  "hianime.to",
+  "aniwatchtv.to",
+  "animeflix.live",
+  "kaas.to"
+];
+var _SD=1;
+var _UID="";
+var _SDZ=source_domains.indexOf(host);
+function slugString(Text,rp) {
+  if (rp===undefined || rp===null){
+    rp=' ';
+  }
+  return Text.toLowerCase()
+    .replace(/[^\w]+/g, " ")
+    .replace(/  /g, "  ")
+    .replace(/  /g, " ")
+    .replace(/  /g, " ")
+    .replace(/  /g, " ").trim()
+    .replace(/ /g, rp);
+}
+function toInt(x) {
+  var x = parseInt(x);
+  return isNaN(x)?0:x;
+}
+const list={
+  history:{detail:{},list:[]},
+  fav:{detail:{},list:[]},
+  store_name:function(name){
+    if (_SD==1){
+      return _UID+""+name;
+    }
+    else{
+      return _UID+"_anix_"+name;
+    }
+  },
+  load_storage:function(name){
+    var itm=localStorage.getItem(list.store_name(name));
+    if (itm){
+      var j=JSON.parse(itm);
+      if (('detail' in j)&&('list' in j)){
+        return {detail:j.detail,list:j.list};
+      }
+    }
+    return {detail:{},list:[]};
+  },
+  save:function(o,name){
+    localStorage.setItem(list.store_name(name),JSON.stringify(o));
+  },
+  del:function(o,id){
+    var pos=o.list.indexOf(id);
+    if (pos>=0){
+      o.list.splice(pos,1);
+      delete o.detail[id];
+    }
+  },
+  load:function(){
+    list.history=list.load_storage('list_history');
+    list.fav=list.load_storage('list_fav');
+  }
+};
+if (_SDZ>=0){
+  _SD =_SDZ+1;
+  _UID=_JSAPI.profileGetPrefix();
+  var _VARNAME=_UID+"global_list";
+  list.load();
+
+  console.log(list.history);
+  console.log(list.fav);
+
+  var out=_JSAPI.varGet(_VARNAME,{
+    detail:{},
+    history:[],
+    fav:[]
+  });
+  console.log(JSON.parse(JSON.stringify(out)));
+  function listing(l,out_d,out_t){
+    for (var i=0;i<l.list.length;i++){
+      var k=l.list[i];
+      if (k in l.detail){
+        var dt=l.detail[k];
+        var n=slugString(dt.title_jp?dt.title_jp:dt.title,'-');
+        if (!(n in out_d)){
+          out_d[n]={
+            s:[], /* sources */
+            e:{}, /* episode progress */
+            p:dt.ep /* last episode */
+          };
+        }
+        od=out_d[n];
+        if (toInt(od.p)<toInt(dt.ep)){
+          od.p=dt.ep;
+        }
+        if ('play' in dt){
+          od.e['e'+dt.ep]=JSON.parse(JSON.stringify(dt.play));
+        }
+        od.s[_SD]={
+          title:dt.title,
+          title_jp:dt.title_jp?dt.title_jp:dt.title,
+          poster:dt.poster,
+          tip:dt.tip,
+          url:dt.url
+        };
+        if (out_t.indexOf(n)==-1){
+          out_t.push(n);
+        }
+      }
+    }
+  }
+  listing(list.history, out.detail, out.history);
+  listing(list.fav, out.detail, out.fav);
+  _JSAPI.varSet(_VARNAME,out);
+  console.log(JSON.parse(JSON.stringify(out)));
+}
+  
+</script>
