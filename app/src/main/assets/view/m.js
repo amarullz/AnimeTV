@@ -12645,6 +12645,15 @@ const home={
           home.settings.styling.P,
           '<c>wallpaper</c> Wallpaper<span class="value">Wallpaper-1</span>'
         );
+        home.settings.tools._s_largeui=$n(
+          'div','',{
+            action:'*largeui',
+            s_desc:"Use bigger UI on anime list"
+          },
+          home.settings.styling.P,
+          '<c class="check">clear</c><c>settings_overscan</c> Large UI'
+        );
+
         if (home.profiles.isadmin()){
           home.settings.tools._s_loginscreen=$n(
             'div','',{
@@ -12700,15 +12709,6 @@ const home={
         //   home.settings.performance.P,
         //   '<c class="check">clear</c><c>unfold_less</c> Compact List'
         // );
-
-        home.settings.tools._s_largeui=$n(
-          'div','',{
-            action:'*largeui',
-            s_desc:"Use bigger UI on anime list"
-          },
-          home.settings.performance.P,
-          '<c class="check">clear</c><c>settings_overscan</c> Large UI'
-        );
         
         home.settings.tools._s_showclock=$n(
           'div','',{
