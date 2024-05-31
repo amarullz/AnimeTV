@@ -1804,7 +1804,7 @@ c.loader {
 .istouch #pb_touch_actions c{
   pointer-events: all !important;
 }
-.istouch .menushow #pb_touch_actions.active.hide,
+/* .istouch .menushow #pb_touch_actions.active.hide, */
 .istouch .menushow #pb_touch_actions.active,
 #pb_actions.active {
   visibility: visible;
@@ -1812,7 +1812,7 @@ c.loader {
 }
 .istouch #pb:not(.menushow) #pb_touch_close,
 .istouch #pb:not(.menushow) #pb_touch_iactions,
-.istouch .menushow #pb_touch_actions.active.hide #pb_touch_close,
+/* .istouch .menushow #pb_touch_actions.active.hide #pb_touch_close, */
 .istouch .menushow #pb_touch_actions.active.hide #pb_touch_iactions{
   visibility: hidden !important;
   opacity: 0 !important;
@@ -1837,8 +1837,10 @@ c.loader {
   color: #fff;
   margin: 0 4vw 0 4vw;
   visibility: hidden;
-  cursor: pointer;
   pointer-events: all;
+}
+.istouch .menushow #pb_touch_actions.active c{
+  cursor: pointer;
 }
 #pb_touch_close{
   display: block;
