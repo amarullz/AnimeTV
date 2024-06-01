@@ -733,9 +733,146 @@ import javax.crypto.spec.SecretKeySpec;
     String url = uri.toString();
     String host = uri.getHost();
     String accept = request.getRequestHeaders().get("Accept");
+    String path=uri.getPath();
+    if (path==null) {
+      path = "/";
+    }
 
     if (host==null||accept==null) return aApi.badRequest;
-    if (url.startsWith("https://www.youtube.com/embed/")||url.startsWith("https://www.youtube-nocookie.com/embed/")){
+    if (path.startsWith("/__view/")){
+      if (USE_WEB_VIEW_ASSETS){
+        if (!path.endsWith(".woff2") && !path.endsWith(".ttf")) {
+          /* dev web */
+          try {
+            Log.d(_TAG, "VIEW GET " + url + " = " + accept);
+            String newurl = url.replace("https://"+host,"http://192" +
+                ".168.100.245");
+            AnimeApi.Http http=new AnimeApi.Http(newurl);
+            for (Map.Entry<String, String> entry :
+                request.getRequestHeaders().entrySet()) {
+              http.addHeader(entry.getKey(), entry.getValue());
+            }
+            http.nocache=true;
+            http.execute();
+            InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
+            return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
+          } catch (Exception ignored) {
+          }
+        }
+      }
+      return aApi.assetsRequest(uri.getPath().substring(3));
+    }
+    else if (path.startsWith("/__proxy/")){
+      /* Proxy */
+      try {
+        String proxy_url=url.replace("https://"+host+"/__proxy/","");
+        String fixdomain = request.getRequestHeaders().get("X-Fixdomain-Prox");
+        if (!Conf.SOURCE_DOMAIN_USED.isEmpty() && (fixdomain==null)) {
+          proxy_url=proxy_url.replace("://"+host,"://"+Conf.SOURCE_DOMAIN_USED);
+          Log.d(_TAG,"CH-PROXY: "+proxy_url);
+        }
+
+        String method=request.getMethod();
+        boolean isPost=method.equals("POST")||method.equals("PUT");
+        boolean isPostBody=false;
+        boolean isPostType=false;
+        String queryData=request.getUrl().getQuery();
+        if (queryData==null){
+          queryData="";
+        }
+        String bodyData = request.getRequestHeaders().get("Post-Body");
+        if (bodyData!=null){
+          bodyData = URLDecoder.decode(bodyData,"UTF-8");
+        }
+        String postType = request.getRequestHeaders().get("X-Post-Prox");
+
+        if (postType!=null){
+          isPost=true;
+          isPostType=true;
+          method="POST";
+        }
+
+        if (isPost){
+          if (bodyData!=null) {
+            Log.d(_TAG, "PROXY-" + method + " POSTBODY = " +
+                proxy_url + " >> " + bodyData);
+            isPostBody=true;
+          }
+          else {
+            if (proxy_url.contains("?")) {
+              proxy_url = proxy_url.substring(0, proxy_url.indexOf("?"));
+            }
+            if (isPostType){
+              queryData= URLDecoder.decode(queryData,"UTF-8");
+            }
+            Log.d(_TAG, "PROXY-" + method +": "+
+                proxy_url + " >> " + queryData);
+          }
+        }
+        else{
+          Log.d(_TAG, "PROXY-"+method+" = " + proxy_url);
+        }
+
+        String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
+        String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
+        String noHeaderProxy = request.getRequestHeaders().get("X-NoH-Proxy");
+
+        AnimeApi.Http http=new AnimeApi.Http(proxy_url);
+        if (noHeaderProxy!=null){
+          if (proxyOrigin!=null) {
+            http.addHeader("Origin", proxyOrigin);
+          }
+          if (proxyReferer!=null) {
+            http.addHeader("Referer", proxyOrigin);
+          }
+          http.addHeader("User-Agent", Conf.USER_AGENT);
+        }
+        else {
+          for (Map.Entry<String, String> entry :
+              request.getRequestHeaders().entrySet()) {
+            String k = entry.getKey();
+            boolean sent = false;
+            if (isPostType && k.equalsIgnoreCase("content-type")){
+              sent=true;
+            }
+            else if (k.equalsIgnoreCase("origin") && proxyOrigin != null) {
+              http.addHeader("Origin", proxyOrigin);
+              sent = true;
+            } else if (k.equalsIgnoreCase("referer") && proxyReferer != null) {
+              http.addHeader("Referer", proxyReferer);
+              sent = true;
+            } else if (k.equalsIgnoreCase("X-Org-Prox")
+                || k.equalsIgnoreCase("X-Ref-Prox")
+                || k.equalsIgnoreCase("X-Post-Prox")) {
+              sent = true;
+            }
+            if (!sent && !k.equals("Post-Body") && !k.equals(
+                "Referer")) {
+              http.addHeader(k, entry.getValue());
+            }
+          }
+        }
+        if (isPost){
+          if (isPostBody){
+            http.setMethod(method,bodyData,request.getRequestHeaders().get(
+                "Content-Type"));
+          }
+          else {
+            http.setMethod(method,queryData,
+                isPostType?postType:"application/x-www-form-urlencoded");
+          }
+        }
+        else if (method.equalsIgnoreCase("DELETE")){
+          http.setMethod("DELETE",null,null);
+        }
+        http.execute();
+        InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
+        return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
+      } catch (Exception ignored) {}
+      return aApi.badRequest;
+    }
+    else if (url.startsWith("https://www.youtube.com/embed/")||url.startsWith(
+        "https://www.youtube-nocookie.com/embed/")){
       return aApi.defaultRequest(view,request,
           aApi.assetsString("inject/yt.html"),"inject-html"
       );
@@ -756,146 +893,10 @@ import javax.crypto.spec.SecretKeySpec;
       }
       return super.shouldInterceptRequest(view, request);
     }
-    else if (Objects.equals(uri.getPath(), "/__REDIRECT")){
+    else if (Objects.equals(path, "/__REDIRECT")){
       return aApi.assetsRequest("inject/redirect.html");
     }
     else if (isSourceDomain(host)) {
-      String path=uri.getPath();
-      if (path==null)
-        path="/";
-      if (path.startsWith("/__view/")){
-        if (USE_WEB_VIEW_ASSETS){
-          if (!path.endsWith(".woff2") && !path.endsWith(".ttf")) {
-            /* dev web */
-            try {
-              Log.d(_TAG, "VIEW GET " + url + " = " + accept);
-              String newurl = url.replace("https://"+host,"http://192" +
-                  ".168.100.245");
-              AnimeApi.Http http=new AnimeApi.Http(newurl);
-              for (Map.Entry<String, String> entry :
-                      request.getRequestHeaders().entrySet()) {
-                http.addHeader(entry.getKey(), entry.getValue());
-              }
-              http.nocache=true;
-              http.execute();
-              InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
-              return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
-            } catch (Exception ignored) {
-            }
-//            return aApi.badRequest;
-          }
-        }
-        return aApi.assetsRequest(uri.getPath().substring(3));
-      }
-      else if (path.startsWith("/__proxy/")){
-        /* Proxy */
-        try {
-          String proxy_url=url.replace("https://"+host+"/__proxy/","");
-          String fixdomain = request.getRequestHeaders().get("X-Fixdomain-Prox");
-          if (!Conf.SOURCE_DOMAIN_USED.isEmpty() && (fixdomain==null)) {
-            proxy_url=proxy_url.replace("://"+host,"://"+Conf.SOURCE_DOMAIN_USED);
-            Log.d(_TAG,"CH-PROXY: "+proxy_url);
-          }
-
-          String method=request.getMethod();
-          boolean isPost=method.equals("POST")||method.equals("PUT");
-          boolean isPostBody=false;
-          boolean isPostType=false;
-          String queryData=request.getUrl().getQuery();
-          if (queryData==null){
-            queryData="";
-          }
-          String bodyData = request.getRequestHeaders().get("Post-Body");
-          if (bodyData!=null){
-            bodyData = URLDecoder.decode(bodyData,"UTF-8");
-          }
-          String postType = request.getRequestHeaders().get("X-Post-Prox");
-
-          if (postType!=null){
-            isPost=true;
-            isPostType=true;
-            method="POST";
-          }
-
-          if (isPost){
-            if (bodyData!=null) {
-              Log.d(_TAG, "PROXY-" + method + " POSTBODY = " +
-                      proxy_url + " >> " + bodyData);
-              isPostBody=true;
-            }
-            else {
-              if (proxy_url.contains("?")) {
-                proxy_url = proxy_url.substring(0, proxy_url.indexOf("?"));
-              }
-              if (isPostType){
-                queryData= URLDecoder.decode(queryData,"UTF-8");
-              }
-              Log.d(_TAG, "PROXY-" + method +": "+
-                      proxy_url + " >> " + queryData);
-            }
-          }
-          else{
-            Log.d(_TAG, "PROXY-"+method+" = " + proxy_url);
-          }
-
-          String proxyOrigin = request.getRequestHeaders().get("X-Org-Prox");
-          String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
-          String noHeaderProxy = request.getRequestHeaders().get("X-NoH-Proxy");
-
-          AnimeApi.Http http=new AnimeApi.Http(proxy_url);
-          if (noHeaderProxy!=null){
-            if (proxyOrigin!=null) {
-              http.addHeader("Origin", proxyOrigin);
-            }
-            if (proxyReferer!=null) {
-              http.addHeader("Referer", proxyOrigin);
-            }
-            http.addHeader("User-Agent", Conf.USER_AGENT);
-          }
-          else {
-            for (Map.Entry<String, String> entry :
-                    request.getRequestHeaders().entrySet()) {
-              String k = entry.getKey();
-              boolean sent = false;
-              if (isPostType && k.equalsIgnoreCase("content-type")){
-                sent=true;
-              }
-              else if (k.equalsIgnoreCase("origin") && proxyOrigin != null) {
-                http.addHeader("Origin", proxyOrigin);
-                sent = true;
-              } else if (k.equalsIgnoreCase("referer") && proxyReferer != null) {
-                http.addHeader("Referer", proxyReferer);
-                sent = true;
-              } else if (k.equalsIgnoreCase("X-Org-Prox")
-                  || k.equalsIgnoreCase("X-Ref-Prox")
-                  || k.equalsIgnoreCase("X-Post-Prox")) {
-                sent = true;
-              }
-              if (!sent && !k.equals("Post-Body") && !k.equals(
-                      "Referer")) {
-                http.addHeader(k, entry.getValue());
-              }
-            }
-          }
-          if (isPost){
-            if (isPostBody){
-              http.setMethod(method,bodyData,request.getRequestHeaders().get(
-                  "Content-Type"));
-            }
-            else {
-              http.setMethod(method,queryData,
-                  isPostType?postType:"application/x-www-form-urlencoded");
-            }
-          }
-          else if (method.equalsIgnoreCase("DELETE")){
-            http.setMethod("DELETE",null,null);
-          }
-          http.execute();
-          InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
-          return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
-        } catch (Exception ignored) {}
-        return aApi.badRequest;
-      }
       WebResourceResponse wr=null;
       if (!Conf.SOURCE_DOMAIN_USED.isEmpty()){
         wr = aApi.defaultRequest(view, request,null,null,
@@ -1024,7 +1025,6 @@ import javax.crypto.spec.SecretKeySpec;
       return aApi.badRequest;
     }
     else if (Conf.SOURCE_DOMAIN==3||Conf.SOURCE_DOMAIN==4){
-      String path = uri.getPath();
       if (path.endsWith("/master.m3u8")) {
         Log.d(_TAG, "GOT-MASTER-M3U8 = " + url);
         String m3u8data="{}";
