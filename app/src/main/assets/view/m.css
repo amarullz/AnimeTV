@@ -534,6 +534,10 @@ c.loader {
   outline: none;
   cursor: pointer;
 }
+.animetv_header:not(.active) div.active span,
+.animetv_header_banner div:not(.active) span{
+  text-shadow: 0 .1vw .2vw #000 !important;
+}
 .animetv_header_banner div c{
   font-size:var(--fs-12vw);
   line-height:var(--fs-20vw);
@@ -545,7 +549,8 @@ c.loader {
   padding-right:0;
   line-height:var(--fs-20vw);
   font-size: var(--fs-20vw);
-  color:#999;
+  color:#fff;
+  opacity:.7;
   font-weight: bold;
 }
 .animetv_header_banner .item_right,
@@ -743,7 +748,7 @@ c.loader {
 }
 .istouch .animetv_header .animetv_header_banner div.animetv_logo:hover,
 .animetv_header.active .animetv_header_banner div.animetv_logo.active{
-  color:#fff;
+  opacity:1;
   background: transparent !important;
 }
 .animetv_header_banner div.animetv_logo c{
@@ -1200,7 +1205,7 @@ c.loader {
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
-  text-shadow: 0 .1vw .2vw #000 !important;
+  text-shadow: 0 0 .1vw #000, 0.1vw .1vw .2vw #000 !important;
   transition: color var(--tim-3s) var(--interpolation), transform var(--tim-5s) var(--interpolation);
 }
 /* :not(.ui_performance_scale) .home_slideshow p div span.infobox span.infovalue span.desc{
@@ -1215,12 +1220,15 @@ c.loader {
 :not(.ui_performance_scale) .home_slideshow.active p div.active.yt-playing span.infobox span.infovalue h4{
   transform: scale(.9);
 }
-:not(.ui_performance_scale) .home_slideshow.active p div.active span.infobox span.infovalue h4{
+*/
+#home_slide_holder:hover .home_slideshow p div.active span.infobox span.infovalue h4,
+.home_slideshow.active p div.active span.infobox span.infovalue h4{
   color:#fff;
 }
-:not(.ui_performance_scale) .home_slideshow.active p div.active span.infobox span.infovalue span.desc{
-  color:rgba(255,255,255,.8);
-}*/
+#home_slide_holder:hover .home_slideshow p div.active span.infobox span.infovalue span.desc,
+.home_slideshow.active p div.active span.infobox span.infovalue span.desc{
+  color:rgba(255,255,255,.9);
+}
 #home_slide.home_list>p>div img:not(.loaded){
   opacity:0 !important;
 }
@@ -4883,6 +4891,7 @@ c.loader {
   .large-ui-list #home_slide_holder{
     margin-bottom: -52.5vw;
   }
+
   .large-ui-list .home_slideshow p div .img_holder{
     height: 54.9vw;
   }
@@ -4911,6 +4920,9 @@ c.loader {
   }
   .large-ui-list .home_list>.home_list_arrows c{
     top:10vw;
+  }
+  .large-ui-list #home_slide .home_list_loader{
+    top:25vw;
   }
 
 
