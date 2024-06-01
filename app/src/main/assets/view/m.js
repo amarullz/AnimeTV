@@ -17866,7 +17866,8 @@ const listOrder={
         type:ispin?'password':'text',
         maxlength:maxlen?maxlen:10,
         value:dv?dv:'',
-        spellcheck:"false"
+        spellcheck:"false",
+        autocomplete:"off"
       },listOrder.win,''
     );
     listOrder.group=inp;

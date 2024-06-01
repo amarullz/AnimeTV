@@ -549,7 +549,7 @@ c.loader {
   padding-right:0;
   line-height:var(--fs-20vw);
   font-size: var(--fs-20vw);
-  color:#fff;
+  color:#fff !important;
   opacity:.7;
   font-weight: bold;
 }
@@ -1083,34 +1083,40 @@ c.loader {
   overflow: hidden;
   display: block;
 }
-.home_slideshow p div{
+/* .home_slideshow p div{
   -webkit-mask-image:
     linear-gradient(180deg, #000 90%, rgba(0,0,0,0) 100%) !important;
-}
+} */
 .home_slideshow p div .iframe_holder,
 .home_slideshow p div img{
   z-index: 1;
   position: absolute;
   right: 0;
   top:0;
-  max-width: 80vw;
+  width: 100vw;
   min-height: 40vw;
   background-color: #000;
   object-fit: cover;
 }
-.home_slideshow p div img{
-  -webkit-mask-image:
-    linear-gradient(85deg, rgba(0,0,0,0) 5%, #000 70%) !important;
-  transition: transform 18s linear, opacity 5s linear;
-  transform-origin: center 80%;
-}
+.home_slideshow p div .img_holder,
 .home_slideshow p div .iframe_holder{
   -webkit-mask-image:
-    linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 20%) !important;
+    linear-gradient(180deg, #000 90%, rgba(0,0,0,0) 100%) !important;
+}
+.home_slideshow p div .img_holder img,
+.home_slideshow p div .iframe_holder iframe{
+  -webkit-mask-image:
+    linear-gradient(85deg, rgba(0,0,0,0) 0%, #000 50%) !important;
+}
+.home_slideshow p div img{
+  transform-origin: center 80%;
+  transition: transform 18s linear, opacity 5s linear;
+}
+.home_slideshow p div .iframe_holder{
   transition: opacity var(--tim-5s) linear;
 }
 .home_slideshow p div img.isthumb{
-  width: 80vw;
+  width: 100vw;
 }
 .home_slideshow p div.active.yt-playing img{
   opacity:0;
@@ -1127,7 +1133,8 @@ c.loader {
   right: 0;
   top:0;
   display: block;
-  width: 80vw;
+  max-width: 100vw;
+  width: 100vw;
   height: 40vw;
   overflow: hidden;
   opacity: 0;
@@ -1138,7 +1145,7 @@ c.loader {
 }
 .home_slideshow.active p div .iframe_holder iframe{
   display: block;
-  width: 80vw !important;
+  width: 100vw !important;
   height: 40vw !important;
   position: relative;
   z-index: 0;
@@ -4911,10 +4918,10 @@ c.loader {
   .large-ui-list .home_slideshow p div img.isthumb{
     width: 100vw;
   }
-  .large-ui-list .home_slideshow p div img{
+  /* .large-ui-list .home_slideshow p div img{
     -webkit-mask-image:
       linear-gradient(70deg, rgba(0,0,0,0) 1%, #000 80%) !important;
-  }
+  } */
   .large-ui-list .home_list p div span.info_ep_havenext{
     top: 17.5vw;
   }
