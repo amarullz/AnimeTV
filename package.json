@@ -22,7 +22,9 @@
     "build-linux-arm64": "npm run pack-linux-arm64 && electron-installer-debian --src electron/builds/animetv-linux-arm64 --arch aarch64 --config electron/deb-config.json && electron-installer-redhat --src electron/builds/animetv-linux-arm64 --arch aarch64 --config electron/deb-config.json",
 
     "build-mac": "npm run pack-mac && cd ./electron/builds/animetv-darwin-arm64/ && electron-installer-dmg animetv.app animetv-mac-arm64 && cd ../../../",
-    "build-mac-x64": "npm run mac-x64 && cd ./electron/builds/animetv-darwin-x64/ && electron-installer-dmg animetv.app animetv-mac-x64 && cd ../../../"
+    "build-mac-x64": "npm run pack-mac-x64 && cd ./electron/builds/animetv-darwin-x64/ && electron-installer-dmg animetv.app animetv-mac-x64 && cd ../../../",
+
+    "wsl-build-linux": "bash -c \"npm run build-linux && npm run build-linux-arm64\""
 
   },
   "author": {
