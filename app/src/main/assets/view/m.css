@@ -1098,12 +1098,32 @@ c.loader {
   background-color: #000;
   object-fit: cover;
 }
-.home_slideshow p div .img_holder,
+#animebg:not(.bg0)+#home .home_slideshow p div .img_holder,
 .home_slideshow p div .iframe_holder{
   -webkit-mask-image:
     linear-gradient(180deg, #000 90%, rgba(0,0,0,0) 100%) !important;
 }
-.home_slideshow p div .img_holder img,
+#animebg.bg0+#home .home_slideshow p div:after{
+  content: ' ';
+  position: absolute;
+  bottom:0;
+  left:0;
+  right: 0;
+  height: 20vw;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 100%);
+  z-index: 4;
+}
+#animebg.bg0+#home .home_slideshow p div .img_holder:before{
+  content: ' ';
+  position: absolute;
+  top:0;
+  left:0;
+  bottom: 0;
+  width: 40vw;
+  background: linear-gradient(90deg, #000 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 8;
+}
+#animebg:not(.bg0)+#home .home_slideshow p div .img_holder img,
 .home_slideshow p div .iframe_holder iframe{
   -webkit-mask-image:
     linear-gradient(85deg, rgba(0,0,0,0) 0%, #000 50%) !important;
