@@ -742,6 +742,9 @@ c.loader {
 .istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover{
   color:var(--accent-1);
 }
+.istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover span{
+  text-shadow: none !important;
+}
 .istouch .animetv_header .animetv_header_banner div:not(#home_time):not(.animetv_logo):hover c,
 .animetv_header.active .animetv_header_banner div.active c{
   text-shadow: none !important;
