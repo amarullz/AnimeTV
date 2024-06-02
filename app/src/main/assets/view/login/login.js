@@ -351,7 +351,7 @@ const login = {
                             if ('src' in j.bgimg){
                                 u.bg=j.bgimg.src;
                                 if (u.bg){
-                                    u.wp=$n('img', 'usr_wallpaper hide', {src:$imgnl(login.wallpaper_base+u.bg,screen.width)}, login.h, '');
+                                    u.wp=$n('img', 'usr_wallpaper hide', {src:$imgnl(login.wallpaper_base+u.bg,screen.width>screen.height?screen.width:screen.height)}, login.h, '');
                                     u.wp.onload=function(){
                                         this.classList.remove('hide');
                                     };

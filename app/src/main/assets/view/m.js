@@ -2567,7 +2567,7 @@ const _API={
   bgimg_update:function(){
     if (pb.cfg_data.bgimg.src){
       var main_url = _API.wallpaper_base+pb.cfg_data.bgimg.src;
-      $('animebg').style.backgroundImage='url('+$imgnl(main_url, screen.width)+')';
+      $('animebg').style.backgroundImage='url('+$imgnl(main_url, screen.width>screen.height?screen.width:screen.height)+')';
       $('animebg').className='';
     }
     else{
