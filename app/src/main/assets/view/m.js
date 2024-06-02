@@ -7144,7 +7144,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6/* &&!_ISELECTRON*/ ){
+              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6 &&!_ISELECTRON ){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
