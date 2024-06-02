@@ -16775,7 +16775,7 @@ const _MAL={
         hl._addal._curr=d.mediaListEntry.status;
         hl._addal._mid=d.mediaListEntry.id;
         hl._addal._aid=d.id;
-        hl._addal.innerHTML='<c>bookmark</c> <l>AniList</l>'+ucfirst(d.mediaListEntry.status,true);
+        hl._addal.innerHTML='<c>bookmark</c> <l>AniList</l> '+ucfirst(d.mediaListEntry.status,true);
         hl._addal._myinfo=$n('div','alsd_button alsd_button_full',null,hl._vleft,ucfirst(d.mediaListEntry.status,true));
       }
       else{
