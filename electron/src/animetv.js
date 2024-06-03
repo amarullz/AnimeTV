@@ -19,6 +19,7 @@
  *
  */
 const { app, BrowserWindow, dialog, screen, ipcMain, shell } = require("electron");
+const path = require("path");
 
 /* squirrel install */
 if (process.platform === 'win32'){
@@ -55,7 +56,7 @@ const main={
         nodeIntegration: true,
         nodeIntegrationInSubFrames:true,
         contextIsolation: true,
-        preload: common.path("/electron/src/preload.js"),
+        preload: path.join(__dirname,"preload.js"),
       }
     });
     main.win.webContents.setUserAgent(common.UAG);
