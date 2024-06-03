@@ -56,7 +56,8 @@ const main={
         nodeIntegration: true,
         nodeIntegrationInSubFrames:true,
         contextIsolation: true,
-        preload: path.join(__dirname,"preload.js"),
+        sandbox: false,
+        preload: common.path("/electron/src/preload.js"),
       }
     });
     main.win.webContents.setUserAgent(common.UAG);
