@@ -85,7 +85,9 @@ window.onload=function(){
         var k=l.list[i];
         if (k in l.detail){
           var dt=l.detail[k];
-          var n="a_"+slugString(dt.title_jp?dt.title_jp:dt.title,'');
+          var vslud=dt.title_jp?dt.title_jp:dt.title;
+          vslud=vslud.replace(/\([^)]*\)/g,'');
+          var n="a_"+slugString(vslud,'');
           if (!(n in out_d)){
             out_d[n]={
               s:[], /* sources */
