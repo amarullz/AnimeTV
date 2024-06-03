@@ -1679,14 +1679,25 @@ const wave={
     return uid;
   },
 
+  vidplayLastKeys:{
+    tick:0,
+    k:null
+  },
+
   /* Streaming Video */
   vidplayKeys:function(cb){
+    if (wave.vidplayLastKeys.tick>$time()){
+      cb(JSON.parse(wave.vidplayLastKeys.k));
+      return;
+    }
     $ap("https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/keys.json?"+$tick(),
     function(r){
       if (r.ok){
         try{
           var d=JSON.parse(r.responseText);
           try{
+            wave.vidplayLastKeys.tick=$time()+3600;
+            wave.vidplayLastKeys.k=r.responseText;
             cb(d);
           }catch(e){}
           return;
@@ -1843,10 +1854,10 @@ const wave={
       wave.filemoonGetData(u,cb);
       return;
     }
-    else{
-      cb(null);
-      return;
-    }
+    // else{
+    //   cb(null);
+    //   return;
+    // }
 
     wave.vidplayGetMedia(u,function(url){
       if (url){
