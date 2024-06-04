@@ -5,7 +5,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    release:
+    release_desktop:
         strategy:
             matrix:
                 platform: [ windows-latest, ubuntu-latest, macos-latest, macos-13]
@@ -100,3 +100,19 @@ jobs:
               with:
                 name: animetv-linux-arm64.rpm
                 path: ./electron/builds/*.aarch64.rpm
+    
+    release_mobile:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+            
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                distribution: 'zulu'
+                java-version: 17
+                cache: 'gradle'
+            
+            - name: Build Debug Apk
+              run: npm run build-debug-apk
