@@ -36,29 +36,29 @@ jobs:
             - name: Install app dependencies
               run: npm install
             
-            - name: Build app (MacOS - Apple Silicon)
+            - name: Build app (MacOS - arm64)
               if: matrix.platform == 'macos-latest'
               run: npm run build-mac
             
-            - name: Upload build (MacOS - Apple Silicon)
+            - name: Upload build (MacOS - arm64)
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'macos-latest'
               with:
                 name: animetv-mac-arm64.dmg
                 path: ./electron/builds/animetv-darwin-arm64/*.dmg
             
-            - name: Build app (MacOS - Intel)
+            - name: Build app (MacOS - x64)
               if: matrix.platform == 'macos-13'
               run: npm run build-mac-x64
             
-            - name: Upload build (MacOS - Intel)
+            - name: Upload build (MacOS - x64)
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'macos-13'
               with:
                 name: animetv-mac-x64.dmg
                 path: ./electron/builds/animetv-darwin-x64/*.dmg
             
-            - name: Build app (Windows)
+            - name: Build app (Windows - x64)
               if: matrix.platform == 'windows-latest'
               run: npm run build-win
               
@@ -69,20 +69,34 @@ jobs:
                   name: animetv-win32-x64.exe
                   path: ./electron/builds/*.exe
                   
-            - name: Build app (Linux - x64)
+            - name: Build app (Linux - x64 & arm64)
               if: matrix.platform == 'ubuntu-latest'
-              run: npm run build-linux
+              run: npm run build-linux && npm run build-linux-arm64
             
-            - name: Upload build 1 (Linux - x64)
+            - name: Upload build deb (Linux - x64)
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'ubuntu-latest'
               with:
                 name: animetv-linux-x64.deb
-                path: ./electron/builds/*.deb
+                path: ./electron/builds/*x64.deb
                 
-            - name: Upload build 2 (Linux - x64)
+            - name: Upload build rpm (Linux - x64)
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'ubuntu-latest'
               with:
                 name: animetv-linux-x64.rpm
-                path: ./electron/builds/*.rpm
+                path: ./electron/builds/*x64.rpm
+
+            - name: Upload build deb (Linux - arm64)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'ubuntu-latest'
+              with:
+                name: animetv-linux-arm64.deb
+                path: ./electron/builds/*arm64.deb
+            
+            - name: Upload build rpm (Linux - arm64)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'ubuntu-latest'
+              with:
+                name: animetv-linux-arm64.rpm
+                path: ./electron/builds/*arm64.rpm
