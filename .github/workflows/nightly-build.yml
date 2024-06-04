@@ -1,12 +1,15 @@
 name: Nightly Build
 on:
     push:
-        branch: master
+        branches: master
     workflow_dispatch:
 
 jobs:
     release:
-        runs-on: macos-latest
+        strategy:
+            matrix:
+                platform: [ windows-latest, ubuntu-latest, macos-latest, macos-13]
+        runs-on: ${{ matrix.platform }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -21,7 +24,8 @@ jobs:
               shell: bash
               run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
 
-            - uses: actions/cache@v4
+            - name: Initialize cache
+              uses: actions/cache@v4
               id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
               with:
                 path: ${{ steps.npm-cache-dir.outputs.dir }}
@@ -32,15 +36,46 @@ jobs:
             - name: Install app dependencies
               run: npm install
             
-            - name: Build app
+            - name: Build app (MacOS - Apple Silicon)
+              if: matrix.platform == 'macos-latest'
               run: npm run build-mac
-
-            - run: cd electron && ls
-
-            - name: CHECK
-              run: cd electron/builds/animetv-darwin-arm64 && ls
             
-            - name: Upload build
+            - name: Upload build (MacOS - Apple Silicon)
               uses: actions/upload-artifact@v4
+              if: matrix.platform == 'macos-latest'
               with:
+                name: animetv-mac-arm64.dmg
                 path: ./electron/builds/animetv-darwin-arm64/*.dmg
+            
+            - name: Build app (MacOS - Intel)
+              if: matrix.platform == 'macos-13'
+              run: npm run build-mac-x64
+            
+            - name: Upload build (MacOS - Intel)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'macos-13'
+              with:
+                name: animetv-mac-x64.dmg
+                path: ./electron/builds/animetv-darwin-x64/*.dmg
+            
+            - name: Build app (Windows)
+              if: matrix.platform == 'windows-latest'
+              run: npm run build-win
+              
+            - name: Upload build (Windows - x64)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'windows-latest'
+              with:
+                  name: animetv-win32-x64.dmg
+                  path: ./electron/builds/animetv-win32-x64/*.exe
+                  
+            - name: Build app (Linux - x64)
+              if: matrix.platform == 'ubuntu-latest'
+              run: npm run build-linux
+            
+            - name: Upload build (Windows)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'windows-latest'
+              with:
+                name: animetv-linux-x64.dmg
+                path: ./electron/builds/animetv-linux-x64/*.zip
