@@ -34,6 +34,9 @@ jobs:
             
             - name: Build app
               run: npm run build-mac
+
+            - name: CHECK
+              run: cd electron/build/animetv-darwin-arm64 && ls
             
             - name: Upload build
               uses: actions/upload-artifact@v4
