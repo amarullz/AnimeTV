@@ -76,7 +76,7 @@ jobs:
                   name: animetv-win32-x64-portable
                   path: ./electron/builds/AnimeTV-win32-x64
             
-            - name: Upload build windows update app.asar (Linux - x64)
+            - name: Upload build windows update app.asar (Windows - x64)
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'windows-latest'
               with:
