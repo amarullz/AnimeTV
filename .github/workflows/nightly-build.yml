@@ -113,6 +113,9 @@ jobs:
                 distribution: 'zulu'
                 java-version: 17
                 cache: 'gradle'
+
+            - name: Prepare gradle
+              run: chmod +x ./gradlew
             
             - name: Build Debug Apk
-              run: npm run build-debug-apk
+              run: ./gradlew assembleDebug
