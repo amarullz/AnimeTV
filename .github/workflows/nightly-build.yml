@@ -5,37 +5,37 @@ on:
     workflow_dispatch:
 
     jobs:
-        release:
+        build:
             runs-on: macos-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            steps:
+                - name: Checkout repository
+                  uses: actions/checkout@v4
             
-            - name: Node.js setup
-              uses: actions/setup-node@v4
-              with:
-                node-version: latest
+                - name: Node.js setup
+                  uses: actions/setup-node@v4
+                  with:
+                    node-version: latest
 
-            - name: Get npm cache directory
-              id: npm-cache-dir
-              shell: bash
-              run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+                - name: Get npm cache directory
+                  id: npm-cache-dir
+                  shell: bash
+                  run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
 
-            - uses: actions/cache@v4
-              id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
-              with:
-                path: ${{ steps.npm-cache-dir.outputs.dir }}
-                key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-node-
+                - uses: actions/cache@v4
+                  id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+                  with:
+                    path: ${{ steps.npm-cache-dir.outputs.dir }}
+                    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                    restore-keys: |
+                        ${{ runner.os }}-node-
 
-            - name: Install app dependencies
-              run: npm install
+                - name: Install app dependencies
+                  run: npm install
             
-            - name: Build app
-              run: npm run build-mac
+                - name: Build app
+                  run: npm run build-mac
             
-            - name: Upload build
-              uses: actions/upload-artifact@v4
-              with:
-                path: ./electron/build/*.dmg
+                - name: Upload build
+                  uses: actions/upload-artifact@v4
+                  with:
+                    path: ./electron/build/*.dmg
