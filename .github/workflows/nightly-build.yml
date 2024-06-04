@@ -38,4 +38,4 @@ jobs:
             - name: Upload build
               uses: actions/upload-artifact@v4
               with:
-                path: ./electron/build/*.dmg
+                path: ./electron/build/animetv-darwin-arm64/*.dmg
