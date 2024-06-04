@@ -35,8 +35,8 @@ jobs:
             - name: Build app
               run: npm run build-mac
 
-            - run: ls
-            
+            - run: cd electron && ls
+
             - name: CHECK
               run: cd electron/build/animetv-darwin-arm64 && ls
             
