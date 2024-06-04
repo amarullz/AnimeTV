@@ -127,4 +127,4 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                 name: animetv.apk
-                path: ./build/outputs/apk/release/*.apk
+                path: ./app/build/outputs/apk/release/*.apk
