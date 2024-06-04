@@ -72,13 +72,17 @@ jobs:
             - name: Build app (Linux - x64)
               if: matrix.platform == 'ubuntu-latest'
               run: npm run build-linux
-
-            - if: matrix.platform == 'ubuntu-latest'
-              run: cd electron/builds && ls
             
-            - name: Upload build (Linux - x64)
+            - name: Upload build 1 (Linux - x64)
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'ubuntu-latest'
               with:
-                name: 
-                path: ./electron/builds/*.zip
+                name: animetv-linux-x64.deb
+                path: ./electron/builds/*.deb
+                
+            - name: Upload build 2 (Linux - x64)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'ubuntu-latest'
+              with:
+                name: animetv-linux-x64.rpm
+                path: ./electron/builds/*.rpm
