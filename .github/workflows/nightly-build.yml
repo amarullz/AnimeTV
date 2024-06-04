@@ -100,3 +100,31 @@ jobs:
               with:
                 name: animetv-linux-arm64.rpm
                 path: ./electron/builds/*.aarch64.rpm
+
+    release_mobile:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+            
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                distribution: 'zulu'
+                java-version: 17
+                cache: 'gradle'
+
+            - name: Prepare gradle
+              run: chmod +x ./gradlew
+            
+            - name: Build Apk
+              run: |
+                echo "${{ secrets.RELEASE_KEYSTORE }}" > release.keystore.asc
+                gpg -d --passphrase "${{ secrets.RELEASE_PASSWORD }}" --batch release.keystore.asc > keystore/debug.keystore
+                ./gradlew assembleRelease
+            
+            - name: Upload build (Android)
+              uses: actions/upload-artifact@v4
+              with:
+                name: animetv.apk
+                path: ./build/outputs/apk/release/*.apk
