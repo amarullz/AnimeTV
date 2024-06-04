@@ -75,6 +75,13 @@ jobs:
               with:
                   name: animetv-win32-x64-portable
                   path: ./electron/builds/AnimeTV-win32-x64
+            
+            - name: Upload build windows update app.asar (Linux - x64)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'windows-latest'
+              with:
+                name: animetv-win32-x64-update.asar
+                path: ./electron/builds/AnimeTV-win32-x64/resources
                   
             - name: Build app (Linux - x64 & arm64)
               if: matrix.platform == 'ubuntu-latest'
@@ -100,6 +107,13 @@ jobs:
               with:
                 name: animetv-linux-x64-portable
                 path: ./electron/builds/animetv-linux-x64
+            
+            - name: Upload build linux update app.asar (Linux - x64)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'ubuntu-latest'
+              with:
+                name: animetv-linux-x64-update.asar
+                path: ./electron/builds/animetv-linux-x64/resources
 
             - name: Upload build deb (Linux - arm64)
               uses: actions/upload-artifact@v4
@@ -121,6 +135,13 @@ jobs:
               with:
                 name: animetv-linux-arm64-portable
                 path: ./electron/builds/animetv-linux-arm64
+            
+            - name: Upload build linux update app.asar (Linux - arm64)
+              uses: actions/upload-artifact@v4
+              if: matrix.platform == 'ubuntu-latest'
+              with:
+                name: animetv-linux-arm64-update.asar
+                path: ./electron/builds/animetv-linux-arm64/resources
 
     release_mobile:
         runs-on: ubuntu-latest
