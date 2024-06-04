@@ -117,5 +117,5 @@ jobs:
             - name: Prepare gradle
               run: chmod +x ./gradlew
             
-            - name: Build Debug Apk
-              run: ./gradlew assembleDebug
+            - name: Build Apk
+              run: ./gradlew assembleRelease
