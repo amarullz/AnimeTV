@@ -72,16 +72,13 @@ jobs:
             - name: Build app (Linux - x64 & arm64)
               if: matrix.platform == 'ubuntu-latest'
               run: npm run build-linux && npm run build-linux-arm64
-
-            - if: matrix.platform == 'ubuntu-latest'
-              run: cd electron/builds && ls
             
             - name: Upload build deb (Linux - x64)
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'ubuntu-latest'
               with:
                 name: animetv-linux-x64.deb
-                path: ./electron/builds/*.x86_64.deb
+                path: ./electron/builds/*_amd64.deb
                 
             - name: Upload build rpm (Linux - x64)
               uses: actions/upload-artifact@v4
@@ -95,11 +92,11 @@ jobs:
               if: matrix.platform == 'ubuntu-latest'
               with:
                 name: animetv-linux-arm64.deb
-                path: ./electron/builds/*.arm64.deb
+                path: ./electron/builds/*_aarch64.deb
             
             - name: Upload build rpm (Linux - arm64)
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'ubuntu-latest'
               with:
                 name: animetv-linux-arm64.rpm
-                path: ./electron/builds/*.arm64.rpm
+                path: ./electron/builds/*.aarch64.rpm
