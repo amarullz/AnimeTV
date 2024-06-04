@@ -17,7 +17,6 @@ local.properties
 keystore/debug.keystore
 .idea/render.experimental.xml
 /node_modules
-/package-lock.json
 /electron/builds
 .idea/deploymentTargetSelector.xml
 electron/src/version.js
