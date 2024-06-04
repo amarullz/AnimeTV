@@ -78,4 +78,4 @@ jobs:
               if: matrix.platform == 'windows-latest'
               with:
                 name: animetv-linux-x64.dmg
-                path: ./electron/builds/animetv-linux-x64/*.zip
+                path: ./electron/builds/animetv-linux-x64/*.zip && ./electron/builds/animetv-linux-x64/*.rpm

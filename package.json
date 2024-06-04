@@ -40,7 +40,8 @@
         "electron-packager": "npm:@electron/packager@<18.1"
     },
     "optionalDependencies": {
-        "electron-installer-debian": "^3.0.0"
+        "electron-installer-debian": "^3.0.0",
+        "electron-installer-redhat": "^3.0.0"
     },
     "dependencies": {
         "axios": "^1.7.2",
