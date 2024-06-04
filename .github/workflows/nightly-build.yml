@@ -38,9 +38,9 @@ jobs:
             - run: cd electron && ls
 
             - name: CHECK
-              run: cd electron/build/animetv-darwin-arm64 && ls
+              run: cd electron/builds/animetv-darwin-arm64 && ls
             
             - name: Upload build
               uses: actions/upload-artifact@v4
               with:
-                path: ./electron/build/animetv-darwin-arm64/*.dmg
+                path: ./electron/builds/animetv-darwin-arm64/*.dmg
