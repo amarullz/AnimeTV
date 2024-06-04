@@ -66,16 +66,19 @@ jobs:
               uses: actions/upload-artifact@v4
               if: matrix.platform == 'windows-latest'
               with:
-                  name: animetv-win32-x64.dmg
-                  path: ./electron/builds/animetv-win32-x64/*.exe
+                  name: animetv-win32-x64.exe
+                  path: ./electron/builds/*.exe
                   
             - name: Build app (Linux - x64)
               if: matrix.platform == 'ubuntu-latest'
               run: npm run build-linux
+
+            - if: matrix.platform == 'ubuntu-latest'
+              run: cd electron/builds && ls
             
             - name: Upload build (Linux - x64)
               uses: actions/upload-artifact@v4
-              if: matrix.platform == 'windows-latest'
+              if: matrix.platform == 'ubuntu-latest'
               with:
-                name: animetv-linux-x64.dmg
-                path: ./electron/builds/animetv-linux-x64/*.zip && ./electron/builds/animetv-linux-x64/*.rpm
+                name: 
+                path: ./electron/builds/*.zip
