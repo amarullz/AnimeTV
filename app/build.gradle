@@ -17,6 +17,7 @@ android {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         setProperty("archivesBaseName", "animetv-" + versionName)
     }
+    
     buildTypes {
         release {
             minifyEnabled true

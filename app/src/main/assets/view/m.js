@@ -15294,10 +15294,15 @@ const _MAL={
     }
     // console.log("ANILIST-TOKEN: "+_MAL.altoken);
   },
-  req:function(uri, method, cb){
+  req:function(uri, method, cb, dat){
     if (!_MAL.token){
       cb({ok:false,responseText:''});
       return;
+    }
+    if (dat){
+      if (!_ISELECTRON){
+        url+='?'+dat;
+      }
     }
     var xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
@@ -15311,6 +15316,10 @@ const _MAL={
     xhttp.open(method, "/__proxy/https://api.myanimelist.net"+uri, true);
     xhttp.setRequestHeader('Accept', 'application/json' );
     xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.token);
+    if (_ISELECTRON && dat){
+      xhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+      xhttp.send(dat);
+    }
     xhttp.send();
   },
   alreq:function(q, vars, cb, notoken, retry){
@@ -16003,16 +16012,16 @@ const _MAL={
     _MAL.req(uri,"GET",cb);
   },
   set_ep:function(animeid, ep, cb){
-    var uri='/v2/anime/'+animeid+'/my_list_status?num_watched_episodes='+ep;
-    _MAL.req(uri,"PUT",cb);
+    var uri='/v2/anime/'+animeid+'/my_list_status';
+    _MAL.req(uri,"PUT",cb,'num_watched_episodes='+ep);
   },
   set_del:function(animeid, cb){
     var uri='/v2/anime/'+animeid+'/my_list_status';
     _MAL.req(uri,"DELETE",cb);
   },
   set_list:function(animeid, stat, cb){
-    var uri='/v2/anime/'+animeid+'/my_list_status?status='+enc(stat);
-    _MAL.req(uri,"PUT",cb);
+    var uri='/v2/anime/'+animeid+'/my_list_status';
+    _MAL.req(uri,"PUT",'cb,status='+enc(stat));
   },
   login:function(isanilist,logintype){
     if (_MAL.token && !isanilist){
