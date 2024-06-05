@@ -4698,7 +4698,7 @@ const vtt={
             }
             if (('tx' in q) && ('ts' in q) && ('te' in q)){
               if (q.tx){
-                if (q.tx.toLowerCase().indexOf('animeflix.live')==-1){
+                if (q.tx.toLowerCase().indexOf('animeflix')<0){
                   t.push(q);
                   p++;
                 }
