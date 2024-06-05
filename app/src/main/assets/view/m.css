@@ -353,7 +353,7 @@ c {
 }
 
 c.loader {
-  animation: loader_keyframe 2s linear infinite;
+  animation: loader_keyframe 4s linear infinite;
 }
 
 /* zloader */
@@ -362,7 +362,7 @@ c.loader {
   height: 8vw;
   position: relative;
   display: inline-block;
-  animation: z-loader-ani 4s linear infinite reverse;
+  animation: z-loader-ani 10s linear infinite reverse;
   vertical-align: middle;
 }
 

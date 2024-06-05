@@ -100,7 +100,12 @@ window.onload=function(){
             od.p=dt.ep;
           }
           if ('play' in dt){
-            od.e['e'+dt.ep]=JSON.parse(JSON.stringify(dt.play));
+            if (dt.play[1]>0){
+              var val=Math.floor((dt.play[0] * 100) / dt.play[1]);
+              if (val>0 && val<=100){
+                od.e['e'+dt.ep]=val;
+              }
+            }
           }
           od.s[_SD]={
             e:dt.title, /* en */
