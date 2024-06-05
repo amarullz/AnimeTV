@@ -12,7 +12,7 @@ jobs:
             matrix:
                 platform: [ windows-latest, ubuntu-latest, macos-latest, macos-13]
         runs-on: ${{ matrix.platform }}
-        if: contains(github.event.head_commit.message, 'Nightly Release:')
+        if: startsWith(github.event.head_commit.message, 'Release:')
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -148,7 +148,7 @@ jobs:
 
     release_mobile:
         runs-on: ubuntu-latest
-        if: contains(github.event.head_commit.message, 'Nightly Release:')
+        if: startsWith(github.event.head_commit.message, 'Release:')
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
