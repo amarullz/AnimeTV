@@ -35,14 +35,17 @@
 <script>
 var __JWP=null;
 var __VID=null;
+var __NOPLAY=false;
 (function(){
 function $(a){ return document.getElementById(a); }
 function $p(c,d){
-    console.log("ATVLOG PostMessage "+d);
-    parent.postMessage(JSON.stringify({
-            vcmd:c,
-            val:d
-    }),'*');
+    if (!__NOPLAY){
+        console.log("ATVLOG PostMessage "+d);
+        parent.postMessage(JSON.stringify({
+                vcmd:c,
+                val:d
+        }),'*');
+    }
 }
 function jwquality(){
     try{
@@ -140,6 +143,7 @@ if (location.hash!='#NOPLAY'){
     }catch(e){}
 }
 else{
+    __NOPLAY=true;
     console.log("NOPLAY");
 }
 
