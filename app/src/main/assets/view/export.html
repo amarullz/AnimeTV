@@ -103,11 +103,11 @@ window.onload=function(){
             od.e['e'+dt.ep]=JSON.parse(JSON.stringify(dt.play));
           }
           od.s[_SD]={
-            title:dt.title,
-            title_jp:dt.title_jp?dt.title_jp:dt.title,
-            poster:dt.poster,
-            tip:dt.tip,
-            url:dt.url
+            e:dt.title, /* en */
+            j:dt.title_jp?dt.title_jp:dt.title, /* jp */
+            i:dt.poster, /* posted */
+            t:dt.tip, /* ttip */
+            u:dt.url /* real url */
           };
           if (out_t.indexOf(n)==-1){
             out_t.push(n);
@@ -124,8 +124,8 @@ window.onload=function(){
     listing(list.history, out.detail, out.history);
     listing(list.fav, out.detail, out.fav);
     _JSAPI.varSet(_VARNAME,out);
-    console.log(source_domains[_SDZ]+" / "+host+" : "+_VARNAME);
-    console.log(JSON.stringify(out));
+    console.log("Export from "+source_domains[_SDZ]);
+    // console.log(JSON.stringify(out));
 
     if (_SDZ<source_domains.length-1){
       setTimeout(function(){
