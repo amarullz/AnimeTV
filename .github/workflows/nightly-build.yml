@@ -2,6 +2,8 @@ name: Nightly Build
 on:
     push:
         branches: master
+        paths:
+          - 'app/build.gradle'
     workflow_dispatch:
 
 jobs:
