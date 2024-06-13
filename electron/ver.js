@@ -40,9 +40,13 @@ ver.build =
   pad2(dt.getDate()) +
   pad2(dt.getHours()) +
   pad2(dt.getMinutes());
-var out = "module.exports =" + JSON.stringify(ver, " ", 1) + ";";
+var out_info = JSON.stringify(ver, " ", 1);
+var out = "module.exports =" + out_info + ";";
+
 if (process.argv.length>0 && process.argv[process.argv.length-1]=='build'){
   console.log("Writing Versions:\n"+out);
   fs.writeFileSync("electron/src/version.js", out);
+  fs.writeFileSync("electron/builds/version.json", out_info);
+  fs.writeFileSync("electron/builds/version.txt", vername);
 }
 module.exports = ver;
