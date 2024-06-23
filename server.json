@@ -8,10 +8,10 @@
   "stream_domain2": "megaf.cc",
   "update": "1.1-240624",
 
-  "appnum": 500,
-  "appver": "5.0.0",
-  "appsize": "5.94 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.0.0/animetv-5.0.0.apk",
+  "appnum": 520,
+  "appver": "5.2.0",
+  "appsize": "5.97 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.2.0/animetv-5.2.0.apk",
   "appnote": 
-    "- Add Parental Control\n- Add Full Touch Support\n- Add portrait layout and auto-orientation\n- Add Auto MAL/AniList Tracking features\n- Add OSD on playback\n- Implement MediaSession for media remote control\n- Fix various source issue\n- Fix, tweaks and optimize various ui"
+    "- Vidplay & MyClod rebranding to Vidstream and MegaF\n- Update mobile UI\n- Update playback meta layout\n- Fix various bugs and add image cdn proxy\n- Add Large UI settings\n- Tweaks for performances"
 }
