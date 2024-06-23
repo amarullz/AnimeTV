@@ -46,6 +46,9 @@ var out = "module.exports =" + out_info + ";";
 if (process.argv.length>0 && process.argv[process.argv.length-1]=='build'){
   console.log("Writing Versions:\n"+out);
   fs.writeFileSync("electron/src/version.js", out);
+  if (!fs.existsSync("electron/builds")){
+    fs.mkdirSync("electron/builds");
+  }
   fs.writeFileSync("electron/builds/version.json", out_info);
   fs.writeFileSync("electron/builds/version.txt", vername);
 }

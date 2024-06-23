@@ -13,6 +13,7 @@ android {
         versionCode 520
         versionName "5.2.0"
 
+
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         setProperty("archivesBaseName", "animetv-" + versionName)
