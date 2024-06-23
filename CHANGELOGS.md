@@ -1,4 +1,89 @@
 # Changelogs
+- **5.2.0** 🧸
+  - Update vidplay & myclod rebranding to vidstream and MegaF
+  - Update mobile portrait ui
+  - Implement search history on touch device
+  - UI: Change all confirm dialog with async html based dialog
+  - Priority video loading rather than interface initializing
+  - Update source 1/2 streaming server for faster loading time
+  - Switch user who's login will highlight last user
+  - Move playback genres below title, and make sure right masking enable
+  - Using api.qrserver.com for generating qr - fix QR code bug
+  - Minimize slideshow effect for better performance
+  - Fix search key navigation for touch device
+  - Improve significant performance by using transition property selection rather than all
+  - Add space key as play/pause on playback
+  - Fix cannot click on skip intro button
+  - Add click sound to confirm dialog left/right keys
+  - Add back button in settings on portrait mode
+  - Tweak list arrow styling
+  - Add playback close confirmation settings
+  - Improve some anime source matching
+  - Fix double back to close playback
+  - Change splash background to black
+  - Add image cdn from wsrv.nl in settings for better cache & image loading performance
+  - Add more subtitle font family selection
+  - Add extra large subtitle font size
+  - Reduce slideshow items to 10 from 15
+  - Add large ui style settings
+  - Fix anilist avatar not shown when image cdn active
+  - Subtitle: separate multiple conversation vertically.
+  - Fix playback back button not visible on loading
+  - Fix seeking progress
+  - Update android intercept connection sequences
+  - Tweak ui and gradient
+  - use -webkit-mask-image for slideshow image gradient
+  - remove gradient from wallpaper
+  - set black as default background
+  - Tweak for darker backgrounds
+  - Add some text-shadow on anime list
+  - Fix add to watchlist on popup only saved romanji title only
+  - Tweak styling and text shadow on header
+  - Fix animeflix subtitle not shown
+  - Fix Anilist button on detail popup
+  - Set non Large UI slideshow full width
+  - Use -webkit-mask-image only when wallpaper selected to improve performance on slideshow when wallpaper is disabled
+  - Reenable source 1 futoken (faster) method for loading video - new key repository now works again.
+  - Make sure Image CDN for wallpaper set for best quality
+  - Disable all html autocomplete on input element
+  - Github-Action Autobuild
+  - Desktop:
+    - Add input dialog support for change display name and PIN
+    - Implement stream type selection - hardsub, softsub, dub dialog
+    - Implement buffer indicator
+    - Implement navigator.mediaSession.metadata for videoSetMeta replacement
+    - Use axios for http client
+    - Add Dns over HTTPS support for connection
+    - using axios instance
+    - Add DoH provider settings
+    - set maxSockets per domain to 30
+    - remove http log for source 3-4 stream
+    - Interceptor pass response headers
+    - add support for proxy x-post-prox
+    - player update dash support
+    - fix skip time indicator
+    - Player don't send play before duration available
+    - Add fullscreen support for macos
+    - source 6 mirror url fix
+    - Add support for custom source domain name
+    - Add toast replacement
+    - Disable mouse move prevent playback control autohide
+    - fix bypass request on vidplay(source 1/2) streaming
+    - remove setContentSize - causing window not launch
+    - add app icons
+    - Version configure from gradle
+    - Add debian package for linux-x64
+    - Add fullscreen button
+    - Add window installer build
+    - Add rpm build for linux
+    - Remove text-shadow on header item when mouse over
+    - disable preload next episode video stream on electron
+    - Change preload path script
+    - set sandbox parameter
+    - run update-version before building
+    - Github-Action Autobuild
+    - Fix vidplay server
+    - Auto load server data from github server.json
 - **5.0.0** 🍦
   - Features
     - Add Parental Control
