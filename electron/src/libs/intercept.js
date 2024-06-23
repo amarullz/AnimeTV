@@ -68,6 +68,8 @@ const intercept={
   /* stream domain names */
   domains:{
     vidplays: [
+      "megaf.cc",
+      "vid2a41.site",
       "vid1a52.site",
       "mcloud.bz"
     ],

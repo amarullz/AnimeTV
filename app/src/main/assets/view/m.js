@@ -1198,19 +1198,19 @@ const wave={
         for (var i=0;i<d.length;i++){
           var s=d[i];
           var st=s.textContent.toLowerCase().trim();
-          if (st=='vidplay'){
+          if (st=='vidstream'){
             sid.main=s;
             data.servers[stid].push(
-              pb.serverobj('VidPlay',0)
+              pb.serverobj('VidStream',0)
             );
             if (pb.server_selected(3)==0){
               load_s=s;
             }
           }
-          else if (st=='mycloud'){
+          else if (st=='megaf'){
             sid.mirror=s;
             data.servers[stid].push(
-              pb.serverobj('MyCloud',1)
+              pb.serverobj('MegaF',1)
             );
             if (pb.server_selected(3)==1){
               load_s=s;

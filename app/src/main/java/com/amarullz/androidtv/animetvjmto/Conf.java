@@ -31,9 +31,9 @@ public class Conf {
 
   // History
   // * vidplay.site
-  public static String STREAM_DOMAIN = "vidplay.online";
-  public static String STREAM_DOMAIN1 = "ea1928580f.site";
-  public static String STREAM_DOMAIN2 = "mcloud.bz";
+  public static String STREAM_DOMAIN = "vid2a41.site";
+  public static String STREAM_DOMAIN1 = "vidplay.online";
+  public static String STREAM_DOMAIN2 = "megaf.cc";
 
   public static String SOURCE_DOMAIN_USED = "";
 
