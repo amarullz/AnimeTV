@@ -6979,7 +6979,7 @@ const pb={
 
         // Parsing Player HTML
         var d=$n('div','',null,null,r.responseText);
-        var srcscript=d.querySelectorAll('script')[2];
+        var srcscript=d.querySelectorAll('script')[1];
         if (!srcscript){
           console.log("Player HTML Failed = "+r.responseText);
           d.innerHTML='';
@@ -7036,10 +7036,15 @@ const pb={
               LEVEL_SWITCHED:2,
               ERROR:3
             };
+            var abg=$('animebg');
+            /* Create dummy video tag */
+            var vid_tmp=$n('video','',{'id':'player'},abg,'');
+            console.log(iscript);
             eval(iscript+`
             play_data.pos[0]=[introstart&&introend?introstart:0,introstart&&introend?introend:0];
             play_data.pos[1]=[outrostart&&outroend?outrostart:0,outrostart&&outroend?outroend:0];
             `);
+            abg.removeChild(vid_tmp);
             delete window.Hls;
             delete window.hls;
           }catch(e){
