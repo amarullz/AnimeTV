@@ -8,10 +8,10 @@
   "stream_domain2": "megaf.cc",
   "update": "1.1-240624",
 
-  "appnum": 520,
-  "appver": "5.2.0",
+  "appnum": 524,
+  "appver": "5.2.4",
   "appsize": "5.97 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.2.0/animetv-5.2.0.apk",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.2.4/animetv-5.2.4.apk",
   "appnote": 
-    "- Vidplay & MyClod rebranding to Vidstream and MegaF\n- Update mobile UI\n- Update playback meta layout\n- Fix various bugs and add image cdn proxy\n- Add Large UI settings\n- Tweaks for performances"
+    "- Update animeflix video playback\n- Fix MAL updating on android"
 }
