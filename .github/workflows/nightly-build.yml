@@ -174,3 +174,13 @@ jobs:
               with:
                 name: animetv-android.apk
                 path: ./app/build/outputs/apk/release/*.apk
+
+            - name: Draft release
+              uses: marvinpinto/action-automatic-releases@latest
+              if: startsWith(github.event.head_commit.message, 'Release:v')
+              with:
+                repo_token: "${{ secrets.GITHUB_TOKEN }}"
+                automatic_release_tag: "latest"
+                draft: true
+                title: "Dev Release ${{ env.date_now }}"
+                files: ./app/build/outputs/apk/release/*.apk
