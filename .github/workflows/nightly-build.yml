@@ -179,7 +179,7 @@ jobs:
               uses: marvinpinto/action-automatic-releases@latest
               if: startsWith(github.event.head_commit.message, 'Release:v')
               with:
-                repo_token: "${{ secrets.GITHUB_TOKEN }}"
+                repo_token: "${{ secrets.RELEASE_TOKEN }}"
                 automatic_release_tag: "latest"
                 draft: true
                 title: "Dev Release ${{ env.date_now }}"
