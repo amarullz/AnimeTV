@@ -15334,7 +15334,7 @@ const _MAL={
     }
     if (dat){
       if (!_ISELECTRON){
-        url+='?'+dat;
+        uri+='?'+dat;
       }
     }
     var xhttp = new XMLHttpRequest();
