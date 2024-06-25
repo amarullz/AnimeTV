@@ -8352,10 +8352,16 @@ const pb={
     pb.pb.classList.remove('menushow');
     pb.skipauto_update(1);
     body.classList.add('playback_menu_hide');
+    pb.pb._nocursor=1;
+    try{
+      pb.pb.onmousemove();
+    }catch(e){}
   },
   menu_show:function(pos){
     body.classList.remove('playback_menu_hide');
     pb.pb.classList.add('menushow');
+    pb.pb.classList.remove('nocursor');
+    pb.pb._nocursor=0;
     pb.menus[pb.menusel].classList.remove('active');
     pb.menusel=(pos===undefined?2:pos);
     pb.pb_actions.classList.add('active');
@@ -8667,7 +8673,29 @@ const pb={
         }
       },null,null,true);
 
-      // pb.pb.onmousemove=
+      pb.pb.lastmove=0;
+      pb.pb._nocursor=0;
+      pb.pb.onmousemove=function(){
+        if (pb.pb.__hidecursor_to){
+          clearTimeout(pb.pb.__hidecursor_to);
+          pb.pb.__hidecursor_to=null;
+        }
+        if (pb.pb._nocursor==1){
+          pb.pb.__hidecursor_to=setTimeout(
+            function(){
+              pb.pb.__hidecursor_to=null;
+              pb.pb._nocursor=2;
+              pb.pb.classList.add('nocursor');
+            },
+            1000
+          );
+        }
+        else if (pb.pb._nocursor==2){
+          pb.pb._nocursor=1;
+          pb.pb.classList.remove('nocursor');
+          pb.pb.onmousemove();
+        }
+      };
       pb.pb.ontouchmove=function(){
         if (pb.pb.classList.contains('menushow')){
           pb.lastkey=$tick();

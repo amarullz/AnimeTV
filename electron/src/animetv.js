@@ -35,6 +35,7 @@ const common = require("./libs/common.js");
 const intercept = require("./libs/intercept.js");
 
 const main={
+  initialized:false,
   init(){
     var mainDisplay = screen.getPrimaryDisplay();
     var dw = mainDisplay.size.width * 3 / 4;
@@ -63,21 +64,24 @@ const main={
     main.win.webContents.setUserAgent(common.UAG);
 
     /* Init all handlers */
-    ipcMain.on("main",main.handlerWin);
-    main.win.webContents.on("before-input-event",main.handlerKeys);
-    ipcMain.on('config-load', main.handlerConfigLoad);
-    ipcMain.on('vars-load', main.handlerVarsLoad);
-    ipcMain.handle('config-save', main.handlerConfigSave);
-    ipcMain.handle('vars-save', main.handlerVarsSave);
-    ipcMain.handle('intent-start', main.handlerIntent);
-    ipcMain.handle('set-url', (e,d)=>{
-      if (d!=''){
-        main.win.loadURL(d);
-      }
-    });
-    ipcMain.handle('exec-js', (e,d)=>{
-      common.execJs(d);
-    });
+    if (!main.initialized){
+      ipcMain.on("main",main.handlerWin);
+      main.win.webContents.on("before-input-event",main.handlerKeys);
+      ipcMain.on('config-load', main.handlerConfigLoad);
+      ipcMain.on('vars-load', main.handlerVarsLoad);
+      ipcMain.handle('config-save', main.handlerConfigSave);
+      ipcMain.handle('vars-save', main.handlerVarsSave);
+      ipcMain.handle('intent-start', main.handlerIntent);
+      ipcMain.handle('set-url', (e,d)=>{
+        if (d!=''){
+          main.win.loadURL(d);
+        }
+      });
+      ipcMain.handle('exec-js', (e,d)=>{
+        common.execJs(d);
+      });
+      main.initialized=true;
+    }
 
     /* init values */
     if ('__sd' in common.config){

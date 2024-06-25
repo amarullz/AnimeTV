@@ -2198,6 +2198,10 @@ c.loader {
   opacity: 1;
 }
 
+#pb:not(.menushow).nocursor{
+  cursor:none !important;
+}
+
 #pb_iactions {
   position: absolute;
   left: 0;
