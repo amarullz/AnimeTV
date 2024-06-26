@@ -158,9 +158,11 @@ jobs:
               with:
                 distribution: 'zulu'
                 java-version: 17
-                cache: 'gradle'
 
-            - name: Prepare gradle
+            - name: Setup Gradle
+              uses: gradle/actions/setup-gradle@v3
+
+            - name: Prepare Gradle
               run: |
                 echo "${{ secrets.RELEASE_KEYSTORE }}" > release.keystore.asc
                 gpg -d --passphrase "${{ secrets.RELEASE_PASSWORD }}" --batch release.keystore.asc > keystore/debug.keystore
