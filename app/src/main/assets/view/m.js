@@ -3329,9 +3329,10 @@ const _API={
               s=ep_data.d.ep_val[p.number];
             }
             if (dub){
-              var surl=slug+'-dub-episode-'+s.ep;
+              // var surl=slug+'-dub-episode-'+s.ep;
+              var surl=slug+'-episode-'+s.ep;
               var c=__AFLIX.enc2(surl);
-              s.dub='/watch/'+surl+'?server=&c='+c;
+              s.dub='/watch/'+surl+'?server=&dub=ENG&c='+c;
             }
             else{
               var surl=slug+'-episode-'+s.ep;
