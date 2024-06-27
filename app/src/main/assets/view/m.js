@@ -2899,6 +2899,59 @@ const _API={
     return uri;
   },
 
+  videoAudioTrack:function(id, update){
+    if ('videoAudioTrack' in _JSAPI){
+      _JSAPI.videoAudioTrack(id, update?true:false);
+    }
+  },
+
+  videoTrackQuality:function(id, update){
+    if ('videoTrackQuality' in _JSAPI){
+      _JSAPI.videoTrackQuality(id, update?true:false);
+    }
+  },
+
+  
+
+  /*** AUDIO LANGUAGES ***/
+  audiolang:[
+    ["Original",""],
+    ["English","eng"],
+    ["French","fre"],
+    ["German","ger"],
+    ["Hindi","hin"],
+    ["Indonesian","ind"],
+    ["Italian","ita"],
+    ["Portuguese (Brazil)","por"],
+    ["Spanish","spa"],
+    ["Tamil","tam"],
+    ["Telugu","tel"]
+  ],
+  audiolang_titles:function(){
+    if ('audiolang_ctitle' in _API){
+      return _API.audiolang_ctitle;
+    }
+    _API.audiolang_ctitle=[];
+    for (var i=0;i<_API.audiolang.length;i++){
+      _API.audiolang_ctitle.push(_API.audiolang[i][0]);
+    }
+    return _API.audiolang_ctitle;
+  },
+  audiolang_getindex:function(id){
+    if (!id){
+      return 0;
+    }
+    for (var i=0;i<_API.audiolang.length;i++){
+      if (_API.audiolang[i][1]==id){
+        return i;
+      }
+    }
+    return 0;
+  },
+  audiolang_getname:function(id){
+    return _API.audiolang[_API.audiolang_getindex(id)][0];
+  },
+
   /*** TRANSLATE LANGUAGES ***/
   tlangs:[
     ["Hardsub","hard"],
@@ -5367,6 +5420,7 @@ const pb={
     server:0,
     scale:0,
     lang:'',
+    alang:'',
     ccstyle:0,
     bgimg:{},
     quality:0,
@@ -5430,6 +5484,7 @@ const pb={
         
         
         pb.cfg_data.lang=('lang' in j)?j.lang:'';
+        pb.cfg_data.alang=('alang' in j)?j.alang:'';
         _API.setStreamType(0,0);
 
         pb.cfg_data.server=0;
@@ -5567,6 +5622,7 @@ const pb={
     
     pb.cfg_data.scale=0;
     pb.cfg_data.lang='';
+    pb.cfg_data.alang='';
     pb.cfg_data.ccstyle=0;
     pb.cfg_data.bgimg={};
     pb.cfg_data.quality=0;
@@ -5742,6 +5798,9 @@ const pb={
       else if (key=='ccstyle'){
         el.lastElementChild.innerHTML=vtt.stylename(pb.cfg_data.ccstyle);
       }
+      else if (key=='alang'){
+        el.lastElementChild.innerHTML=_API.audiolang_getname(pb.cfg_data.alang);
+      }
       else if (key=='bgimg'){
         el.lastElementChild.innerHTML=pb.cfg_data.bgimg.title?pb.cfg_data.bgimg.title:"No Wallpaper";
       }
@@ -5755,15 +5814,15 @@ const pb={
             el.lastElementChild.innerHTML="Auto "+__VIDRESH+"p";
             vr=toInt(__VIDRESH);
           }
-          else if (_ISELECTRON){
+          else /* if (_ISELECTRON) */ {
             el.lastElementChild.innerHTML=(pb.cfgquality_name[pb.cfg_data.quality]+" "+
               (__VIDRESH?__VIDRESH+"p":"")).trim();
             vr=__VIDRESH;
           }
-          else{
-            el.lastElementChild.innerHTML=pb.sel_quality;
-            vr=toInt(pb.sel_quality);
-          }
+          // else{
+          //   el.lastElementChild.innerHTML=pb.sel_quality;
+          //   vr=toInt(pb.sel_quality);
+          // }
           if (vr==0){
             ico='hd';
           }
@@ -5972,6 +6031,7 @@ const pb={
       pb.cfg_update_el('streamselect');
 
       pb.cfg_update_el('lang');
+      pb.cfg_update_el('alang');
 
       pb.cfg_update_el('cachesz');
       pb.cfg_update_el('useimgcdn');
@@ -6476,7 +6536,7 @@ const pb={
     ];
 
     /* Auto Quality */
-    if (_ISELECTRON || (!__SD6 && pb.cfg_data.quality==0)){
+    if (true || _ISELECTRON || (!__SD6 && pb.cfg_data.quality==0)){
       console.log("NO-PARSE AUTO M3u8 QUALITY="+pb.cfg_data.quality);
       pb.init_video_player_url(src);
       pb.cfg_update_el("quality");
@@ -6784,6 +6844,9 @@ const pb={
     pb.reinit_video_to=setTimeout(function(){
       if (isquality&&_ISELECTRON){
         _API.videoPost('quality',pb.cfg_data.quality);
+      }
+      else if (isquality){
+        _API.videoTrackQuality(pb.cfg_data.quality,true);
       }
       else{
         pb.startpos_val=pb.vid_stat.pos;
@@ -7736,6 +7799,22 @@ const pb={
       }
       else if (key=="ccstyle"){
         vtt.changestyle();
+      }
+      else if (key=="alang"){
+        listOrder.showList(
+          "Audio Language",
+          _API.audiolang_titles(),
+          _API.audiolang_getindex(pb.cfg_data.alang),
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.alang=_API.audiolang[chval][1];
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+              _API.videoAudioTrack(pb.cfg_data.alang,pb.state?true:false);
+              //-- Should Set Audio Language
+            }
+          }
+        );
       }
       else if (key=="bgimg"){
         // pb.state=0;
@@ -9430,6 +9509,9 @@ const pb={
       ratingSystem.blockMessage();
       return;
     }
+
+    _API.videoAudioTrack(pb.cfg_data.alang,false);
+    _API.videoTrackQuality(pb.cfg_data.quality,false);
 
     pb.init_video();
 
@@ -12603,6 +12685,14 @@ const home={
           },
           home.settings.slang.P,
           '<c class="check">check</c><c>speech_to_text</c> Prefer DUB Stream'
+        );
+        home.settings.tools._s_alang=$n(
+          'div','',{
+            action:'*alang',
+            s_desc:"Select prefered stream audio language (only for supported source only)"
+          },
+          home.settings.slang.P,
+          '<c>text_to_speech</c> Audio Language<span class="value"></span>'
         );
 
         /* Video */
