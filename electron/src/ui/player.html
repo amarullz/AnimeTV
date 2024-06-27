@@ -117,7 +117,9 @@ video{
 
     const vidVars={
       res:'',
-      quality:0
+      quality:0,
+      lang:'',
+      langavail:'-'
     };
 
     /* Compose Timing */
@@ -154,6 +156,52 @@ video{
         }
         vidVars.res='';
       }
+    }
+    function setlang(v,nm){
+      if (!nm){
+        nm=0;
+      }
+      else if (nm>600){
+        return;
+      }
+      try{
+        var l=video.audioTracks_.length;
+        var lsel=[''];
+        if (l>1){
+          var st=false;
+          var vl=v.toLowerCase();
+          for (var i=1;i<l;i++){
+            try{
+              var lb=video.audioTracks_[i].label;
+              if (!lb) lb='';
+              else{
+                lb=lb.toLowerCase().substring(0,3);
+              }
+              if (lb==vl){
+                st=true;
+                video.audioTracks_[i].enabled=true;
+                console.log("PLAYER LANG SELECT: "+i+" -> "+lb);
+              }
+              lsel.push(lb);
+            }catch(ee){
+              console.log("ERR PLAYER: "+ee);
+            }
+          }
+          if (!st){
+            video.audioTracks_[0].enabled=true;
+            console.log("PLAYER LANG SELECT: Default");
+          }
+        }
+        else if (l==0){
+          setTimeout(function(){ setlang(vidVars.lang,++nm); },100+nm);
+          return;
+        }
+        var lav=lsel.join(',');
+        if (vidVars.langavail!=lav){
+          console.log("PLAYER LANG AVAIL: "+(l)+" = "+lav);
+          $p('langavail',lav);
+        }
+      }catch(e1){}
     }
     window._sq=setquality;
     var need_send_play=false;
@@ -214,6 +262,10 @@ video{
       else if (c=='quality'){
         vidVars.quality=v;
         setquality(v);
+      }
+      else if (c=='audiolang'){
+        vidVars.lang=v;
+        setlang(v);
       }
       else if (c=='pause'){
         video.pause();

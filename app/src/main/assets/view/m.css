@@ -1698,7 +1698,7 @@ c.loader {
 }
 
 #pb_settings.pb_menu {
-  width: 60vw;
+  width: 80vw;
   margin-top: .5vw;
   font-size: var(--fs-10vw);
   opacity: 0;

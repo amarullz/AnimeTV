@@ -665,10 +665,16 @@ import javax.crypto.spec.SecretKeySpec;
       Log.d(_TAG, "[TRACK] Quality Selected: Auto - NORES");
       videoTrackManager.clearSelectedTracks(RendererType.VIDEO);
     }
-//    Log.d(_TAG,"[TRACK] Selected Quality = "+videoSelectedQuality+" / "+videoAudioLanguage);
     Log.d(_TAG, "[TRACK] Avail-Langs = "+availLang);
-//    Log.d(_TAG,
-//        "[TRACK] Vid Selected Track = "+videoPlayer.getSelectedTrackIndex(RendererType.VIDEO,0));
+    final String availLangVal=availLang;
+    activity.runOnUiThread(() -> {
+      if (webView != null) {
+        webView.evaluateJavascript(
+            "try{__VIDLANGAVAIL(\"" + availLangVal + "\");}catch(e){}",
+            null
+        );
+      }
+    });
   }
 
   @SuppressLint("UnsafeOptInUsageError")
@@ -1410,12 +1416,6 @@ import javax.crypto.spec.SecretKeySpec;
           }
         });
       }
-//      if (id==-1){
-//        videoTrackManager.clearSelectedTracks(RendererType.VIDEO);
-//      }
-//      else {
-//        videoPlayer.setSelectedTrack(RendererType.VIDEO, 0, id);
-//      }
     }
 
     @JavascriptInterface

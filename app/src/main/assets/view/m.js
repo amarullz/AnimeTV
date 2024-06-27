@@ -43,7 +43,13 @@ window.__INSETCHANGE=function(s,n){
   __SYSHSTAT=s;
   document.documentElement.style.setProperty("--sys-nav-height", n+"px");
   document.documentElement.style.setProperty("--sys-stat-height", s+"px");
-  console.log("INSET: "+s+" / "+n);
+};
+var __VIDLANGS='';
+window.__VIDLANGAVAIL=function(s){
+  __VIDLANGS=s;
+  try{
+    pb.cfg_update_el("alang");
+  }catch(e){}
 };
 requestAnimationFrame(function(){
   try{
@@ -2443,10 +2449,12 @@ const _API={
               }
               else if (pd.vcmd=='initializing'){
                 _API.videoPost('quality',pb.cfg_data.quality);
+                _API.videoPost('audiolang',pb.cfg_data.alang);
                 return;
               }
               else if (pd.vcmd=='ready'){
                 _API.videoPost('quality',pb.cfg_data.quality);
+                _API.videoPost('audiolang',pb.cfg_data.alang);
               }
               else if (pd.vcmd=='resolution'){
                 try{
@@ -2454,6 +2462,9 @@ const _API={
                   __VIDRESCB(_API.videoElectronVars.resolution[0],_API.videoElectronVars.resolution[1]);
                   console.warn("GOT RESOLUTION: "+pd.val);
                 }catch(e){}
+              }
+              else if (pd.vcmd=='langavail'){
+                window.__VIDLANGAVAIL(pd.val);
               }
               pb.vid_event(pd.vcmd,pd.val);
             }
@@ -2476,10 +2487,14 @@ const _API={
           __VIDRESH=0;
         }
       }catch(e){};
-      pb.vid.contentWindow.postMessage(JSON.stringify({
-        vcmd:c,
-        val:v
-      }),'*');
+      if (pb.vid){
+        try{
+          pb.vid.contentWindow.postMessage(JSON.stringify({
+            vcmd:c,
+            val:v
+          }),'*');
+        }catch(e){};
+      }
     }
   },
   videoSetUrl:function(src){
@@ -2900,7 +2915,10 @@ const _API={
   },
 
   videoAudioTrack:function(id, update){
-    if ('videoAudioTrack' in _JSAPI){
+    if (_ISELECTRON){
+      _API.videoPost('audiolang',id);
+    }
+    else if ('videoAudioTrack' in _JSAPI){
       _JSAPI.videoAudioTrack(id, update?true:false);
     }
   },
@@ -2927,15 +2945,26 @@ const _API={
     ["Tamil","tam"],
     ["Telugu","tel"]
   ],
-  audiolang_titles:function(){
-    if ('audiolang_ctitle' in _API){
-      return _API.audiolang_ctitle;
-    }
-    _API.audiolang_ctitle=[];
+  audiolang_titles:function(withavail){
+    var avl=__VIDLANGS.split(',');
+    var olang=[];
     for (var i=0;i<_API.audiolang.length;i++){
-      _API.audiolang_ctitle.push(_API.audiolang[i][0]);
+      var txp=_API.audiolang[i][0];
+      var tx=special(txp);
+      if (withavail){
+        if (!txp){
+          txp='';
+        }
+        else{
+          txp=txp.toLowerCase().substring(0,3);
+        }
+        if (i==0 || avl.indexOf(txp)>-1){
+          tx+='<span class="datetime">Available</span>';
+        }
+      }
+      olang.push(tx);
     }
-    return _API.audiolang_ctitle;
+    return olang;
   },
   audiolang_getindex:function(id){
     if (!id){
@@ -5799,7 +5828,19 @@ const pb={
         el.lastElementChild.innerHTML=vtt.stylename(pb.cfg_data.ccstyle);
       }
       else if (key=='alang'){
-        el.lastElementChild.innerHTML=_API.audiolang_getname(pb.cfg_data.alang);
+        if (root!=pb.pb_settings){
+          el.lastElementChild.innerHTML=_API.audiolang_getname(pb.cfg_data.alang);
+        }
+        else{
+          var avl=__VIDLANGS.split(',');
+          var vsel=avl.indexOf(pb.cfg_data.alang);
+          if (vsel>-1 && pb.cfg_data.alang){
+            el.lastElementChild.innerHTML=_API.audiolang_getname(pb.cfg_data.alang);
+          }
+          else{
+            el.lastElementChild.innerHTML=_API.audiolang_getname('');
+          }
+        }
       }
       else if (key=='bgimg'){
         el.lastElementChild.innerHTML=pb.cfg_data.bgimg.title?pb.cfg_data.bgimg.title:"No Wallpaper";
@@ -6122,6 +6163,7 @@ const pb={
     pb.vid=null;
     pb.vid_reset_stat();
     pb.pb_vid.innerHTML='';
+    __VIDLANGS='';
     
     _API.setVideo('');
     _JSAPI.videoSetMeta("","","");
@@ -7803,7 +7845,7 @@ const pb={
       else if (key=="alang"){
         listOrder.showList(
           "Audio Language",
-          _API.audiolang_titles(),
+          _API.audiolang_titles(pb.state?true:false),
           _API.audiolang_getindex(pb.cfg_data.alang),
           function(chval){
             if (chval!=null){
@@ -7813,7 +7855,8 @@ const pb={
               _API.videoAudioTrack(pb.cfg_data.alang,pb.state?true:false);
               //-- Should Set Audio Language
             }
-          }
+          },
+          true
         );
       }
       else if (key=="bgimg"){
@@ -9098,6 +9141,8 @@ const pb={
       // }
       pb.pb_settings._s_streamselect=$n('div','',{action:'*streamselect'},pb.pb_settings.P,'<c>subtitles</c>');
     }
+
+    pb.pb_settings._s_alang=$n('div','',{action:'*alang'},pb.pb_settings.P,'<c>text_to_speech</c> <span>Original</span>');
     
     /*
     sub, softsub, dub
@@ -9105,7 +9150,7 @@ const pb={
 
 
     pb.menu_select(pb.pb_settings,pb.pb_settings.P.firstElementChild);
-    pb.pb_settings._midx=2;
+    pb.pb_settings._midx=1.5;
     pb.cfg_update_el();
     _API.videoScale(pb.cfg_data.scale);
   },
