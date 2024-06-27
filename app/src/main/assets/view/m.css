@@ -4568,6 +4568,11 @@ c.loader {
   font-size:var(--fs-8vw);
   color:#888;
 }
+#listorder .settings_group p div span.alangavail{
+  float:right;
+  font-size:var(--fs-10vw);
+  color:var(--accent-1);
+}
 
 #listorder .listorder_title.profile{
   text-align: left;

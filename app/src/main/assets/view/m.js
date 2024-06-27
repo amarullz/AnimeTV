@@ -2959,7 +2959,7 @@ const _API={
           txp=txp.toLowerCase().substring(0,3);
         }
         if (i==0 || avl.indexOf(txp)>-1){
-          tx+='<span class="datetime">Available</span>';
+          tx+='<span class="alangavail"><c>check</c> Available</span>';
         }
       }
       olang.push(tx);
