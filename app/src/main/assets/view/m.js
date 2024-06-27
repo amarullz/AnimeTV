@@ -2902,7 +2902,7 @@ const _API={
   /*** TRANSLATE LANGUAGES ***/
   tlangs:[
     ["Hardsub","hard"],
-    ["Dub","dub"],
+    // ["Dub","dub"],
     ["Disable Subtitle","nosub"],
     ["English","en"],
     /* sources */
@@ -3597,7 +3597,7 @@ const _API={
   currentStreamTypeValue:0,
   streamTypeById:function(l){
     t=1;
-    if (l=='dub'){
+    if (l=='dub' || pb.cfg_data.dubaudio){
       t=2;
     }
     else if (l=='hard' || l==''){
@@ -5831,8 +5831,9 @@ const pb={
         //   pb.cfg_setactive(el,!__SD3);
         // }
         else if (key=='dubaudio'){
-          pb.cfg_setactive(el,__SD3);
+          // pb.cfg_setactive(el,__SD3);
         }
+
         /* Set Values */
         if (key=='server'){
           el.lastElementChild.innerHTML=pb.cfgserver_name[pb.cfg_data[key]];
@@ -12595,6 +12596,14 @@ const home={
           home.settings.slang.P,
           '<c>brand_family</c> Subtitle Style <span class="value">Style 1</span>'
         );
+        home.settings.tools._s_dubaudio=$n(
+          'div','',{
+            action:'*dubaudio',
+            s_desc:"Always use DUB stream when available"
+          },
+          home.settings.slang.P,
+          '<c class="check">check</c><c>speech_to_text</c> Prefer DUB Stream'
+        );
 
         /* Video */
         home.settings.tools._s_autonext=$n(
@@ -12657,14 +12666,6 @@ const home={
           },
           home.settings.video.P,
           '<c class="check">clear</c><c>cloud_download</c> Preload Next Episode'
-        );
-        home.settings.tools._s_dubaudio=$n(
-          'div','',{
-            action:'*dubaudio',
-            s_desc:"Use dub with subtitle on source 3/4 if available. WARNING: Subtitle may out of sync!"
-          },
-          home.settings.video.P,
-          '<c class="check">check</c><c>speech_to_text</c> Use DUB Stream'
         );
         
 

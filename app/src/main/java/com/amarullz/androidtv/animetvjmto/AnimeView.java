@@ -56,15 +56,23 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
+import androidx.media3.exoplayer.source.LoadEventInfo;
+import androidx.media3.exoplayer.source.MediaLoadData;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.exoplayer.source.TrackGroupArray;
 
+import com.devbrackets.android.exomedia.core.renderer.RendererType;
 import com.devbrackets.android.exomedia.core.source.data.DataSourceFactoryProvider;
 import com.devbrackets.android.exomedia.core.video.scale.MatrixManager;
 import com.devbrackets.android.exomedia.core.video.scale.ScaleType;
@@ -559,6 +567,42 @@ import javax.crypto.spec.SecretKeySpec;
     ));
   }
 
+  public void initVideoTracks(){
+    if (videoView==null){
+      return;
+    }
+
+    Map<RendererType, TrackGroupArray> tracks =
+        videoPlayer.getAvailableTracks();
+    Log.d(_TAG, "[TRACK] tracks are " + tracks);
+    if (tracks==null){
+      return;
+    }
+    for (RendererType rendererType : tracks.keySet()) {
+      TrackGroupArray trackGroupArray = tracks.get(rendererType);
+      Log.d(_TAG, "[TRACK] renderer is " + rendererType);
+      Log.d(_TAG, "[TRACK] length is " + trackGroupArray.length);
+
+      for (int i = 0; i < trackGroupArray.length; i++) {
+        TrackGroup tr=trackGroupArray.get(i);
+        if (tr.type== C.TRACK_TYPE_AUDIO) {
+          Format fr=tr.getFormat(0);
+          Log.d(_TAG,
+              "[TRACK] AUDIO " + i + " = " + tr.length+" / "+fr.label+" => "
+                  +fr.language+" / "+fr.id);
+        }
+        else if (tr.type== C.TRACK_TYPE_VIDEO) {
+          for (int j=0;j<tr.length;j++){
+            Format fr=tr.getFormat(j);
+            Log.d(_TAG,
+                "[TRACK] VIDEO(" +i+ ", "+j+") = " + fr.bitrate +" / "+fr.height
+            );
+          }
+        }
+      }
+    }
+  }
+
   @SuppressLint("UnsafeOptInUsageError")
   public void initVideoView(){
     if (videoView!=null){
@@ -634,7 +678,6 @@ import javax.crypto.spec.SecretKeySpec;
       setVideoSize(videoSize.width,videoSize.height);
     });
 
-
     videoPlayer.addAnalyticsListener(new AnalyticsListener() {
       @Override
       public void onPlaybackStateChanged(EventTime eventTime, int state) {
@@ -642,6 +685,14 @@ import javax.crypto.spec.SecretKeySpec;
         Log.d(_TAG, "ANL: onPlaybackStateChanged="+state);
         me().mediaSetDuration(videoPlayer.getDuration());
         me().mediaSetPosition(eventTime.currentPlaybackPositionMs);
+      }
+
+      @Override
+      public void onRenderedFirstFrame(EventTime eventTime, Object output,
+                                       long renderTimeMs) {
+        AnalyticsListener.super.onRenderedFirstFrame(eventTime, output,
+            renderTimeMs);
+        initVideoTracks();
       }
 
       @Override
@@ -658,6 +709,8 @@ import javax.crypto.spec.SecretKeySpec;
         me().mediaSetSpeed(playbackParameters.speed);
         me().mediaSetPosition(eventTime.currentPlaybackPositionMs);
       }
+
+
     });
   }
 
@@ -1259,6 +1312,11 @@ import javax.crypto.spec.SecretKeySpec;
     @JavascriptInterface
     public void videoTracks() {
       Log.d(_TAG,"Tracks = "+videoPlayer.getAvailableTracks());
+    }
+
+    @JavascriptInterface
+    public void videoAudioTrack(int id) {
+      videoPlayer.setSelectedTrack(RendererType.AUDIO, id, 0);
     }
 
     @JavascriptInterface
