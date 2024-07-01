@@ -29,7 +29,7 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 - **Nightly Release :** [https://amarullz.com/animetv-nightly/](https://amarullz.com/animetv-nightly/)
 - **Development Discussion :** [https://amarullz.com/animetv-discord/](https://amarullz.com/animetv-discord/)
 - **More Detail Information :** [https://amarullz.com/animetv/](https://amarullz.com/animetv/)
-- **Join Discussion on Discord :**  [https://discord.gg/VGtGtRedGR](https://discord.gg/VGtGtRedGR)
+- **Join Discussion on Discord :**  [https://discord.com/invite/y5tVXynE](https://discord.com/invite/y5tVXynE)
 
 
 ## Features
