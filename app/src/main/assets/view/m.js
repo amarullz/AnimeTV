@@ -2004,7 +2004,7 @@ var __IMGCDNL=toInt(_JSAPI.storeGet("imgcdnl","1"));
 
 /* proxy image */
 function $imgnl(src, maxw){
-  if (__IMGCDNL!=1){
+  if (__IMGCDNL!=1 || src.indexOf("anilist.co")){
     return src;
   }
   return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w='+maxw+'&we';
@@ -2593,6 +2593,9 @@ const _API={
   bgimg_update:function(){
     if (pb.cfg_data.bgimg.src){
       var main_url = _API.wallpaper_base+pb.cfg_data.bgimg.src;
+      if (pb.cfg_data.bgimg.src.startsWith("https://")){
+        main_url=pb.cfg_data.bgimg.src;
+      }
       $('animebg').style.backgroundImage='url('+$imgnl(main_url, screen.width>screen.height?screen.width:screen.height)+')';
       $('animebg').className='';
     }
@@ -7866,34 +7869,59 @@ const pb={
           listOrder.showImgPicker(
             "Select Wallpaper",
             function(page,cb){
-              _API.wallpaper_list(function(){
-                requestAnimationFrame(function(){
-                  var o={
-                    havenext:false,
-                    data:[{
-                      src:"",
-                      title:"No Wallpaper",
-                      rsrc:""
-                    }]
-                  };
-                  var have_active=false;
-                  for (var i=0;i<_API.wallpaper_data.length;i++){
-                    var vo={
-                      src:_API.wallpaper_base+"thumbs/"+_API.wallpaper_data[i].src,
-                      title:_API.wallpaper_data[i].title,
-                      rsrc:_API.wallpaper_data[i].src
+              var n=2;
+              var anilistRes=null;
+              function start_list(){
+                if (n<1){
+                  requestAnimationFrame(function(){
+                    var o={
+                      havenext:false,
+                      data:[{
+                        src:"",
+                        title:"No Wallpaper",
+                        rsrc:""
+                      }]
                     };
-                    if (pb.cfg_data.bgimg.src && pb.cfg_data.bgimg.src==_API.wallpaper_data[i].src){
-                      vo.active=true;
-                      have_active=true;
+                    var have_active=false;
+                    if (anilistRes!=null){
+                      var vo={
+                        src:anilistRes,
+                        title:"AniList Banner",
+                        rsrc:anilistRes
+                      };
+                      if (pb.cfg_data.bgimg.src && pb.cfg_data.bgimg.src==vo.src){
+                        vo.active=true;
+                        have_active=true;
+                      }
+                      o.data.push(vo);
                     }
-                    o.data.push(vo);
-                  }
-                  if (!have_active){
-                    o.data[0].active=true;
-                  }
-                  cb(o);
-                });
+                    for (var i=0;i<_API.wallpaper_data.length;i++){
+                      var vo={
+                        src:_API.wallpaper_base+"thumbs/"+_API.wallpaper_data[i].src,
+                        title:_API.wallpaper_data[i].title,
+                        rsrc:_API.wallpaper_data[i].src
+                      };
+                      if (pb.cfg_data.bgimg.src && pb.cfg_data.bgimg.src==_API.wallpaper_data[i].src){
+                        vo.active=true;
+                        have_active=true;
+                      }
+                      o.data.push(vo);
+                    }
+                    if (!have_active){
+                      o.data[0].active=true;
+                    }
+                    cb(o);
+                  });
+                }
+              }
+              _API.wallpaper_list(function(){
+                n--;
+                start_list();
+              });
+              _MAL.getAlBanner(function(c){
+                anilistRes=c;
+                n--;
+                start_list();
               });
               return true;
             },
@@ -11931,7 +11959,7 @@ const home={
             anilist:null,
             mal:null
           };
-          n=3;
+          var n=3;
           function start_list(){
             if (n<1){
               requestAnimationFrame(function(){
@@ -15956,6 +15984,33 @@ const _MAL={
         });
         return;
       }
+    }
+    requestAnimationFrame(function(){
+      cb(null);
+    });
+  },
+  getAlBanner:function(cb){
+    if (_MAL.alauth){
+      _MAL.alreq(`query($usr: String){
+        User(name:$usr){
+          bannerImage
+        }
+      }`,{
+        "usr":_MAL.alauth.user
+      },function(v){
+        if (v){
+          try{
+            if (v.data.User.bannerImage){
+              try{
+                cb(v.data.User.bannerImage);
+              }catch(e2){}
+              return;
+            }
+          }catch(e){}
+        }
+        cb(null);
+      }, true);
+      return;
     }
     requestAnimationFrame(function(){
       cb(null);

@@ -29,7 +29,7 @@ function clk() {
 /* proxy image */
 var __IMGCDNL=_JSAPI.storeGet("imgcdnl","1");
 function $imgnl(src, maxw){
-    if (__IMGCDNL!="1"){
+    if (__IMGCDNL!="1" || src.indexOf("anilist.co")){
         return src;
     }
     return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w='+maxw+'&we';
@@ -351,7 +351,11 @@ const login = {
                             if ('src' in j.bgimg){
                                 u.bg=j.bgimg.src;
                                 if (u.bg){
-                                    u.wp=$n('img', 'usr_wallpaper hide', {src:$imgnl(login.wallpaper_base+u.bg,screen.width>screen.height?screen.width:screen.height)}, login.h, '');
+                                    var bgurl = login.wallpaper_base+u.bg;
+                                    if (u.bg.startsWith("https://")){
+                                        bgurl=u.bg;
+                                    }
+                                    u.wp=$n('img', 'usr_wallpaper hide', {src:$imgnl(bgurl,screen.width>screen.height?screen.width:screen.height)}, login.h, '');
                                     u.wp.onload=function(){
                                         this.classList.remove('hide');
                                     };
