@@ -16191,7 +16191,7 @@ const _MAL={
   },
   set_list:function(animeid, stat, cb){
     var uri='/v2/anime/'+animeid+'/my_list_status';
-    _MAL.req(uri,"PUT",'cb,status='+enc(stat));
+    _MAL.req(uri,"PUT",cb,'status='+enc(stat));
   },
   login:function(isanilist,logintype){
     if (_MAL.token && !isanilist){
