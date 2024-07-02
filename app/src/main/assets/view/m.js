@@ -5044,6 +5044,9 @@ const bannerCacher={
   enable:false,
   key:'e4reefz8',
   base:'https://keyvalue.immanuel.co/api/KeyVal',
+
+  neo_auth:'Basic bmVvNGo6cGp3LXFoZi1IY05uV1loOEQyR0w3NVlFSDVzUktJZFVoSTlTbnozY19JSQ==',
+
   cache:{},
   get:function(id,cb){
     if (!bannerCacher.enable){
@@ -12992,14 +12995,14 @@ const home={
           '<c class="check">clear</c><c>playlist_add_check_circle</c> AniList Slideshow'
         );
 
-        home.settings.tools._s_alisthqbanner=$n(
-          'div','',{
-            action:'*alisthqbanner',
-            s_desc:"Get higher quality AniList banner image for slideshow and more info"
-          },
-          home.settings.more.P,
-          '<c class="check">clear</c><c>high_res</c> HiRes AniList Banner'
-        );
+        // home.settings.tools._s_alisthqbanner=$n(
+        //   'div','',{
+        //     action:'*alisthqbanner',
+        //     s_desc:"Get higher quality AniList banner image for slideshow and more info"
+        //   },
+        //   home.settings.more.P,
+        //   '<c class="check">clear</c><c>high_res</c> HiRes AniList Banner'
+        // );
 
         home.settings.tools._s_trailer=$n(
           'div','',{
