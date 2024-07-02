@@ -5041,10 +5041,17 @@ const vtt={
 };
 /****************************** BANNER CACHE ******************************/
 const bannerCacher={
+  enable:false,
   key:'e4reefz8',
   base:'https://keyvalue.immanuel.co/api/KeyVal',
   cache:{},
   get:function(id,cb){
+    if (!bannerCacher.enable){
+      requestAnimationFrame(function(){
+        cb(null);
+      });
+      return;
+    }
     var vkey='c'+id;
     if (vkey in bannerCacher.cache){
       requestAnimationFrame(function(){
@@ -5068,6 +5075,12 @@ const bannerCacher={
     });
   },
   set:function(id,val,cb){
+    if (!bannerCacher.enable){
+      requestAnimationFrame(function(){
+        cb(null);
+      });
+      return;
+    }
     var vkey='c'+id;
     if (bannerCacher.cache[vkey]){
       requestAnimationFrame(function(){
@@ -10895,7 +10908,7 @@ const home={
     pb.menu_init(home.home_slide);
 
     function loadBannerImage(me, id, fallback){
-      if (!pb.cfg_data.alisthqbanner){
+      if (!pb.cfg_data.alisthqbanner || !bannerCacher.enable){
         me.onload=function(){
           this.classList.add('loaded');
         };
@@ -16970,7 +16983,7 @@ const _MAL={
       }
       var banner_div=hl._banner=$n('div','alsd_banner',null,hl._content,'');
       hl._banner.style.display='none';
-      if (!pb.cfg_data.alisthqbanner){
+      if (!pb.cfg_data.alisthqbanner || !bannerCacher.enable){
         if (d.bannerImage){
           banner_div.style.backgroundImage='url('+$img(d.bannerImage)+')';
           banner_div.style.display='';
