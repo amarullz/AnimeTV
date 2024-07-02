@@ -8173,6 +8173,13 @@ const pb={
           pb.cfg_data[key]=!pb.cfg_data[key];
           pb.cfg_update_el(key);
           pb.cfg_save();
+
+          /* check actions */
+          if (key=='dubaudio'){
+            if (pb.state){
+              pb.reloadPlayback(1000);
+            }
+          }
         }
       }
     }
