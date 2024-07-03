@@ -101,7 +101,7 @@ window.onload=function(){
           }
           if ('play' in dt){
             if (dt.play[1]>0){
-              var val=Math.floor((dt.play[0] * 100) / dt.play[1]);
+              var val=parseFloat(((dt.play[0] * 100.0) / dt.play[1]).toFixed(2));
               if (val>0 && val<=100){
                 od.e['e'+dt.ep]=val;
               }
