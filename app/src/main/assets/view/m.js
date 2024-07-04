@@ -5049,8 +5049,15 @@ const bannerCacher={
   isaniapi:true,
 
   cache:{},
+  apiCache:{},
   aniApi:function(id,cb){
     var vkey='c'+id;
+    if (vkey in bannerCacher.apiCache){
+      requestAnimationFrame(function(){
+        cb(bannerCacher.apiCache[vkey]);
+      });
+      return;
+    }
     $ap(bannerCacher.apiani+id,function(r){
       var o=null;
       if (r.ok){
@@ -5060,28 +5067,30 @@ const bannerCacher={
           o=null;
         }
       }
-      bannerCacher.cache[vkey]=o;
+      bannerCacher.apiCache[vkey]=o;
       cb(o);
+    },
+    {
+      "Pragma": "max-age=604800",
+      "Cache-Control": "max-age=604800"
     });
+  },
+
+  aniApiGetImage:function(kdat, type){
+    if (kdat && ('images' in kdat)){
+      for (var i=0;i<kdat.images.length;i++){
+        if (kdat.images[i].coverType==type){
+          return kdat.images[i].url;
+        }
+      }
+    }
+    return null;
   },
 
   aniApiGet:function(id,cb){
     var vkey='c'+id;
-    $ap(bannerCacher.apiani+id,function(r){
-      var o=null;
-      if (r.ok){
-        try{
-          var kdat=JSON.parse(r.responseText);
-          if (kdat.images){
-            for (var i=0;i<kdat.images.length;i++){
-              if (kdat.images[i].coverType=="Fanart"){
-                o=kdat.images[i].url;
-                break;
-              }
-            }
-          }
-        }catch(e){}
-      }
+    bannerCacher.aniApi(id,function(kdat){
+      var o=bannerCacher.aniApiGetImage(kdat,'Fanart');
       bannerCacher.cache[vkey]=o;
       cb(o);
     });
