@@ -5041,13 +5041,52 @@ const vtt={
 };
 /****************************** BANNER CACHE ******************************/
 const bannerCacher={
-  enable:false,
+  enable:true,
   key:'e4reefz8',
   base:'https://keyvalue.immanuel.co/api/KeyVal',
 
-  neo_auth:'Basic bmVvNGo6cGp3LXFoZi1IY05uV1loOEQyR0w3NVlFSDVzUktJZFVoSTlTbnozY19JSQ==',
+  apiani:'https://api.ani.zip/mappings?anilist_id=',
+  isaniapi:true,
 
   cache:{},
+  aniApi:function(id,cb){
+    var vkey='c'+id;
+    $ap(bannerCacher.apiani+id,function(r){
+      var o=null;
+      if (r.ok){
+        try{
+          o=JSON.parse(r.responseText);
+        }catch(e){
+          o=null;
+        }
+      }
+      bannerCacher.cache[vkey]=o;
+      cb(o);
+    });
+  },
+
+  aniApiGet:function(id,cb){
+    var vkey='c'+id;
+    $ap(bannerCacher.apiani+id,function(r){
+      var o=null;
+      if (r.ok){
+        try{
+          var kdat=JSON.parse(r.responseText);
+          if (kdat.images){
+            for (var i=0;i<kdat.images.length;i++){
+              if (kdat.images[i].coverType=="Fanart"){
+                o=kdat.images[i].url;
+                break;
+              }
+            }
+          }
+        }catch(e){}
+      }
+      bannerCacher.cache[vkey]=o;
+      cb(o);
+    });
+  },
+
   get:function(id,cb){
     if (!bannerCacher.enable){
       requestAnimationFrame(function(){
@@ -5055,6 +5094,7 @@ const bannerCacher={
       });
       return;
     }
+    
     var vkey='c'+id;
     if (vkey in bannerCacher.cache){
       requestAnimationFrame(function(){
@@ -5062,6 +5102,12 @@ const bannerCacher={
       });
       return;
     }
+
+    if (bannerCacher.isaniapi){
+      bannerCacher.aniApiGet(id,cb);
+      return;
+    }
+
     $ap(bannerCacher.base+"/GetValue/"+bannerCacher.key+"/"+id,function(r){
       var o=null;
       if (r.ok){
@@ -9409,11 +9455,10 @@ const pb={
   },
   MAL_RELREC:function(id){
     /* Send Thumbnails to server cache */
+    /*
     if (__SD<=2){
       if (pb.data.banner){
-        // console.warn("Banner Checking("+id+")");
         bannerCacher.get(id+'',function(b1){
-          // console.warn("Banner Get("+id+"): "+b1);
           if (!b1 || (b1!=pb.data.banner)){
             bannerCacher.set(id+'',
               pb.data.banner,
@@ -9425,6 +9470,7 @@ const pb={
         });
       }
     }
+    */
 
     if (!id || (!__SD5 && !__SD6)){
       return;
@@ -12995,14 +13041,16 @@ const home={
           '<c class="check">clear</c><c>playlist_add_check_circle</c> AniList Slideshow'
         );
 
-        // home.settings.tools._s_alisthqbanner=$n(
-        //   'div','',{
-        //     action:'*alisthqbanner',
-        //     s_desc:"Get higher quality AniList banner image for slideshow and more info"
-        //   },
-        //   home.settings.more.P,
-        //   '<c class="check">clear</c><c>high_res</c> HiRes AniList Banner'
-        // );
+        if (bannerCacher.enable){
+          home.settings.tools._s_alisthqbanner=$n(
+            'div','',{
+              action:'*alisthqbanner',
+              s_desc:"Get higher quality AniList banner image for slideshow and more info"
+            },
+            home.settings.more.P,
+            '<c class="check">clear</c><c>high_res</c> HiRes AniList Banner'
+          );
+        }
 
         home.settings.tools._s_trailer=$n(
           'div','',{
