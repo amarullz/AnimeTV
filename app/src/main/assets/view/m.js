@@ -12597,12 +12597,16 @@ const home={
       if (!seldomain){
         seldomain=__SOURCE_DOMAINS[i][0];
       }
-      if (!ratingSystem.allSource){
-        if (i==4){
-          /* Parental will not work on source 5 */
-          continue;
-        }
+      if (i==4){
+        /* Parental will not work on source 5 */
+        continue;
       }
+      // if (!ratingSystem.allSource){
+      //   if (i==4){
+      //     /* Parental will not work on source 5 */
+      //     continue;
+      //   }
+      // }
       var hl=$n('div',active?'sidebar_item checked':'sidebar_item',null,sources,'');
       hl.onclick=home.sidebar.itemclick;
       hl._action='source';
