@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 34
         versionCode 524
-        versionName "5.2.6-Nightly"
+        versionName "5.2.7-Nightly"
 
 
         // Automatic Build Version
