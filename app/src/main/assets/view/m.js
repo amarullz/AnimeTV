@@ -11046,10 +11046,11 @@ const home={
   home_anilist_load:function(){
     home.home_onload=1;
     home.home_slide.setAttribute('list-title','AniList Trending');
-    var addj=' countryOfOrigin: "JP",';
-    if (pb.cfg_data.nonjapan){
-      addj='';
-    }
+    var addj='';
+    // ' countryOfOrigin: "JP",';
+    // if (pb.cfg_data.nonjapan){
+    //   addj='';
+    // }
     _MAL.alreq(`query ($page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -11090,7 +11091,7 @@ const home={
         }
       }
     }`,{
-      page:0,
+      page:1,
       perPage:10
     },function(v){
       if (v){
@@ -15641,7 +15642,7 @@ const _MAL={
       xhttp.setRequestHeader("Authorization", "Bearer "+_MAL.altoken);
     }
     xhttp.setRequestHeader("X-Org-Prox", "https://anilist.co");
-    xhttp.setRequestHeader("X-Ref-Prox", "https://anilist.co/");
+    xhttp.setRequestHeader("X-Ref-Prox", "https://anilist.co/graphiql");
     if (_ISELECTRON){
       xhttp.send(JSON.stringify({
         query: q,
@@ -15832,10 +15833,11 @@ const _MAL={
     });
   },
   allist_schedule:function(tm,page,cb){
-    var addj=' countryOfOrigin: "JP",';
-    if (pb.cfg_data.nonjapan){
-      addj='';
-    }
+    var addj=''
+    //  countryOfOrigin: "JP",';
+    // if (pb.cfg_data.nonjapan){
+    //   addj='';
+    // }
     _MAL.alreq(`query ($tm: Int, $page: Int, $perPage: Int){
       Page(page: $page, perPage: $perPage) {
         pageInfo {
@@ -16198,10 +16200,11 @@ const _MAL={
       blk='status:NOT_YET_RELEASED,startDate_greater:'+fd;
       sr='START_DATE';
     }
-    var addj=' countryOfOrigin: "JP",';
-    if (pb.cfg_data.nonjapan){
-      addj='';
-    }
+    var addj='';
+    //  countryOfOrigin: "JP",';
+    // if (pb.cfg_data.nonjapan){
+    //   addj='';
+    // }
     _MAL.alreq(`query ($page: Int, $perPage: Int){
       Page(page: $page, perPage: $perPage) {
         pageInfo {
