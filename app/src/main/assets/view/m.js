@@ -9105,6 +9105,7 @@ const pb={
         pb.ep_num='';
       if (d.title)
         pb.ep_title+='. '+(d.title.toUpperCase());
+      pb.pb_track_title.innerHTML=special(pb.ep_title);
     }
   },
 
@@ -9481,9 +9482,38 @@ const pb={
     }
     */
 
+    /* load ep images */
+    if (id){
+      bannerCacher.aniApi(id,function(r){
+        if ('episodes' in r){
+          var rep=r.episodes;
+          for (var i=0;i<pb.data.ep.length;i++){
+            var d=pb.data.ep[i];
+            if (d.ep in rep){
+              var rp=rep[d.ep];
+              if (!d.img && rp.image){
+                d.img=rp.image;
+              }
+              if (rp.title){
+                if (('en' in rp.title) && (rp.title['en'])){
+                  d.title=rp.title['en'];
+                }
+                else if ((!d.title) && ('x-jat' in rp.title) && (rp.title['x-jat'])){
+                  d.title=rp.title['x-jat'];
+                }
+              }
+            }
+          }
+          pb.init_episode(-1, 0);
+        }
+      });
+    }
+
     if (!id || (!__SD5 && !__SD6)){
       return;
     }
+
+    /* Fetch Related Anime */
     _MAL.allist_related(id,function(dm){
       if (dm && dm.n>0){
         try{
@@ -9652,6 +9682,11 @@ const pb={
         }
         track_popup();
       },1,10,true, true);
+    }
+    else if (!notrack){
+      if (pb.MAL.anilist && pb.MAL.anilist.id){
+        pb.MAL_RELREC(pb.MAL.anilist.id);
+      }
     }
   },
   init:function(){
