@@ -1223,12 +1223,14 @@ const wave={
             }
           }
           else if (st=='mp4upload'){
-            mp4upload=s;
-            data.servers[stid].push(
-              pb.serverobj('Mp4Upload',2)
-            );
-            if (pb.server_selected(3)==2){
-              load_s=s;
+            if (!_ISELECTRON){
+              mp4upload=s;
+              data.servers[stid].push(
+                pb.serverobj('Mp4Upload',2)
+              );
+              if (pb.server_selected(3)==2){
+                load_s=s;
+              }
             }
           }
           else if (st=='filemoon'){
@@ -2497,7 +2499,21 @@ const _API={
       }
     }
   },
-  videoSetUrl:function(src){
+  videoSetUrl:function(src_ori){
+    var src=src_ori;
+    if (src_ori){
+      if (pb.cfg_data && pb.cfg_data.hlsproxy){
+        if (
+          (src_ori.indexOf("#dash")==-1)
+          && (src_ori.indexOf("mp4upload.com")==-1)
+          && (src_ori.indexOf("netmagcdn.com")==-1)
+          && (src_ori.indexOf("vidco.pro")==-1)
+          && (src_ori.indexOf("#FILEMOON")==-1)){
+          src='https://m3u8.justchill.workers.dev/?url='+encodeURIComponent(src_ori);
+        }
+        console.warn("VIDEO_SET_URL = "+src);
+      }
+    }
     if (_ISELECTRON){
       console.warn("ELECTRON VIDEO SRC = "+src);
       try{
@@ -5534,6 +5550,7 @@ const pb={
     listprog:0,
     dubaudio:false,
     preloadep:true,
+    hlsproxy:false,
     homylist:false,
     clksound:true,
     maltrackdialog:0
@@ -5559,6 +5576,8 @@ const pb={
         
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
         pb.cfg_data.preloadep=('preloadep' in j)?(j.preloadep?true:false):true;
+        pb.cfg_data.hlsproxy=('hlsproxy' in j)?(j.hlsproxy?true:false):false;
+        
         pb.cfg_data.homylist=('homylist' in j)?(j.homylist?true:false):false;
         pb.cfg_data.clksound=('clksound' in j)?(j.clksound?true:false):true;
         
@@ -5692,6 +5711,7 @@ const pb={
     pb.cfg_data.jptitle=false;
     pb.cfg_data.progcache=true;
     pb.cfg_data.preloadep=true;
+    pb.cfg_data.hlsproxy=false;
     pb.cfg_data.homylist=false;
     pb.cfg_data.clksound=true;
     pb.cfg_data.maltrackdialog=0;
@@ -6095,7 +6115,9 @@ const pb={
       // pb.cfg_update_el('html5player');
       
       pb.cfg_update_el('skipfiller');
-      pb.cfg_update_el('preloadep'); 
+      pb.cfg_update_el('preloadep');
+      pb.cfg_update_el('hlsproxy'); 
+      
       pb.cfg_update_el('homylist');
       pb.cfg_update_el('clksound');
       pb.cfg_update_el('maltrackdialog');
@@ -13198,6 +13220,14 @@ const home={
             '<c class="check">clear</c><c>cleaning_bucket</c> Use Image CDN'
           );
         }
+        home.settings.tools._s_hlsproxy=$n(
+          'div','',{
+            action:'*hlsproxy',
+            s_desc:'Use hls streaming proxy if you have a problem with streaming'
+          },
+          home.settings.networks.P,
+          '<c class="check">clear</c><c>bolt</c> HLS Stream Proxy'
+        );
 
         
 
