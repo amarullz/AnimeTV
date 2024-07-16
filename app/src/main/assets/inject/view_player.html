@@ -92,13 +92,11 @@ window.addEventListener('message',function(e) {
     }
 });
 function jwgetdata(){
-    // console.log("ATVLOG jwpget data");
     var med=null;
     try{
         med=__JWP.getConfig().playlist[0];
     }catch(ee){}
-    if (med){
-        // console.log("ATVLOG jwpget has data");
+    if (med && med.sources && med.sources[0] && med.sources[0].file){
         var dat={
             result:{
                 sources:[
@@ -115,7 +113,6 @@ function jwgetdata(){
             });
         }
         window.__JWMEDIA=dat;
-        // console.log("ATVLOG Got Data: "+JSON.stringify(dat));
         $p('mediainfo',dat);
     }
     else{
@@ -166,20 +163,6 @@ function findjw(){
     setTimeout(findjw,200);
 }
 
-/*
-if (location.hash!='#NOPLAY'){
-    findjw();
-    try{
-        if (!$('player')){
-            parent.postMessage('player.error','*');
-        }
-    }catch(e){}
-}
-else{
-    __NOPLAY=true;
-    console.log("NOPLAY");
-}
-*/
 findjw();
 })();
 </script>
