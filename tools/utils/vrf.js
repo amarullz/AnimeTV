@@ -37,39 +37,43 @@ const VRF={
   },
   vrfEncrypt:function (t) {
     t = encodeURIComponent("".concat(t));
-    t = VRF.rc4("tGn6kIpVXBEUmqjD", t);
+    // VRF.rc4("tGn6kIpVXBEUmqjD", t); /* old enc key */
+    t = VRF.rc4("p01EDKu734HJP1Tm", t);
     t = VRF.safeBtoa(t);
-    t = VRF.vrfC(t);
-    t = VRF.vrfC(t);
-    t = VRF.safeBtoa(t);
-    var s = 8;
-    var r = "";
-    for (var o = 0; o < t.length; o++) {
-      var h = t.charCodeAt(o);
-      if (o % s == 7) {
-        h += 6;
-      } else if (o % s == 5) {
-        h -= 3;
-      } else if (o % s == 3) {
-        h += 6;
-      } else if (o % s == 2) {
-        h -= 5;
-      } else if (o % s == 6) {
-        h += 3;
-      } else if (o % s == 0) {
-        h -= 2;
-      } else if (o % s == 4) {
-        h += 2;
-      } else if (o % s == 1) {
-        h -= 4;
-      }
-      r += String.fromCharCode(h);
-    }
-    return VRF.safeBtoa(r.split("").reverse().join(""));
+    return t;
+    
+    // t = VRF.vrfC(t);
+    // t = VRF.vrfC(t);
+    // t = VRF.safeBtoa(t);
+    // var s = 8;
+    // var r = "";
+    // for (var o = 0; o < t.length; o++) {
+    //   var h = t.charCodeAt(o);
+    //   if (o % s == 7) {
+    //     h += 6;
+    //   } else if (o % s == 5) {
+    //     h -= 3;
+    //   } else if (o % s == 3) {
+    //     h += 6;
+    //   } else if (o % s == 2) {
+    //     h -= 5;
+    //   } else if (o % s == 6) {
+    //     h += 3;
+    //   } else if (o % s == 0) {
+    //     h -= 2;
+    //   } else if (o % s == 4) {
+    //     h += 2;
+    //   } else if (o % s == 1) {
+    //     h -= 4;
+    //   }
+    //   r += String.fromCharCode(h);
+    // }
+    // return VRF.safeBtoa(r.split("").reverse().join(""));
   },
   vrfDecrypt:function(input){
     var vrf = VRF.safeAtob(input);
-    vrf = VRF.rc4("LUyDrL4qIxtIxOGs",vrf);
+    // vrf = VRF.rc4("LUyDrL4qIxtIxOGs",vrf); /* old dec key */
+    vrf = VRF.rc4("ctpAbOz5u7S6OMkx",vrf);
     return decodeURIComponent(vrf);
   },
   vrfUuid:function () {
