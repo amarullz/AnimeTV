@@ -1074,11 +1074,11 @@ import javax.crypto.spec.SecretKeySpec;
     else if (host.contains(Conf.STREAM_DOMAIN)
             ||host.contains(Conf.STREAM_DOMAIN1)
             ||host.contains(Conf.STREAM_DOMAIN2)){
-      if (accept.startsWith("text/html")||
-          url.startsWith("https://"+host+"/mediainfo")) {
+      if (accept.startsWith("text/html")/*||
+          url.startsWith("https://"+host+"/mediainfo")*/) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
-        if (!accept.startsWith("text/html"))
-          sendVidpageLoaded(1);
+//        if (!accept.startsWith("text/html"))
+//          sendVidpageLoaded(1);
         try {
           AnimeApi.Http http=new AnimeApi.Http(url);
           for (Map.Entry<String, String> entry :
@@ -1091,26 +1091,28 @@ import javax.crypto.spec.SecretKeySpec;
             if (accept.startsWith("text/html")) {
               try {
                 aApi.injectString(http.body, playerInjectString);
+                sendVidpageLoaded(1);
               }catch(Exception ignored){}
-              sendVidpageLoaded(0);
-            } else {
-              Log.d(_TAG, "sendM3U8Req = " + http.body.toString("UTF-8"));
-              sendM3U8Req(http.body.toString("UTF-8"));
-              try {
-                Thread.sleep(200);
-              }catch(Exception ignored){}
-              Log.d(_TAG, "sendM3U8Req Wait = " + http.body.toString("UTF-8"));
+//              sendVidpageLoaded(0);
             }
+//            else {
+//              Log.d(_TAG, "sendM3U8Req = " + http.body.toString("UTF-8"));
+//              sendM3U8Req(http.body.toString("UTF-8"));
+//              try {
+//                Thread.sleep(200);
+//              }catch(Exception ignored){}
+//              Log.d(_TAG, "sendM3U8Req Wait = " + http.body.toString("UTF-8"));
+//            }
             InputStream stream = new ByteArrayInputStream(http.body.toByteArray());
             return new WebResourceResponse(http.ctype[0], http.ctype[1], stream);
           }
         } catch (Exception ignored) {}
-        if (!accept.startsWith("text/html"))
-          sendVidpageLoaded(2);
-        else {
-          sendVidpageLoaded(3);
-          return null;
-        }
+//        if (!accept.startsWith("text/html"))
+//          sendVidpageLoaded(2);
+//        else {
+//          sendVidpageLoaded(3);
+//          return null;
+//        }
         return aApi.badRequest;
       }else if (accept.startsWith("text/css")||accept.startsWith("image/")){
         Log.d(_TAG,"BLOCK CSS/IMG = "+url);

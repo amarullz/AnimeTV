@@ -387,11 +387,11 @@ const intercept={
           req.headers.set('Origin','https://'+url.hostname);
           req.headers.set('Referer','https://'+url.hostname+'/');
           let f=intercept.fetchStream(req);
-          if (url.pathname.startsWith("/mediainfo")){
-            let body=await (await f).text();
-            common.execJs("__M3U8CB("+body+");");
-            return intercept.fetchError();
-          }
+          // if (url.pathname.startsWith("/mediainfo")){
+          //   let body=await (await f).text();
+          //   common.execJs("__M3U8CB("+body+");");
+          //   return intercept.fetchError();
+          // }
           return f;
         }
       }
