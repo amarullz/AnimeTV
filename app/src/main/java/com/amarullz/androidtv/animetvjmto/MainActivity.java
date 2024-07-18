@@ -170,7 +170,10 @@ public class MainActivity extends FragmentActivity {
 //    EPG = 172
     switch(code){
       case KeyEvent.KEYCODE_ESCAPE:
-      case KeyEvent.KEYCODE_BACK: c=27; break;
+      case KeyEvent.KEYCODE_BACK:
+        c=27;
+        send = (evtype == KeyEvent.ACTION_UP);
+        break;
 
       case KeyEvent.KEYCODE_DPAD_UP: c=38; break;
       case KeyEvent.KEYCODE_DPAD_DOWN: c=40; break;
