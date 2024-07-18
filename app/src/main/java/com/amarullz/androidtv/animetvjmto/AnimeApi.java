@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
+import com.google.common.base.Utf8;
+
 import org.chromium.net.CronetEngine;
 import org.json.JSONObject;
 
@@ -33,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -356,6 +359,18 @@ public class AnimeApi extends WebViewClient {
   public void injectString(ByteArrayOutputStream buffer, String inject){
     byte[] injectByte = inject.getBytes();
     buffer.write(injectByte, 0, injectByte.length);
+  }
+
+  public void replaceString(ByteArrayOutputStream buffer, String src,
+                            String replace){
+    try {
+      String out=buffer.toString("UTF-8");
+      out = out.replace(src,replace);
+      byte[] injectByte = out.getBytes();
+      buffer.reset();
+      buffer.write(injectByte, 0, injectByte.length);
+    } catch (Exception ignored) {
+    }
   }
 
   public void injectJs(ByteArrayOutputStream buffer, String url){

@@ -103,7 +103,8 @@ function jwgetdata(){
                     {file:med.sources[0].file}
                 ],
                 tracks:[]
-            }
+            },
+            keys:window.__QKEYS
         };
         for (var i=0;i<med.tracks.length;i++){
             dat.result.tracks.push({
@@ -113,6 +114,7 @@ function jwgetdata(){
             });
         }
         window.__JWMEDIA=dat;
+        console.warn(JSON.stringify(dat));
         $p('mediainfo',dat);
     }
     else{
@@ -164,5 +166,6 @@ function findjw(){
 }
 
 findjw();
+
 })();
 </script>

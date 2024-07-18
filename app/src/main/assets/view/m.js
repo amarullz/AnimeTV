@@ -1852,6 +1852,61 @@ const wave={
       });
     });
   },
+
+  /* Vidstream data scrapper */
+  vidstream:{
+    keys:
+    [
+      "NeBk5CElH19ucfBU",
+      "Z7YMUOoLEjfNqPAt",
+      "eO74cTKZayUWH8x5"
+    ],
+    get:function(u,cb){
+      var vidLoc=u.substring(0,u.indexOf("?"));
+      var vidSearch=u.substring(u.indexOf("?"));
+      var vidHost=vidLoc.split('/')[2];
+      var vidId=vidLoc.substring(vidLoc.lastIndexOf("/")+1);
+      /* No Keys Yet */
+      if (!wave.vidstream.keys){
+        cb(null);
+        return;
+      }
+      if (wave.vidstream.keys.length<3){
+        cb(null);
+        return;
+      }
+      var k1=VRF.safeBtoa(VRF.rc4(wave.vidstream.keys[0],vidId));
+      var k2=VRF.safeBtoa(VRF.rc4(wave.vidstream.keys[1],vidId));
+      var mediaUrl='https://'+vidHost+'/mediainfo/'+k1+vidSearch+'&h='+k2;
+      console.log("[VIDSTREAM] VideoID: "+vidId+" -> Mediainfo = "+mediaUrl);
+      $ap(mediaUrl,function(r){
+        if (r.ok){
+          try{
+            var d=JSON.parse(r.responseText);
+            try{
+              var de=decodeURIComponent(
+                VRF.rc4(wave.vidstream.keys[2],
+                  VRF.safeAtob(d.result))
+              );
+              d.result=JSON.parse(de);
+              cb(d);
+              console.log("[VIDSTREAM] Got Mediainfo Data: "+JSON.stringify(d)+"");
+              return;
+            }catch(e){}
+          }catch(e){}
+        }
+        cb(null);
+      },
+      {
+        "X-Org-Prox":"https://"+vidHost+"/",
+        "X-Ref-Prox":u,
+        'X-Requested-With':'XMLHttpRequest',
+        'Accept':'application/json, text/javascript, */*; q=0.01'
+      }
+      );
+    }
+  },
+
   vidplayGetData:function(u,cb){
     var vidHost=u.split('/')[2];
     if (vidHost.indexOf("mp4upload.com")>-1){
@@ -1863,10 +1918,11 @@ const wave={
       return;
     }
     else{
-      cb(null);
+      wave.vidstream.get(u,cb);
       return;
     }
 
+    /* Old legacy Vidplay - todo: delete + cleanup old vidplay functions */
     wave.vidplayGetMedia(u,function(url){
       if (url){
         $ap(url,function(r){
@@ -6809,6 +6865,10 @@ const pb={
     try{
       pb.pb_track_pos.innerHTML='PREPARE VIDEO';
       _API.setVizPageCb(null);
+
+      if ('keys' in d){
+        wave.vidstream.keys=JSON.parse(JSON.stringify(d.keys));
+      }
 
       var urivid="";
       try{

@@ -1074,11 +1074,17 @@ import javax.crypto.spec.SecretKeySpec;
     else if (host.contains(Conf.STREAM_DOMAIN)
             ||host.contains(Conf.STREAM_DOMAIN1)
             ||host.contains(Conf.STREAM_DOMAIN2)){
-      if (accept.startsWith("text/html")/*||
-          url.startsWith("https://"+host+"/mediainfo")*/) {
+      if (accept.startsWith("text/html")||
+          url.startsWith("https://"+host+"/assets/mcloud/min/embed.js")
+        /*||
+          url.startsWith("https://"+host+"/mediainfo")*/
+      ) {
         Log.d(_TAG,"VIEW PLAYER REQ = "+url);
 //        if (!accept.startsWith("text/html"))
 //          sendVidpageLoaded(1);
+
+        boolean isJs=url.startsWith("https://"+host+
+            "/assets/mcloud/min/embed.js");
         try {
           AnimeApi.Http http=new AnimeApi.Http(url);
           for (Map.Entry<String, String> entry :
@@ -1088,7 +1094,17 @@ import javax.crypto.spec.SecretKeySpec;
           http.execute();
 
           if (http.code()==200) {
-            if (accept.startsWith("text/html")) {
+            if (isJs){
+              aApi.replaceString(http.body,
+                  "function Q(){",
+                  "function Q(){ "+
+                      "try{console.log(arguments);"+
+                      "if (!('__QKEYS' in window)) "+
+                        "window.__QKEYS=[]; "+
+                        "window.__QKEYS.push(arguments[0]);}catch(e){}"
+              );
+            }
+            else if (accept.startsWith("text/html")) {
               try {
                 aApi.injectString(http.body, playerInjectString);
                 sendVidpageLoaded(1);

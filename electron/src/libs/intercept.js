@@ -387,6 +387,21 @@ const intercept={
           req.headers.set('Origin','https://'+url.hostname);
           req.headers.set('Referer','https://'+url.hostname+'/');
           let f=intercept.fetchStream(req);
+
+          /* Modify embed.js to get rc4 keys */
+          if (url.pathname.startsWith("/assets/mcloud/min/embed.js")){
+            let body=await (await f).text();
+            body=body.replace(
+              'function Q(){',
+              'function Q(){ try{console.log(arguments);if (!("__QKEYS" in window)) window.__QKEYS=[]; window.__QKEYS.push(arguments[0]);}catch(e){} '
+            );
+            return new Response(body, {
+              status: f.status,
+              headers: f.headers
+            });
+          }
+
+          /* Old unused mediainfo trap */
           // if (url.pathname.startsWith("/mediainfo")){
           //   let body=await (await f).text();
           //   common.execJs("__M3U8CB("+body+");");
