@@ -1152,7 +1152,8 @@ import javax.crypto.spec.SecretKeySpec;
         host.contains("ggpht.com")||
         host.contains("play.google.com")||
         host.contains("www.google.com")||
-        host.contains("googleapis.com")
+        host.contains("googleapis.com")||
+        host.contains("precedelaxative.com")
     ){
       /* BLOCK DNS */
       return aApi.badRequest;

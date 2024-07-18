@@ -412,7 +412,8 @@ const intercept={
         url.hostname.includes("ggpht.com")||
         url.hostname.includes("play.google.com")||
         url.hostname.includes("www.google.com")||
-        url.hostname.includes("googleapis.com")
+        url.hostname.includes("googleapis.com")||
+        url.hostname.includes("precedelaxative.com")
       ){
         return intercept.fetchError();
       }
