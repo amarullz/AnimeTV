@@ -4685,9 +4685,11 @@ const vtt={
     return stn.join(', ');
   },
   init:function(subs){
+    vtt.castSet("");
     if (pb.cfg_data.lang=='nosub'){
       /* No Subtitle */
       vtt.set('');
+      vtt.castSetIndex(0);
       vtt.playback.sub=null;
       vtt.playback.pos=0;
       vtt.playback.posid=0;
@@ -4705,31 +4707,43 @@ const vtt={
         if (ffind>-1){
           // console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
           vtt.load(subs[ffind], 1);
+          vtt.castSetIndex(ffind+1);
           return;
         }
       }
+
+      // vtt.castSet(sub.u);
+      var subs_url=[];
+      for (var i=0;i<subs.length;i++){
+        subs_url.push(subs[i].u);
+      }
+      vtt.castSet(subs_url.join("\n"));
 
       // console.error(JSON.stringify(subs));
       for (var i=0;i<subs.length;i++){
         if ((subs[i].l=='english')||(subs[i].i && subs[i].i=='en')){
           console.log("SUBTITLE LENGTH = FOUND ENGLISH");
           vtt.load(subs[i]);
+          vtt.castSetIndex(i+1);
           return;
         }
       }
       for (var i=0;i<subs.length;i++){
         if (subs[i].d){
           vtt.load(subs[i]);
+          vtt.castSetIndex(i+1);
           return;
         }
       }
       for (var i=0;i<subs.length;i++){
         if (subs[i].l.indexOf("eng")>-1){
           vtt.load(subs[i]);
+          vtt.castSetIndex(i+1);
           return;
         }
       }
       vtt.load(subs[0]);
+      vtt.castSetIndex(1);
     }
   },
   match_lang:{ 
@@ -4953,6 +4967,20 @@ const vtt={
   },
   set:function(s){
     vtt.h.innerHTML=s?nlbr(s+''):'';
+  },
+  castSet:function(u){
+    if ('castSubtitle' in _JSAPI){
+      try{
+        _JSAPI.castSubtitle(u);
+      }catch(e){}
+    }
+  },
+  castSetIndex:function(u){
+    if ('castSubtitleIndex' in _JSAPI){
+      try{
+        _JSAPI.castSubtitleIndex(u);
+      }catch(e){}
+    }
   },
   load:function(sub,n){
     vtt.set('');
@@ -9931,6 +9959,23 @@ const pb={
       pb.pb_episodes.style.display='none';
     }
 
+    /* Media MetaData */
+    try{
+      _JSAPI.videoSetMeta(
+        (pb.cfg_data.jptitle?(pb.data.title_jp?pb.data.title_jp:pb.data.title):(pb.data.title?pb.data.title:pb.data.title_jp)),
+        pb.ep_title,
+        pb.data.poster?pb.data.poster:pb.data.banner);
+
+      _JSAPI.videoHaveNP(false,false);
+    }catch(e){
+      console.log("JSAPI videoSetMeta Err="+e);
+    }
+    try{
+      _JSAPI.videoHaveNP((pb.ep_index + 1)<pb.data.ep.length,(pb.ep_index - 1)>=0);
+    }catch(e){
+      console.log("JSAPI videoHaveNP Err="+e);
+    }
+
     /* Init Anime ID - Fav & History */
     var animeid=_API.animeId(pb.data.url);
     if (animeid){
@@ -10093,22 +10138,6 @@ const pb={
       pb.menu_show(1);
       _API.setKey(pb.keycb);
     });
-
-    try{
-      _JSAPI.videoSetMeta(
-        (pb.cfg_data.jptitle?(pb.data.title_jp?pb.data.title_jp:pb.data.title):(pb.data.title?pb.data.title:pb.data.title_jp)),
-        pb.ep_title,
-        pb.data.poster?pb.data.poster:pb.data.banner);
-
-      _JSAPI.videoHaveNP(false,false);
-    }catch(e){
-      console.log("JSAPI videoSetMeta Err="+e);
-    }
-    try{
-      _JSAPI.videoHaveNP((pb.ep_index + 1)<pb.data.ep.length,(pb.ep_index - 1)>=0);
-    }catch(e){
-      console.log("JSAPI videoHaveNP Err="+e);
-    }
   },
   close_confirm:function(){
     if (pb.cfg_data.closeconfirm){
@@ -11909,6 +11938,9 @@ const home={
       else if (c=='playlist'){
         _API.showToast("Under constructions...");
       }
+      else if (c=='castplayer'){
+        _JSAPI.castConnect();
+      }
       else{
         return false;
       }
@@ -12745,10 +12777,18 @@ const home={
 
     /* Playlist */
     var tools=$n('div','sidebar_group',{title:'Tools'},home.sidebar.contents,'');
-    var playlist=$n('div','sidebar_item',null,tools,'<c>playlist_play</c>Playlist');
-    playlist._action='playlist';
-    playlist.onclick=home.sidebar.itemclick;
-    home.sidebar.items.push(playlist);    
+    // var playlist=$n('div','sidebar_item',null,tools,'<c>playlist_play</c>Playlist');
+    // playlist._action='playlist';
+    // playlist.onclick=home.sidebar.itemclick;
+    // home.sidebar.items.push(playlist); 
+
+    if (_TOUCH){
+      var castplayer=$n('div','sidebar_item',null,tools,'<c>cast</c>Cast');
+      castplayer._action='castplayer';
+      castplayer.onclick=home.sidebar.itemclick;
+      home._cast_sidebar=castplayer;
+      home.sidebar.items.push(castplayer);    
+    }
   },
   init:function(){
     pb.cfg_load();
@@ -19194,5 +19234,49 @@ const touchHelper={
     _API.bgimg_update();
     body.classList.remove('notready');
     _API.electronInitFullscreen();
+  }
+})();
+
+
+/* CHROMECAST */
+(function(){
+  if (!('castConnect' in _JSAPI)){
+    /* No Cast API */
+    return;
+  }
+  console.log("ATVLOG - VIDSTREAM CASTMSG: API Available");
+  window.__CASTMSG=function(m,a){
+    if (m=='connected'){
+      if (a=="1"){
+        _API.showToast("Cast Connected...");
+        if (home._cast_sidebar){
+          home._cast_sidebar.innerHTML='<c>cast_connected</c>Close Cast';
+        }
+        if (pb._cast){
+          pb._cast.innerHTML='cast_connected';
+        }
+      }
+      else{
+        if (home._cast_sidebar){
+          home._cast_sidebar.innerHTML='<c>cast</c>Cast';
+        }
+        if (pb._cast){
+          pb._cast.innerHTML='cast';
+        }
+      }
+      if (pb.state){
+        _JSAPI.videoSetUrl("");
+        pb.startpos_val=pb.vid_stat.pos;
+        pb.init_video();
+      }
+    }
+  };
+
+  if (_TOUCH){
+    pb._cast=$('pb_touch_cast');
+    pb._cast.classList.add('supported');
+    pb._cast.onclick=function(){
+      _JSAPI.castConnect();
+    };
   }
 })();

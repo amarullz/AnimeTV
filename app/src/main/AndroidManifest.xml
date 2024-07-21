@@ -4,6 +4,7 @@
 
     <uses-sdk tools:overrideLibrary="android.support.media.tv" />
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
     <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
@@ -33,6 +34,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AnimeTVJMTO"
         android:usesCleartextTraffic="true">
+
+        <meta-data
+            android:name=
+                "com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+            android:value="com.amarullz.androidtv.animetvjmto.CastOptionsProvider" />
+
         <service
             android:name=".ChannelService"
             android:exported="true"

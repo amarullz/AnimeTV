@@ -1849,8 +1849,8 @@ c.loader {
   opacity: 1;
 }
 .istouch #pb:not(.menushow) #pb_touch_close,
+.istouch #pb:not(.menushow) #pb_touch_cast,
 .istouch #pb:not(.menushow) #pb_touch_iactions,
-/* .istouch .menushow #pb_touch_actions.active.hide #pb_touch_close, */
 .istouch .menushow #pb_touch_actions.active.hide #pb_touch_iactions{
   visibility: hidden !important;
   opacity: 0 !important;
@@ -1860,6 +1860,7 @@ c.loader {
   text-align: center;
   width: 100vw;
 }
+#pb_touch_cast,
 #pb_touch_close,
 #pb_touch_actions #pb_touch_iactions c{
   display: inline-block;
@@ -1880,6 +1881,7 @@ c.loader {
 .istouch .menushow #pb_touch_actions.active c{
   cursor: pointer;
 }
+#pb_touch_cast,
 #pb_touch_close{
   display: block;
   position: absolute;
@@ -1894,6 +1896,16 @@ c.loader {
   visibility: visible;
   opacity: 1;
 }
+#pb_touch_cast{
+  left:calc(8vw + var(--fs-25vw)) !important;
+  padding: .5vw !important;
+  top:3.5vw !important;
+  font-size: var(--fs-20vw);
+}
+#pb_touch_cast:not(.supported){
+  display: none !important;
+}
+.istouch .menushow #pb_touch_cast,
 .istouch .menushow #pb_touch_close,
 .istouch .menushow #pb_touch_actions #pb_touch_iactions c{
   visibility: visible;
@@ -1905,10 +1917,12 @@ c.loader {
   width: var(--fs-60vw);
   height: var(--fs-60vw);
 }
+#pb_touch_cast:hover,
 #pb_touch_close:hover,
 #pb_touch_actions #pb_touch_iactions c:hover{
   background-color: var(--primary-1);
 }
+#pb_touch_cast:active,
 #pb_touch_close:active,
 #pb_touch_actions #pb_touch_iactions c:active{
   background-color: var(--primary-2);

@@ -21,8 +21,6 @@ import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
-import com.google.common.base.Utf8;
-
 import org.chromium.net.CronetEngine;
 import org.json.JSONObject;
 
@@ -35,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
