@@ -17,7 +17,7 @@ const __SOURCE_NAME=[
 ];
 
 const __SOURCE_DOMAINS=[
-  ['aniwave.to','aniwave.li','aniwave.vc'],
+  ['aniwave.to','aniwave.li','aniwave.vc','aniwavetv.to'],
   ['anix.to','anix.ac','anix.vc'],
   ['hianime.to','kaido.to','hianime.sx','hianime.mn','hianime.nz'],
   ['aniwatchtv.to','aniwatch.se'],
