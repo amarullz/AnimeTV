@@ -1,4 +1,9 @@
 const VRF={
+  vidstream_keys:
+  [
+    '8Qy3mlM2kod80XIK', 'BgKVSrzpH2Enosgm', '9jXDYBZUcTcTZveM'
+  ],
+
   rc4:function(key, str) {
     var s = [], j = 0, x, res = '';
     for (var i = 0; i < 256; i++) {
