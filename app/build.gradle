@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 34
         versionCode 532
-        versionName "5.3.4-Nightly"
+        versionName "5.3.5-Nightly"
 
 
         // Automatic Build Version
@@ -55,6 +55,11 @@ dependencies {
     implementation("androidx.webkit:webkit:1.10.0")
 
     implementation 'com.google.android.gms:play-services-cronet:18.0.1'
+
+    // Cast:
+    implementation 'androidx.mediarouter:mediarouter:1.2.5'
+    implementation 'com.google.android.gms:play-services-cast-framework:21.5.0'
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20"
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0"
 }
