@@ -38,7 +38,8 @@ const VRF={
   vrfEncrypt:function (t) {
     t = encodeURIComponent("".concat(t));
     // VRF.rc4("tGn6kIpVXBEUmqjD", t); /* old enc key */
-    t = VRF.rc4("p01EDKu734HJP1Tm", t);
+    // t = VRF.rc4("p01EDKu734HJP1Tm", t);
+    t = VRF.rc4("T78s2WjTc7hSIZZR", t);
     t = VRF.safeBtoa(t);
     return t;
     
