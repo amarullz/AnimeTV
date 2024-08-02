@@ -1855,11 +1855,10 @@ const wave={
 
   /* Vidstream data scrapper */
   vidstream:{
-    keys:
-    [
-      "NeBk5CElH19ucfBU",
-      "Z7YMUOoLEjfNqPAt",
-      "eO74cTKZayUWH8x5"
+    keys:null,
+    defkeys:[
+      // "NeBk5CElH19ucfBU", "Z7YMUOoLEjfNqPAt", "eO74cTKZayUWH8x5"
+      '8Qy3mlM2kod80XIK', 'BgKVSrzpH2Enosgm', '9jXDYBZUcTcTZveM'
     ],
     get:function(u,cb){
       var vidLoc=u.substring(0,u.indexOf("?"));
@@ -1868,8 +1867,13 @@ const wave={
       var vidId=vidLoc.substring(vidLoc.lastIndexOf("/")+1);
       /* No Keys Yet */
       if (!wave.vidstream.keys){
-        cb(null);
-        return;
+        if ('vidstream_keys' in VRF){
+          wave.vidstream.keys=JSON.parse(JSON.stringify(VRF.vidstream_keys));
+        }
+        else{
+          cb(null);
+          return;
+        }
       }
       if (wave.vidstream.keys.length<3){
         cb(null);
