@@ -18,23 +18,31 @@ android {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         setProperty("archivesBaseName", "animetv-" + versionName)
     }
+
+    def keystoreFile = file('../keystore/debug.keystore')
+    def isKeystoreFileExists = keystoreFile.exists() && !keystoreFile.isDirectory()
     
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+            if (isKeystoreFileExists) {
+                signingConfig signingConfigs.debug
+            }
         }
         debug {
             minifyEnabled false
         }
     }
-    signingConfigs {
-        debug {
-            storeFile file('../keystore/debug.keystore')
-            storePassword "android"
-            keyAlias "androiddebugkey"
-            keyPassword "android"
+
+    if (isKeystoreFileExists) {
+        signingConfigs {
+            debug {
+                storeFile storeFile
+                storePassword "android"
+                keyAlias "androiddebugkey"
+                keyPassword "android"
+            }
         }
     }
 }
