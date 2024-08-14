@@ -46,7 +46,7 @@
         "electron-installer-redhat": "^3.0.0"
     },
     "dependencies": {
-        "axios": "^1.7.2",
+        "axios": "^1.7.4",
         "crypto-js": "^4.2.0",
         "doh-js-client": "^0.2.1",
         "fs-plus": "^3.1.1",
