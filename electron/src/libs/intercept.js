@@ -380,7 +380,7 @@ const intercept={
       else if (intercept.domains.vidplays.indexOf(url.host)>-1){
         var accept=req.headers.get("accept");
         /* Injector */
-        if (accept && accept.startsWith("text/html") && !url.pathname.startsWith("/assets/mcloud/min/embed.js")){
+        if (accept && accept.startsWith("text/html") && !url.pathname.startsWith("/assets/megaf/min/all.js")){
           return intercept.fetchInject(req.url, req, intercept.playerInjectString);
         }
         else{
@@ -389,19 +389,26 @@ const intercept={
           let f=intercept.fetchStream(req);
 
           /* Modify embed.js to get rc4 keys */
-          if (url.pathname.startsWith("/assets/mcloud/min/embed.js")){
+          if (url.pathname.startsWith("/assets/megaf/min/all.js")){
             console.log("IS VIDSTREAM EMBED: "+url);
 
             let body=await (await f).text();
-            body=body.replace(
-              'function _(){',
-              'function _()  {'
-            );
+            // body=body.replace(
+            //   'function _(){',
+            //   'function _()  {'
+            // );
+            // body=body.replace(
+            //   'function _(){',
+            //   'function _(){ try{console.log(arguments);if (!("__QKEYS" in window)) window.__QKEYS=[]; window.__QKEYS.push(arguments[0]);}catch(e){} '
+            // );
 
             body=body.replace(
-              'function _(){',
-              'function _(){ try{console.log(arguments);if (!("__QKEYS" in window)) window.__QKEYS=[]; window.__QKEYS.push(arguments[0]);}catch(e){} '
+              "function _0x64802e(_0x5cf48e,_0x2c4055){",
+              "function _0x64802e(_0x5cf48e,_0x2c4055){"+
+                'try{console.warn(_0x5cf48e);if (!("__QKEYS" in window)) window.__QKEYS=[]; window.__QKEYS.push(_0x5cf48e);}catch(e){}'
             );
+
+            // console.log(body);
             
             return new Response(body, {
               status: f.status,

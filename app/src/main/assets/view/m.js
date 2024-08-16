@@ -1010,11 +1010,7 @@ if (__SD<=2){
       }catch(e){}
     }
   });
-  // Load VRF Function Online
-  // $n('script','',{
-  //   src:'/__proxy/https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/vrf.js?'+$time()
-  // },
-  // document.body,'');
+
 }
 const wave={
   ns:'https://'+__DNS,
@@ -1856,42 +1852,20 @@ const wave={
   /* Vidstream data scrapper */
   vidstream:{
     keys:null,
-    defkeys:[
-      // "NeBk5CElH19ucfBU", "Z7YMUOoLEjfNqPAt", "eO74cTKZayUWH8x5"
-      '8Qy3mlM2kod80XIK', 'BgKVSrzpH2Enosgm', '9jXDYBZUcTcTZveM'
-    ],
     get:function(u,cb){
       var vidLoc=u.substring(0,u.indexOf("?"));
       var vidSearch=u.substring(u.indexOf("?"));
       var vidHost=vidLoc.split('/')[2];
       var vidId=vidLoc.substring(vidLoc.lastIndexOf("/")+1);
-      /* No Keys Yet */
-      if (!wave.vidstream.keys){
-        if ('vidstream_keys' in VRF){
-          wave.vidstream.keys=JSON.parse(JSON.stringify(VRF.vidstream_keys));
-        }
-        else{
-          cb(null);
-          return;
-        }
-      }
-      if (wave.vidstream.keys.length<3){
-        cb(null);
-        return;
-      }
-      var k1=VRF.safeBtoa(VRF.rc4(wave.vidstream.keys[0],vidId));
-      var k2=VRF.safeBtoa(VRF.rc4(wave.vidstream.keys[1],vidId));
-      var mediaUrl='https://'+vidHost+'/mediainfo/'+k1+vidSearch+'&h='+k2;
+      var mediaUrl = VRF.vidstreamMakeUrl(vidHost,vidSearch,vidId);
+
       console.log("[VIDSTREAM] VideoID: "+vidId+" -> Mediainfo = "+mediaUrl);
       $ap(mediaUrl,function(r){
         if (r.ok){
           try{
             var d=JSON.parse(r.responseText);
             try{
-              var de=decodeURIComponent(
-                VRF.rc4(wave.vidstream.keys[2],
-                  VRF.safeAtob(d.result))
-              );
+              var de=VRF.vidstreamDecode(d.result);
               d.result=JSON.parse(de);
               cb(d);
               console.log("[VIDSTREAM] Got Mediainfo Data: "+JSON.stringify(d)+"");
