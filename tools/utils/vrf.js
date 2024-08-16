@@ -4,6 +4,76 @@ const VRF={
     '8Qy3mlM2kod80XIK', 'BgKVSrzpH2Enosgm', '9jXDYBZUcTcTZveM'
   ],
 
+  /* VIDSTREAM DECODER */
+  vidstreamMakeUrl:function(vidHost, vidSearch, n){
+    let x=n;
+    x = VRF.replaceChars(
+      x = btoa(
+        VRF.rc4(
+          'V4pBzCPyMSwqx', x
+        )
+      )
+      , '4pjVI6otnvxW', 'Ip64xWVntvoj'
+    );
+  
+    x = btoa(
+      VRF.rc4('eLWogkrHstP',
+        VRF.replaceChars(
+          VRF.reverseString(x),
+          'kHWPSL5RKG9Ei8Q', 'REG859WSLiQkKHP'
+        )
+      )
+    );
+  
+    x = btoa(
+      VRF.rc4('bpPVcKMFJXq',VRF.reverseString(x))
+    );
+  
+    x=btoa(
+      VRF.reverseString(
+        VRF.replaceChars(
+          x,
+          'VtravPeTH34OUog', 
+          'OeaTrt4H3oVgvPU'
+        )
+      )
+    );
+    n=btoa(VRF.rc4('BvxAphQAmWO9BIJ8',n));
+    return 'https://'+vidHost+'/mediainfo/'+x+vidSearch+'&h='+n;
+  },
+  vidstreamDecode:function(x){
+    x = VRF.safeAtob(x);
+    x = VRF.rc4(
+      'bpPVcKMFJXq',
+      VRF.safeAtob(
+        VRF.replaceChars(
+          VRF.reverseString(x),
+          'OeaTrt4H3oVgvPU',
+          'VtravPeTH34OUog'
+        )
+      )
+    );
+    x = VRF.replaceChars(
+      x = VRF.rc4(
+        'eLWogkrHstP',
+        VRF.safeAtob(VRF.reverseString(x))
+      ),
+      'REG859WSLiQkKHP',
+      'kHWPSL5RKG9Ei8Q'
+    ),
+    x = VRF.rc4(
+      'V4pBzCPyMSwqx',
+      VRF.safeAtob(
+        VRF.replaceChars(
+          VRF.reverseString(x),
+          'Ip64xWVntvoj', '4pjVI6otnvxW'
+        )
+      )
+    );
+    return x;
+  },
+
+  /* VRF */
   rc4:function(key, str) {
     var s = [], j = 0, x, res = '';
     for (var i = 0; i < 256; i++) {
@@ -33,77 +103,69 @@ const VRF={
   safeAtob:function(s){
     return atob(s.replace(/_/g, '/').replace(/-/g, '+'))
   },
-  vrfC:function(t){
-    return t.replace(/[a-zA-Z]/g,function(t) {
-      return String.fromCharCode(
-        (t <= 'Z' ? 90 : 122) >= (t = t.charCodeAt(0)+13) ? t:t-26
-      );
-    })
-  },
-  vrfEncrypt:function (t) {
-    t = encodeURIComponent("".concat(t));
-    // VRF.rc4("tGn6kIpVXBEUmqjD", t); /* old enc key */
-    // t = VRF.rc4("p01EDKu734HJP1Tm", t);
-    t = VRF.rc4("T78s2WjTc7hSIZZR", t);
-    t = VRF.safeBtoa(t);
-    return t;
-    
-    // t = VRF.vrfC(t);
-    // t = VRF.vrfC(t);
-    // t = VRF.safeBtoa(t);
-    // var s = 8;
-    // var r = "";
-    // for (var o = 0; o < t.length; o++) {
-    //   var h = t.charCodeAt(o);
-    //   if (o % s == 7) {
-    //     h += 6;
-    //   } else if (o % s == 5) {
-    //     h -= 3;
-    //   } else if (o % s == 3) {
-    //     h += 6;
-    //   } else if (o % s == 2) {
-    //     h -= 5;
-    //   } else if (o % s == 6) {
-    //     h += 3;
-    //   } else if (o % s == 0) {
-    //     h -= 2;
-    //   } else if (o % s == 4) {
-    //     h += 2;
-    //   } else if (o % s == 1) {
-    //     h -= 4;
-    //   }
-    //   r += String.fromCharCode(h);
-    // }
-    // return VRF.safeBtoa(r.split("").reverse().join(""));
-  },
-  vrfDecrypt:function(input){
-    var vrf = VRF.safeAtob(input);
-    // vrf = VRF.rc4("LUyDrL4qIxtIxOGs",vrf); /* old dec key */
-    vrf = VRF.rc4("ctpAbOz5u7S6OMkx",vrf);
-    return decodeURIComponent(vrf);
-  },
-  vrfUuid:function () {
-    var n = new Date().getTime();
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (t) {
-      var i = (n + 16 * Math.random()) % 16 | 0;
-      n = Math.floor(n / 16);
-      return ("x" === t ? i : 3 & i | 8).toString(16);
-    });
-  }
-}
 
-// Update Server 1 Domain
-// if (!wave.vidplayGetDataDo){
-//   wave.vidplayGetDataDo=wave.vidplayGetData;
-//   wave.vidplayGetData=function(u, cb){
-//     var s=u.split('/');
-//     if (s[2].indexOf('mcloud')==-1){
-//       s[2]='vidplay.online';
-//     }
-//     var uu=s.join('/');
-//     if (pb.data.stream_vurl==u){
-//       pb.data.stream_vurl=uu;
-//     }
-//     return wave.vidplayGetDataDo(uu,cb);
-//   }
-// }
+  /* NEW VRF */
+  reverseString:function(s) {
+    return s.split('').reverse().join('');
+  },
+  replaceChars:function(s,f,r){
+    let i = f.length;
+    let m = {};
+    while (i-- && (m[f[i]] = r[i])){}
+    return s.split("").map(v=>m[v]||v).join('');
+  },
+  vrfEncrypt:function(x){
+    x = VRF.replaceChars(
+      x,
+      'AP6GeR8H0lwUz1', 
+      'UAz8Gwl10P6ReH'
+    );
+    x = btoa(VRF.rc4('ItFKjuWokn4ZpB', x));
+    x = VRF.reverseString(x);
+  
+    x = VRF.reverseString(x);
+    x = btoa(VRF.rc4('fOyt97QWFB3',x));
+    x = VRF.replaceChars(
+      x,
+      '1majSlPQd2M5',
+      'da1l2jSmP5QM'
+    );
+  
+    x = VRF.replaceChars(
+      x,
+      'CPYvHj09Au3',
+      '0jHA9CPYu3v'
+    );
+    x = VRF.reverseString(x);
+    x = btoa(
+      VRF.rc4(
+        "736y1uTJpBLUX",
+        x
+      )
+    );
+    x=btoa(x);
+    return x;
+  },
+  vrfDecrypt:function(x){
+    return x = VRF.safeAtob(x = '' + x),
+    x = VRF.replaceChars(x = VRF.reverseString(
+      x = VRF.rc4('736y1uTJpBLUX', VRF.safeAtob(x))
+    ), '0jHA9CPYu3v', 'CPYvHj09Au3'),
+    x = VRF.reverseString(
+      x = VRF.rc4(
+        'fOyt97QWFB3',
+        VRF.safeAtob(
+          x = VRF.replaceChars(
+            x, 'da1l2jSmP5QM', '1majSlPQd2M5')
+        )
+      )
+    ),
+    x = VRF.replaceChars(
+      x = VRF.rc4(
+        'ItFKjuWokn4ZpB',
+        VRF.safeAtob(x = VRF.reverseString(x))
+      ),
+      'UAz8Gwl10P6ReH', 'AP6GeR8H0lwUz1'
+    );
+  }
+};
