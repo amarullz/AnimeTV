@@ -14773,8 +14773,13 @@ const home={
     },
     kwinput:function(){
       var s=home.search.src.keyword;
+      var uu=s.value;
+      uu=uu.toLowerCase();
+      if (uu!=s.value){
+        s.value=uu;
+      }
       if (!s._noinput && !_TOUCH){
-        s.value=s.value=s.value.toLowerCase()
+        s.value=s.value.toLowerCase()
         .replace(/[^\w]+/g, " ")
         .replace(/  /g, "  ")
         .replace(/  /g, " ")
@@ -15066,6 +15071,38 @@ const home={
       }
     }
     else{
+      /* Keyboard keys auto type */
+      if ((c>=65)&&(c<=90)||(c==32)||(c==8)||(c==9)){
+        try{
+          if (!s._kw_focused){
+            home.search.kw.focus();
+            _API.showIme(true);
+            s._kw_focused=true;
+            clk();
+            var ch=1;
+            if ((c>=65)&&(c<=90)){
+              home.search.kw.value+=String.fromCharCode(c).toLowerCase();
+            }
+            else if (c==32){
+              home.search.kw.value+=' ';
+            }
+            else if (c==8){
+              if (home.search.kw.value.length>0){
+                home.search.kw.value=home.search.kw.value.substring(0,home.search.kw.value.length-1);
+                s.update_history();
+              }
+            }
+            else{
+              ch=0;
+            }
+            if (ch){
+              home.search.src.update_history();
+            }
+            return true;
+          }
+        }catch(e){}
+      }
+
       // list, genres, headers
       if (s.order[s.order_sel]){
         if (s.order[s.order_sel]._keycb){
