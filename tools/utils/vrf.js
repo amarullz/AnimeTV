@@ -33,8 +33,10 @@ const VRF={
     x=u(a(VRF.vskeys[4],s(C(x),VRF.vskeys[5],VRF.vskeys[6])));
     x=u(s(C(u(a(VRF.vskeys[7],x))),VRF.vskeys[8],VRF.vskeys[9]));
 
-    // n=btoa(VRF.rc4(VRF.vskeys[0],n));
-    // return 'https://'+vidHost+'/mediainfo/'+x+vidSearch+'&h='+n;
+    /* 
+    n=btoa(VRF.rc4(VRF.vskeys[0],n));
+    return 'https://'+vidHost+'/mediainfo/'+x+vidSearch+'&h='+n;
+    */
     return 'https://'+vidHost+'/mediainfo/'+x+vidSearch;
   },
   
