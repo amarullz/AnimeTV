@@ -1,4 +1,11 @@
 const VRF={
+  server_ids:[
+    'vidplay','megaf','mp4u','moonf'
+  ],
+  server_titles:[
+    'VidPlay','MegaF','Mp4Upload','Filemoon'
+  ],
+
   vidstream_keys:
   [
     '8Qy3mlM2kod80XIK', 'BgKVSrzpH2Enosgm', '9jXDYBZUcTcTZveM'
