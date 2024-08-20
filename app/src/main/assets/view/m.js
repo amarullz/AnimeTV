@@ -1010,7 +1010,6 @@ if (__SD<=2){
       }catch(e){}
     }
   });
-
 }
 const wave={
   ns:'https://'+__DNS,
@@ -1197,42 +1196,55 @@ const wave={
         var mp4upload=null;
         var load_s=null;
 
+        var vnames=[
+          'vidplay','megaf','mp4u','moonf'
+        ];
+        var vtitles=[
+          'VidPlay','MegaF','Mp4Upload','Filemoon'
+        ];
+        if ('server_ids' in VRF){
+          vnames=VRF.server_ids;
+        }
+        if ('server_titles' in VRF){
+          vtitles=VRF.server_titles;
+        }
+
         for (var i=0;i<d.length;i++){
           var s=d[i];
           var st=s.textContent.toLowerCase().trim();
-          if (st=='vidstream'){
+          if (st==vnames[0]){
             sid.main=s;
             data.servers[stid].push(
-              pb.serverobj('VidStream',0)
+              pb.serverobj(vtitles[0],0)
             );
             if (pb.server_selected(3)==0){
               load_s=s;
             }
           }
-          else if (st=='megaf'){
+          else if (st==vnames[1]){
             sid.mirror=s;
             data.servers[stid].push(
-              pb.serverobj('MegaF',1)
+              pb.serverobj(vtitles[1],1)
             );
             if (pb.server_selected(3)==1){
               load_s=s;
             }
           }
-          else if (st=='mp4upload'){
+          else if (st==vnames[2]){
             if (!_ISELECTRON){
               mp4upload=s;
               data.servers[stid].push(
-                pb.serverobj('Mp4Upload',2)
+                pb.serverobj(vtitles[2],2)
               );
               if (pb.server_selected(3)==2){
                 load_s=s;
               }
             }
           }
-          else if (st=='filemoon'){
+          else if (st==vnames[3]){
             s.isfilemoon=true;
             data.servers[stid].push(
-              pb.serverobj('Filemoon',3)
+              pb.serverobj(vtitles[3],3)
             );
             if (pb.server_selected(3)==3){
               load_s=s;
