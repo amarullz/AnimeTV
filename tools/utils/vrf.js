@@ -11,72 +11,47 @@ const VRF={
     '8Qy3mlM2kod80XIK', 'BgKVSrzpH2Enosgm', '9jXDYBZUcTcTZveM'
   ],
 
+  vskeys:[
+    'BvxAphQAmWO9BIJ8',
+
+    'dawQCziL2v',
+    'E1KyOcIMf9v7XHg', 'gMvO97yE1cfKIXH', 
+
+    'thDz4uPKGSYW', 
+    'ZSsbx4NtMpOoCh', 'ZCo4MthpsNxSOb',
+    
+    'QIP5jcuvYEKdG', 
+    'fH0n3GZDeKCE6', '0GCn6e3ZfDKEH', 
+  ],
+
   /* VIDSTREAM DECODER */
   vidstreamMakeUrl:function(vidHost, vidSearch, n){
+    console.warn([vidHost, vidSearch, n]);
     let x=n;
-    x = VRF.replaceChars(
-      x = btoa(
-        VRF.rc4(
-          'V4pBzCPyMSwqx', x
-        )
-      )
-      , '4pjVI6otnvxW', 'Ip64xWVntvoj'
-    );
-  
-    x = btoa(
-      VRF.rc4('eLWogkrHstP',
-        VRF.replaceChars(
-          VRF.reverseString(x),
-          'kHWPSL5RKG9Ei8Q', 'REG859WSLiQkKHP'
-        )
-      )
-    );
-  
-    x = btoa(
-      VRF.rc4('bpPVcKMFJXq',VRF.reverseString(x))
-    );
-  
-    x=btoa(
-      VRF.reverseString(
-        VRF.replaceChars(
-          x,
-          'VtravPeTH34OUog', 
-          'OeaTrt4H3oVgvPU'
-        )
-      )
-    );
-    n=btoa(VRF.rc4('BvxAphQAmWO9BIJ8',n));
-    return 'https://'+vidHost+'/mediainfo/'+x+vidSearch+'&h='+n;
+
+    var u=VRF.safeBtoa;
+    var a=VRF.rc4;
+    var s=VRF.replaceChars;
+    var C=VRF.reverseString;
+
+    x=u(a(VRF.vskeys[1],C(s(x,VRF.vskeys[2],VRF.vskeys[3]))));
+    x=u(a(VRF.vskeys[4],s(C(x),VRF.vskeys[5],VRF.vskeys[6])));
+    x=u(s(C(u(a(VRF.vskeys[7],x))),VRF.vskeys[8],VRF.vskeys[9]));
+
+    // n=btoa(VRF.rc4(VRF.vskeys[0],n));
+    // return 'https://'+vidHost+'/mediainfo/'+x+vidSearch+'&h='+n;
+    return 'https://'+vidHost+'/mediainfo/'+x+vidSearch;
   },
+  
   vidstreamDecode:function(x){
-    x = VRF.safeAtob(x);
-    x = VRF.rc4(
-      'bpPVcKMFJXq',
-      VRF.safeAtob(
-        VRF.replaceChars(
-          VRF.reverseString(x),
-          'OeaTrt4H3oVgvPU',
-          'VtravPeTH34OUog'
-        )
-      )
-    );
-    x = VRF.replaceChars(
-      x = VRF.rc4(
-        'eLWogkrHstP',
-        VRF.safeAtob(VRF.reverseString(x))
-      ),
-      'REG859WSLiQkKHP',
-      'kHWPSL5RKG9Ei8Q'
-    ),
-    x = VRF.rc4(
-      'V4pBzCPyMSwqx',
-      VRF.safeAtob(
-        VRF.replaceChars(
-          VRF.reverseString(x),
-          'Ip64xWVntvoj', '4pjVI6otnvxW'
-        )
-      )
-    );
+    var u=VRF.safeAtob;
+    var a=VRF.rc4;
+    var s=VRF.replaceChars;
+    var C=VRF.reverseString;
+
+    x=a(VRF.vskeys[7],u(C(s(u(x),VRF.vskeys[9],VRF.vskeys[8]))));
+    x=C(s(a(VRF.vskeys[4],u(x)),VRF.vskeys[6],VRF.vskeys[5]));
+    x=s(C(a(VRF.vskeys[1],u(x))),VRF.vskeys[3],VRF.vskeys[2]);
     return x;
   },
 
