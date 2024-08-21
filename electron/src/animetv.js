@@ -192,7 +192,12 @@ const main={
     else if (arg == "no-fullscreen") main.fullScreen(false);
     else if (arg == "toggle-fullscreen") main.fullScreen(!main.isFullScreen());
     else if (arg == "home") main.goHome();
-    else if (arg == "quit") app.exit();
+    else if (arg == "quit"){
+      if (main.vars.kiosk){
+        return;
+      }
+      app.exit();
+    }
     else if (arg == "restart"){
       app.relaunch();
       app.exit();
