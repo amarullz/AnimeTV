@@ -53,6 +53,11 @@ const main={
       main.vars.fullscreen=(main.vars.initwinstate==2);
     }
     main.vars.dns=common.dns;
+
+    if (process.argv[process.argv.length-1]=="kiosk"){
+      main.vars.kiosk=1;
+      main.vars.fullscreen=true;
+    }
     
     /* Create new window */
     main.win=new BrowserWindow({
@@ -74,7 +79,7 @@ const main={
         preload: common.path("/electron/src/preload.js"),
       }
     });
-    if (main.vars.initwinstate==1){
+    if (!main.vars.kiosk && main.vars.initwinstate==1){
       /* maximized */
       main.win.maximize();
     }
@@ -120,6 +125,7 @@ const main={
     sd_domain:'',
     fullscreen:false,
     initwinstate:0,
+    kiosk:0,
   },
   handlerIntent(e,d){
     shell.openExternal(d);
@@ -199,6 +205,9 @@ const main={
     return path.join(app.getAppPath(), filename);
   },
   fullScreen(stat){
+    if (main.vars.kiosk){
+      return;
+    }
     if (process.platform !== "darwin"){
       main.win.setFullScreen(stat);
     }

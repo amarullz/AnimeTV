@@ -2464,9 +2464,15 @@ const _API={
       return;
     }
     _API.fullscreenEl=$n('c','electron-fullscreen',null,$('animetv'),'');
-    _API.fullscreenEl.onclick=function(){
-      _JSAPI.toggleFullscreen();
-    };
+    /* set kiosk */
+    if (_JSAPI.varGet("kiosk","0")){
+      _API.fullscreenEl.style.display='none';
+    }
+    else{
+      _API.fullscreenEl.onclick=function(){
+        _JSAPI.toggleFullscreen();
+      };
+    }
     _API.fullscreenCb(_JSAPI.getFullscreen());
   },
   fullscreenCb:function(s){
