@@ -51,8 +51,8 @@ const main={
       show: false,
       width: dw,
       height: dh,
-      minWidth: 760,
-      minHeight: 760,
+      minWidth: 320,
+      minHeight: 320,
       backgroundColor: '#000000',
       icon:common.path("/tools/logo-design/animetv-logo/animetv-logo-square.png"),
       webPreferences: {
