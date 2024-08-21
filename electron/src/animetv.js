@@ -43,10 +43,20 @@ const main={
     var mainDisplay = screen.getPrimaryDisplay();
     var dw = mainDisplay.size.width * 3 / 4;
     var dh = mainDisplay.size.height * 3 / 4;
+
+    /* init values */
+    if ('__sd' in common.config){
+      main.vars.sd=common.config.__sd;
+    }
+    if ('initwinstate' in common.config){
+      main.vars.initwinstate=common.config.initwinstate;
+      main.vars.fullscreen=(main.vars.initwinstate==2);
+    }
+    main.vars.dns=common.dns;
     
     /* Create new window */
     main.win=new BrowserWindow({
-      fullscreen: false,
+      fullscreen: main.vars.fullscreen,
       autoHideMenuBar: true,
       show: false,
       width: dw,
@@ -64,6 +74,11 @@ const main={
         preload: common.path("/electron/src/preload.js"),
       }
     });
+    if (main.vars.initwinstate==1){
+      /* maximized */
+      main.win.maximize();
+    }
+    main.win.setMenu(null);
     main.win.webContents.setUserAgent(common.UAG);
 
     /* Init all handlers */
@@ -86,12 +101,6 @@ const main={
       main.initialized=true;
     }
 
-    /* init values */
-    if ('__sd' in common.config){
-      main.vars.sd=common.config.__sd;
-    }
-    main.vars.dns=common.dns;
-
     /* Go home & show */
     // main.win.setContentSize(dw, dh);
     main.goHome();
@@ -110,6 +119,7 @@ const main={
     httpclient:0,
     sd_domain:'',
     fullscreen:false,
+    initwinstate:0,
   },
   handlerIntent(e,d){
     shell.openExternal(d);

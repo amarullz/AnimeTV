@@ -5962,6 +5962,11 @@ const pb={
     'Open sidebar before exit',
     'Sidebar to login screen'
   ],
+  cfginitwinstate_name:[
+    'Normal',
+    'Maximize',
+    'Fullscreen'
+  ],
   cfg_save:function(){
     _JSAPI.storeSet(_API.user_prefix+'pb_cfg',JSON.stringify(pb.cfg_data));
   },
@@ -5998,6 +6003,13 @@ const pb={
           ls=0;
         }
         el.lastElementChild.innerHTML=pb.cfgexitmode_name[ls];
+      }
+      else if (key=='initwinstate'){
+        var ls=toInt(_JSAPI.varGet("initwinstate","0"));
+        if (ls<0||ls>2){
+          ls=0;
+        }
+        el.lastElementChild.innerHTML=pb.cfginitwinstate_name[ls];
       }
       else if (key=='cachesz'){
         el.lastElementChild.innerHTML=_JSAPI.getCacheSz()+" MB";
@@ -6238,6 +6250,10 @@ const pb={
 
       pb.cfg_update_el('loginscreen');
       pb.cfg_update_el('exitmode');
+
+      if (_ISELECTRON){
+        pb.cfg_update_el('initwinstate');
+      }
 
       pb.cfg_update_el('uifontsize');
       pb.cfg_update_el('seekvalue');
@@ -8001,6 +8017,25 @@ const pb={
             if (chval!=null){
               ls=toInt(chval);
               _JSAPI.storeSet("exitmode",ls+"");
+              pb.cfg_update_el(key);
+            }
+          }
+        );
+      }
+      else if (key=="initwinstate"){
+        var ls=toInt(_JSAPI.varGet("initwinstate","0"));
+        if (ls<0||ls>2){
+          ls=0;
+        }
+        listOrder.showList(
+          "Initial Window State",
+          pb.cfginitwinstate_name,
+          ls,
+          function(chval){
+            if (chval!=null){
+              ls=toInt(chval);
+              _JSAPI.storeSet("initwinstate",ls+"");
+              _JSAPI.varSet("initwinstate",ls+"");
               pb.cfg_update_el(key);
             }
           }
@@ -13169,6 +13204,20 @@ const home={
           home.settings.performance.P,
           '<c class="check">clear</c><c>brand_awareness</c> Navigation Sound'
         );
+
+
+        if (_ISELECTRON){
+          if (home.profiles.isadmin()){
+            home.settings.tools._s_initwinstate=$n(
+              'div','',{
+                action:'*initwinstate',
+                s_desc:"Set initial window state when app is launching"
+              },
+              home.settings.performance.P,
+              '<c>fullscreen</c> Initial Window State<span class="value"></span>'
+            );
+          }
+        }
         
 
         home.settings.tools._s_homylist=$n(
