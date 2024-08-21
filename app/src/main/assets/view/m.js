@@ -1084,7 +1084,8 @@ const wave={
       epId=url_parse[5].substring(3);
     }
 
-    var root_view_url='https://'+__DNS+(__SD==1?'/watch/':'/anime/')+animeId;
+    // var root_view_url='https://'+__DNS+(__SD==1?'/watch/':'/anime/')+animeId;
+    var root_view_url='https://'+__DNS+'/watch/'+animeId;
     var watch_url=root_view_url+'/ep-'+epId;
     console.log("WATCH URL : "+watch_url);
 
@@ -4184,6 +4185,11 @@ const _API={
               }
             }catch(e){}
           }
+
+          var watch=d.querySelector('a.watch');
+          if (watch){
+            o.url=watch.href;
+          }
         }
         else{
           // anix
@@ -4239,9 +4245,15 @@ const _API={
           try{
             o.type=d.querySelector('div.ani-info span i.mdi-play').nextSibling.textContent.trim();
           }catch(e){}
+
+          var watch=d.querySelector('div.watchnow-btn a.btn');
+          if (watch){
+            o.url=watch.href;
+          }
         }
 
         d=null;
+        // console.log(o);
         cb(o);
       }
       else
@@ -18179,12 +18191,16 @@ const _MAL={
       _MAL.onpopup=true;
       _API.getTooltip(ttid,function(d){
         if (d){
+          console.log(d);
           if (!ttid){
             console.log("New TTID = "+d.ttid);
             ttid=d.ttid;
           }
           if (d.poster){
             img=d.poster;
+          }
+          if (d.url){
+            url=d.url;
           }
           _MAL.preview_do(url, img, ttid, ep, tcurr, tdur,d,arg,malid);
           return;
