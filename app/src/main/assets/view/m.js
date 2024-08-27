@@ -3,6 +3,10 @@ const body=document.body;
 /* const _DNS="9anime.to"; */
 const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
 const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
+if (__SD<=2){
+  _JSAPI.setSd(6);
+  _JSAPI.reloadHome();
+}
 const __SD3=((__SD==3) || (__SD==4))?true:false;
 const __SD5=(__SD==5);
 const __SD6=(__SD==6);
@@ -12782,7 +12786,7 @@ const home={
       if (!seldomain){
         seldomain=__SOURCE_DOMAINS[i][0];
       }
-      if (i==4){
+      if ((i==4)||(i<2)) {
         /* Parental will not work on source 5 */
         continue;
       }
