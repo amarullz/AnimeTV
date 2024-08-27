@@ -10,8 +10,8 @@ android {
         applicationId "com.amarullz.androidtv.animetvjmto"
         minSdk 22
         targetSdk 34
-        versionCode 532
-        versionName "5.3.8-Nightly"
+        versionCode 540
+        versionName "5.4.0"
 
 
         // Automatic Build Version
