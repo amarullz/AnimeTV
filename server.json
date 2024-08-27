@@ -8,10 +8,10 @@
   "stream_domain2": "megaf.cc",
   "update": "1.1-240624",
 
-  "appnum": 532,
-  "appver": "5.3.2",
-  "appsize": "6.01 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.3.2/animetv-5.3.2.apk",
+  "appnum": 540,
+  "appver": "5.4.0",
+  "appsize": "7.27 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.4.0/animetv-5.4.0.apk",
   "appnote": 
-    "- Brand new app icon\n- Aniwave and anix update\n- New vidstream and megaF direct playback\n- Remove animeflix\n- Add HLS Proxy\n- Fix MAL, back key, hq banner image and other fixes"
+    "- Aniwave+Anix shutdown :(, Kaas will become default source"
 }
