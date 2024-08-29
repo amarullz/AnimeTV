@@ -69,7 +69,7 @@ const __SD_NAME = __SD+". "+(__SOURCE_NAME[__SD-1]);
 var __SD_DOMAIN = "";
 function SD_CHECK_DOMAIN(sd,cb){
   var sm=sd-1;
-  if (sm<0 || sd>6){
+  if (sm<0 || sd>7){
     return false;
   }
   var chk_url='/manifest.json';
@@ -537,6 +537,9 @@ var gojo={
 
         if (oe.active){
           o.epactive=i;
+          if (oe.img){
+            o.banner=oe.img;
+          }
         }
         o.ep.push(oe);
       }
