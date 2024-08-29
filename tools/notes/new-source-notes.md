@@ -1,3 +1,13 @@
+# Universal Skip Time
+
+```
+FORMAT:
+https://api.aniskip.com/v2/skip-times/<--MAL-ID-->/<--EPISODE-->?episodeLength=0&types%5B%5D=ed&types%5B%5D=mixed-ed&types%5B%5D=mixed-op&types%5B%5D=op&types%5B%5D=recap
+
+EXAMPLE:
+https://api.aniskip.com/v2/skip-times/54744/3?episodeLength=0&types%5B%5D=ed&types%5B%5D=mixed-ed&types%5B%5D=mixed-op&types%5B%5D=op&types%5B%5D=recap
+```
+
 # SHIROKO API
 
 ```
