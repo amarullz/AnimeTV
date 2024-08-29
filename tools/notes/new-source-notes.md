@@ -1,3 +1,79 @@
+# SHIROKO API
+
+```
+var res=await fetch('https://shiroko.co/api/v2/episode/21',{method:"GET",
+        headers:{
+          'referer': 'https://shiroko.co/'
+        }});
+await res.text();
+```
+
+
+## Get Source
+```
+var res=await fetch('https://shiroko.co/api/v2/source',{method:"POST",
+        headers:{
+          'referer': 'https://shiroko.co/en/anime/watch?id=162804&prv=soft&n=1'
+        }});
+
+DATA: {
+    "providerId": "soft",
+    "watchId": "alya-sometimes-hides-her-feelings-in-russian-19254?ep=125794",
+    "id": 162804,
+    "sub": "sub"
+}
+await res.text();
+
+RESPONSE:
+{
+    "results": {
+        "sources": [
+            {
+                "url": "https://w2r.biananset.net/_v7/73850d3a2ef1e0ed7c38f43c0e7c4ea89f8decc4daf73b2700bd4a1f9f04f1d0c6ccb082c5fdd27cf98b39da186100165432a5a4b2c628401923e3eee0414e516515cd8cf4ef0e46a95390cf08ee4d672ef2a25cd177b1f2ec3a574adcd8911d5b0fdd638fd9cfeb1184692bfe4ef98c907227adc9eb5a47e390d87655bc2659/master.m3u8",
+                "isM3U8": true
+            },
+            {
+                "url": "https://w2r.biananset.net/_v7/73850d3a2ef1e0ed7c38f43c0e7c4ea89f8decc4daf73b2700bd4a1f9f04f1d0c6ccb082c5fdd27cf98b39da186100165432a5a4b2c628401923e3eee0414e516515cd8cf4ef0e46a95390cf08ee4d672ef2a25cd177b1f2ec3a574adcd8911d5b0fdd638fd9cfeb1184692bfe4ef98c907227adc9eb5a47e390d87655bc2659/master.m3u8",
+                "isM3U8": true,
+                "quality": "auto"
+            }
+        ],
+        "subtitles": [
+            {
+                "url": "https://ccb.megaresources.co/e3/35/e3357bc9764d7a0f1bdf4dc1e7eb0176/chi-5.vtt",
+                "lang": "Chinese - Chinese (Simplified)"
+            },
+            {
+                "url": "https://ccb.megaresources.co/e3/35/e3357bc9764d7a0f1bdf4dc1e7eb0176/eng-2.vtt",
+                "lang": "English"
+            },
+            {
+                "url": "https://ccb.megaresources.co/e3/35/e3357bc9764d7a0f1bdf4dc1e7eb0176/ind-3.vtt",
+                "lang": "Indonesian"
+            },
+            {
+                "url": "https://ccb.megaresources.co/e3/35/e3357bc9764d7a0f1bdf4dc1e7eb0176/tha-4.vtt",
+                "lang": "Thai"
+            },
+            {
+                "url": "https://imgb.megaresources.co/_a_preview/48/48a476e069d82059999f750cd1b749dd/thumbnails/sprite.vtt",
+                "lang": "Thumbnails"
+            }
+        ],
+        "intro": {
+            "start": 285,
+            "end": 374
+        },
+        "outro": {
+            "start": 1390,
+            "end": 1480
+        }
+    }
+}
+```
+
+
+
 # ANIMEPAHE
 
 ## DDOS Protection Cookie
