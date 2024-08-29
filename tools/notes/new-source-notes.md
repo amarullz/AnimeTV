@@ -108,6 +108,18 @@ RESPONSE:
     ]
 }
 ```
+
+## Player Data:
+```
+URL: https://animepahe.ru/play/dd32c7c0-e215-c911-5081-23ed5037b26c/8efaf69ccb45d7a41a435a39354b1d78aec0990f9e4cb831dfba9c13c63f5ddc
+var res=await fetch('https://animepahe.ru/play/dd32c7c0-e215-c911-5081-23ed5037b26c/8efaf69ccb45d7a41a435a39354b1d78aec0990f9e4cb831dfba9c13c63f5ddc',{method:"GET",
+        headers:{
+          'cookie': '__ddg2_=1234567890'
+        }});
+await res.text();
+```
+
+
 # ANIMEFLIX
 
 ## Important urls:
