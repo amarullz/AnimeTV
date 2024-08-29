@@ -253,9 +253,9 @@ var gojo={
       if (dat.x==2){
         if (dat.info && dat.ep){
           var o=null;
+          var ostr=null;
           try{
             var m=dat.info.data.Media;
-            console.warn(dat);
             o={
               url:id,
               title:m.title.english,
@@ -280,11 +280,12 @@ var gojo={
                 });
               }catch(e){}
             }
-            gojo.cache[id]=JSON.stringify(o);
+            ostr=JSON.stringify(o);
+            gojo.cache[id]=ostr;
           }catch(e){
             console.warn(e);
           }
-          cb(o);
+          cb(JSON.parse(ostr));
         }
         else{
           cb(null);
@@ -330,14 +331,8 @@ var gojo={
       oncb();
     },1);
   },
-  loadVideo:function(dt,loadss,f){
-    var st=_API.currentStreamType;
+  loadVideo:function(dt,f){
     var aep=dt.ep[dt.epactive];
-    var ut="sub";
-
-    var valid=false;
-    var subvalid=false;
-
     var prov=dt.stream_provider;
     var subtype="sub";
     var wid=dt.stream_sid;
@@ -351,13 +346,46 @@ var gojo={
     var kurl="/tiddies?provider="+enc(prov)+"&id="+enc(dt.url+'')+"&num="+enc(aep.ep)+"&subType="+enc(subtype)+"&watchId="+enc(wid);
     var skurl="/skips?id="+enc(dt.url+'')+"&num="+enc(aep.ep);
 
-    console.warn({
-      kurl_val:kurl,
-      skurl_val:skurl
+    var o={
+      d:null,
+      s:null,
+      x:0
+    };
+
+    function dataCb(){
+      if (o.x!=2){
+        return;
+      }
+      if (!o.d){
+        f(null);
+        return;
+      }
+      f(o);
+    }
+
+    $a(kurl,function(r){
+      if (r.ok){
+        try{
+          o.d=JSON.parse(r.responseText);
+        }catch(e){
+          o.d=null;
+        }
+      }
+      o.x++;
+      dataCb();
     });
-    // https://api.gojotv.xyz/tiddies?provider=shash&id=154587&num=3&subType=sub&watchId=sousou-no-frieren-episode-3
 
-
+    $a(skurl,function(r){
+      if (r.ok){
+        try{
+          o.s=JSON.parse(r.responseText);
+        }catch(e){
+          o.s=null;
+        }
+      }
+      o.x++;
+      dataCb();
+    });
   },
   getView:function(url,f){
     var uid=++_API.viewid;
@@ -383,7 +411,8 @@ var gojo={
       if (dat.x!=2){
         return;
       }
-      var d=dat.tip;
+      console.log(dat);
+      const d=dat.tip;
       var o={
         "title": d.title,
         "title_jp": d.title_jp,
@@ -414,8 +443,8 @@ var gojo={
         "servers":{dub:[],sub:[],softsub:[]},
         "streamtype":"sub"
       };
-      var eps=d.gojo.ep;
-      var covs={};
+      const eps=d.gojo.ep;
+      const covs={};
       for (var i=0;i<dat.cov[0].data.length;i++){
         var cvdt=dat.cov[0].data[i];
         covs[cvdt.number]={
@@ -471,8 +500,8 @@ var gojo={
           }
           o.servers['sub']=[];
           var nn=0;
-          for (var i in svs){
-            o.servers['sub'].push(pb.serverobj(i,nn++));
+          for (var idr in svs){
+            o.servers['sub'].push(pb.serverobj(idr,nn++));
           }
 
           o.streamtype="sub";
@@ -502,11 +531,11 @@ var gojo={
               }
             }
           }
-
         }
         o.ep.push(oe);
       }
-      callCb(o);
+      console.log(o);
+      callCb(JSON.parse(JSON.stringify(o)));
     }
 
 
@@ -524,9 +553,9 @@ var gojo={
     });
     gojo.getTooltip(uri,function(k){
       if (k){
-        dat.x++;
         dat.tip=k;
       }
+      dat.x++;
       datacb();
     });
 
@@ -7522,9 +7551,45 @@ const pb={
         });
       }
       else if (__SD7){
-        gojo.loadVideo(pb.data, function(){
-          pb.updateStreamTypeInfo();
-          pb.flix_play_video();
+        gojo.loadVideo(pb.data, function(v){
+          if (!v){
+            pb.playback_error(
+              'PLAYBACK ERROR',
+              "Loading video from source failed.\nTry changing mirror or check source server."
+            );
+          }
+          else{
+            console.warn(v);
+            pb.data.skip=[[0,0],[0,0]];
+            if (v.s && v.s[0]){
+              try{
+                pb.data.skip[0]=[v.s[0].intro.start,v.s[0].intro.end];
+              }catch(e){
+                pb.data.skip[0]=[0,0];
+              }
+              try{
+                pb.data.skip[1]=[v.s[0].outro.start,v.s[0].outro.end];
+              }catch(e){
+                pb.data.skip[1]=[0,0];
+              }
+            }
+            vtt.clear();
+            pb.subtitles=[];
+            if (v.d.subtitles){
+              var n=v.d.subtitles.length;
+              for (var i=0;i<n;i++){
+                var tk=v.d.subtitles[i];
+                pb.subtitles.push({
+                  u:tk.url,
+                  d:(i==0)?1:0,
+                  l:(tk.lang+'').toLowerCase().trim(),
+                  i:(tk.lang+'').toLowerCase().trim()
+                });
+              }
+            }
+            vtt.init(pb.subtitles);
+            pb.init_video_mp4upload(v.d.sources[0].url);
+          }
         });
       }
       else if (__SD6){
