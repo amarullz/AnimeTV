@@ -8,6 +8,20 @@ EXAMPLE:
 https://api.aniskip.com/v2/skip-times/54744/3?episodeLength=0&types%5B%5D=ed&types%5B%5D=mixed-ed&types%5B%5D=mixed-op&types%5B%5D=op&types%5B%5D=recap
 ```
 
+# MIRURO
+```
+https://miruro-api.vercel.app/meta/anilist/data/<ANILIST-ID>
+https://miruro-api.vercel.app/meta/anilist/data/162804
+
+
+https://miruro-api.vercel.app/meta/anilist/watch/tokidoki-bosotto-russia-go-de-dereru-tonari-no-alya-san-episode-2
+
+https://aniwatch-api-azure.vercel.app/anime/info?id=alya-sometimes-hides-her-feelings-in-russian-19254
+
+https://miruro-api.vercel.app/meta/anilist/watch/tokidoki-bosotto-russia-go-de-dereru-tonari-no-alya-san-episode-4
+
+```
+
 # SHIROKO API
 
 ```
