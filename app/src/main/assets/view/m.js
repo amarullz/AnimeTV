@@ -7618,35 +7618,42 @@ const pb={
           else{
             pb.updateStreamTypeInfo();
             console.warn(v);
-            pb.data.skip=[[0,0],[0,0]];
-            if (v.s && v.s[0]){
-              try{
-                pb.data.skip[0]=[v.s[0].intro.start,v.s[0].intro.end];
-              }catch(e){
-                pb.data.skip[0]=[0,0];
+            try{
+              pb.data.skip=[[0,0],[0,0]];
+              if (v.s && v.s[0]){
+                try{
+                  pb.data.skip[0]=[v.s[0].intro.start,v.s[0].intro.end];
+                }catch(e){
+                  pb.data.skip[0]=[0,0];
+                }
+                try{
+                  pb.data.skip[1]=[v.s[0].outro.start,v.s[0].outro.end];
+                }catch(e){
+                  pb.data.skip[1]=[0,0];
+                }
               }
-              try{
-                pb.data.skip[1]=[v.s[0].outro.start,v.s[0].outro.end];
-              }catch(e){
-                pb.data.skip[1]=[0,0];
+              vtt.clear();
+              pb.subtitles=[];
+              if (v.d.subtitles){
+                var n=v.d.subtitles.length;
+                for (var i=0;i<n;i++){
+                  var tk=v.d.subtitles[i];
+                  pb.subtitles.push({
+                    u:tk.url,
+                    d:(i==0)?1:0,
+                    l:(tk.lang+'').toLowerCase().trim(),
+                    i:(tk.lang+'').toLowerCase().trim()
+                  });
+                }
               }
+              vtt.init(pb.subtitles);
+              pb.init_video_mp4upload(v.d.sources[0].url);
+            }catch(e){
+              pb.playback_error(
+                'PLAYBACK ERROR',
+                "Loading video from source failed.\nTry changing mirror or check source server."
+              );
             }
-            vtt.clear();
-            pb.subtitles=[];
-            if (v.d.subtitles){
-              var n=v.d.subtitles.length;
-              for (var i=0;i<n;i++){
-                var tk=v.d.subtitles[i];
-                pb.subtitles.push({
-                  u:tk.url,
-                  d:(i==0)?1:0,
-                  l:(tk.lang+'').toLowerCase().trim(),
-                  i:(tk.lang+'').toLowerCase().trim()
-                });
-              }
-            }
-            vtt.init(pb.subtitles);
-            pb.init_video_mp4upload(v.d.sources[0].url);
           }
         });
       }
