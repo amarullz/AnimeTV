@@ -359,7 +359,7 @@ var gojo={
         dt.stream_sid=oe.streams[oe.dub-1].id;
       }
     }
-    else if (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub'){
+    else if ((_API.currentStreamType==1) && (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub')){
       if ('roro' in svs){
         is_soft=true;
         dt.streamtype="softsub";
@@ -367,16 +367,16 @@ var gojo={
         dt.stream_sid=svs['roro'];
       }
     }
-    if (is_soft||_API.currentStreamType==1){
-      dt.stream_provider=oe.streams[0].provider;
-      dt.stream_sid=oe.streams[0].id;
-      if (pb.cfg_data.mirrorserver){
-        if (oe.streams[1]){
-          dt.stream_provider=oe.streams[1].provider;
-          dt.stream_sid=oe.streams[1].id;
-        }
-      }
-    }
+    // if (is_soft||_API.currentStreamType==1){
+    //   dt.stream_provider=oe.streams[0].provider;
+    //   dt.stream_sid=oe.streams[0].id;
+    //   if (pb.cfg_data.mirrorserver){
+    //     if (oe.streams[1]){
+    //       dt.stream_provider=oe.streams[1].provider;
+    //       dt.stream_sid=oe.streams[1].id;
+    //     }
+    //   }
+    // }
 
     var prov=dt.stream_provider;
     var wid=dt.stream_sid;
@@ -384,6 +384,26 @@ var gojo={
       if (oe.dub>0){
         subtype="dub";
         dt.streamtype="dub";
+      }
+    }
+    else if (dt.streamtype=="softsub"){
+      subtype="sub";
+      dt.streamtype="softsub";
+      if ('roro' in svs){
+        prov='roro';
+        wid=svs['roro'];
+      }
+    }
+    else{
+      subtype="sub";
+      dt.streamtype="sub";
+      dt.stream_provider=prov=oe.streams[0].provider;
+      dt.stream_sid=wid=oe.streams[0].id;
+      if (pb.cfg_data.mirrorserver){
+        if (oe.streams[1]){
+          dt.stream_provider=prov=oe.streams[1].provider;
+          dt.stream_sid=wid=oe.streams[1].id;
+        }
       }
     }
     var kurl="/tiddies?provider="+enc(prov)+"&id="+enc(dt.url+'')+"&num="+enc(oe.ep)+"&subType="+enc(subtype)+"&watchId="+enc(wid);
