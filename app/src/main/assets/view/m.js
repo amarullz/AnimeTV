@@ -332,19 +332,63 @@ var gojo={
     },1);
   },
   loadVideo:function(dt,f){
-    var aep=dt.ep[dt.epactive];
-    var prov=dt.stream_provider;
+    var oe=dt.ep[dt.epactive];
     var subtype="sub";
-    var wid=dt.stream_sid;
+    var svs=oe.svs;
+    if (oe.dub>0){
+      dt.servers['dub']=[pb.serverobj(oe.streams[oe.dub-1].provider,0)];
+      dt.stream_url.dub=oe.streams[oe.dub-1].id;
+    }
+    if ('roro' in svs){
+      dt.servers['softsub']=[pb.serverobj('roro',0)];
+      dt.stream_url.soft=svs['roro'];
+    }
+    dt.servers['sub']=[];
+    var nn=0;
+    for (var idr in svs){
+      dt.servers['sub'].push(pb.serverobj(idr,nn++));
+    }
+    dt.stream_url.hard=oe.streams[0].id;
 
-    if (dt.streamtype=="dub"){
-      if (aep.dub>0){
-        subtype="dub";
+    dt.streamtype="sub";
+    var is_soft=false;
+    if (_API.currentStreamType==2 || pb.cfg_data.dubaudio){
+      if (dt.servers['dub'].length>0){
+        dt.streamtype="dub";
+        dt.stream_provider=oe.streams[oe.dub-1].provider;
+        dt.stream_sid=oe.streams[oe.dub-1].id;
+      }
+    }
+    else if (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub'){
+      if ('roro' in svs){
+        is_soft=true;
+        dt.streamtype="softsub";
+        dt.stream_provider='roro';
+        dt.stream_sid=svs['roro'];
+      }
+    }
+    if (is_soft||_API.currentStreamType==1){
+      dt.stream_provider=oe.streams[0].provider;
+      dt.stream_sid=oe.streams[0].id;
+      if (pb.cfg_data.mirrorserver){
+        if (oe.streams[1]){
+          dt.stream_provider=oe.streams[1].provider;
+          dt.stream_sid=oe.streams[1].id;
+        }
       }
     }
 
-    var kurl="/tiddies?provider="+enc(prov)+"&id="+enc(dt.url+'')+"&num="+enc(aep.ep)+"&subType="+enc(subtype)+"&watchId="+enc(wid);
-    var skurl="/skips?id="+enc(dt.url+'')+"&num="+enc(aep.ep);
+    var prov=dt.stream_provider;
+    var wid=dt.stream_sid;
+    if (dt.streamtype=="dub"){
+      if (oe.dub>0){
+        subtype="dub";
+        dt.streamtype="dub";
+      }
+    }
+    var kurl="/tiddies?provider="+enc(prov)+"&id="+enc(dt.url+'')+"&num="+enc(oe.ep)+"&subType="+enc(subtype)+"&watchId="+enc(wid);
+    var skurl="/skips?id="+enc(dt.url+'')+"&num="+enc(oe.ep);
+    console.warn("VID-FETCH = "+kurl);
 
     var o={
       d:null,
@@ -441,7 +485,8 @@ var gojo={
         "ep": [],
         "epactive":0,
         "servers":{dub:[],sub:[],softsub:[]},
-        "streamtype":"sub"
+        "streamtype":"sub",
+        "stream_url":{}
       };
       const eps=d.gojo.ep;
       const covs={};
@@ -488,54 +533,15 @@ var gojo={
             svs[ips.providerId]=ips.episodes[i].id;
           }
         }
+        oe.svs=svs;
 
         if (oe.active){
           o.epactive=i;
-
-          if (oe.dub){
-            o.servers['dub']=[pb.serverobj(oe.streams[oe.dub-1].providerId,0)];
-          }
-          if ('roro' in svs){
-            o.servers['softsub']=[pb.serverobj('roro',0)];
-          }
-          o.servers['sub']=[];
-          var nn=0;
-          for (var idr in svs){
-            o.servers['sub'].push(pb.serverobj(idr,nn++));
-          }
-
-          o.streamtype="sub";
-          var is_soft=false;
-          if (_API.currentStreamType==2 || pb.cfg_data.dubaudio){
-            if (o.servers['dub'].length>0){
-              o.streamtype="dub";
-              o.stream_provider=oe.streams[oe.dub-1].provider;
-              o.stream_sid=oe.streams[oe.dub-1].id;
-            }
-            else if (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub'){
-              if ('roro' in svs){
-                is_soft=true;
-                o.streamtype="softsub";
-                o.stream_provider='roro';
-                o.stream_sid=svs['roro'];
-              }
-            }
-          }
-          if (is_soft||_API.currentStreamType==1){
-            o.stream_provider=oe.streams[0].provider;
-            o.stream_sid=oe.streams[0].id;
-            if (pb.cfg_data.mirrorserver){
-              if (oe.streams[1]){
-                o.stream_provider=oe.streams[1].provider;
-                o.stream_sid=oe.streams[1].id;
-              }
-            }
-          }
         }
         o.ep.push(oe);
       }
       console.log(o);
-      callCb(JSON.parse(JSON.stringify(o)));
+      callCb(o);
     }
 
 
@@ -7559,6 +7565,7 @@ const pb={
             );
           }
           else{
+            pb.updateStreamTypeInfo();
             console.warn(v);
             pb.data.skip=[[0,0],[0,0]];
             if (v.s && v.s[0]){
