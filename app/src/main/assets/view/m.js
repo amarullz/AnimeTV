@@ -569,6 +569,34 @@ var gojo={
     });
 
     return uid;
+  },
+
+
+  recent_parse:function(v){
+    var rd=[];
+    try{
+      var t=JSON.parse(v);
+      var l=t.length;
+      for (var i=0;i<l;i++){
+        try{
+          var d={};
+          var u=t[i];
+          d.url=u.id;
+          d.title=u.title.english?u.title.english:u.title.romaji;
+          d.title_jp=u.title.romaji?u.title.romaji:u.title.english;
+          d.tip=u.id;
+          d.poster=u.coverImage;
+          d.epavail=d.ep=u.currentEpisode;
+          d.type='';
+          d.rating='';
+          rd.push(d);
+        }catch(e2){}
+      }
+
+    }catch(e){
+      console.log("ERR kaas.recentParse: "+e);
+    }
+    return rd;
   }
 
 };
@@ -10932,6 +10960,10 @@ const home={
       // Hi Anime
       rd=home.hi_parse(v);
     }
+    else if (__SD7){
+      // gojo
+      rd=gojo.recent_parse(v);
+    }
     else if (__SD5){
       // Hi Anime
       rd=home.flix_parse(v);
@@ -11122,7 +11154,7 @@ const home={
     $a(g._ajaxurl+''+load_page,function(r){
       if (r.ok){
         try{
-          if (__SD3||__SD5||__SD6){
+          if (__SD3||__SD5||__SD6||__SD7){
             home.recent_parse(g,r.responseText);
           }
           else{
@@ -12266,7 +12298,9 @@ const home={
     }
     else if (__SD7){
       // kickass
-      homepage=[];
+      homepage=[
+        ["recent",'/recent-eps?type=anime&perPage=16&page=', "Recently Updated", true]
+      ];
     }
     else{
       // wave & anix
@@ -14442,7 +14476,7 @@ const home={
       home.search.kw.value=home.search.kw.value.trim();
 
       if (home.search.kw.value!=''||home.search.genreval.length>0){
-        if (home.search.src.cfg.anilist&&!home.search.noanilist){
+        if ((home.search.src.cfg.anilist&&!home.search.noanilist) || __SD7){
           home.search.res.setAttribute('list-title','AniList Search Result');
           var kw=home.search.kw.value;
           var gnr=[];
@@ -15352,7 +15386,7 @@ const home={
       home.search.kw.onfocus=home.search.kwfocus;
 
       var s=home.search.src;
-      var isAnilist = s.cfg.anilist;
+      var isAnilist = s.cfg.anilist || __SD7;
       var anilist_el = $('search_anilist');
       if (!isAnilist||home.search.noanilist){
         anilist_el.firstElementChild.innerHTML='close';
@@ -15436,7 +15470,7 @@ const home={
       home.search.srcgenre='';
 
       var havekw=false;
-      home.search.noanilist=__SD7?true:false;
+      home.search.noanilist=false;
       if (arg){
         if (arg.kw){
           home.search.kw.value=arg.kw;
@@ -15444,7 +15478,7 @@ const home={
         }
         else if (arg.genre){
           home.search.srcgenre=arg.genre;
-          home.search.noanilist=true;
+          home.search.noanilist=__SD7?false:true;
         }
       }
 
