@@ -1,3 +1,113 @@
+# ANIMEPAHE
+
+## DDOS Protection Cookie
+```
+Check DDOS
+https://check.ddos-guard.net/check.js
+
+Cookie (__ddg2_):
+headers:{
+    'cookie': '__ddg2_=1234567890'
+}
+
+DDOS Guard ID:
+(function(){
+    new Image().src = 'https://animepahe.ru/.well-known/ddos-guard/id/CedonXg73FXxEsrJ';
+    new Image().src='https://check.ddos-guard.net/set/id/CedonXg73FXxEsrJ';}
+)()
+
+--> CedonXg73FXxEsrJ : __ddg2_ cookie
+```
+
+## Search:
+```
+URL: https://animepahe.ru/api?m=search&q=russia
+var res=await fetch('https://animepahe.ru/api?m=search&q=russia',{method:"GET",
+        headers:{
+          'cookie': '__ddg2_=1234567890'
+        }});
+await res.text();
+
+RESPONSE:
+{
+    "total": 12,
+    "per_page": 8,
+    "current_page": 1,
+    "last_page": 2,
+    "from": 1,
+    "to": 8,
+    "data": [
+        {
+            "id": 5594,
+            "title": "Tokidoki Bosotto Russia-go de Dereru Tonari no Alya-san",
+            "type": "TV",
+            "episodes": 12,
+            "status": "Currently Airing",
+            "season": "Summer",
+            "year": 2024,
+            "score": 7.94,
+            "poster": "https://i.animepahe.ru/posters/5851fb3586b3bbb8ea2a9d046170c208bb8df2d291550534484018a1aaf9f363.jpg",
+            "session": "dd32c7c0-e215-c911-5081-23ed5037b26c"
+        },
+        ...
+    ]
+}
+```
+
+## Detail Data:
+```
+URL: https://animepahe.ru/api?m=release&id=dd32c7c0-e215-c911-5081-23ed5037b26c&sort=episode_desc&page=1
+var res=await fetch('https://animepahe.ru/api?m=release&id=dd32c7c0-e215-c911-5081-23ed5037b26c&sort=episode_desc&page=1',{method:"GET",
+        headers:{
+          'cookie': '__ddg2_=1234567890'
+        }});
+await res.text();
+
+RESPONSE:
+{
+    "total": 9,
+    "per_page": 30,
+    "current_page": 1,
+    "last_page": 1,
+    "next_page_url": null,
+    "prev_page_url": null,
+    "from": 1,
+    "to": 9,
+    "data": [
+        {
+            "id": 63677,
+            "anime_id": 5594,
+            "episode": 9,
+            "episode2": 0,
+            "edition": "",
+            "title": "",
+            "snapshot": "https://i.animepahe.ru/snapshots/4214758b88a6a02b65075ed3a2cdf592068d039f7666cbac420d8f074acc65f3.jpg",
+            "disc": "",
+            "audio": "jpn",
+            "duration": "00:25:10",
+            "session": "a1c7ef88e44bcd678506e0617ece32932112df621f4e2a906130c29c5c481751",
+            "filler": 0,
+            "created_at": "2024-08-28 15:05:25"
+        },
+        {
+            "id": 63614,
+            "anime_id": 5594,
+            "episode": 8,
+            "episode2": 0,
+            "edition": "",
+            "title": "",
+            "snapshot": "https://i.animepahe.ru/snapshots/952f573d5cb7e5539565aa8a475598a239c556c2f77c016c1d05a27d377c0609.jpg",
+            "disc": "",
+            "audio": "jpn",
+            "duration": "00:24:10",
+            "session": "30e59776c50592deeca4f48ea1039dace8ebfcc554d0df2a8c3b47e534f75476",
+            "filler": 0,
+            "created_at": "2024-08-21 15:04:48"
+        },
+        ...
+    ]
+}
+```
 # ANIMEFLIX
 
 ## Important urls:
