@@ -32,7 +32,9 @@ const common={
     "anix.to",
     "hianime.to",
     "aniwatchtv.to",
-    "animeflix.live", "kaas.to"
+    "animeflix.live",
+    "kaas.to",
+    "api.gojo.live"
   ],
   main:{
     /* animetv.js global object */

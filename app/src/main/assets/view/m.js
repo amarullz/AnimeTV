@@ -10,6 +10,7 @@ if (__SD<=2){
 const __SD3=((__SD==3) || (__SD==4))?true:false;
 const __SD5=(__SD==5);
 const __SD6=(__SD==6);
+const __SD7=(__SD==7);
 
 /* is touch screen */
 var _USE_TOUCH=true;
@@ -17,7 +18,7 @@ var _TOUCH=false;
 var _ISELECTRON=('isElectron' in _JSAPI);
 
 const __SOURCE_NAME=[
-  'Aniwave', 'Anix', 'Hianime', 'Aniwatch', 'Animeflix', 'KickAss'
+  'Aniwave', 'Anix', 'Hianime', 'Aniwatch', 'Animeflix', 'KickAss', 'Gojo'
 ];
 
 const __SOURCE_DOMAINS=[
@@ -26,7 +27,8 @@ const __SOURCE_DOMAINS=[
   ['hianime.to','kaido.to','hianime.sx','hianime.mn','hianime.nz'],
   ['aniwatchtv.to','aniwatch.se'],
   ['animeflix.live','animeflix.gg','animeflix.li'],
-  ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx']
+  ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx'],
+  ['api.gojo.live','api.gojotv.xyz','api.gojo.wtf']
 ];
 
 /* video res change */
@@ -75,6 +77,10 @@ function SD_CHECK_DOMAIN(sd,cb){
   if (sd==6){
     chk_url='/api/home_data';
     chk_json='recent_update';
+  }
+  else if (sd==7){
+    chk_url='/';
+    chk_json='home';
   }
   var res=[];
   var num=__SOURCE_DOMAINS[sm].length;
@@ -199,6 +205,335 @@ function SD_LOAD_DOMAIN(){
 function $(i){
   return document.getElementById(i);
 }
+
+/* GOJO SOURCE */
+var gojo={
+  /* API */
+  subtitle_origin:{
+    "X-Org-Prox":"https://vidco.pro",
+    "X-NoH-Proxy":"true"
+  },
+  cache:{},
+  getAnimeId:function(url){
+    var ux=url.split('#');
+    return ux[0];
+  },
+  getFilterOrigin:function(){
+    var orgn={
+      "X-Org-Prox":"https://"+__DNS,
+      "X-Ref-Prox":"https://"+__DNS+"/",
+      'X-Requested-With':'XMLHttpRequest',
+      'Pragma':'no-cache',
+      'Cache-Control':'no-cache'
+    };
+    return orgn;
+  },
+  getFilterUrl:function(q,genres,sort,page,ses,year){
+    return "";
+  },
+  getTooltip:function(id, cb, url, isview){
+    if (!id){
+      var ux=url.split('#');
+      id=ux[0];
+    }
+    if (id in gojo.cache){
+      if (gojo.cache[id]){
+        requestAnimationFrame(function(){
+          cb(JSON.parse(gojo.cache[id]));
+        });
+        return;
+      }
+    }
+    var dat={
+      info:null,
+      ep:null,
+      x:0
+    };
+    function oncb(){
+      if (dat.x==2){
+        if (dat.info && dat.ep){
+          var o=null;
+          try{
+            var m=dat.info.data.Media;
+            console.warn(dat);
+            o={
+              url:id,
+              title:m.title.english,
+              title_jp:m.title.romaji,
+              synopsis:m.description,
+              genres:[],
+              genre:'',
+              quality:null,
+              ep:dat.ep[0].episodes.length,
+              rating:'',
+              ttid:id,
+              gojo:dat,
+              poster:m.coverImage.large,
+              tip:id
+            };
+            o.genre=m.genres.join(", ");
+            for (var i=1;i<m.genres.length;i++){
+              try{
+                o.genres.push({
+                  name:m.genres[i],
+                  val:m.genres[i].toLowerCase()
+                });
+              }catch(e){}
+            }
+            gojo.cache[id]=JSON.stringify(o);
+          }catch(e){
+            console.warn(e);
+          }
+          cb(o);
+        }
+        else{
+          cb(null);
+        }
+      }
+    }
+    $a("/episodes?id="+id,function(r){
+      if (r.ok){
+        try{
+          dat.ep=JSON.parse(r.responseText);
+        }
+        catch(e){
+          dat.ep=null;
+        }
+      }
+      dat.x++;
+      oncb();
+    });
+    _MAL.alreq(`query ($id: Int) {
+  Media(id:$id, type:ANIME, isAdult:false){
+    id
+    idMal
+    title{
+      romaji
+      english
+    }
+    coverImage{
+      large
+    }
+    status
+    duration
+    format
+    episodes
+    description
+    bannerImage
+    genres
+  }
+}`,{
+      "id":id
+    },function(r){
+      dat.info=r;
+      dat.x++;
+      oncb();
+    },1);
+  },
+  loadVideo:function(dt,loadss,f){
+    var st=_API.currentStreamType;
+    var aep=dt.ep[dt.epactive];
+    var ut="sub";
+
+    var valid=false;
+    var subvalid=false;
+
+    var prov=dt.stream_provider;
+    var subtype="sub";
+    var wid=dt.stream_sid;
+
+    if (dt.streamtype=="dub"){
+      if (aep.dub>0){
+        subtype="dub";
+      }
+    }
+
+    var kurl="/tiddies?provider="+enc(prov)+"&id="+enc(dt.url+'')+"&num="+enc(aep.ep)+"&subType="+enc(subtype)+"&watchId="+enc(wid);
+    var skurl="/skips?id="+enc(dt.url+'')+"&num="+enc(aep.ep);
+
+    console.warn({
+      kurl_val:kurl,
+      skurl_val:skurl
+    });
+    // https://api.gojotv.xyz/tiddies?provider=shash&id=154587&num=3&subType=sub&watchId=sousou-no-frieren-episode-3
+
+
+  },
+  getView:function(url,f){
+    var uid=++_API.viewid;
+    var ux=url.split('#');
+    var uri=ux[0];
+    var ep=1;
+    if (ux.length==2){
+      ep=ux[1]?ux[1]:0;
+    }
+
+    var dat={
+      tip:null,
+      cov:null,
+      x:0
+    };
+
+    function callCb(d){
+      d.status=true;
+      f(JSON.parse(JSON.stringify(d)),uid);
+    }
+
+    function datacb(){
+      if (dat.x!=2){
+        return;
+      }
+      var d=dat.tip;
+      var o={
+        "title": d.title,
+        "title_jp": d.title_jp,
+        "synopsis": d.synopsis,
+        "genres": d.genres,
+        "quality": null,
+        "banner": null,
+        "rating": "",
+        "ttid": d.tip,
+        "url": d.url,
+        "poster": d.poster,
+        "rating":"",
+        "status": false,
+        "epavail": d.ep,
+        "epdub": 0,
+        "type": "TV",
+        "genre": d.genre,
+        "info": {
+            "type": {
+                "val": "_TV",
+                "name": "TV"
+            },
+            "rating": "",
+            "quality": null
+        },
+        "ep": [],
+        "epactive":0,
+        "servers":{dub:[],sub:[],softsub:[]},
+        "streamtype":"sub"
+      };
+      var eps=d.gojo.ep;
+      var covs={};
+      for (var i=0;i<dat.cov[0].data.length;i++){
+        var cvdt=dat.cov[0].data[i];
+        covs[cvdt.number]={
+          title:cvdt.title,
+          img:cvdt.img,
+          desc:cvdt.description
+        };
+      }
+      for (var i=0;i<eps[0].episodes.length;i++){
+        var pp=eps[0].episodes[i];
+        var oe={
+          "ep":pp.number,
+          "url":d.url+"#"+pp.number,
+          "active":ep==pp.number,
+          "filler":false,
+          "title":pp.title,
+          "streams":[]
+        };
+        
+        if (pp.number in covs){
+          var cvd=covs[pp.number];
+          oe.title=cvd.title;
+          oe.img=cvd.img;
+          oe.desc=cvd.desc;
+        }
+        
+        var svs={};
+        for (var j=0;j<eps.length;j++){
+          var ips=eps[j];
+          if (ips.episodes[i]){
+            oe.streams.push({
+              "provider":ips.providerId,
+              "id":ips.episodes[i].id
+            });
+            if (ips.episodes[i].hasDub){
+              oe.dub=j+1;
+            }
+            if (ips.episodes[i].isFiller){
+              oe.filler=true;
+            }
+            svs[ips.providerId]=ips.episodes[i].id;
+          }
+        }
+
+        if (oe.active){
+          o.epactive=i;
+
+          if (oe.dub){
+            o.servers['dub']=[pb.serverobj(oe.streams[oe.dub-1].providerId,0)];
+          }
+          if ('roro' in svs){
+            o.servers['softsub']=[pb.serverobj('roro',0)];
+          }
+          o.servers['sub']=[];
+          var nn=0;
+          for (var i in svs){
+            o.servers['sub'].push(pb.serverobj(i,nn++));
+          }
+
+          o.streamtype="sub";
+          var is_soft=false;
+          if (_API.currentStreamType==2 || pb.cfg_data.dubaudio){
+            if (o.servers['dub'].length>0){
+              o.streamtype="dub";
+              o.stream_provider=oe.streams[oe.dub-1].provider;
+              o.stream_sid=oe.streams[oe.dub-1].id;
+            }
+            else if (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub'){
+              if ('roro' in svs){
+                is_soft=true;
+                o.streamtype="softsub";
+                o.stream_provider='roro';
+                o.stream_sid=svs['roro'];
+              }
+            }
+          }
+          if (is_soft||_API.currentStreamType==1){
+            o.stream_provider=oe.streams[0].provider;
+            o.stream_sid=oe.streams[0].id;
+            if (pb.cfg_data.mirrorserver){
+              if (oe.streams[1]){
+                o.stream_provider=oe.streams[1].provider;
+                o.stream_sid=oe.streams[1].id;
+              }
+            }
+          }
+
+        }
+        o.ep.push(oe);
+      }
+      callCb(o);
+    }
+
+
+    $a("/ep-covers?id="+uri,function(r){
+      if (r.ok){
+        try{
+          dat.cov=JSON.parse(r.responseText);
+        }
+        catch(e){
+          dat.cov=null;
+        }
+      }
+      dat.x++;
+      datacb();
+    });
+    gojo.getTooltip(uri,function(k){
+      if (k){
+        dat.x++;
+        dat.tip=k;
+      }
+      datacb();
+    });
+
+    return uid;
+  }
+
+};
 
 /* KICAKASSANIME SOURCE */
 var kaas={
@@ -2057,7 +2392,7 @@ var __IMGCDNL=toInt(_JSAPI.storeGet("imgcdnl","1"));
 
 /* proxy image */
 function $imgnl(src, maxw){
-  if (__IMGCDNL!=1 || src.indexOf("anilist.co")){
+  if (__IMGCDNL!=1 || src.indexOf("anilist.co") || __SD7){
     return src;
   }
   return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w='+maxw+'&we';
@@ -2796,6 +3131,9 @@ const _API={
     else if (__SD6){
       return kaas.getAnimeId(url);
     }
+    else if (__SD7){
+      return gojo.getAnimeId(url);
+    }
     else{
       var url_parse=url.split('/');
       if (url_parse.length>=5){
@@ -2852,6 +3190,8 @@ const _API={
       return __AFLIX.origin;
     else if (__SD6)
       return kaas.getFilterOrigin();
+    else if (__SD7)
+      return gojo.getFilterOrigin();
     return null;
   },
 
@@ -2862,6 +3202,9 @@ const _API={
     var uri='';
     if (__SD6){
       return kaas.getFilterUrl(q,genres,sort,page,ses,year);
+    }
+    else if (__SD7){
+      return gojo.getFilterUrl(q,genres,sort,page,ses,year);
     }
     else if (!__SD3 && !__SD5){
       var qv=[];
@@ -3288,6 +3631,9 @@ const _API={
     }
     else if (__SD6){
       return kaas.getView(url,f);
+    }
+    else if (__SD7){
+      return gojo.getView(url,f);
     }
     else if (__SD==1||__SD==2){
       return wave.getView(url,f);
@@ -3930,6 +4276,9 @@ const _API={
   getTooltip:function(id, cb, url, isview){
     if (__SD6){
       return kaas.getTooltip(id, cb, url, 0);
+    }
+    else if (__SD7){
+      return gojo.getTooltip(id, cb, url, 0);
     }
 
     if (!id && url){
@@ -5008,6 +5357,8 @@ const vtt={
     }
     else if (__SD6){
       hdr=kaas.subtitle_origin;
+    }else if (__SD7){
+      hdr=gojo.subtitle_origin;
     }
     $ap(sub.u,function(r){
       if (r.ok){
@@ -7166,6 +7517,12 @@ const pb={
       }
       else if (__SD5){
         pb.flix_load_video(pb.data, true, function(){
+          pb.updateStreamTypeInfo();
+          pb.flix_play_video();
+        });
+      }
+      else if (__SD7){
+        gojo.loadVideo(pb.data, function(){
           pb.updateStreamTypeInfo();
           pb.flix_play_video();
         });
@@ -10251,6 +10608,7 @@ const pb={
       pb.load_open_stat=1;
       if (uid==u && d.status){
         // console.log("GETVIEW: "+JSON.stringify(d,null,'\t'));
+        console.warn(d);
         pb.data=d;
         _API.setUri(uri);
         pb.init();
@@ -10269,7 +10627,7 @@ const pb={
       pb.url_value=uri;
       pb.startpos_val=(startpos!==undefined)?(startpos?parseInt(startpos):0):0;
       console.log("ATVLOG OPENPB => POS="+pb.startpos_val);
-      if (!noclean && (!__SD3) &&(!__SD5) &&(!__SD6)){
+      if (!noclean && (!__SD3) &&(!__SD5) &&(!__SD6) &&(!__SD7)){
         _API.getTooltip(ttid,pb.open_ttip, uri);
       }
       pb.reset(0,((__SD3||__SD5))?2:noclean);
@@ -11831,6 +12189,10 @@ const home={
         ["chinese",'/api/show/recent?type=chinese&page=', "Chinese Update", false]
       ];
     }
+    else if (__SD7){
+      // kickass
+      homepage=[];
+    }
     else{
       // wave & anix
       homepage=[
@@ -11866,7 +12228,7 @@ const home={
           );
         },
         "AniList Tabbed List",
-        false
+        __SD7
       ]
     );
     homepage.push(
@@ -14999,7 +15361,7 @@ const home={
       home.search.srcgenre='';
 
       var havekw=false;
-      home.search.noanilist=false;
+      home.search.noanilist=__SD7?true:false;
       if (arg){
         if (arg.kw){
           home.search.kw.value=arg.kw;
@@ -17044,6 +17406,21 @@ const _MAL={
         });
         return;
       }
+      else if (__SD7){
+        console.warn(dmedia);
+        requestAnimationFrame(function(){
+          var o=[{
+            url:dmedia.id+'',
+            tip:dmedia.id+'',
+            title:dmedia.title.english,
+            title_jp:dmedia.title.romaji,
+            poster:dmedia.coverImage.medium,
+            ep:dmedia.episodes
+          }];
+          cb(o);
+        });
+        return;
+      }
       
       
       kw=dmedia.title.romaji;
@@ -17114,7 +17491,7 @@ const _MAL={
             slkw
           ]);
           for (var i=0;i<rd.length;i++){
-            if (__SD5){
+            if (__SD5||__SD7){
               if (isanilist){
                 var ndmedia=null;
                 if (isanilist==2){
@@ -17890,7 +18267,7 @@ const _MAL={
         epsel=_MAL.pop.var.ep;
       }
 
-      openurl+=(__SD3||__SD5||__SD6)?('#'+epsel):('/ep-'+epsel);
+      openurl+=(__SD3||__SD5||__SD6||__SD7)?('#'+epsel):('/ep-'+epsel);
 
       console.log("MAL Open Anime = "+openurl);
       _MAL.popup_close();
@@ -18239,8 +18616,8 @@ const _MAL={
       rating:''
     };
     console.log("Popup = "+JSON.stringify([url, img, titl, ttid, ep, tcurr, tdur,arg,malid]));
-    if ((url_parse.length>=5)||__SD3||__SD5||__SD6){
-      if((url_parse.length==6)&&(!__SD3)&&(!__SD5)&&(!__SD6)){
+    if ((url_parse.length>=5)||__SD3||__SD5||__SD6||__SD7){
+      if((url_parse.length==6)&&(!__SD3)&&(!__SD5)&&(!__SD6)&&(!__SD7)){
         url_parse.pop();
         url=url_parse.join('/');
       }
