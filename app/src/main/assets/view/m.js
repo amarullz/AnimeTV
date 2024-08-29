@@ -6061,7 +6061,7 @@ const pb={
     performance:[true,false,true,true,false],
     autoskip:false,
     autonext:true,
-    closeconfirm:false,
+    closeconfirm:0,
     // html5player:false,
     skipfiller:false,
     jptitle:false,
@@ -6107,7 +6107,6 @@ const pb={
       var j=JSON.parse(itm);
       if (j){
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
-        pb.cfg_data.closeconfirm=('closeconfirm' in j)?(j.closeconfirm?true:false):false;
         
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         // pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
@@ -6143,6 +6142,19 @@ const pb={
 
         // _API.setStreamServer(pb.cfg_data.mirrorserver?1:0,0);
         
+
+        pb.cfg_data.closeconfirm=0;
+        if ('closeconfirm' in j){
+          if (j.closeconfirm){
+            if (j.closeconfirm==2){
+              pb.cfg_data.closeconfirm=2;
+            }
+            else{
+              pb.cfg_data.closeconfirm=1;
+            }
+          }
+        }
+
         
         pb.cfg_data.lang=('lang' in j)?j.lang:'';
         pb.cfg_data.alang=('alang' in j)?j.alang:'';
@@ -6241,7 +6253,7 @@ const pb={
       }
     }
     pb.cfg_data.autoskip=false;
-    pb.cfg_data.closeconfirm=false;
+    pb.cfg_data.closeconfirm=0;
     pb.cfg_data.autonext=true;
     // pb.cfg_data.html5player=false;
     pb.cfg_data.dubaudio=false;
@@ -6306,6 +6318,13 @@ const pb={
     'Trailer without sound',
     'Trailer with sound'
   ],
+  cfgcloseconfirm_name:[
+    'Double Back',
+    'Close Confirmation',
+    'Close Directly'
+  ],
+
+  
   cfganimation_name:[
     'Normal',
     'Fast',
@@ -6532,6 +6551,8 @@ const pb={
       }
       else if (key=='trailer'){
         el.lastElementChild.innerHTML=pb.cfgtrailer_name[pb.cfg_data.trailer];
+      }else if (key=='closeconfirm'){
+        el.lastElementChild.innerHTML=pb.cfgcloseconfirm_name[pb.cfg_data.closeconfirm];
       }
       else if (key=='theme'){
         el.lastElementChild.innerHTML=pb.cfgtheme_name[_API.theme_sel];
@@ -8434,6 +8455,21 @@ const pb={
           function(chval){
             if (chval!=null){
               pb.cfg_data.trailer=toInt(chval);
+              pb.cfg_update_el(key);
+              pb.cfg_save();
+            }
+          }
+        );
+      }
+      else if (key=="closeconfirm"){
+        // pb.state=0;
+        listOrder.showList(
+          "Close Confirmation",
+          pb.cfgcloseconfirm_name,
+          pb.cfg_data.closeconfirm,
+          function(chval){
+            if (chval!=null){
+              pb.cfg_data.closeconfirm=toInt(chval);
               pb.cfg_update_el(key);
               pb.cfg_save();
             }
@@ -10674,12 +10710,16 @@ const pb={
     });
   },
   close_confirm:function(){
-    if (pb.cfg_data.closeconfirm){
+    if (pb.cfg_data.closeconfirm==1){
       _API.confirm(false,"Close the playback?",function(cnf){
         if (cnf){
           pb.reset(1,0);
         }
       });
+      return true;
+    }
+    else if (pb.cfg_data.closeconfirm==2){
+      requestAnimationFrame(function(){pb.reset(1,0);});
       return true;
     }
     return false;
@@ -13629,10 +13669,10 @@ const home={
         home.settings.tools._s_closeconfirm=$n(
           'div','',{
             action:'*closeconfirm',
-            s_desc:'Show confirm dialog before closing playback'
+            s_desc:'Action to close the playback'
           },
           home.settings.video.P,
-          '<c class="check">clear</c><c>cancel_presentation</c> Close Confirmation'
+          '<c>cancel_presentation</c> Close Confirmation<span class="value">-</span>'
         );
 
         home.settings.tools._s_preloadep=$n(
