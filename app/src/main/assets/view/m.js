@@ -9435,9 +9435,9 @@ const pb={
         pb.pb_track_pos.innerHTML=sec2ts(pos,dur<3600);
         pb.pb_track_dur.innerHTML=sec2ts(dur,dur<3600);
         pb.update_malist_ep(dr);
-        if (pb.cfg_data.preloadep && (dr>80) && (pb.preload_started==0)){
-          pb.preload_ep();
-        }
+        // if (pb.cfg_data.preloadep && (dr>80) && (pb.preload_started==0)){
+          //  pb.preload_ep();
+        // }
     }
     else{
       pb.pb_track_val.style.width="0%";
