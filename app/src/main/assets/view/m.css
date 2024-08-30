@@ -2002,6 +2002,7 @@ c.loader {
    -.1vw .1vw .05vw #000,
    .1vw .1vw .05vw #000,
   0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
+  -webkit-text-stroke-color: #000 !important;
 }
 #vtt_subtitle_preview .vtt_obj,
 #vtt_subtitle .vtt_obj{
@@ -2084,6 +2085,7 @@ c.loader {
    -.1vw .1vw .05vw #fff,
    .1vw .1vw .05vw #fff,
   0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
+  -webkit-text-stroke-color: #fff !important;
 }
 
 .vtt_style_background_25 .vtt_obj{
@@ -2171,6 +2173,15 @@ c.loader {
 .vtt_style_merienda{
   font-family: "Merienda", cursive, sans-serif;
   line-height: 1.2;
+}
+.vtt_style_medium_outline{
+  -webkit-text-stroke-width: 0.05vw !important;
+}
+.vtt_style_thick_outline{
+  -webkit-text-stroke-width: 0.1vw !important;
+}
+.vtt_style_extra_thick_outline{
+  -webkit-text-stroke-width: 0.15vw !important;
 }
 
 #pb_action_streamtype{
