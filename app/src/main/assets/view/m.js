@@ -238,33 +238,38 @@ var gojo={
     }
     if (id in gojo.cache){
       if (gojo.cache[id]){
-        requestAnimationFrame(function(){
-          cb(JSON.parse(gojo.cache[id]));
-        });
-        return;
+        var oval=JSON.parse(gojo.cache[id]);
+        if (!isview || (isview && oval.gojo.ep)){
+          requestAnimationFrame(function(){
+            cb(oval);
+          });
+          return;
+        }
       }
     }
     var dat={
       info:null,
       ep:null,
-      x:0
+      x:isview?0:1
     };
     function oncb(){
       if (dat.x==2){
-        if (dat.info && dat.ep){
+        if (dat.info){
           var o=null;
           var ostr=null;
           try{
             var m=dat.info.data.Media;
+            var kk=document.createElement('div');
+            kk.innerHTML=m.description;
             o={
               url:id,
               title:m.title.english?m.title.english:m.title.romaji,
               title_jp:m.title.romaji?m.title.romaji:m.title.english,
-              synopsis:m.description,
+              synopsis:(kk.textContent+'').trim(),
               genres:[],
               genre:'',
               quality:null,
-              ep:dat.ep[0].episodes.length,
+              ep:dat.ep?(dat.ep[0].episodes.length):m.episodes,
               rating:'',
               ttid:id,
               gojo:dat,
@@ -292,18 +297,20 @@ var gojo={
         }
       }
     }
-    $a("/episodes?id="+id,function(r){
-      if (r.ok){
-        try{
-          dat.ep=JSON.parse(r.responseText);
+    if (isview){
+      $a("/episodes?id="+id,function(r){
+        if (r.ok){
+          try{
+            dat.ep=JSON.parse(r.responseText);
+          }
+          catch(e){
+            dat.ep=null;
+          }
         }
-        catch(e){
-          dat.ep=null;
-        }
-      }
-      dat.x++;
-      oncb();
-    });
+        dat.x++;
+        oncb();
+      });
+    }
     _MAL.alreq(`query ($id: Int) {
   Media(id:$id, type:ANIME, isAdult:false){
     id
@@ -612,7 +619,7 @@ var gojo={
       }
       dat.x++;
       datacb();
-    });
+    }, uri, true);
 
     return uid;
   },
