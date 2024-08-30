@@ -4981,19 +4981,19 @@ const vtt={
     'Font Type',
     'Font Size',
     'Font Weight',
-    'Outline',
     'Background',
     'Color',
-    'Text Opacity'
+    'Text Opacity',
+    'Outline'
   ],
   style_icons:[
     'brand_family',
     'format_size',
     'format_bold',
-    'text_format',
     'gradient',
     'palette',
-    'opacity'
+    'opacity',
+    'text_format'
   ],
   style_order:[
     [
@@ -5019,12 +5019,6 @@ const vtt={
       "Bold",
       "Bolder",
       "Thin"
-    ],
-    [
-      "Thin Outline",
-      "Medium Outline",
-      "Thick Outline",
-      "Extra Thick Outline",
     ],
     [
       "No Background",
@@ -5054,6 +5048,12 @@ const vtt={
       "70% Transparent",
       "65% Transparent",
       "60% Transparent"
+    ],
+    [
+      "Thin Outline",
+      "Medium Outline",
+      "Thick Outline",
+      "Extra Thick Outline",
     ],
   ],
   style_divs:[
@@ -8324,6 +8324,14 @@ const pb={
       else if (key=='ytchannel'){
         if (home.onsettings){
           _JSAPI.openIntentUri('https://www.youtube.com/@amarullz');
+        }
+      }
+      else if (key=='exportcsv'){
+        if ('goToUrl' in _JSAPI){
+          _JSAPI.goToUrl('https://aniwave.to/__view/export.html');
+        }
+        else{
+          location='https://aniwave.to/__view/export.html';
         }
       }
       else if (key=='discord'){
@@ -14031,6 +14039,14 @@ const home={
           },
           home.settings.about.P,
           "<c>sports_esports</c> Discord Server"
+        );
+
+        home.settings.tools._s_exportcsv=$n(
+          'div','',{
+            action:'*exportcsv'
+          },
+          home.settings.about.P,
+          "<c>export_notes</c> Export CSV List"
         );
 
         if (!_ISELECTRON && home.profiles.isadmin()){

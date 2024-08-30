@@ -1377,6 +1377,13 @@ import javax.crypto.spec.SecretKeySpec;
     }
 
     @JavascriptInterface
+    public void goToUrl(String url) {
+      runOnUiThreadWait(()->
+          webView.loadUrl(url)
+      );
+    }
+
+    @JavascriptInterface
     public void playNextMeta(String t, String d, String p, String u, String i
         , int sd){
       pnUpdated=false;
@@ -1388,6 +1395,11 @@ import javax.crypto.spec.SecretKeySpec;
       pnSd=sd;
       Log.d(_TAG,"Update Meta ("+u+"; "+t+"; "+d+"; "+i+"; "+sd+"; Poster="+p+
           ")");
+    }
+
+    @JavascriptInterface
+    public String getMyIpAddress() {
+      return AnimeServer.getIPAddress(true)+":"+AnimeServer.PORT;
     }
 
     @JavascriptInterface
@@ -1673,6 +1685,11 @@ import javax.crypto.spec.SecretKeySpec;
     @JavascriptInterface
     public String storeGet(String key, String def){
       return aApi.pref.getString("viewstorage_"+key,def);
+    }
+
+    @JavascriptInterface
+    public void setExportString(String val){
+      AnimeServer.exportString=val;
     }
 
     @JavascriptInterface

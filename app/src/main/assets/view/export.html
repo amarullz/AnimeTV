@@ -2,6 +2,20 @@
   <head>
     <meta http-equiv="Access-Control-Allow-Origin" content="*" />
 <script>
+function goTo(u){
+  if ('goToUrl' in _JSAPI){
+    _JSAPI.goToUrl(u);
+  }
+  else{
+    location=u;
+  }
+}
+function storeSet(n,v){
+  _JSAPI.storeSet(n,JSON.stringify(v));
+}
+function storeGet(n,v){
+  return JSON.parse(_JSAPI.storeGet(n,JSON.stringify(v)));
+}
 window.onload=function(){
   const host=location.host;
   const source_domains=[
@@ -10,11 +24,15 @@ window.onload=function(){
     "hianime.to",
     "aniwatchtv.to",
     "animeflix.live",
-    "kaas.to"
+    "kaas.to",
+    'api.gojo.live'
   ];
   var _SD=1;
   var _UID="";
   var _SDZ=source_domains.indexOf(host);
+  function special(str){
+    return (str+"").replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
   function slugString(Text,rp) {
     if (rp===undefined || rp===null){
       rp=' ';
@@ -75,19 +93,26 @@ window.onload=function(){
   if (_SDZ>=0){
     _SD =_SDZ+1;
     _UID=_JSAPI.profileGetPrefix();
-    var _VARNAME=_UID+"global_list";
+    var _VARNAME=_UID+"export_global_list";
+
+    if (_SD==1){
+      _JSAPI.storeDel(_VARNAME);
+    }
     list.load();
 
     // console.log(list.history);
     // console.log(list.fav);
-    function listing(l,out_d,out_t){
+    function listing(l,out_d,out_t, exp){
       for (var i=0;i<l.list.length;i++){
         var k=l.list[i];
         if (k in l.detail){
           var dt=l.detail[k];
           var vslud=dt.title_jp?dt.title_jp:dt.title;
           vslud=vslud.replace(/\([^)]*\)/g,'');
-          var n="a_"+slugString(vslud,'');
+          var ni=slugString(vslud,'');
+          var n="a_"+ni;
+          var val_prog=0;
+          
           if (!(n in out_d)){
             out_d[n]={
               s:[], /* sources */
@@ -104,6 +129,7 @@ window.onload=function(){
               var val=parseFloat(((dt.play[0] * 100.0) / dt.play[1]).toFixed(2));
               if (val>0 && val<=100){
                 od.e['e'+dt.ep]=val;
+                val_prog=val;
               }
             }
           }
@@ -114,36 +140,107 @@ window.onload=function(){
             t:dt.tip, /* ttip */
             u:dt.url /* real url */
           };
+
+          var oexp={
+            id:ni,
+            title:dt.title,
+            title_jp:dt.title_jp,
+            episode:dt.ep,
+            progress:val_prog
+          };
+
           if (out_t.indexOf(n)==-1){
             out_t.push(n);
+            exp.push(oexp);
           }
         }
       }
     }
-    var out=_JSAPI.varGet(_VARNAME,{
+    var out=storeGet(_VARNAME,{
       detail:{},
       history:[],
-      fav:[]
+      fav:[],
+      exp:{
+        fav:[],
+        history:[],
+      }
     });
     // console.log(JSON.parse(JSON.stringify(out)));
-    listing(list.history, out.detail, out.history);
-    listing(list.fav, out.detail, out.fav);
-    _JSAPI.varSet(_VARNAME,out);
+    listing(list.history, out.detail, out.history, out.exp.history);
+    listing(list.fav, out.detail, out.fav, out.exp.fav);
+    storeSet(_VARNAME,out);
     console.log("Export from "+source_domains[_SDZ]);
     // console.log(JSON.stringify(out));
 
     if (_SDZ<source_domains.length-1){
       setTimeout(function(){
         var ts=_SDZ+1;
-        location=('https://'+source_domains[ts]+'/__view/export.html?'+$tick());
+        goTo('https://'+source_domains[ts]+'/__view/export.html?'+$tick());
       },200);
     }
     else{
-      _JSAPI.reloadHome();
+      // _JSAPI.reloadHome();
+      // _JSAPI.storeDel("export_global_list");
+      function prdat(t,d){
+        h='';
+        for (var i=0;i<d.length;i++){
+          var z=d[i];
+          var k=[];
+          k.push(i+1);
+          k.push(t);
+          k.push(z.title);
+          k.push(z.title_jp);
+          k.push(z.episode);
+          k.push(z.progress+"%");
+          k.push(z.id);
+          h+=k.join("\t")+"\n";
+        }
+        return h;
+      }
+
+      var g=storeGet(_VARNAME);
+      console.log(g.exp);
+      var h=
+        'No\tType\tTitle\tRomanji\tEpisode\tProgress\tID\n'+
+        prdat('WATCHLIST',g.exp.fav)+'\t\t\t\t\t\n'+
+        prdat('HISTORY',g.exp.history);
+      window._exportdata=h;
+      window.showTextArea=function(){
+        document.body.innerHTML=
+          '<h2 style="margin:0;padding:0">CSV Contents</h2>'+
+          'Copy to spreadsheet like excel or google sheet. Press BACK/ESC to return.<br><br>'+
+          '<textarea onclick="this.select()" '+
+            'style="padding:4px;border:0;outline:0;width:80%;height:50vh;background:#111;color:#ccc;border-radius:3px">'+
+            special(window._exportdata)+'</textarea>';
+        document.body.style.paddingTop='20vh';
+      };
+
+      if ('getMyIpAddress' in _JSAPI){
+        var urls='http://'+_JSAPI.getMyIpAddress()+'/export.csv'
+        _JSAPI.setExportString(h);
+        var qrurl='https://api.qrserver.com/v1/create-qr-code/?size=256x256&data='+encodeURIComponent(urls);
+        var m ='<h2>SCAN TO DOWNLOAD CSV</h2>'+
+          '<img style="max-height:60vh;outline:none" onclick="window.showTextArea();" src="'+qrurl+'">'+
+          '<br><br>Scan with same wifi network.<br>Press BACK to return..';
+        document.body.innerHTML=m;
+        document.body.style.paddingTop='5vh';
+      }
+      else{
+        window.showTextArea();
+      }
+      
+
+      window._KEYEV=function(key, evSource){
+        if (key==27){
+          _JSAPI.storeDel(_VARNAME);
+          _JSAPI.setExportString('');
+          _JSAPI.reloadHome();
+        }
+      };
     }
   }
   else{
-    _JSAPI.reloadHome();
+    // _JSAPI.reloadHome();
   }
 };
 </script>

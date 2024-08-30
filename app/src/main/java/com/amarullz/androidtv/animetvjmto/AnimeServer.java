@@ -1,5 +1,6 @@
 package com.amarullz.androidtv.animetvjmto;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.util.Log;
 
@@ -69,6 +70,7 @@ public class AnimeServer extends NanoHTTPD {
   }
 
   private String oldOrigin="";
+  public static String exportString="";
 
   @Override
   public Response serve(IHTTPSession session) {
@@ -82,7 +84,21 @@ public class AnimeServer extends NanoHTTPD {
       my_uri=my_uri.substring(2);
     }
 
-    if (my_uri.startsWith("/https://")) {
+    if (my_uri.startsWith("/export.csv")) {
+      rs = newFixedLengthResponse(new Response.IStatus() {
+        @Override
+        public String getDescription() {
+          return "OK";
+        }
+        @Override
+        public int getRequestStatus() {
+          return 200;
+        }
+      }, "text/csv", exportString);
+      rs.addHeader("Content-disposition",
+          "attachment;filename=AnimeTV-Export.csv");
+    }
+    else if (my_uri.startsWith("/https://")) {
       try {
         // session.getQueryParameterString()
         String urlTarget=my_uri.substring(1);
