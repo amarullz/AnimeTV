@@ -596,6 +596,9 @@ var gojo={
         }
         o.ep.push(oe);
       }
+      try{
+        o.ep[o.epactive].active=true;
+      }catch(e){}
       console.log(o);
       callCb(o);
     }
