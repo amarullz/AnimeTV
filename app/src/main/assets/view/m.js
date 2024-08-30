@@ -4981,6 +4981,7 @@ const vtt={
     'Font Type',
     'Font Size',
     'Font Weight',
+    'Outline',
     'Background',
     'Color',
     'Text Opacity'
@@ -4989,6 +4990,7 @@ const vtt={
     'brand_family',
     'format_size',
     'format_bold',
+    'text_format',
     'gradient',
     'palette',
     'opacity'
@@ -5004,7 +5006,6 @@ const vtt={
       "Philosopher",
       "Reddit Sans",
       "Exo",
-
       "Merienda"
     ],
     [
@@ -5018,6 +5019,12 @@ const vtt={
       "Bold",
       "Bolder",
       "Thin"
+    ],
+    [
+      "Thin Outline",
+      "Medium Outline",
+      "Thick Outline",
+      "Extra Thick Outline",
     ],
     [
       "No Background",
@@ -5050,7 +5057,7 @@ const vtt={
     ],
   ],
   style_divs:[
-    1,10,100,1000,10000,100000
+    1,10,100,1000,10000,100000,1000000
   ],
   style_get:function(v, t, sl){
     if (t<0 || t>=vtt.style_order.length){
