@@ -258,8 +258,8 @@ var gojo={
             var m=dat.info.data.Media;
             o={
               url:id,
-              title:m.title.english,
-              title_jp:m.title.romaji,
+              title:m.title.english?m.title.english:m.title.romaji,
+              title_jp:m.title.romaji?m.title.romaji:m.title.english,
               synopsis:m.description,
               genres:[],
               genre:'',
@@ -330,6 +330,32 @@ var gojo={
       dat.x++;
       oncb();
     },1);
+  },
+  getFromMAL:function(id,f){
+    _MAL.alreq(`query ($id: Int) {
+      Media(idMal:$id, type:ANIME, isAdult:false){
+        id
+        idMal
+        title{
+          romaji
+          english
+        }
+        coverImage{
+          large
+        }
+        status
+        duration
+        format
+        episodes
+        description
+        bannerImage
+        genres
+      }
+    }`,{
+          "id":id
+        },function(r){
+          f(r);
+        },1);
   },
   loadVideo:function(dt,f){
     var oe=dt.ep[dt.epactive];
@@ -17636,6 +17662,26 @@ const _MAL={
       console.log(JSON.stringify(d));
     }
     else{
+      if (__SD7){
+        gojo.getFromMAL(d.node.id,function(r){
+          if (r && r.data && r.data.Media){
+            var dm=r.data.Media;
+            var o=[{
+              url:dm.id+'',
+              tip:dm.id+'',
+              title:dm.title.english?dm.title.english:dm.title.romaji,
+              title_jp:dm.title.romaji?dm.title.romaji:dm.title.english,
+              poster:dm.coverImage.medium,
+              ep:dm.episodes
+            }];
+            cb(o);
+            return;
+          }
+          cb([]);
+        });
+        return;
+      }
+
       id=d.node.id;
       kw=d.node.title;
       kw2=kw; 
