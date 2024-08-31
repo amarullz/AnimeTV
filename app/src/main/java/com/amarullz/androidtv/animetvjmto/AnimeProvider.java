@@ -95,7 +95,7 @@ public class AnimeProvider {
                                 String tip = o.getString("tip");
                                 String ep = o.getString("ep");
                                 String desc = o.getString("type");
-                                if (!ep.equals("") && ep.equals("0")) {
+                                if (!ep.equals("") && !ep.equals("0")) {
                                     desc += " Episode " + ep;
                                 }
                                 desc = desc.trim();
