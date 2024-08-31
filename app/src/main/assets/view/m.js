@@ -16390,6 +16390,51 @@ const home={
 window.__ARGUPDATE=function(){
     var uri=_JSAPI.getArg("url");
     if (uri){
+      var vid=_JSAPI.getArg("tip");
+      _MAL.alreq(`query ($id: Int) {
+        Media(id:$id, type:ANIME, isAdult:false){
+          id
+          idMal
+          title{
+            romaji
+            english
+          }
+          coverImage{
+            large
+            medium
+            color
+          }
+          trailer {
+            id
+            site
+            thumbnail
+          }
+          status
+          duration
+          format
+          seasonYear
+          season
+          isAdult
+          nextAiringEpisode {
+            episode
+          }
+          averageScore
+          episodes
+          description
+          bannerImage
+          averageScore
+        }
+      }`,{
+        "id":vid
+      },function(r){
+        if (r){
+          var d=r.data.Media;
+          var malid="anilistmedia_"+d.id;
+          _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
+          _MAL.action_handler(malid);
+        }
+      },1);
+      /*
       var tip=_JSAPI.getArg("tip");
       var pos=_JSAPI.getArg("pos");
       var ssd=_JSAPI.getArg("sd");
@@ -16409,6 +16454,7 @@ window.__ARGUPDATE=function(){
       }
       console.log("ATVLOG ARGUPDATE -> "+uri+" / "+pos+" / "+tip+" / SD="+sd);
       pb.open(uri, tip,undefined,toInt(pos));
+      */
       _JSAPI.clearArg();
     }
 };

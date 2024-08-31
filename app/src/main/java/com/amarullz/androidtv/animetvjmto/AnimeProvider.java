@@ -95,7 +95,7 @@ public class AnimeProvider {
                                 String tip = o.getString("tip");
                                 String ep = o.getString("ep");
                                 String desc = o.getString("type");
-                                if (!ep.equals("")) {
+                                if (!ep.equals("") && ep.equals("0")) {
                                     desc += " Episode " + ep;
                                 }
                                 desc = desc.trim();
@@ -128,6 +128,36 @@ public class AnimeProvider {
 
     private void parseRecent(JSONArray r, String buf) throws JSONException{
         JSONObject jo=new JSONObject(buf);
+        JSONArray rs=
+            jo.getJSONObject("data")
+                .getJSONObject("Page")
+                .getJSONArray("airingSchedules");
+        for (int i=0;i<rs.length();i++){
+            try {
+                JSONObject med = rs.getJSONObject(i).getJSONObject("media");
+                JSONObject medT = med.getJSONObject("title");
+                String en = medT.isNull("english")?"":medT.getString("english");
+                String jp = medT.isNull("romaji")?"":medT.getString("romaji");
+                JSONObject medI = med.getJSONObject("coverImage");
+                String img=medI.getString("large");
+                String format=med.isNull("format")?"":med.getString("format");
+                if (format.equalsIgnoreCase("TV_SHORT")){
+                    format="TV";
+                }
+                int ep=med.isNull("episodes")?0:med.getInt("episodes");
+                long id=med.getLong("id");
+                JSONObject d = new JSONObject("{}");
+                d.put("url", id+"/"+ep);
+                d.put("title", en.isEmpty()?jp:en);
+                d.put("poster", img);
+                d.put("ep", ep);
+                d.put("type", format);
+                d.put("tip", id);
+                r.put(d);
+
+            }catch (JSONException ignored){}
+        }
+        /*
         if (jo.has("result")){
             String res=jo.getString("result");
             Document doc = Jsoup.parse(res);
@@ -157,12 +187,36 @@ public class AnimeProvider {
                 }
                 catch(Exception ignored){}
             }
-        }
+        }*/
     }
+
+    private static String ANILIST_GRAPHQL ="{\"query\":\"query ($tm: Int, " +
+        "$page: Int, $perPage: Int){ Page(page: $page, perPage: $perPage) { " +
+        "pageInfo { perPage hasNextPage currentPage } airingSchedules" +
+        "(airingAt_lesser:$tm,sort:TIME_DESC){ airingAt episode " +
+        "timeUntilAiring media{ id title{ romaji english } coverImage{ large " +
+        "} episodes format } } } }\",\"variables\":{\"tm\":0xFFFFFF," +
+        "\"page\":1,\"perPage\":30}}";
 
     /* Get latest updated sub */
     private void loadRecentExec(RecentCallback cb){
         try {
+            AnimeApi.Http http=new AnimeApi.Http("https://graphql.anilist.co/");
+            http.addHeader("Accept","application/json");
+
+            long unixTime = System.currentTimeMillis() / 1000L;
+            String postData = ANILIST_GRAPHQL.replace(
+                "0xFFFFFF",unixTime+"");
+            http.setMethod("POST",postData,"application/json");
+            http.execute();
+
+            JSONArray r=new JSONArray("[]");
+            parseRecent(r,http.body.toString());
+
+            cb.onFinish(r.toString());
+
+
+            /*
             AnimeApi.Http http=new AnimeApi.Http(
                     "https://"+Conf.getDomain()+"/ajax/home/widget/updated-sub");
             http.execute();
@@ -174,6 +228,8 @@ public class AnimeProvider {
                     "?page=2");
             http.execute();
             parseRecent(r,http.body.toString());
+            */
+
             if (r.length()>0) {
                 Log.d(_TAG,"GOT RECENTS => "+r.length());
                 cb.onFinish(r.toString());
@@ -266,7 +322,7 @@ public class AnimeProvider {
         PreviewProgram.Builder builder = new PreviewProgram.Builder();
         @SuppressLint("UnsafeOptInUsageError") Intent myIntent = new Intent(ctx, MainActivity.class);
         myIntent.setPackage(ctx.getPackageName());
-        myIntent.putExtra("viewurl", "https://aniwave.to"+uri);
+        myIntent.putExtra("viewurl", /*"https://aniwave.to"+*/ uri);
         myIntent.putExtra("viewtip", tip);
         myIntent.putExtra("viewsd", "1");
         myIntent.putExtra("viewpos", "0");
