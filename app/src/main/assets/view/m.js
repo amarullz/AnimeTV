@@ -510,7 +510,14 @@ var gojo={
       }
       console.log(dat);
       const d=dat.tip;
+      var malId=d.gojo.info.data.Media.idMal;
+      // $ap('https://api.aniskip.com/v2/skip-times/'+malId+'/'+ep+
+      //   '?episodeLength=0&types%5B%5D=ed&types%5B%5D=mixed-ed&types%5B%5D=mixed-op&types%5B%5D=op&types%5B%5D=recap',
+      // function(r){
+      //   console.warn(["EP SKIP ANI", r]);
+      // });
       var o={
+        "idMal":malId,
         "title": d.title,
         "title_jp": d.title_jp,
         "synopsis": d.synopsis,
@@ -593,6 +600,8 @@ var gojo={
           if (oe.img){
             o.banner=oe.img;
           }
+
+          
         }
         o.ep.push(oe);
       }
@@ -3024,6 +3033,7 @@ const _API={
     if (src_ori){
       if (pb.cfg_data && pb.cfg_data.hlsproxy){
         if (
+          !__SD7 &&
           (src_ori.indexOf("#dash")==-1)
           && (src_ori.indexOf("mp4upload.com")==-1)
           && (src_ori.indexOf("netmagcdn.com")==-1)

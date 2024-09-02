@@ -30,15 +30,32 @@ var res=await fetch('https://shiroko.co/api/v2/episode/21',{method:"GET",
           'referer': 'https://shiroko.co/'
         }});
 await res.text();
+
+var res=await fetch('https://kaizoku.live/api/v2/episode/21',{method:"GET",
+        headers:{
+          'referer': 'https://kaizoku.live/'
+        }});
+await res.text();
 ```
 
 
 ## Get Source
 ```
-var res=await fetch('https://shiroko.co/api/v2/source',{method:"POST",
+var res=await fetch('https://shiroko.co/api/v2/source',{
+        method:"POST",
         headers:{
-          'referer': 'https://shiroko.co/en/anime/watch?id=162804&prv=soft&n=1'
-        }});
+          'referer': 'https://shiroko.co/',
+          'content-type':'application/json',
+          'Accept': 'application/json',
+        },
+        body:JSON.stringify({
+            "providerId": "soft",
+            "watchId": "alya-sometimes-hides-her-feelings-in-russian-19254?ep=125794",
+            "id": 162804,
+            "sub": "sub"
+        })
+    });
+await res.text();
 
 DATA: {
     "providerId": "soft",

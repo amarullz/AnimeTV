@@ -134,6 +134,12 @@ const intercept={
   /* check and modify proxy headers */
   checkHeaders(h){
     let body=null;
+
+    if (h.has('X-Cookie')){
+      h.set('Cookie',h.get('X-Cookie'));
+      h.delete('X-Cookie');
+    }
+
     if (h.has('X-NoH-Proxy')){
       h.delete('Host');
       h.delete('Origin');
