@@ -10,6 +10,18 @@ https://api.aniskip.com/v2/skip-times/54744/3?episodeLength=0&types%5B%5D=ed&typ
 
 # MIRURO
 ```
+curl 'https://mapper.miruro.tv/mal/anime/54744.json' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0' \
+  -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+curl 'https://mapper.miruro.tv/anilist/anime/162804.json' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0' \
+  -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=
+
 https://miruro-api.vercel.app/meta/anilist/data/<ANILIST-ID>
 https://miruro-api.vercel.app/meta/anilist/data/162804
 
@@ -20,6 +32,23 @@ https://aniwatch-api-azure.vercel.app/anime/info?id=alya-sometimes-hides-her-fee
 
 https://miruro-api.vercel.app/meta/anilist/watch/tokidoki-bosotto-russia-go-de-dereru-tonari-no-alya-san-episode-4
 
+```
+
+## MIRURO KEYS
+```js
+# index.js
+const BASE_URL = ensureUrlEndsWithSlash("https://api.miruro.tv/")
+  , BASE_URL_2 = ensureUrlEndsWithSlash("https://api.miruro.tv/")
+  , BASE_URL_3 = ensureUrlEndsWithSlash("https://hi.miruro.tv/")
+  , BASE_URL_4 = ensureUrlEndsWithSlash("https://api.malsync.moe/")
+  , BASE_URL_5 = ensureUrlEndsWithSlash("https://mapper.miruro.tv/")
+  , SKIP_TIMES = ensureUrlEndsWithSlash("https://api.aniskip.com/")
+  , PROXY_ALPHA = ensureUrlEndsWithSlash("https://alpha.miruro.tv")
+  , PROXY_BETA = ensureUrlEndsWithSlash("https://beta.miruro.tv")
+  , PROXY_GAMMA = ensureUrlEndsWithSlash("https://gamma.miruro.tv")
+  , PROXY_DELTA = ensureUrlEndsWithSlash("https://delta.miruro.tv")
+  , PROXY_EPSILON = ensureUrlEndsWithSlash("https://epsilon.miruro.tv")
+  , API_KEY = "12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=";
 ```
 
 # SHIROKO API
