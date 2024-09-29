@@ -530,9 +530,10 @@ public class MainActivity extends FragmentActivity {
 
   public AnimeServer animeServer;
   public void initCastService(){
-    if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)) {
-      castContext = CastContext.getSharedInstance(this);
-      mSessionManager = castContext.getSessionManager();
+    boolean isTV = getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+    if (!isTV) {
+        castContext = CastContext.getSharedInstance(this);
+        mSessionManager = castContext.getSessionManager();
     }
     castMediaConnected=false;
 
