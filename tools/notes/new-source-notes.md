@@ -10,6 +10,59 @@ https://api.aniskip.com/v2/skip-times/54744/3?episodeLength=0&types%5B%5D=ed&typ
 
 # MIRURO
 ```
+12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=
+12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=
+
+
+curl 'https://alpha.miruro.tv/?url=https:%2F%2Fdio.miruro.tv%2Finfo%3Fid%3D178729%26provider%3Danilist' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'origin: https://www.miruro.tv' \
+  -H 'referer: https://www.miruro.tv/' \  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0' \
+  -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+
+curl 'https://dio.miruro.tv/info?id=178729&provider=anilist' -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+curl 'https://dio.miruro.tv/mal/anime/54744.json' -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+https://mapper.miruro.tv/mal/anime/54744.json
+
+https://mapper.miruro.tv/mal/anime/59175.json
+
+
+curl 'https://mapper.miruro.tv/mal/anime/59175.json' -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+
+curl 'https://mapper.miruro.tv/mal/anime/59175.json' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'origin: https://www.miruro.tv' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0' \
+  -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+
+
+curl 'https://mapper.miruro.tv/anilist/anime/21.json' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'origin: https://www.miruro.tv' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0' \
+  -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+
+curl 'https://mapper.miruro.tv/mal/anime/21.json' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'origin: https://www.miruro.tv' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0' \
+  -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+curl 'https://dio.miruro.tv/info?id=5691&provider=animepahe' \
+  -H 'accept: application/json, text/plain, */*' \
+  -H 'origin: https://www.miruro.tv' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0' \
+  -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+
+---------- OLD -------------
+
+
 curl 'https://mapper.miruro.tv/mal/anime/54744.json' \
   -H 'accept: application/json, text/plain, */*' \
   -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0' \
