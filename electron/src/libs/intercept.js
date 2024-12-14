@@ -375,10 +375,24 @@ const intercept={
       /* Aniwatch stream meta fetcher */
       else if (intercept.domains.aniwatch.indexOf(url.host)>-1){
         var accept=req.headers.get("Accept");
-        if (accept && (accept.startsWith("text/css")||accept.startsWith("image/"))){
+        if (accept && (accept.startsWith("text/css"))) { /*||accept.startsWith("image/"))){*/
           return intercept.fetchError();
         }
-        req.headers.set("Referer","https://aniwatchtv.to/");
+
+        if (url.pathname.indexOf('/embed-')>-1){
+          req.headers.set("Referer","https://hianime.to/");
+          console.log("EMBED = "+url);
+        }
+        if (url.pathname.indexOf('/getSources')>-1){
+          console.log("SOURCES = "+url);
+          return intercept.fetchNormal(req);
+        }
+        
+        //   console.log("GET SORCES = "+url);
+        //   let f=intercept.fetchStream(req);
+        //   let body=await (await f).text();
+        //   console.log(body);
+        // }
         return intercept.fetchStream(req);
       }
 
@@ -449,6 +463,7 @@ const intercept={
         url.hostname.includes("play.google.com")||
         url.hostname.includes("www.google.com")||
         url.hostname.includes("googleapis.com")||
+        url.hostname.includes("nakedanalytics.net")||
         url.hostname.includes("precedelaxative.com")
       ){
         return intercept.fetchError();

@@ -1061,7 +1061,7 @@ import javax.crypto.spec.SecretKeySpec;
       return super.shouldInterceptRequest(view, request);
     }
     else if (host.contains(Conf.STREAM_DOMAIN3)||host.contains(Conf.STREAM_DOMAIN4)){
-      if (accept.startsWith("text/css")||accept.startsWith("image/")){
+      if (accept.startsWith("text/css")){ // ||accept.startsWith("image/")){
         return aApi.badRequest;
       }
       return aApi.defaultRequest(view,request);
