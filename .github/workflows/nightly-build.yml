@@ -10,7 +10,8 @@ jobs:
     release_desktop:
         strategy:
             matrix:
-                platform: [ windows-latest, ubuntu-latest, macos-latest, macos-13]
+                platform: [ windows-latest, ubuntu-latest]
+                # platform: [ windows-latest, ubuntu-latest, macos-latest, macos-13]
         runs-on: ${{ matrix.platform }}
         if: startsWith(github.event.head_commit.message, 'Release:')
         steps:
@@ -39,27 +40,27 @@ jobs:
             - name: Install app dependencies
               run: npm install
             
-            - name: Build app (MacOS - arm64)
-              if: matrix.platform == 'macos-latest'
-              run: npm run build-mac
+            # - name: Build app (MacOS - arm64)
+            #   if: matrix.platform == 'macos-latest'
+            #   run: npm run build-mac
             
-            - name: Upload build (MacOS - arm64)
-              uses: actions/upload-artifact@v4
-              if: matrix.platform == 'macos-latest'
-              with:
-                name: animetv-mac-arm64.dmg
-                path: ./electron/builds/animetv-darwin-arm64/*.dmg
+            # - name: Upload build (MacOS - arm64)
+            #   uses: actions/upload-artifact@v4
+            #   if: matrix.platform == 'macos-latest'
+            #   with:
+            #     name: animetv-mac-arm64.dmg
+            #     path: ./electron/builds/animetv-darwin-arm64/*.dmg
             
-            - name: Build app (MacOS - x64)
-              if: matrix.platform == 'macos-13'
-              run: npm run build-mac-x64
+            # - name: Build app (MacOS - x64)
+            #   if: matrix.platform == 'macos-13'
+            #   run: npm run build-mac-x64
             
-            - name: Upload build (MacOS - x64)
-              uses: actions/upload-artifact@v4
-              if: matrix.platform == 'macos-13'
-              with:
-                name: animetv-mac-x64.dmg
-                path: ./electron/builds/animetv-darwin-x64/*.dmg
+            # - name: Upload build (MacOS - x64)
+            #   uses: actions/upload-artifact@v4
+            #   if: matrix.platform == 'macos-13'
+            #   with:
+            #     name: animetv-mac-x64.dmg
+            #     path: ./electron/builds/animetv-darwin-x64/*.dmg
             
             - name: Build app (Windows - x64)
               if: matrix.platform == 'windows-latest'

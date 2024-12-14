@@ -83,13 +83,16 @@ import com.devbrackets.android.exomedia.nmp.config.PlayerConfig;
 import com.devbrackets.android.exomedia.nmp.config.PlayerConfigBuilder;
 import com.devbrackets.android.exomedia.nmp.manager.track.TrackManager;
 import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -121,6 +124,8 @@ import javax.crypto.spec.SecretKeySpec;
   public String playerInjectString;
   public boolean webViewReady=false;
   public static boolean USE_WEB_VIEW_ASSETS=false;
+
+  public String sourceCacheString = "";
 
   public AudioManager audioManager;
 
@@ -912,6 +917,19 @@ import javax.crypto.spec.SecretKeySpec;
       }
       return aApi.assetsRequest(uri.getPath().substring(3));
     }
+    else if (path.startsWith("/__cache_subtitle")){
+      String out="";
+      if (path.startsWith("/__cache_subtitle/clear")) {
+        out = "OK";
+        sourceCacheString = "";
+      }
+      else{
+        out=sourceCacheString;
+      }
+      InputStream stream =
+          new ByteArrayInputStream(out.getBytes(StandardCharsets.UTF_8));
+      return new WebResourceResponse("text/plain", "UTF-8", stream);
+    }
     else if (path.startsWith("/__proxy/")){
       /* Proxy */
       try {
@@ -1063,6 +1081,21 @@ import javax.crypto.spec.SecretKeySpec;
     else if (host.contains(Conf.STREAM_DOMAIN3)||host.contains(Conf.STREAM_DOMAIN4)){
       if (accept.startsWith("text/css")){ // ||accept.startsWith("image/")){
         return aApi.badRequest;
+      }
+
+      // sourceCacheString
+      if (path.contains("/getSources")){
+        WebResourceResponse res = aApi.defaultRequest(view,request);
+        String result = "";
+        try {
+          result = CharStreams.toString(new InputStreamReader(res.getData(),Charsets.UTF_8));
+          sourceCacheString=result;
+        } catch (Exception ignored) {}
+        Log.d(_TAG, "CACHE VALUE =" + result);
+        InputStream stream =
+            new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));
+        res.setData(stream);
+        return res;
       }
       return aApi.defaultRequest(view,request);
     }

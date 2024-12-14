@@ -8187,50 +8187,60 @@ const pb={
       dt.ep_stream_sel = seld;
       var subld = dt.ep_servers[subut][subuid];
       console.log("GOT-VIDEO-IFRAME-URL : "+seld.link);
-      console.log("GOT-SUB-URL : "+subld.link);
+      console.log("GOT-SUB-URL : "+subld.link+" LOAD SUB: "+loadSubtitle);
 
       // Get Video Data
       if (loadSubtitle){
-        var vvturl='https://'+seld.dns+'/embed-2/ajax/e-1/getSources?id='+enc(subld.sid);
-        $ap(vvturl,function(r){
-          if (r.ok){
-            try{
-              var jv=JSON.parse(r.responseText);
-              /* Load Intro / Outro */
-              try{
-                var st=jv.intro.start;
-                var en=jv.intro.end;
-                var sto=jv.outro.start;
-                var eno=jv.outro.end;
-                dt.skip=[
-                  [st?st:0,en?en:0],
-                  [sto?sto:0,eno?eno:0]
-                ];
-              }catch(e){}
-              
-              /* Load Subtitle */
-              vtt.clear();
-              pb.subtitles=[];
-              window.__subtitle=pb.subtitles;
-              try{
-                if (jv.tracks){
-                  var n=jv.tracks.length;
-                  for (var i=0;i<n;i++){
-                    var tk=jv.tracks[i];
-                    if (tk.kind=='captions'){
-                      pb.subtitles.push({
-                        u:tk.file,
-                        d:tk.default?1:0,
-                        l:(tk.label+'').toLowerCase().trim()
-                      });
+        function initSubtitle(){
+          $a('/__cache_subtitle?t='+$tick(),function(r){
+            if (r.ok){
+              if (r.responseText){
+                try{
+                  var jv=JSON.parse(r.responseText);
+                  /* Load Intro / Outro */
+                  try{
+                    var st=jv.intro.start;
+                    var en=jv.intro.end;
+                    var sto=jv.outro.start;
+                    var eno=jv.outro.end;
+                    dt.skip=[
+                      [st?st:0,en?en:0],
+                      [sto?sto:0,eno?eno:0]
+                    ];
+                  }catch(e){}
+                  
+                  /* Load Subtitle */
+                  vtt.clear();
+                  pb.subtitles=[];
+                  window.__subtitle=pb.subtitles;
+                  try{
+                    if (jv.tracks){
+                      var n=jv.tracks.length;
+                      for (var i=0;i<n;i++){
+                        var tk=jv.tracks[i];
+                        if (tk.kind=='captions'){
+                          pb.subtitles.push({
+                            u:tk.file,
+                            d:tk.default?1:0,
+                            l:(tk.label+'').toLowerCase().trim()
+                          });
+                        }
+                      }
+                      vtt.init(pb.subtitles);
                     }
-                  }
-                  vtt.init(pb.subtitles);
-                }
-              }catch(e){}
-            }catch(ee){}
-          }
+                  }catch(e){}
+                }catch(ee){}
+              }
+              else{
+                setTimeout(initSubtitle,500);
+              }
+            }
+          });
+        }
+        $a('/__cache_subtitle/clear?t='+$tick(),function(r){
+          setTimeout(initSubtitle,500);
         });
+        
       }
       cb();
       return;

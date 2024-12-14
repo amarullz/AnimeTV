@@ -79,6 +79,8 @@ const intercept={
     ]
   },
 
+  getsource_cache:"",
+
   /* init constant strings & register protocol */
   playerInjectString:"",
   youtubeInjectString:"",
@@ -274,6 +276,20 @@ const intercept={
         return net.fetch(common.viewRequest(p));
       }
 
+      else if (url.pathname.startsWith('/__cache_subtitle')){
+        if (url.pathname.startsWith('/__cache_subtitle/clear')){
+          intercept.getsource_cache="";
+          console.log("CLEAR CACHE SUBTITLE = "+url);
+          return new Response("OK", {
+            status: 200
+          });  
+        }
+        console.log("GET CACHE SUBTITLE = "+url);
+          return new Response(intercept.getsource_cache, {
+            status: 200
+          });
+      }
+
       /* UI Player */
       else if (url.pathname.startsWith("/__ui/")) {
         var p = url.pathname.substring(6);
@@ -378,21 +394,23 @@ const intercept={
         if (accept && (accept.startsWith("text/css"))) { /*||accept.startsWith("image/"))){*/
           return intercept.fetchError();
         }
-
         if (url.pathname.indexOf('/embed-')>-1){
           req.headers.set("Referer","https://hianime.to/");
-          console.log("EMBED = "+url);
         }
         if (url.pathname.indexOf('/getSources')>-1){
           console.log("SOURCES = "+url);
+          
+          let f=intercept.fetchNormal(req);
+          let body=await (await f).text();
+          console.log(body);
+          intercept.getsource_cache=body;
+          // return new Response(body, {
+          //   status: f.status,
+          //   headers: f.headers
+          // });
           return intercept.fetchNormal(req);
         }
         
-        //   console.log("GET SORCES = "+url);
-        //   let f=intercept.fetchStream(req);
-        //   let body=await (await f).text();
-        //   console.log(body);
-        // }
         return intercept.fetchStream(req);
       }
 
