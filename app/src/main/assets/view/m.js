@@ -314,7 +314,8 @@ var miruro={
             rating:'',
             ttid:id,
             poster:m.coverImage.large,
-            tip:id
+            tip:id,
+            malId:m.idMal
           };
           o.genre=m.genres.join(", ");
           for (var i=1;i<m.genres.length;i++){
@@ -343,6 +344,42 @@ var miruro={
     return gojo.recent_parse(v);
   },
   loadVideo:function(dt,f){ /* dt: data, f: callback */
+    var epProv="animepahe";
+    var epNum=dt.epactivenum;
+
+
+    /* ANIMEPAHE */
+    if (epProv=="animepahe" && ('animepahe' in dt._provider)){
+      var eprov=dt._provider.animepahe;
+      miruro.req('dio','/sources?id='+eprov.id+'&provider=animepahe&ep='+epNum,function(k){
+        if (!k || !k.videoSources){
+          f(null);
+          return;
+        }
+        var selId=0;
+        var currRes=0;
+        for (var i=0;i<k.videoSources.length;i++){
+          var isDub=(k.videoSources[i].audio=='eng');
+          if (!isDub){
+            var res=toInt(k.videoSources[i].resolution);
+            if (currRes<res){
+              currRes=res;
+              selId=i;
+            }
+          }
+        }
+        dt.skip=[[0,0],[0,0]];
+        var src = k.videoSources[selId].m3u8Url;
+        if (src){
+          var o={
+            url:src
+          };
+          f(o);
+          return;
+        }
+      });
+    }
+
   },
   getView:function(url,f){ /* dt: data, f: callback */
     var uid=++_API.viewid;
@@ -356,7 +393,10 @@ var miruro={
       d.status=true;
       f(JSON.parse(JSON.stringify(d)),uid);
     }
-
+    function failCb(){
+      f({status:false},uid);
+    }
+    
     var mirrors=[
       "animepahe",
       "Gogoanime",
@@ -365,15 +405,72 @@ var miruro={
 
     var providerN=0;
     var providerLoaded=0;
-    var providerData=[];
+    var providerData={};
+
+    /* DATA FETCH */
+    var dat ={
+      tip:null,
+      cov:null,
+      x:0,
+      out:{}
+    };
 
     function providerFetched(){
       if (++providerLoaded<providerN){
         return;
       }
-      console.log(providerData);
-    }
+      dat.out._provider=providerData;
 
+      /* List Episodes */
+      if ('animepahe' in providerData){
+        var pd=providerData['animepahe'];
+        for (var i=0;i<pd.episodeList.length;i++){
+          var pp=pd.episodeList[i];
+          var oe={
+            "ep":pp.number,
+            "url":dat.out.url+"#"+pp.number,
+            "active":ep==pp.number,
+            "filler":false,
+            "img":pp.snapshot
+          };
+          if (oe.active){
+            dat.out.epactive=i;
+            if (oe.img){
+              dat.out.banner=oe.img;
+            }  
+          }
+          dat.out.ep.push(oe);
+        }
+        try{
+          dat.out.ep[dat.out.epactive].active=true;
+          dat.out.epactivenum = dat.out.ep[dat.out.epactive].ep;
+        }catch(e){}
+      }
+      else if ('gogoanime' in providerData){
+        var pd=providerData['gogoanime'];
+        for (var i=0;i<pd.episodes.length;i++){
+          var pp=pd.episodes[i];
+          var oe={
+            "ep":pp.number,
+            "url":dat.out.url+"#"+pp.number,
+            "active":ep==pp.number,
+            "filler":false
+          };
+          if (oe.active){
+            dat.out.epactive=i;
+            if (oe.img){
+              dat.out.banner=oe.img;
+            }  
+          }
+          dat.out.ep.push(oe);
+        }
+        try{
+          dat.out.ep[dat.out.epactive].active=true;
+          dat.out.epactivenum = dat.out.ep[dat.out.epactive].ep;
+        }catch(e){}
+      }
+      callCb(dat.out);
+    }
     function fetchProviders(prov, site, sid){
       if (!site){
         return 0;
@@ -388,18 +485,70 @@ var miruro={
         if (r){
           r._prov = provid;
           r._sid = site_id;
-          providerData.push(r);
+          var provIdArr=provid;
+          if (provid=="gogoanime"){
+            if (site_id.endsWith('-dub')){
+              provIdArr="gogoanime_dub";
+            }
+          }
+          if (!(provIdArr in providerData)){
+            providerData[provIdArr]=r;
+          }
         }
         providerFetched();
       });
       return 1;
     }
 
-    miruro.req("mapper","/anilist/anime/"+uri+".json",function(r){
+    function datacb(){
+      if (dat.x!=2){
+        return;
+      }
+      if (!dat.cov || !dat.tip){
+        failCb();
+        return;
+      }
+
+      var d = dat.tip;
+      var r = dat.cov;
+
+      dat.out={
+        "idMal":d.malId,
+        "title": d.title,
+        "title_jp": d.title_jp,
+        "synopsis": d.synopsis,
+        "genres": d.genres,
+        "quality": null,
+        "banner": null,
+        "rating": "",
+        "ttid": d.tip,
+        "url": d.url,
+        "poster": d.poster,
+        "rating":"",
+        "status": false,
+        "epavail": d.ep,
+        "epdub": 0,
+        "type": "TV",
+        "genre": d.genre,
+        "info": {
+            "type": {
+                "val": "_TV",
+                "name": "TV"
+            },
+            "rating": "",
+            "quality": null
+        },
+        "ep": [],
+        "epactive":0,
+        "epactivenum":ep,
+        "servers":{dub:[],sub:[],softsub:[]},
+        "streamtype":"sub",
+        "stream_url":{}
+      };
+
       providerN=0;
       providerLoaded=0;
       if (r){
-        console.log("MIRROR: "+pb.cfg_data.mirrorserver);
         for (var i=0;i<mirrors.length;i++){
           var prov = mirrors[i];
           if (prov in r.Sites){
@@ -411,13 +560,23 @@ var miruro={
           }
         }
       }
-      if (providerN==0){
-        f({status:false},uid);
-      }
-    });
-    // https://mapper.miruro.tv/anilist/anime/169755.json
 
-    console.warn(uri);
+      if (providerN==0){
+        failCb();
+      }
+    }
+
+    miruro.getTooltip(uri, function(k){
+      if (k) dat.tip=k;
+      dat.x++;
+      datacb();
+    }, uri, true);
+
+    miruro.req("mapper","/anilist/anime/"+uri+".json",function(k){
+      if (k) dat.cov=k;
+      dat.x++;
+      datacb();
+    });
     return uid;
   }
 }
@@ -7965,6 +8124,15 @@ const pb={
       }
       else if (__SD8){
         miruro.loadVideo(pb.data, function(v){
+          if (!v){
+            pb.playback_error(
+              'PLAYBACK ERROR',
+              "Loading video from source failed.\nTry changing mirror or check source server."
+            );
+          }
+          else{
+            pb.init_video_mp4upload(v.url);
+          }
         });
       }
       else if (__SD6){
