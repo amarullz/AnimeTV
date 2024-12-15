@@ -13,6 +13,80 @@ https://api.aniskip.com/v2/skip-times/54744/3?episodeLength=0&types%5B%5D=ed&typ
 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=
 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=
 
+# Get anime info: Bleach: Thousand-Year Blood War - The Conflict
+curl "https://mapper.miruro.tv/anilist/anime/169755.json" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+# Get Episode Bleach - Animepahe
+curl "https://dio.miruro.tv/info?id=5652&provider=animepahe" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+# Get Episode M3U8
+curl "https://dio.miruro.tv/sources?id=5652&provider=animepahe&ep=1" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+curl "https://dio.miruro.tv/sources?id=5652&provider=animepahe&ep=1" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+curl "https://dio.miruro.tv/sources?id=bleach-sennen-kessen-hen-soukoku-tan&provider=gogoanime&ep=1" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+curl "https://dio.miruro.tv/sources?id=bleach-thousand-year-blood-war-the-conflict-19322&provider=zoro&ep=128682" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+
+curl "https://dio.miruro.tv/info?id=bleach-thousand-year-blood-war-the-conflict-19322&provider=zoro" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+
+curl "https://zeta.miruro.tv/?url=https:%2F%2Fhi.miruro.tv%2Fapi%2Fv2%2Fhianime%2Fepisode%2Fsources%3FanimeEpisodeId%3Dbleach-thousand-year-blood-war-the-conflict-19322%3Fep%3D128682%3Fep%3Dbleach-thousand-year-blood-war-the-conflict-19322%3Fep%3D128682%3Fserver%3Dhd-1%26category%3Dsub" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+https://hi.miruro.tv/api/v2/hianime/episode/sources?animeEpisodeId=bleach-thousand-year-blood-war-the-conflict-19322?ep=128682?ep=bleach-thousand-year-blood-war-the-conflict-19322?ep=128682?server=hd-1&category=sub
+
+
+
+
+https://hi.miruro.tv/api/v2/hianime/episode/sources?animeEpisodeId=bleach-thousand-year-blood-war-the-conflict-19322?ep=128682?ep=bleach-thousand-year-blood-war-the-conflict-19322?ep=128682?server=hd-1&category=sub
+
+https://hi.miruro.tv/api/v2/hianime/episode/sources?animeEpisodeId=anime-19322%3Fep%3D128682
+
+
+# Info Episode List
+{
+    "episodeList": {
+        "status": true,
+        "totalItems": 11,
+        "episodes": [
+        {
+            "number": 1,
+            "id": "128444",
+            "title": "A",
+            "jptitle": "A",
+            "href": "/watch/bleach-thousand-year-blood-war-the-conflict-19322?ep=128444",
+            "filler": false
+        },
+        {
+            "number": 2,
+            "id": "128578",
+            "title": "Kill the King",
+            "jptitle": "Kill the King",
+            "href": "/watch/bleach-thousand-year-blood-war-the-conflict-19322?ep=128578",
+            "filler": false
+        }
+        ]
+    }
+}
+<HREF> = href.substring(7) => "/watch/bleach-thousand-year-blood-war-the-conflict-19322?ep=128578" => "bleach-thousand-year-blood-war-the-conflict-19322?ep=128578"
+<API-URL> = https://hi.miruro.tv/api/v2/hianime/episode/sources?animeEpisodeId=<HREF>?ep=<HREF>?server=hd-1&category=sub
+GET URL = "https://zeta.miruro.tv/?url="+encodeURIComponent(<API-URL>);
+
+---- GET SOURCES HIANIME ----
+
+curl "https://zeta.miruro.tv/?url=https%3A%2F%2Fhi.miruro.tv%2Fapi%2Fv2%2Fhianime%2Fepisode%2Fsources%3FanimeEpisodeId%3Dbleach-thousand-year-blood-war-the-conflict-19322%3Fep%3D129599%3Fep%3Dbleach-thousand-year-blood-war-the-conflict-19322%3Fep%3D129599%3Fserver%3Dhd-1%26category%3Dsub" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+
+curl "https://beta.miruro.tv/?url=https%3A%2F%2Fhi.miruro.tv%2Fapi%2Fv2%2Fhianime%2Fepisode%2Fsources%3FanimeEpisodeId%3Dbleach-thousand-year-blood-war-the-conflict-19322%3Fep%3D129599%3Fep%3Dbleach-thousand-year-blood-war-the-conflict-19322%3Fep%3D129599%3Fserver%3Dhd-1%26category%3Dsub" -H "origin: https://www.miruro.tv" -H "x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ="
+
+
+/watch/bleach-thousand-year-blood-war-the-conflict-19322?ep=128682
+https://hi.miruro.tv/api/v2/hianime/episode/sources?animeEpisodeId=bleach-thousand-year-blood-war-the-conflict-19322?ep=129599?ep=bleach-thousand-year-blood-war-the-conflict-19322?ep=129599?server=hd-1&category=sub
+
+
+---- INFO ----
+
 
 curl 'https://alpha.miruro.tv/?url=https:%2F%2Fdio.miruro.tv%2Finfo%3Fid%3D178729%26provider%3Danilist' \
   -H 'accept: application/json, text/plain, */*' \
@@ -23,6 +97,11 @@ curl 'https://alpha.miruro.tv/?url=https:%2F%2Fdio.miruro.tv%2Finfo%3Fid%3D17872
 
 curl 'https://dio.miruro.tv/info?id=178729&provider=anilist' -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
 curl 'https://dio.miruro.tv/mal/anime/54744.json' -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ='
+
+
+curl 'https://mapper.miruro.tv/anilist/anime/21.json' -H 'x-atx: 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=' -H 'origin: https://www.miruro.tv'
+
+
 
 https://mapper.miruro.tv/mal/anime/54744.json
 

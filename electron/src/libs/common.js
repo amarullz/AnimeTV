@@ -36,7 +36,8 @@ const common={
     "aniwatchtv.to",
     "animeflix.live",
     "kaas.to",
-    "api.gojo.live"
+    "api.gojo.live",
+    "www.miruro.tv"
   ],
   main:{
     /* animetv.js global object */
