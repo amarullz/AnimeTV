@@ -228,7 +228,15 @@ var miruro={
     gamma:"https://gamma.miruro.tv",
   },
   req:function(b,u,cb){
-    return $ap(miruro.base[b]+u,cb,miruro.add_headers);
+    return $ap(miruro.base[b]+u,function(r){
+      if (r.ok){
+        try{
+          cb(JSON.parse(r.responseText));
+          return;
+        }catch(e){}
+      }
+      cb(null);
+    },miruro.add_headers);
   },
   getAnimeId:function(url){
     var ux=url.split('#');
@@ -257,7 +265,7 @@ var miruro={
     if (id in miruro.cache){
       if (miruro.cache[id]){
         var oval=JSON.parse(miruro.cache[id]);
-        if (!isview || (isview && oval.miruro.ep)){
+        if ('url' in oval){
           requestAnimationFrame(function(){
             cb(oval);
           });
@@ -265,30 +273,6 @@ var miruro={
         }
       }
     }
-    var dat={
-      info:null,
-      ep:null,
-      x:0
-    };
-
-    function oncb(){
-      if (dat.x==2){
-        console.log(dat);
-      }
-    }
-
-    miruro.req("mapper","/anilist/anime/"+id+".json",function(r){
-      if (r.ok){
-        try{
-          dat.ep=JSON.parse(r.responseText);
-        }
-        catch(e){
-          dat.ep=null;
-        }
-      }
-      dat.x++;
-      oncb();
-    });
     _MAL.alreq(`query ($id: Int) {
       Media(id:$id, type:ANIME, isAdult:false){
         id
@@ -311,9 +295,45 @@ var miruro={
     }`,{
           "id":id
         },function(r){
-      dat.info=r;
-      dat.x++;
-      oncb();
+      if (r){
+        var o=null;
+        var ostr=null;
+        try{
+          var m = r.data.Media;
+          var kk=document.createElement('div');
+          kk.innerHTML=m.description;
+          o={
+            url:id,
+            title:m.title.english?m.title.english:m.title.romaji,
+            title_jp:m.title.romaji?m.title.romaji:m.title.english,
+            synopsis:(kk.textContent+'').trim(),
+            genres:[],
+            genre:'',
+            quality:null,
+            ep:m.episodes,
+            rating:'',
+            ttid:id,
+            poster:m.coverImage.large,
+            tip:id
+          };
+          o.genre=m.genres.join(", ");
+          for (var i=1;i<m.genres.length;i++){
+            try{
+              o.genres.push({
+                name:m.genres[i],
+                val:m.genres[i].toLowerCase()
+              });
+            }catch(e){}
+          }
+          ostr=JSON.stringify(o);
+          miruro.cache[id]=ostr;
+        }catch(e){
+          console.warn(e);
+        }
+        cb(JSON.parse(ostr));
+        return;
+      }
+      cb(null);
     },1);
   },
   getFromMAL:function(id,f){
@@ -325,6 +345,80 @@ var miruro={
   loadVideo:function(dt,f){ /* dt: data, f: callback */
   },
   getView:function(url,f){ /* dt: data, f: callback */
+    var uid=++_API.viewid;
+    var ux=url.split('#');
+    var uri=ux[0];
+    var ep=1;
+    if (ux.length==2){
+      ep=ux[1]?ux[1]:0;
+    }
+    function callCb(d){
+      d.status=true;
+      f(JSON.parse(JSON.stringify(d)),uid);
+    }
+
+    var mirrors=[
+      "animepahe",
+      "Gogoanime",
+      "Zoro"
+    ];
+
+    var providerN=0;
+    var providerLoaded=0;
+    var providerData=[];
+
+    function providerFetched(){
+      if (++providerLoaded<providerN){
+        return;
+      }
+      console.log(providerData);
+    }
+
+    function fetchProviders(prov, site, sid){
+      if (!site){
+        return 0;
+      }
+      var provid = prov.toLowerCase();
+      var site_id = sid;
+      if (provid=='zoro'){
+        var fetchVal = site.url.split("/");
+        site_id = fetchVal[fetchVal.length-1];
+      }
+      miruro.req('dio',"/info?id="+site_id+"&provider="+provid,function(r){
+        if (r){
+          r._prov = provid;
+          r._sid = site_id;
+          providerData.push(r);
+        }
+        providerFetched();
+      });
+      return 1;
+    }
+
+    miruro.req("mapper","/anilist/anime/"+uri+".json",function(r){
+      providerN=0;
+      providerLoaded=0;
+      if (r){
+        console.log("MIRROR: "+pb.cfg_data.mirrorserver);
+        for (var i=0;i<mirrors.length;i++){
+          var prov = mirrors[i];
+          if (prov in r.Sites){
+            for (var sid in r.Sites[prov]){
+              try{
+                providerN+=fetchProviders(prov, r.Sites[prov][sid], sid);
+              }catch(e){}
+            }
+          }
+        }
+      }
+      if (providerN==0){
+        f({status:false},uid);
+      }
+    });
+    // https://mapper.miruro.tv/anilist/anime/169755.json
+
+    console.warn(uri);
+    return uid;
   }
 }
 
