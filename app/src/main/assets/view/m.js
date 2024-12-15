@@ -343,10 +343,8 @@ var miruro={
   recent_parse:function(v){
     return gojo.recent_parse(v);
   },
-  loadVideo:function(dt,f){ /* dt: data, f: callback */
-    var epProv="animepahe";
+  loadVideoProv:function(epProv, dt, f){
     var epNum=dt.epactivenum;
-
 
     /* ANIMEPAHE */
     if (epProv=="animepahe" && ('animepahe' in dt._provider)){
@@ -379,6 +377,55 @@ var miruro={
         }
       });
     }
+    else if (epProv=="gogoanime"){
+      var eprov=null;
+      if ('gogoanime' in dt._provider){
+        eprov=dt._provider.gogoanime;
+      }
+      else if ('gogoanime_dub' in dt._provider){
+        eprov=dt._provider.gogoanime_dub;
+      }
+      if (eprov){
+        miruro.req('dio','/sources?id='+eprov.id+'&provider=gogoanime&ep='+epNum,function(k){
+          if (!k || !k.srcList){
+            f(null);
+            return;
+          }
+          dt.skip=[[0,0],[0,0]];
+          var src="";
+          var urls=[];
+          for (var i in k.srcList){
+            if ('m3u8' in k.srcList[i]){
+              src=k.srcList[i].m3u8;
+              urls.push({
+                name:i,
+                url:src
+              });
+            }
+          }
+          if (src){
+            var o={
+              url:src,
+              urls:urls
+            };
+            f(o);
+            return;
+          }
+        });
+      }
+      else{
+        return 0;
+      }
+    }
+    else{
+      return 0;
+    }
+    return 1;
+  },
+  loadVideo:function(dt,f){ /* dt: data, f: callback */
+    var epProv="animepahe"; // gogoanime
+
+    miruro.loadVideoProv("animepahe",dt,f);
 
   },
   getView:function(url,f){ /* dt: data, f: callback */
@@ -8131,6 +8178,7 @@ const pb={
             );
           }
           else{
+            pb.updateStreamTypeInfo();
             pb.init_video_mp4upload(v.url);
           }
         });
