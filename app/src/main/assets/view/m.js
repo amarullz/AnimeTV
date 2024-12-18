@@ -220,19 +220,37 @@ var miruro={
     'X-Requested-With':'XMLHttpRequest',
     'Pragma':'no-cache',
     'Cache-Control':'no-cache'
-    // "X-NoH-Proxy":"true"
   },
   base:{
     dio:"https://dio.miruro.tv",
     mapper:"https://mapper.miruro.tv",
-    hi:"https://hi.miruro.tv",
-    zeta:"https://zeta.miruro.tv",
+    hi:"https://hi.miruro.tv"
+  },
+  proxy_round_robin:0,
+  base_proxy_length:6,
+  base_proxy:{
     alpha:"https://alpha.miruro.tv",
     beta:"https://beta.miruro.tv",
     gamma:"https://gamma.miruro.tv",
+    delta:"https://delta.miruro.tv",
+    epsilon:"https://epsilon.miruro.tv",
+    zeta:"https://zeta.miruro.tv",
   },
-  req:function(b,u,cb){
-    return $ap(miruro.base[b]+u,function(r){
+  req:function(b,u,cb,proxy){
+    var req_url = miruro.base[b]+u;
+    // proxy=0;
+    if (proxy){
+      if (!(proxy in miruro.base_proxy)){
+        var pid = (++miruro.proxy_round_robin) % miruro.base_proxy_length;
+        for (var i in miruro.base_proxy){
+          proxy = i;
+          if (pid--<1) break;
+        }
+      }
+      var get_uri = encodeURIComponent(req_url);
+      req_url= miruro.base_proxy[proxy]+'/?url='+get_uri;
+    }
+    return $ap(req_url,function(r){
       if (r.ok){
         try{
           cb(JSON.parse(r.responseText));
@@ -379,7 +397,48 @@ var miruro={
           f(o);
           return;
         }
-      });
+      },1);
+    }
+    else if (epProv=="anivibe"){
+      var eprov=null;
+      if ('gogoanime' in dt._provider){
+        eprov=dt._provider.gogoanime;
+      }
+      if (eprov){
+        miruro.req('dio','/sources?id='+eprov.id+'&ep='+epNum+'&provider=anivibe',function(k){
+          if (!k || !k.srcList){
+            f(null);
+            return;
+          }
+          dt.skip=[[0,0],[0,0]];
+          var src="";
+          var urls=[];
+          var srcList = k.srcList.sub;
+          if (!srcList){
+            srcList = k.srcList.dub;
+          }
+          for (var i in srcList){
+            if ('m3u8' in srcList[i]){
+              src=srcList[i].m3u8;
+              urls.push({
+                name:i,
+                url:src
+              });
+            }
+          }
+          if (src){
+            var o={
+              url:src,
+              urls:urls
+            };
+            f(o);
+            return;
+          }
+        },1);
+      }
+      else{
+        return 0;
+      }
     }
     else if (epProv=="gogoanime"){
       var eprov=null;
@@ -390,7 +449,7 @@ var miruro={
         eprov=dt._provider.gogoanime_dub;
       }
       if (eprov){
-        miruro.req('dio','/sources?id='+eprov.id+'&provider=gogoanime&ep='+epNum,function(k){
+        miruro.req('dio','/sources?id='+eprov.id+'&ep='+epNum+'&provider=gogoanime',function(k){
           if (!k || !k.srcList){
             f(null);
             return;
@@ -415,7 +474,7 @@ var miruro={
             f(o);
             return;
           }
-        });
+        },1);
       }
       else{
         return 0;
@@ -428,8 +487,10 @@ var miruro={
   },
   loadVideo:function(dt,f){ /* dt: data, f: callback */
     var epProv="animepahe"; // gogoanime
+    // miruro.loadVideoProv(epProv,dt,f);
 
-    miruro.loadVideoProv("animepahe",dt,f);
+    // miruro.loadVideoProv("gogoanime",dt,f);
+    miruro.loadVideoProv("anivibe",dt,f);
 
   },
   getView:function(url,f){ /* dt: data, f: callback */
@@ -449,9 +510,9 @@ var miruro={
     }
     
     var mirrors=[
-      "animepahe",
+      // "animepahe",
       "Gogoanime",
-      "Zoro"
+      // "Zoro"
     ];
 
     var providerN=0;
@@ -547,7 +608,7 @@ var miruro={
           }
         }
         providerFetched();
-      });
+      },1);
       return 1;
     }
 
