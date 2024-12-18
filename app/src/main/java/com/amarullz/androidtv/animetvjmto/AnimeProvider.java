@@ -115,11 +115,7 @@ public class AnimeProvider {
                                 String poster = o.getString("poster");
                                 String tip = o.getString("tip");
                                 String ep = o.getString("ep");
-                                String desc = o.getString("type");
-                                if (!ep.equals("") && !ep.equals("0")) {
-                                    desc += " Episode " + ep;
-                                }
-                                desc = desc.trim();
+                                String desc = o.getString("ep");
                                 addProgram(title, desc, poster, uri, tip);
                             } catch (Exception ignored) {
                             }
@@ -171,11 +167,12 @@ public class AnimeProvider {
                 int ep = med.isNull("episodes") ? 0 : med.getInt("episodes");
                 long id = med.getLong("id");
                 int popularity = med.isNull("popularity") ? 0 : med.getInt("popularity");
+                int score = med.isNull("averageScore") ? 0 : med.getInt("averageScore");
                 JSONObject d = new JSONObject("{}");
                 d.put("url", id + "/" + ep);
                 d.put("title", en.isEmpty() ? jp : en);
                 d.put("poster", img);
-                d.put("ep", ep);
+                d.put("ep", ep + " " + " Episodes  |  Score: " + score + "  |  " + format);
                 d.put("type", format);
                 d.put("tip", id);
                 d.put("popularity", popularity);
@@ -206,7 +203,7 @@ public class AnimeProvider {
         "pageInfo { perPage hasNextPage currentPage } airingSchedules" +
         "(airingAt_lesser:$tm,sort:TIME_DESC){ airingAt episode " +
         "timeUntilAiring media{ id title{ romaji english } coverImage{ extraLarge " +
-        "} episodes format popularity } } } }\",\"variables\":{\"tm\":0xFFFFFF," +
+        "} episodes format popularity averageScore } } } }\",\"variables\":{\"tm\":0xFFFFFF," +
         "\"page\":1,\"perPage\":30}}";
 
     /* Get latest updated sub */
@@ -241,7 +238,7 @@ public class AnimeProvider {
         "media(sort:POPULARITY_DESC,isAdult:false, type: ANIME, status_not_in:[HIATUS,CANCELLED,NOT_YET_RELEASED]) { " +
         "id title{ romaji english } " +
         "coverImage{ large } " +
-        "episodes format " +
+        "episodes format averageScore " +
         "} } }\",\"variables\":{\"page\":1,\"perPage\":30}}";
 
     public void startLoadPopular() {
@@ -260,11 +257,7 @@ public class AnimeProvider {
                                 String poster = o.getString("poster");
                                 String tip = o.getString("tip");
                                 String ep = o.getString("ep");
-                                String desc = o.getString("type");
-                                if (!ep.equals("") && !ep.equals("0")) {
-                                    desc += " Episode " + ep;
-                                }
-                                desc = desc.trim();
+                                String desc = o.getString("ep");
                                 addProgram(title, desc, poster, uri, tip);
                             } catch (Exception ignored) {
                             }
@@ -321,13 +314,14 @@ public class AnimeProvider {
                 String img = medI.getString("large");
                 String format = media.isNull("format") ? "" : media.getString("format");
                 int ep = media.isNull("episodes") ? 0 : media.getInt("episodes");
+                int score = media.isNull("averageScore") ? 0 : media.getInt("averageScore");
                 long id = media.getLong("id");
 
                 JSONObject d = new JSONObject("{}");
                 d.put("url", id + "/" + ep);
                 d.put("title", en.isEmpty() ? jp : en);
                 d.put("poster", img);
-                d.put("ep", ep);
+                d.put("ep", ep + " " + " Episodes  |  Score: " + score + "  |  " + format);
                 d.put("type", format);
                 d.put("tip", id);
                 animeList.add(d);
