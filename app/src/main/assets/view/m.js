@@ -489,8 +489,8 @@ var miruro={
     var epProv="animepahe"; // gogoanime
     // miruro.loadVideoProv(epProv,dt,f);
 
-    // miruro.loadVideoProv("gogoanime",dt,f);
-    miruro.loadVideoProv("anivibe",dt,f);
+    miruro.loadVideoProv("gogoanime",dt,f);
+    // miruro.loadVideoProv("anivibe",dt,f);
 
   },
   getView:function(url,f){ /* dt: data, f: callback */
@@ -1877,24 +1877,36 @@ var kaas={
         if (r.ok){
           try{
             var srcData=JSON.parse(r.responseText);
-            var encData=srcData.data.split(':');
-            var decData=_JSAPI.aesDec(
-              encData[0],
-              vidKey,
-              encData[1]
-            );
-            console.warn(JSON.stringify(["AESDEC",encData[0],
-            vidKey,
-            encData[1], decData]));
-            var data=JSON.parse(decData);
-            data.server_type=type;
-            data.server_url=url;
-            try{
-              cb(data);
-            }catch(ee){
-              console.warn("Err streamGet cb: "+ee);
+
+            if ('manifest' in srcData){
+              try{
+                console.log("DEC DATA: "+JSON.stringify(data));
+                cb(srcData);
+              }catch(ee){
+                console.warn("Err streamGet cb: "+ee);
+              }
+              return;
             }
-            return;
+            else{
+              var encData=srcData.data.split(':');
+              var decData=_JSAPI.aesDec(
+                encData[0],
+                vidKey,
+                encData[1]
+              );
+              console.warn(JSON.stringify(["AESDEC",encData[0],
+              vidKey,
+              encData[1], decData]));
+              var data=JSON.parse(decData);
+              data.server_type=type;
+              data.server_url=url;
+              try{
+                cb(data);
+              }catch(ee){
+                console.warn("Err streamGet cb: "+ee);
+              }
+              return;
+            }
           }catch(e){}
         }
         cb(null);
@@ -1910,6 +1922,7 @@ var kaas={
       var timeStamp = $time()+60;
       var cid=kaas.hex2a(playerConfig.cid).split('|');
       var route=cid[1].replace("player.php", "source.php");
+      console.log("KAAS LOG: "+JSON.stringify(cid));
       var sigs=[];
       for (var i in vidOrder){
         var b=vidOrder[i];
@@ -1931,29 +1944,39 @@ var kaas={
       return sourceUrl;
     }
 
-    /* Load Player HTML */
-    $ap(url,function(r){
-      if (r.ok){
-        try{
-          var d=$n('div','',0,0,r.responseText);
-          var k=d.querySelector('#player + script').innerHTML.trim();
-          var ku=k.substring(k.indexOf('=')+1).trim();
-          var playerConfig=JSON.parse(eval("JSON.stringify("+ku+")"));
-          var sourceUrl=generateSourceUrl(playerConfig);
+    console.log("KAAS LOAD TYPE: "+type+" => "+url);
+    if (vidBird){
+      try{
+        var sourceUrl = url.replace("player.php", "source.php");
+        console.log("KAAS BIRDSTREAM SOURCE URL: "+sourceUrl);
+        streamLoadSource(sourceUrl);
+      }catch(ee){}
+    }
+    else{
+      /* Load Player HTML */
+      $ap(url,function(r){
+        if (r.ok){
           try{
-            streamLoadSource(sourceUrl);
-          }catch(ee){}
-          return;
-        }catch(e){
-          console.warn(e);
+            var d=$n('div','',0,0,r.responseText);
+            var k=d.querySelector('#player + script').innerHTML.trim();
+            var ku=k.substring(k.indexOf('=')+1).trim();
+            var playerConfig=JSON.parse(eval("JSON.stringify("+ku+")"));
+            var sourceUrl=generateSourceUrl(playerConfig);
+            try{
+              streamLoadSource(sourceUrl);
+            }catch(ee){}
+            return;
+          }catch(e){
+            console.warn(e);
+          }
         }
-      }
-      cb(null);
-      return;
-    },
-    {
-      "X-Ref-Prox":"https://www1.kickassanime.mx/"
-    });
+        cb(null);
+        return;
+      },
+      {
+        "X-Ref-Prox":"https://www1.kickassanime.mx/"
+      });
+    }
   }
 };
 
@@ -8328,8 +8351,8 @@ const pb={
 
             /* Load Videos */
             console.warn(["kaas.streamGet",b]);
-            if (b.dash){
-              pb.init_video_mp4upload('https:'+b.dash+'#dash');
+            if (b.manifest){
+              pb.init_video_mp4upload(b.manifest+'#dash');
               // pb.init_video_player_url('https:'+b.dash+'#dash');
               // pb.cfg_update_el("quality");
               // console.warn(["DASH VIDEO",b]);
