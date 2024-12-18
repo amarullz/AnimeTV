@@ -69,7 +69,22 @@ public class AnimeProvider {
 
     public static void executeJob(Context c){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            new AnimeProvider(c).startLoadRecent();
+            AnimeProvider recentProvider = new AnimeProvider(
+                c,
+                "Anime Recent",
+                "AnimeTV_Recent",
+                R.drawable.splash
+            );
+            recentProvider.startLoadRecent();
+
+            AnimeProvider popularProvider = new AnimeProvider(
+                c,
+                "Anime Popular",
+                "AnimeTV_Popular",
+                R.drawable.splash
+            );
+            popularProvider.startLoadPopular();
+
             scheduleJob(c);
         }
     }
@@ -117,13 +132,13 @@ public class AnimeProvider {
         }catch (Exception ignored){}
     }
 
-    public AnimeProvider(Context c){
-        ctx=c;
+    public AnimeProvider(Context c, String channelName, String internalProviderId, int logoResourceId) {
+        ctx = c;
         AnimeApi.initHttpEngine(c);
         try {
-            CHANNEL_ID = initChannel();
-        }catch (Exception ex){
-            CHANNEL_ID=-1;
+            CHANNEL_ID = initChannel(channelName, internalProviderId, logoResourceId);
+        } catch (Exception ex) {
+            CHANNEL_ID = -1;
             Log.d(_TAG, ex.toString());
         }
     }
@@ -220,6 +235,111 @@ public class AnimeProvider {
         cb.onFinish("");
     }
 
+    private static String POPULAR_ANIME_GRAPHQL = "{\"query\":\"query ($page: Int, $perPage: Int){ " +
+        "Page(page: $page, perPage: $perPage) { " +
+        "pageInfo { perPage hasNextPage currentPage } " +
+        "media(sort:POPULARITY_DESC,isAdult:false, type: ANIME, status_not_in:[HIATUS,CANCELLED,NOT_YET_RELEASED]) { " +
+        "id title{ romaji english } " +
+        "coverImage{ large } " +
+        "episodes format " +
+        "} } }\",\"variables\":{\"page\":1,\"perPage\":30}}";
+
+    public void startLoadPopular() {
+        if (CHANNEL_ID < 1) return;
+        try {
+            loadPopular(result -> {
+                try {
+                    JSONArray ja = new JSONArray(result);
+                    if (ja.length() > 0) {
+                        clearPrograms();
+                        for (int i = 0; i < ja.length(); i++) {
+                            try {
+                                JSONObject o = ja.getJSONObject(i);
+                                String uri = o.getString("url");
+                                String title = o.getString("title");
+                                String poster = o.getString("poster");
+                                String tip = o.getString("tip");
+                                String ep = o.getString("ep");
+                                String desc = o.getString("type");
+                                if (!ep.equals("") && !ep.equals("0")) {
+                                    desc += " Episode " + ep;
+                                }
+                                desc = desc.trim();
+                                addProgram(title, desc, poster, uri, tip);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+                } catch (JSONException ignored) {
+                }
+                Log.d(_TAG, "Popular Anime RES = " + result);
+            });
+        } catch (Exception ignored) {}
+    }
+
+    public void loadPopular(RecentCallback cb) {
+        AsyncTask.execute(() -> loadPopularExec(cb));
+    }
+
+    private void loadPopularExec(RecentCallback cb) {
+        try {
+            AnimeApi.Http http = new AnimeApi.Http("https://graphql.anilist.co/");
+            http.addHeader("Accept", "application/json");
+
+            http.setMethod("POST", POPULAR_ANIME_GRAPHQL, "application/json");
+            http.execute();
+
+            JSONArray r = new JSONArray("[]");
+            parsePopular(r, http.body.toString());
+
+            cb.onFinish(r.toString());
+
+            if (r.length() > 0) {
+                Log.d(_TAG, "GOT POPULAR ANIME => " + r.length());
+                cb.onFinish(r.toString());
+                return;
+            }
+        } catch (Exception ignored) {}
+        cb.onFinish("");
+    }
+
+    private void parsePopular(JSONArray r, String buf) throws JSONException {
+        JSONObject jo = new JSONObject(buf);
+        JSONArray rs = jo.getJSONObject("data")
+                        .getJSONObject("Page")
+                        .getJSONArray("media");
+
+        List<JSONObject> animeList = new ArrayList<>();
+
+        for (int i = 0; i < rs.length(); i++) {
+            try {
+                JSONObject media = rs.getJSONObject(i);
+                JSONObject medT = media.getJSONObject("title");
+                String en = medT.isNull("english") ? "" : medT.getString("english");
+                String jp = medT.isNull("romaji") ? "" : medT.getString("romaji");
+                JSONObject medI = media.getJSONObject("coverImage");
+                String img = medI.getString("large");
+                String format = media.isNull("format") ? "" : media.getString("format");
+                int ep = media.isNull("episodes") ? 0 : media.getInt("episodes");
+                long id = media.getLong("id");
+
+                JSONObject d = new JSONObject("{}");
+                d.put("url", id + "/" + ep);
+                d.put("title", en.isEmpty() ? jp : en);
+                d.put("poster", img);
+                d.put("ep", ep);
+                d.put("type", format);
+                d.put("tip", id);
+                animeList.add(d);
+            } catch (JSONException ignored) {
+            }
+        }
+
+        for (JSONObject anime : animeList) {
+            r.put(anime);
+        }
+    }
+
     /* Drawable to bitmap */
     @NonNull
     public static Bitmap convertToBitmap(Context context, int resourceId) {
@@ -240,35 +360,70 @@ public class AnimeProvider {
     }
 
     /* Create Channel */
-    private long initChannel() {
-        Cursor cursor =
-                ctx.getContentResolver()
-                        .query(
-                                TvContractCompat.Channels.CONTENT_URI,
-                                CHANNELS_PROJECTION,
-                                null,
-                                null,
-                                null);
-        if (cursor != null && cursor.moveToFirst()) {
-            Channel channel = Channel.fromCursor(cursor);
-            Log.d(_TAG,"Existing channel = "+channel.getDisplayName());
-            return channel.getId();
+    private long initChannel(String channelName, String internalProviderId, int logoResourceId) {
+        long existingChannelId = findExistingChannelId(internalProviderId);
+        if (existingChannelId != -1) {
+            return existingChannelId;
         }
+
         Intent myIntent = new Intent(ctx, MainActivity.class);
         myIntent.setPackage(ctx.getPackageName());
-        Uri intentUri= Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
-        Channel ch = new Channel.Builder().setType(TvContractCompat.Channels.TYPE_PREVIEW)
-                .setDisplayName("AnimeTV")
-                .setInternalProviderId("AnimeTV")
+        Uri intentUri = Uri.parse(myIntent.toUri(Intent.URI_ANDROID_APP_SCHEME));
+
+        Channel ch = new Channel.Builder()
+                .setType(TvContractCompat.Channels.TYPE_PREVIEW)
+                .setDisplayName(channelName)
+                .setInternalProviderId(internalProviderId)
                 .setAppLinkIntentUri(intentUri)
                 .build();
+
         Uri uri = ctx.getContentResolver().insert(TvContract.Channels.CONTENT_URI, ch.toContentValues());
-        Log.d(_TAG,"Created New Channel = "+uri);
+        Log.d(_TAG, "Created Channel = " + uri);
+
         long channelId = ContentUris.parseId(uri);
         Log.d(_TAG, "channel id " + channelId);
-        Bitmap bitmap = convertToBitmap(ctx, R.drawable.splash);
+
+        Bitmap bitmap = convertToBitmap(ctx, logoResourceId);
         ChannelLogoUtils.storeChannelLogo(ctx, channelId, bitmap);
+
         return channelId;
+    }
+
+    private long findExistingChannelId(String internalProviderId) {
+        try {
+            Uri channelUri = TvContractCompat.Channels.CONTENT_URI;
+            String[] projection = {
+                TvContractCompat.Channels._ID,
+                TvContractCompat.Channels.COLUMN_INTERNAL_PROVIDER_ID
+            };
+
+            Cursor cursor = ctx.getContentResolver().query(
+                channelUri,
+                projection,
+                null,
+                null,
+                null
+            );
+
+            if (cursor != null) {
+                int idColumnIndex = cursor.getColumnIndex(TvContractCompat.Channels._ID);
+                int providerIdColumnIndex = cursor.getColumnIndex(TvContractCompat.Channels.COLUMN_INTERNAL_PROVIDER_ID);
+
+                while (cursor.moveToNext()) {
+                    String storedProviderId = cursor.getString(providerIdColumnIndex);
+                    if (internalProviderId.equals(storedProviderId)) {
+                        long channelId = cursor.getLong(idColumnIndex);
+                        Log.d(_TAG, "Found existing channel ID: " + channelId);
+                        cursor.close();
+                        return channelId;
+                    }
+                }
+                cursor.close();
+            }
+        } catch (Exception e) {
+            Log.e(_TAG, "Error finding channel", e);
+        }
+        return -1;
     }
 
     @SuppressLint("RestrictedApi")
