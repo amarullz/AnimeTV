@@ -224,6 +224,12 @@ var miruro={
     'zoro',
     'animepahe'
   ],
+  providers_mirror_key:[
+    'Gogoanime',
+    'Gogoanime',
+    'Zoro',
+    'animepahe'
+  ],
   providers_name:[
     'Gogoanime',
     'Anivibe',
@@ -402,8 +408,49 @@ var miruro={
   loadVideoProv:function(epProv, dt, f){
     var epNum=dt.epactivenum;
 
+    /* ZORO */
+    if (epProv=="zoro" && ('zoro' in dt._provider)){
+      var eprov=dt._provider.zoro;
+      var hihref = eprov.episodeList.episodes[epNum].href;
+      var hiargs = hihref.substring(7);
+      var hiurl = '/api/v2/hianime/episode/sources?animeEpisodeId='+
+        hiargs+'?ep='+hiargs+'?server=hd-1&category=sub';
+      console.log("Loading Zoro Video: "+hiurl);
+      miruro.req('hi',hiurl,function(k){
+        if (!k || !k.data){
+          f(null);
+          return;
+        }
+        var urls=[];
+        var src = "";
+        for (var i=0;i<k.data.sources.length;i++){
+          var sc=k.data.sources[i];
+          if (!src){
+            src=sc.url;
+          }
+          urls.push(sc.url);
+        }
+        dt.skip=[[0,0],[0,0]];
+        if ('intro' in k.data){
+          dt.skip[0]=[k.data.intro.start,k.data.intro.end];
+        }
+        if ('outro' in k.data){
+          dt.skip[1]=[k.data.outro.start,k.data.outro.end];
+        }
+        if (src){
+          var o={
+            url:src,
+            urls:urls,
+            subtitles:JSON.parse(JSON.stringify(k.data.tracks))
+          };
+          f(o);
+          return;
+        }
+        f(null);
+      },'zeta');
+    }
     /* ANIMEPAHE */
-    if (epProv=="animepahe" && ('animepahe' in dt._provider)){
+    else if (epProv=="animepahe" && ('animepahe' in dt._provider)){
       var eprov=dt._provider.animepahe;
       miruro.req('dio','/sources?id='+eprov.id+'&provider=animepahe&ep='+epNum,function(k){
         if (!k || !k.videoSources){
@@ -431,6 +478,7 @@ var miruro={
           f(o);
           return;
         }
+        f(null);
       },1);
     }
     else if (epProv=="anivibe"){
@@ -468,6 +516,7 @@ var miruro={
             f(o);
             return;
           }
+          f(null);
         },1);
       }
       else{
@@ -520,12 +569,11 @@ var miruro={
     return 1;
   },
   loadVideo:function(dt,f){ /* dt: data, f: callback */
-    var epProv="animepahe"; // gogoanime
-    // miruro.loadVideoProv(epProv,dt,f);
-
-    miruro.loadVideoProv("gogoanime",dt,f);
-    // miruro.loadVideoProv("anivibe",dt,f);
-
+    if (!miruro.loadVideoProv(miruro.providers[miruro.provider],dt,f)){
+      f(null);
+      return 0;
+    }
+    return 1;
   },
   getView:function(url,f){ /* dt: data, f: callback */
     var uid=++_API.viewid;
@@ -542,12 +590,6 @@ var miruro={
     function failCb(){
       f({status:false},uid);
     }
-    
-    var mirrors=[
-      // "animepahe",
-      "Gogoanime",
-      // "Zoro"
-    ];
 
     var providerN=0;
     var providerLoaded=0;
@@ -614,6 +656,31 @@ var miruro={
           dat.out.ep[dat.out.epactive].active=true;
           dat.out.epactivenum = dat.out.ep[dat.out.epactive].ep;
         }catch(e){}
+      }
+      else if ('zoro' in providerData){
+        var pd=providerData['zoro'];
+        for (var i=0;i<pd.episodeList.episodes.length;i++){
+          var pp=pd.episodeList.episodes[i];
+          var pptitle=pp.title?pp.title:"EP-"+pp.number;
+          var oe={
+            "ep":pp.number,
+            "url":dat.out.url+"#"+pp.number,
+            "active":ep==pp.number,
+            "title":pptitle,
+            "title_jp":pp.jptitle?pp.jptitle:pptitle,
+            "filler":pp.filler?pp.filler:false
+          };
+          if (oe.active){
+            dat.out.epactive=i;
+          }
+          dat.out.ep.push(oe);
+        }
+        try{
+          dat.out.ep[dat.out.epactive].active=true;
+          dat.out.epactivenum = dat.out.ep[dat.out.epactive].ep;
+        }catch(e){}
+        console.log("ZORO LOG EP:");
+        console.log(dat.out.ep);
       }
       callCb(dat.out);
     }
@@ -695,14 +762,12 @@ var miruro={
       providerN=0;
       providerLoaded=0;
       if (r){
-        for (var i=0;i<mirrors.length;i++){
-          var prov = mirrors[i];
-          if (prov in r.Sites){
-            for (var sid in r.Sites[prov]){
-              try{
-                providerN+=fetchProviders(prov, r.Sites[prov][sid], sid);
-              }catch(e){}
-            }
+        var prov = miruro.providers_mirror_key[miruro.provider];
+        if (prov in r.Sites){
+          for (var sid in r.Sites[prov]){
+            try{
+              providerN+=fetchProviders(prov, r.Sites[prov][sid], sid);
+            }catch(e){}
           }
         }
       }
@@ -8298,6 +8363,7 @@ const pb={
       }
       else if (__SD8){
         miruro.loadVideo(pb.data, function(v){
+          console.log("LOAD VIDEO RESPONSE: ",v);
           if (!v){
             pb.playback_error(
               'PLAYBACK ERROR',
@@ -8305,6 +8371,23 @@ const pb={
             );
           }
           else{
+            vtt.clear();
+            pb.subtitles=[];
+            if ('subtitles' in v){
+              var n=v.subtitles.length;
+              for (var i=0;i<n;i++){
+                var tk=v.subtitles[i];
+                if (tk.kind=='captions'){
+                  pb.subtitles.push({
+                    u:tk.file,
+                    d:(i==0)?1:0,
+                    l:(tk.label+'').toLowerCase().trim(),
+                    i:(tk.label+'').toLowerCase().trim()
+                  });
+                }
+              }
+              vtt.init(pb.subtitles);
+            }
             pb.updateStreamTypeInfo();
             pb.init_video_mp4upload(v.url);
           }
