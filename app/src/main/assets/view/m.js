@@ -408,10 +408,12 @@ var miruro={
   loadVideoProv:function(epProv, dt, f){
     var epNum=dt.epactivenum;
 
+    dt.skip=[[0,0],[0,0]];
+
     /* ZORO */
     if (epProv=="zoro" && ('zoro' in dt._provider)){
       var eprov=dt._provider.zoro;
-      var hihref = eprov.episodeList.episodes[epNum].href;
+      var hihref = eprov.episodeList.episodes[dt.epactive].href;
       var hiargs = hihref.substring(7);
       var hiurl = '/api/v2/hianime/episode/sources?animeEpisodeId='+
         hiargs+'?ep='+hiargs+'?server=hd-1&category=sub';
@@ -430,7 +432,6 @@ var miruro={
           }
           urls.push(sc.url);
         }
-        dt.skip=[[0,0],[0,0]];
         if ('intro' in k.data){
           dt.skip[0]=[k.data.intro.start,k.data.intro.end];
         }
@@ -469,7 +470,6 @@ var miruro={
             }
           }
         }
-        dt.skip=[[0,0],[0,0]];
         var src = k.videoSources[selId].m3u8Url;
         if (src){
           var o={
@@ -492,7 +492,6 @@ var miruro={
             f(null);
             return;
           }
-          dt.skip=[[0,0],[0,0]];
           var src="";
           var urls=[];
           var srcList = k.srcList.sub;
@@ -537,7 +536,6 @@ var miruro={
             f(null);
             return;
           }
-          dt.skip=[[0,0],[0,0]];
           var src="";
           var urls=[];
           for (var i in k.srcList){
@@ -565,6 +563,31 @@ var miruro={
     }
     else{
       return 0;
+    }
+
+    if (epProv!='zoro'){
+      var anilistid=dt.animeid;
+      $ap('https://api.gojo.wtf/skips?id='+anilistid+'&num='+epNum,function(r){
+        if (r.ok){
+          var enx=JSON.parse(r.responseText);
+          if (enx.length>0){
+            var ex=enx[0];
+            if (ex){
+              if ('intro' in ex){
+                dt.skip[0]=[ex.intro.start,ex.intro.end];
+              }
+              if ('outro' in ex){
+                dt.skip[1]=[ex.outro.start,ex.outro.end];
+              }
+            }
+          }
+        }
+      },
+      {
+        "X-Org-Prox":"https://api.gojo.wtf",
+        "X-Ref-Prox":"https://gojo.wtf/",
+        "X-NoH-Proxy":"true"
+      });
     }
     return 1;
   },
