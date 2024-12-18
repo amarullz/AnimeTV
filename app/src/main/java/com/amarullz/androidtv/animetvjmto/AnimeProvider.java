@@ -172,7 +172,11 @@ public class AnimeProvider {
                 d.put("url", id + "/" + ep);
                 d.put("title", en.isEmpty() ? jp : en);
                 d.put("poster", img);
+                if (format.equals("MOVIE") || ep == 0) {
+                d.put("ep", "Score: " + score + "  |  " + format);
+                } else {
                 d.put("ep", ep + " " + " Episodes  |  Score: " + score + "  |  " + format);
+                }
                 d.put("type", format);
                 d.put("tip", id);
                 d.put("popularity", popularity);
@@ -321,7 +325,11 @@ public class AnimeProvider {
                 d.put("url", id + "/" + ep);
                 d.put("title", en.isEmpty() ? jp : en);
                 d.put("poster", img);
+                if (format.equals("MOVIE") || ep == 0) {
+                d.put("ep", "Score: " + score + "  |  " + format);
+                } else {
                 d.put("ep", ep + " " + " Episodes  |  Score: " + score + "  |  " + format);
+                }
                 d.put("type", format);
                 d.put("tip", id);
                 animeList.add(d);
