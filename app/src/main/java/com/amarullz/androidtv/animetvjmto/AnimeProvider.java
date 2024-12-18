@@ -35,6 +35,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+
 
 public class AnimeProvider {
     private static final String _TAG="ATVLOG-CHANNEL";
@@ -126,76 +132,66 @@ public class AnimeProvider {
         AsyncTask.execute(() ->loadRecentExec(cb));
     }
 
-    private void parseRecent(JSONArray r, String buf) throws JSONException{
-        JSONObject jo=new JSONObject(buf);
-        JSONArray rs=
-            jo.getJSONObject("data")
-                .getJSONObject("Page")
-                .getJSONArray("airingSchedules");
-        for (int i=0;i<rs.length();i++){
+    private void parseRecent(JSONArray r, String buf) throws JSONException {
+        JSONObject jo = new JSONObject(buf);
+        JSONArray rs = jo.getJSONObject("data")
+                        .getJSONObject("Page")
+                        .getJSONArray("airingSchedules");
+
+        List<JSONObject> animeList = new ArrayList<>();
+
+        for (int i = 0; i < rs.length(); i++) {
             try {
-                JSONObject med = rs.getJSONObject(i).getJSONObject("media");
+                JSONObject airingSchedule = rs.getJSONObject(i);
+                JSONObject med = airingSchedule.getJSONObject("media");
                 JSONObject medT = med.getJSONObject("title");
-                String en = medT.isNull("english")?"":medT.getString("english");
-                String jp = medT.isNull("romaji")?"":medT.getString("romaji");
+                String en = medT.isNull("english") ? "" : medT.getString("english");
+                String jp = medT.isNull("romaji") ? "" : medT.getString("romaji");
                 JSONObject medI = med.getJSONObject("coverImage");
-                String img=medI.getString("large");
-                String format=med.isNull("format")?"":med.getString("format");
-                if (format.equalsIgnoreCase("TV_SHORT")){
-                    format="TV";
+                String img = medI.getString("extraLarge");
+                String format = med.isNull("format") ? "" : med.getString("format");
+                if (format.equalsIgnoreCase("TV_SHORT")) {
+                    format = "TV";
                 }
-                int ep=med.isNull("episodes")?0:med.getInt("episodes");
-                long id=med.getLong("id");
+                int ep = med.isNull("episodes") ? 0 : med.getInt("episodes");
+                long id = med.getLong("id");
+                int popularity = med.isNull("popularity") ? 0 : med.getInt("popularity");
                 JSONObject d = new JSONObject("{}");
-                d.put("url", id+"/"+ep);
-                d.put("title", en.isEmpty()?jp:en);
+                d.put("url", id + "/" + ep);
+                d.put("title", en.isEmpty() ? jp : en);
                 d.put("poster", img);
                 d.put("ep", ep);
                 d.put("type", format);
                 d.put("tip", id);
-                r.put(d);
-
-            }catch (JSONException ignored){}
-        }
-        /*
-        if (jo.has("result")){
-            String res=jo.getString("result");
-            Document doc = Jsoup.parse(res);
-            Elements els=doc.getElementsByClass("item");
-            for (int i=0;i<els.size();i++){
-                try {
-                    Element el = els.get(i);
-                    Element tt = el.firstElementChild();
-                    Element info=el.lastElementChild();
-
-                    if (tt!=null&&info!=null) {
-                        Element link = info.firstElementChild();
-                        if (link!=null) {
-                            Element img = tt.getElementsByTag("img").get(0);
-                            Elements sb = tt.getElementsByClass("sub");
-                            Elements rg = tt.getElementsByClass("right");
-                            JSONObject d = new JSONObject("{}");
-                            d.put("url", link.attr("href"));
-                            d.put("title", link.text().trim());
-                            d.put("poster", img.attr("src"));
-                            d.put("ep", (sb.size() > 0) ? sb.get(0).text().trim() : "");
-                            d.put("type", (rg.size() > 0) ? rg.get(0).text().trim() : "");
-                            d.put("tip", tt.attr("data-tip"));
-                            r.put(d);
-                        }
-                    }
-                }
-                catch(Exception ignored){}
+                d.put("popularity", popularity);
+                animeList.add(d);
+            } catch (JSONException ignored) {
             }
-        }*/
+        }
+
+        // Sort anime by popularity
+        Collections.sort(animeList, new Comparator<JSONObject>() {
+            @Override
+            public int compare(JSONObject a, JSONObject b) {
+                try {
+                    return Integer.compare(b.getInt("popularity"), a.getInt("popularity"));
+                } catch (JSONException e) {
+                    return 0;
+                }
+            }
+        });
+
+        for (JSONObject anime : animeList) {
+            r.put(anime);
+        }
     }
 
     private static String ANILIST_GRAPHQL ="{\"query\":\"query ($tm: Int, " +
         "$page: Int, $perPage: Int){ Page(page: $page, perPage: $perPage) { " +
         "pageInfo { perPage hasNextPage currentPage } airingSchedules" +
         "(airingAt_lesser:$tm,sort:TIME_DESC){ airingAt episode " +
-        "timeUntilAiring media{ id title{ romaji english } coverImage{ large " +
-        "} episodes format } } } }\",\"variables\":{\"tm\":0xFFFFFF," +
+        "timeUntilAiring media{ id title{ romaji english } coverImage{ extraLarge " +
+        "} episodes format popularity } } } }\",\"variables\":{\"tm\":0xFFFFFF," +
         "\"page\":1,\"perPage\":30}}";
 
     /* Get latest updated sub */
@@ -214,21 +210,6 @@ public class AnimeProvider {
             parseRecent(r,http.body.toString());
 
             cb.onFinish(r.toString());
-
-
-            /*
-            AnimeApi.Http http=new AnimeApi.Http(
-                    "https://"+Conf.getDomain()+"/ajax/home/widget/updated-sub");
-            http.execute();
-            JSONArray r=new JSONArray("[]");
-            parseRecent(r,http.body.toString());
-
-            http=new AnimeApi.Http(
-                    "https://"+Conf.getDomain()+"/ajax/home/widget/updated-sub" +
-                    "?page=2");
-            http.execute();
-            parseRecent(r,http.body.toString());
-            */
 
             if (r.length()>0) {
                 Log.d(_TAG,"GOT RECENTS => "+r.length());
