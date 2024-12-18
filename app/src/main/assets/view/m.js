@@ -695,6 +695,7 @@ var miruro={
 
 /* GOJO SOURCE */
 var gojo={
+  main_provider: 'vibe', // 'roro',
   /* API */
   subtitle_origin:{
     "X-Org-Prox":"https://vidco.pro",
@@ -859,14 +860,16 @@ var gojo={
       dt.servers['dub']=[pb.serverobj(oe.streams[oe.dub-1].provider,0)];
       dt.stream_url.dub=oe.streams[oe.dub-1].id;
     }
-    if ('roro' in svs){
-      dt.servers['softsub']=[pb.serverobj('roro',0)];
-      dt.stream_url.soft=svs['roro'];
+    if (gojo.main_provider in svs){
+      dt.servers['softsub']=[pb.serverobj(gojo.main_provider,0)];
+      dt.stream_url.soft=svs[gojo.main_provider];
     }
     dt.servers['sub']=[];
     var nn=0;
     for (var idr in svs){
-      dt.servers['sub'].push(pb.serverobj(idr,nn++));
+      if (idr!='roro'){
+        dt.servers['sub'].push(pb.serverobj(idr,nn++));
+      }
     }
     dt.stream_url.hard=oe.streams[0].id;
 
@@ -880,11 +883,11 @@ var gojo={
       }
     }
     else if ((_API.currentStreamType==1) && (pb.cfg_data.lang!='hard' || pb.cfg_data.lang!='sub')){
-      if ('roro' in svs){
+      if (gojo.main_provider in svs){
         is_soft=true;
         dt.streamtype="softsub";
-        dt.stream_provider='roro';
-        dt.stream_sid=svs['roro'];
+        dt.stream_provider=gojo.main_provider;
+        dt.stream_sid=svs[gojo.main_provider];
       }
     }
     // if (is_soft||_API.currentStreamType==1){
@@ -909,9 +912,9 @@ var gojo={
     else if (dt.streamtype=="softsub"){
       subtype="sub";
       dt.streamtype="softsub";
-      if ('roro' in svs){
-        prov='roro';
-        wid=svs['roro'];
+      if (gojo.main_provider in svs){
+        prov=gojo.main_provider;
+        wid=svs[gojo.main_provider];
       }
     }
     else{
