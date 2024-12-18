@@ -23,14 +23,14 @@ const __SOURCE_NAME=[
 ];
 
 const __SOURCE_DOMAINS=[
-  ['aniwave.to' /*,'aniwave.li','aniwave.vc'*/ ,'aniwavetv.to'],
-  ['anix.to','anix.ac','anix.vc','anixtv.to'],
-  ['hianime.to','kaido.to','hianime.sx','hianime.mn','hianime.nz'],
+  ['aniwave.to' ,'aniwavetv.to'], // rip
+  ['anix.to','anix.ac','anix.vc','anixtv.to'], // rip
+  ['hianime.to','hianime.sx','hianime.mn','hianime.nz'],
   ['aniwatchtv.to','aniwatch.se'],
-  ['animeflix.live','animeflix.gg','animeflix.li'],
+  ['animeflix.live','animeflix.gg','animeflix.li'], // rip
   ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx'],
   ['api.gojo.live','api.gojotv.xyz','api.gojo.wtf'],
-  ['www.miruro.tv','www.miruro.to','www.miruro.online']
+  ['www.miruro.tv']
 ];
 
 /* video res change */
@@ -210,7 +210,41 @@ function $(i){
 
 /* MIRURO SOURCE */
 var _miruro_api_key = "12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=";
+function miruro_get_saved_provider(){
+  var prov=toInt(localStorage.getItem("__miruro_provider"));
+  if (!prov){
+    prov=0;
+  }
+  return prov;
+}
 var miruro={
+  providers:[
+    'gogoanime',
+    'anivibe',
+    'zoro',
+    'animepahe'
+  ],
+  providers_name:[
+    'Gogoanime',
+    'Anivibe',
+    'Zoro Hianime',
+    'Animepahe'
+  ],
+  provider:miruro_get_saved_provider(),
+  beforeChangeSource:function(cb){
+    listOrder.showList(
+      "Select Miruro Provider",
+      miruro.providers_name,
+      -1,
+      function(chval){
+        if (chval!==null){
+          localStorage.setItem("__miruro_provider",chval);
+          miruro.provider=chval;
+          cb();
+        }
+      }
+    );
+  },
   /* API */
   cache:{},
   add_headers:{
@@ -13121,26 +13155,40 @@ const home={
     profile:null,
     items:[],
     itemAction:function(elm,c){
-      if (c=='source_domain'){
-        SD_SETTINGS(elm._arg,function(newdomain){
-          if (newdomain){
-            if (elm._checked){
-              setTimeout(function(){
-                _API.reload();
-              },10);
-            }
-            else{
-              elm._domain.innerHTML='@'+newdomain;
-            }
-          }
-        });
-      }
-      else if (c=='source'){
+      function changeSourceFn(){
         _JSAPI.storeSet(_API.user_prefix+"sd",elm._arg+"");
         _JSAPI.setSd(elm._arg);
         setTimeout(function(){
           _API.reload();
         },10);
+      }
+
+      if (c=='source_domain'){
+        if (elm._arg==8){
+          miruro.beforeChangeSource(changeSourceFn);
+        }
+        else{
+          SD_SETTINGS(elm._arg,function(newdomain){
+            if (newdomain){
+              if (elm._checked){
+                setTimeout(function(){
+                  _API.reload();
+                },10);
+              }
+              else{
+                elm._domain.innerHTML='@'+newdomain;
+              }
+            }
+          });
+        }
+      }
+      else if (c=='source'){
+        if (elm._arg==8){
+          miruro.beforeChangeSource(changeSourceFn);
+        }
+        else{
+          changeSourceFn();
+        }
       }
       else if (c=='profile'){
         home.profiles.open(_API.user_prefix,0);
