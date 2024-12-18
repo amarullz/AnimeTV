@@ -412,6 +412,7 @@ var miruro={
 
     /* ZORO */
     if (epProv=="zoro" && ('zoro' in dt._provider)){
+      dt.streamtype='softsub';
       var eprov=dt._provider.zoro;
       var hihref = eprov.episodeList.episodes[dt.epactive].href;
       var hiargs = hihref.substring(7);
@@ -452,6 +453,7 @@ var miruro={
     }
     /* ANIMEPAHE */
     else if (epProv=="animepahe" && ('animepahe' in dt._provider)){
+      dt.streamtype='sub';
       var eprov=dt._provider.animepahe;
       miruro.req('dio','/sources?id='+eprov.id+'&provider=animepahe&ep='+epNum,function(k){
         if (!k || !k.videoSources){
@@ -486,6 +488,7 @@ var miruro={
       if ('gogoanime' in dt._provider){
         eprov=dt._provider.gogoanime;
       }
+      dt.streamtype='sub';
       if (eprov){
         miruro.req('dio','/sources?id='+eprov.id+'&ep='+epNum+'&provider=anivibe',function(k){
           if (!k || !k.srcList){
@@ -524,6 +527,7 @@ var miruro={
     }
     else if (epProv=="gogoanime"){
       var eprov=null;
+      dt.streamtype='sub';
       if ('gogoanime' in dt._provider){
         eprov=dt._provider.gogoanime;
       }
