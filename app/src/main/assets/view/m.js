@@ -216,7 +216,11 @@ var miruro={
   add_headers:{
     "X-Atx":_miruro_api_key,
     "X-Org-Prox":"https://www.miruro.tv",
-    "X-NoH-Proxy":"true"
+    "X-Ref-Prox":"https://www.miruro.tv/",
+    'X-Requested-With':'XMLHttpRequest',
+    'Pragma':'no-cache',
+    'Cache-Control':'no-cache'
+    // "X-NoH-Proxy":"true"
   },
   base:{
     dio:"https://dio.miruro.tv",
