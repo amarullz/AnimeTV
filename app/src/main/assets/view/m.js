@@ -236,12 +236,19 @@ var miruro={
     'Zoro Hianime',
     'Animepahe'
   ],
+  providers_features:[
+    'Hardsub, Dub, Fast',
+    'Hardsub, Dub',
+    'Softsub, Dub, Multilang',
+    'Hardsub, Dub, Quality',
+  ],
   provider:miruro_get_saved_provider(),
   beforeChangeSource:function(cb){
     var selProv=[];
     for (var i=0;i<miruro.providers_name.length;i++){
       selProv.push({
-        title:miruro.providers_name[i],
+        title:'<span class="label">'+special(miruro.providers_name[i])+'</span>'+
+        '<span class="value vinline">'+special(miruro.providers_features[i])+'</span>',
         icon:'cloud'
       });
     }
@@ -413,7 +420,7 @@ var miruro={
     return gojo.recent_parse(v);
   },
   loadVideoProv:function(epProv, dt, f){
-    var epNum=dt.epactivenum;
+    // var epNum=dt.epactivenum;
     var epIndex=dt.epactive;
     var epItem=dt.ep[epIndex];
     if (!epItem){
@@ -509,7 +516,7 @@ var miruro={
     /* Anime Pahe */
     else if (epProv=="animepahe" && ('animepahe' in dt._provider)){
       var eprov=dt._provider.animepahe;
-      miruro.req('dio','/sources?id='+eprov.id+'&provider=animepahe&ep='+epNum,function(k){
+      miruro.req('dio','/sources?id='+eprov.id+'&provider=animepahe&ep='+(epIndex+1),function(k){
         if (!k || !k.videoSources){
           f(null);
           return;
@@ -589,7 +596,7 @@ var miruro={
           // "Vidhide",
         ];
 
-        miruro.req('dio','/sources?id='+eprov.id+'&ep='+epNum+'&provider=anivibe',function(k){
+        miruro.req('dio','/sources?id='+eprov.id+'&ep='+(epIndex+1)+'&provider=anivibe',function(k){
           if (!k || !k.srcList){
             f(null);
             return;
@@ -678,7 +685,7 @@ var miruro={
           "Vidstreaming",
           "Streamwish"
         ];
-        miruro.req('dio','/sources?id='+eprov.id+'&ep='+epNum+'&provider=gogoanime',function(k){
+        miruro.req('dio','/sources?id='+eprov.id+'&ep='+(epIndex+1)+'&provider=gogoanime',function(k){
           if (!k || !k.srcList){
             f(null);
             return;
@@ -749,7 +756,7 @@ var miruro={
 
     if (epProv!='zoro'){
       var anilistid=dt.animeid;
-      $ap('https://api.gojo.wtf/skips?id='+anilistid+'&num='+epNum,function(r){
+      $ap('https://api.gojo.wtf/skips?id='+anilistid+'&num='+(epIndex+1),function(r){
         if (r.ok){
           var enx=JSON.parse(r.responseText);
           if (enx.length>0){
