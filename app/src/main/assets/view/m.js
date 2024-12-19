@@ -821,6 +821,7 @@ var miruro={
     var dat ={
       tip:null,
       cov:null,
+      banner:null,
       x:0,
       out:{}
     };
@@ -845,9 +846,9 @@ var miruro={
           };
           if (oe.active){
             dat.out.epactive=i;
-            if (oe.img){
-              dat.out.banner=oe.img;
-            }  
+            // if (oe.img){
+            //   dat.out.banner=oe.img;
+            // }  
           }
           dat.out.ep.push(oe);
         }
@@ -868,9 +869,9 @@ var miruro={
           };
           if (oe.active){
             dat.out.epactive=i;
-            if (oe.img){
-              dat.out.banner=oe.img;
-            }  
+            // if (oe.img){
+            //   dat.out.banner=oe.img;
+            // }  
           }
           dat.out.ep.push(oe);
         }
@@ -936,7 +937,7 @@ var miruro={
     }
 
     function datacb(){
-      if (dat.x!=2){
+      if (dat.x!=3){
         return;
       }
       if (!dat.cov || !dat.tip){
@@ -954,7 +955,7 @@ var miruro={
         "synopsis": d.synopsis,
         "genres": d.genres,
         "quality": null,
-        "banner": null,
+        "banner": dat.banner,
         "rating": "",
         "ttid": d.tip,
         "url": d.url,
@@ -999,6 +1000,14 @@ var miruro={
       }
     }
 
+    bannerCacher.get(uri,function(im){
+      if (im){
+        dat.banner=im;
+      }
+      dat.x++;
+      datacb();
+    });
+
     miruro.getTooltip(uri, function(k){
       if (k) dat.tip=k;
       dat.x++;
@@ -1017,6 +1026,10 @@ var miruro={
     return uid;
   }
 }
+
+
+
+
 
 /* GOJO SOURCE */
 var gojo={
