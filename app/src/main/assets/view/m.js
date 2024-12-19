@@ -985,14 +985,18 @@ var miruro={
     miruro.getTooltip(uri, function(k){
       if (k) dat.tip=k;
       dat.x++;
-      datacb();
+      var urljson = "/anilist/anime/"+uri+".json";
+      if (k.malId){
+        urljson = "/mal/anime/"+k.malId+".json"
+      }
+      miruro.req("mapper",urljson,function(k){
+        if (k) dat.cov=k;
+        dat.x++;
+        datacb();
+      });
     }, uri, true);
 
-    miruro.req("mapper","/anilist/anime/"+uri+".json",function(k){
-      if (k) dat.cov=k;
-      dat.x++;
-      datacb();
-    });
+    
     return uid;
   }
 }
@@ -17847,6 +17851,12 @@ const _MAL={
           var vep=0;
           if ('airEp' in d){
             vep=d.airEp;
+            if (d.nextAiringEpisode){
+              d.epavail=d.nextAiringEpisode.episode-1;
+              if (d.epavail<1){
+                d.epavail=d.episodes;
+              }
+            }
           }
           else if (d.nextAiringEpisode){
             vep=d.nextAiringEpisode.episode-1;
