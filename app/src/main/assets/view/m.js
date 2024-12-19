@@ -379,8 +379,6 @@ var miruro={
         genres
         nextAiringEpisode {
           episode
-          airingAt
-          timeUntilAiring
         }
       }
     }`,{
