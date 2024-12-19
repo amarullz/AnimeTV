@@ -520,7 +520,7 @@ var miruro={
             serverMirror='hd-1';
             loadHiServer();
           }
-          else if (streamType!='sub'){
+          else if (streamType!='sub' && streamType!='raw'){
             streamType='sub';
             loadHiServer();
           }
