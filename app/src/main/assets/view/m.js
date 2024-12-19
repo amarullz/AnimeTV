@@ -238,10 +238,17 @@ var miruro={
   ],
   provider:miruro_get_saved_provider(),
   beforeChangeSource:function(cb){
-    listOrder.showList(
+    var selProv=[];
+    for (var i=0;i<miruro.providers_name.length;i++){
+      selProv.push({
+        title:miruro.providers_name[i],
+        icon:'cloud'
+      });
+    }
+    listOrder.showMenu(
       "Select Miruro Provider",
-      miruro.providers_name,
-      -1,
+      selProv,
+      miruro.provider,
       function(chval){
         if (chval!==null){
           localStorage.setItem("__miruro_provider",chval);
