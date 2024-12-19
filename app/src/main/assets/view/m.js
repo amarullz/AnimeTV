@@ -469,13 +469,16 @@ var miruro={
 
       dt.servers={
         sub:[
-          {n:'HD-1',p:0}
+          {n:'HD-1',p:0},
+          {n:'HD-2',p:1}
         ],
         softsub:[
-          {n:'HD-1',p:0}
+          {n:'HD-1',p:0},
+          {n:'HD-2',p:1}
         ],
         dub:[
-          {n:'HD-1',p:0}
+          {n:'HD-1',p:0},
+          {n:'HD-2',p:1}
         ]
       };
 
@@ -519,6 +522,10 @@ var miruro={
           }
           else if (streamType!='sub'){
             streamType='sub';
+            loadHiServer();
+          }
+          else if (streamType!='raw'){
+            streamType='raw';
             loadHiServer();
           }
           else{
