@@ -843,6 +843,7 @@ var miruro={
         var pd=providerData['animepahe'];
         for (var i=0;i<pd.episodeList.length;i++){
           var pp=pd.episodeList[i];
+          pp.number=(i+1)+"";
           var oe={
             "ep":pp.number,
             "url":dat.out.url+"#"+pp.number,
@@ -863,6 +864,7 @@ var miruro={
         var pd=providerData['gogoanime'];
         for (var i=0;i<pd.episodes.length;i++){
           var pp=pd.episodes[i];
+          pp.number=(i+1)+"";
           var oe={
             "ep":pp.number,
             "url":dat.out.url+"#"+pp.number,
@@ -883,6 +885,7 @@ var miruro={
         var pd=providerData['anivibe'];
         for (var i=0;i<pd.episodes.length;i++){
           var pp=pd.episodes[i];
+          pp.number=(i+1)+"";
           var oe={
             "ep":pp.number,
             "url":dat.out.url+"#"+pp.number,
@@ -904,6 +907,7 @@ var miruro={
         var pd=providerData['zoro'];
         for (var i=0;i<pd.episodeList.episodes.length;i++){
           var pp=pd.episodeList.episodes[i];
+          pp.number=(i+1)+"";
           var pptitle=pp.title?pp.title:"EP-"+pp.number;
           var oe={
             "ep":pp.number,
