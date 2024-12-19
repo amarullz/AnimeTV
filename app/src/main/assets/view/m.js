@@ -259,7 +259,7 @@ var miruro={
       selProv.push({
         title:'<span class="label">'+special(miruro.providers_name[i])+'</span><br>'+
         '<span class="value vinline">'+special(miruro.providers_features[i])+'</span>',
-        icon:'cloud'
+        icon:'storefront'
       });
     }
     listOrder.showMenu(
@@ -7539,6 +7539,9 @@ const pb={
         }
         el.innerHTML='<c>'+icos[sid]+'</c> '+subel[sid];
       }
+      else if (key=="miruroprovider"){
+        el.innerHTML='<c>storefront</c> '+miruro.providers_name[miruro.provider];
+      }
       else if (key=="hardsub" || key=="softsub"||key=="dub"){
         var subel=[
           'hardsub','softsub','dub'
@@ -9347,6 +9350,15 @@ const pb={
           _API.checkNightly();
         }
       }
+      else if (key=="miruroprovider"){
+        var prev_provider = miruro.provider;
+        miruro.beforeChangeSource(function(v){
+          if (prev_provider!=miruro.provider){
+            pb.cfg_update_el(key);
+            pb.reloadPlayback(1000);
+          }
+        });
+      }
       else if (key=="streamselect"){
         if (!__SD3&&!__SD5/*&&!__SD6*/){
           var lst=['Hardsub'];
@@ -10978,6 +10990,13 @@ const pb={
       //   pb.pb_settings._s_dub=$n('div','',{action:'*dub'},pb.pb_settings.P,'<c>clear</c> DUB');
       // }
       pb.pb_settings._s_streamselect=$n('div','',{action:'*streamselect'},pb.pb_settings.P,'<c>subtitles</c>');
+    }
+
+    if (__SD8){
+      pb.pb_settings._s_miruroprovider=$n(
+        'div','',{action:'*miruroprovider'},pb.pb_settings.P,
+        '<c>storefront</c> '+miruro.providers_name[miruro.provider]
+      );
     }
 
     pb.pb_settings._s_alang=$n('div','',{action:'*alang'},pb.pb_settings.P,'<c>text_to_speech</c> <span>Original</span>');
