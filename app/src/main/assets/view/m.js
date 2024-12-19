@@ -252,6 +252,9 @@ var miruro={
     'Hardsub, Dub, !No new update',
     
   ],
+  proxyM3u8:function(url){
+    return 'https://prxy.miruro.to/m3u8?url='+encodeURIComponent(url);
+  },
   provider:0, // miruro_get_saved_provider(),
   beforeChangeSource:function(cb){
     var selProv=[];
@@ -561,6 +564,7 @@ var miruro={
           if ('m3u8Url' in vs){
             var isDub=(vs.audio=='eng');
             var pkey=isDub?'dub':'sub';
+            // vs.m3u8Url=miruro.proxyM3u8(vs.m3u8Url);
 
             /* Save Server */
             if (!epItem._miruro.animepahe[pkey]) epItem._miruro.animepahe[pkey]=[];
@@ -7889,8 +7893,12 @@ const pb={
     return null;
   },
   vid_get_time:function(){
-    if (pb.vid_get_time_cb) return pb.vid_get_time_cb();
-    return {position:0,duration:0};
+    var realSz={position:0,duration:0};
+    if (pb.vid_get_time_cb) realSz=pb.vid_get_time_cb();
+    if (pb.seek_timeout && pb.seek_target_pos){
+      realSz.position=pb.seek_target_pos;
+    }
+    return realSz;
   },
   vid_startpos_init_to:null,
   vid_startpos_init:function(){
@@ -8014,6 +8022,8 @@ const pb={
     pb.vid_stat.duration=0;
     pb.vid_stat.play=false;
   },
+  seek_timeout:null,
+  seek_target_pos:0,
   init_video_player_url:function(src){
     pb.pb_track_pos.innerHTML='STREAMING VIDEO';
     pb.vid_get_time_cb=function(){
@@ -8031,10 +8041,18 @@ const pb={
         _API.videoPost('pause',v);
       }
       else if (c=='seek'){
-        pb.vid_stat.pos=v<0?0:v;
+        pb.seek_target_pos=pb.vid_stat.pos=v<0?0:v;
         pb.track_update_pos();
-        _API.videoSeek(pb.vid_stat.pos);
-        _API.videoPost('seek',pb.vid_stat.pos);
+        if (pb.seek_timeout){
+          clearTimeout(pb.seek_timeout);
+        }
+        pb.seek_timeout=setTimeout(function(){
+          pb.vid_stat.pos=pb.seek_target_pos;
+          _API.videoSeek(pb.vid_stat.pos);
+          _API.videoPost('seek',pb.vid_stat.pos);
+          pb.seek_target_pos=0;
+          pb.seek_timeout=null;
+        },500);
       }
       else{
         _API.videoPost(c,v);

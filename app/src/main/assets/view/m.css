@@ -1984,6 +1984,7 @@ c.loader {
   line-height: 1vw;
   overflow: hidden;
   background-color: var(--accent-1);
+  transition: width var(--tim-5s) var(--interpolation) !important;
 }
 
 #vtt_subtitle_preview,
