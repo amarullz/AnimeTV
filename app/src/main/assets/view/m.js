@@ -13336,6 +13336,13 @@ const home={
     }
 
     homepage.push(
+      ["alrecent",function(el){
+        el._atype='recently';
+        home.recent_init(el, _MAL.allist_list_loader);
+      }, __SD8?"Recently Released":"Recently Released - AniList", __SD8]
+    );
+
+    homepage.push(
       [
         "altab",
         function(el){
@@ -17832,7 +17839,10 @@ const _MAL={
             infotxt+='<span class="info_type">'+special(mtp)+'</span>';
           }
           var vep=0;
-          if (d.nextAiringEpisode){
+          if ('airEp' in d){
+            vep=d.airEp;
+          }
+          else if (d.nextAiringEpisode){
             vep=d.nextAiringEpisode.episode-1;
             if (vep<1){
               vep=0;
@@ -18061,10 +18071,100 @@ const _MAL={
       cb(null);
     }, true);
   },
+  allist_recent:function(page,perpage,cb){
+    _MAL.alreq(`fragment media on Media {
+  type
+  countryOfOrigin
+  id
+  title{
+    romaji
+    english
+  }
+  coverImage{
+    large
+    medium
+  }
+  startDate {
+    year
+    month
+    day
+  }
+  status
+  duration
+  format
+  seasonYear
+  season
+  isAdult
+  averageScore
+  nextAiringEpisode {
+    episode
+    airingAt
+    timeUntilAiring
+  }
+  episodes
+}
+
+fragment airingSchedules on AiringSchedule {
+  id
+  episode
+  airingAt
+  mediaId
+  media {
+    ...media
+  }
+}
+
+fragment pageInfo on Page {
+  pageInfo {
+    perPage
+    hasNextPage
+    currentPage
+  }
+  airingSchedules(
+    airingAt_greater: $weekStart
+    airingAt_lesser: $weekEnd
+    sort: TIME_DESC
+    notYetAired:false
+  ) {
+    ...airingSchedules
+  }
+}
+
+query ($weekStart: Int, $weekEnd: Int, $page: Int, $perPage: Int) {
+  Page(page: $page, perPage: $perPage) {
+    ...pageInfo
+  }
+}`,{
+    "page":page?page:1,
+    "perPage":50,
+    "weekStart":0,
+    "weekEnd":$time()
+  },function(v){
+    if (v){
+      v.data.Page.media=[];
+      for (var i=0;i<v.data.Page.airingSchedules.length;i++){
+        var md=v.data.Page.airingSchedules[i].media;
+        if (md.countryOfOrigin=="JP" && md.type=="ANIME" && md.format!="TV_SHORT" && md.format!="ONA" && !md.isAdult){
+          var ob=JSON.parse(JSON.stringify(md))
+          ob.airEp=v.data.Page.airingSchedules[i].episode;
+          v.data.Page.media.push(ob);
+        }
+      }
+      console.log(v);
+      cb(v);
+      return;
+    }
+    cb(null);
+  }, true);
+
+  },
   allist_list:function(sort,page,perpage,cb){
     var sr='POPULARITY_DESC';
     var blk='status_not_in:[HIATUS,CANCELLED,NOT_YET_RELEASED]';
-    if (sort=='top'){
+    if (sort=='recently'){
+      return _MAL.allist_recent(page,perpage,cb);
+    }
+    else if (sort=='top'){
       sr='SCORE_DESC';
     }
     else if (sort=='year'){
