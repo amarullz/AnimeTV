@@ -247,7 +247,7 @@ var miruro={
     var selProv=[];
     for (var i=0;i<miruro.providers_name.length;i++){
       selProv.push({
-        title:'<span class="label">'+special(miruro.providers_name[i])+'</span>'+
+        title:'<span class="label">'+special(miruro.providers_name[i])+'</span><br>'+
         '<span class="value vinline">'+special(miruro.providers_features[i])+'</span>',
         icon:'cloud'
       });
