@@ -210,14 +210,24 @@ function $(i){
 
 /* MIRURO SOURCE */
 var _miruro_api_key = "12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=";
-function miruro_get_saved_provider(){
-  var prov=toInt(localStorage.getItem("__miruro_provider"));
-  if (!prov){
-    prov=0;
-  }
-  return prov;
-}
 var miruro={
+  providerKey:function(){
+    return _API.user_prefix+'_miruro_provider';
+  },
+  setProvider:function(v){
+    _JSAPI.storeSet(miruro.providerKey(),v+'');
+  },
+  getProvider:function(){
+    var prov=toInt(_JSAPI.storeGet(miruro.providerKey(),"0"));
+    if (!prov){
+      prov=0;
+    }
+    if (prov>=miruro.providers_name.length){
+      prov=0;
+    }
+    console.log("MIRURI PROVIDER: "+prov);
+    return prov;
+  },
   providers:[
     'gogoanime',
     'anivibe',
@@ -242,7 +252,7 @@ var miruro={
     'Softsub, Dub, Multilang',
     'Hardsub, Dub, Quality',
   ],
-  provider:miruro_get_saved_provider(),
+  provider:0, // miruro_get_saved_provider(),
   beforeChangeSource:function(cb){
     var selProv=[];
     for (var i=0;i<miruro.providers_name.length;i++){
@@ -255,10 +265,10 @@ var miruro={
     listOrder.showMenu(
       "Select Miruro Provider",
       selProv,
-      miruro.provider,
+      miruro.getProvider(),
       function(chval){
         if (chval!==null){
-          localStorage.setItem("__miruro_provider",chval);
+          miruro.setProvider(chval);
           miruro.provider=chval;
           cb();
         }
@@ -13336,6 +13346,7 @@ const home={
       ];
     }
     else if (__SD8){
+      miruro.provider=miruro.getProvider();
       // miruro
       homepage=[
         // ["recent",'/recent-eps?type=anime&perPage=16&page=', "Recently Updated", true]
@@ -14320,6 +14331,10 @@ const home={
       if ((i==4)||(i<2)) {
         /* Parental will not work on source 5 */
         continue;
+      }
+      if (i==7){
+        /* miruro */
+        seldomain=miruro.providers_name[miruro.getProvider()];
       }
       // if (!ratingSystem.allSource){
       //   if (i==4){
