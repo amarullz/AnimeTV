@@ -229,28 +229,28 @@ var miruro={
     return prov;
   },
   providers:[
+    'animepahe',
+    'zoro',
     'gogoanime',
     'anivibe',
-    'zoro',
-    'animepahe'
   ],
   providers_mirror_key:[
-    'Gogoanime',
-    'Gogoanime',
+    'animepahe',
     'Zoro',
-    'animepahe'
+    'Gogoanime',
+    'Gogoanime',
   ],
   providers_name:[
+    'Animepahe',
+    'Zoro Hianime',
     'Gogoanime',
     'Anivibe',
-    'Zoro Hianime',
-    'Animepahe'
   ],
   providers_features:[
+    'Hardsub, Dub, Quality',
+    'Softsub, Dub, Multilang',
     'Hardsub, Dub, Fast',
     'Hardsub, Dub',
-    'Softsub, Dub, Multilang',
-    'Hardsub, Dub, Quality',
   ],
   provider:0, // miruro_get_saved_provider(),
   beforeChangeSource:function(cb){
