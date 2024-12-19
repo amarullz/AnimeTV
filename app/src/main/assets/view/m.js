@@ -377,6 +377,11 @@ var miruro={
         description
         bannerImage
         genres
+        nextAiringEpisode {
+          episode
+          airingAt
+          timeUntilAiring
+        }
       }
     }`,{
           "id":id
@@ -388,6 +393,11 @@ var miruro={
           var m = r.data.Media;
           var kk=document.createElement('div');
           kk.innerHTML=m.description;
+
+          var sumep = m.episodes;
+          if (m.nextAiringEpisode){
+            sumep=m.nextAiringEpisode.episode-1;
+          }
           o={
             url:id,
             title:m.title.english?m.title.english:m.title.romaji,
@@ -396,7 +406,7 @@ var miruro={
             genres:[],
             genre:'',
             quality:null,
-            ep:m.episodes,
+            ep:sumep,
             rating:'',
             ttid:id,
             poster:m.coverImage.large,
@@ -17837,7 +17847,7 @@ const _MAL={
             continue;
           }
           var malid="anilistmedia_"+d.id;
-          _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
+          
           var hl=$n('div','',{action:"#"+malid,arg:''},g.P,'');
           
           hl._img=$n('img','',{loading:'lazy',src:$img($aimg(d.coverImage))},hl,'');
@@ -17884,14 +17894,9 @@ const _MAL={
             infotxt+='<span class="info_type">'+special(mtp)+'</span>';
           }
           var vep=0;
+          var sumep=d.episodes;
           if ('airEp' in d){
             vep=d.airEp;
-            if (d.nextAiringEpisode){
-              d.epavail=d.nextAiringEpisode.episode-1;
-              if (d.epavail<1){
-                d.epavail=d.episodes;
-              }
-            }
           }
           else if (d.nextAiringEpisode){
             vep=d.nextAiringEpisode.episode-1;
@@ -17899,7 +17904,7 @@ const _MAL={
               vep=0;
             }
           }
-          var sumep=d.episodes;
+          
           d.eptotal=sumep;
           d.ep=vep;
 
@@ -17918,6 +17923,8 @@ const _MAL={
           if (binfotxt){
             hl._ep=$n('span','info info_bottom',null,hl,binfotxt);
           }
+
+          _MAL.aldata[malid]=JSON.parse(JSON.stringify(d));
         }
         if (home.withspre){
           while (g.P.childElementCount>30){
