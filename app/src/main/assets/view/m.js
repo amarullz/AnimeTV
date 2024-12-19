@@ -225,14 +225,13 @@ var miruro={
     if (prov>=miruro.providers_name.length){
       prov=0;
     }
-    console.log("MIRURI PROVIDER: "+prov);
     return prov;
   },
   providers:[
     'animepahe',
     'zoro',
-    'gogoanime',
     'anivibe',
+    'gogoanime',
   ],
   providers_mirror_key:[
     'animepahe',
@@ -243,14 +242,15 @@ var miruro={
   providers_name:[
     'Animepahe',
     'Zoro Hianime',
-    'Gogoanime',
     'Anivibe',
+    'Gogoanime',
   ],
   providers_features:[
     'Hardsub, Dub, Quality',
     'Softsub, Dub, Multilang',
     'Hardsub, Dub, Fast',
-    'Hardsub, Dub',
+    'Hardsub, Dub, !No new update',
+    
   ],
   provider:0, // miruro_get_saved_provider(),
   beforeChangeSource:function(cb){
@@ -482,8 +482,6 @@ var miruro={
       function loadHiServer(){
         var hiurl = '/api/v2/hianime/episode/sources?animeEpisodeId='+
           hiargs+'?ep='+hiargs+'?server='+serverMirror+'&category='+streamType;
-        console.log("Loading Zoro Video: "+hiurl);
-
         miruro.req('hi',hiurl,function(k){
           if (k && k.data){
             var urls=[];
@@ -603,8 +601,8 @@ var miruro={
     /* Anime Vibe */
     else if (epProv=="anivibe"){
       var eprov=null;
-      if ('gogoanime' in dt._provider){
-        eprov=dt._provider.gogoanime;
+      if ('anivibe' in dt._provider){
+        eprov=dt._provider.anivibe;
       }
       dt.streamtype='sub';
       if (eprov){
@@ -888,6 +886,30 @@ var miruro={
           dat.out.epactivenum = dat.out.ep[dat.out.epactive].ep;
         }catch(e){}
       }
+      else if ('anivibe' in providerData){
+        var pd=providerData['anivibe'];
+        for (var i=0;i<pd.episodes.length;i++){
+          var pp=pd.episodes[i];
+          var oe={
+            "ep":pp.number,
+            "url":dat.out.url+"#"+pp.number,
+            "dub":pp.isDubbed,
+            "active":ep==pp.number,
+            "filler":false
+          };
+          if (oe.active){
+            dat.out.epactive=i;
+            // if (oe.img){
+            //   dat.out.banner=oe.img;
+            // }  
+          }
+          dat.out.ep.push(oe);
+        }
+        try{
+          dat.out.ep[dat.out.epactive].active=true;
+          dat.out.epactivenum = dat.out.ep[dat.out.epactive].ep;
+        }catch(e){}
+      }
       else if ('zoro' in providerData){
         var pd=providerData['zoro'];
         for (var i=0;i<pd.episodeList.episodes.length;i++){
@@ -910,8 +932,6 @@ var miruro={
           dat.out.ep[dat.out.epactive].active=true;
           dat.out.epactivenum = dat.out.ep[dat.out.epactive].ep;
         }catch(e){}
-        console.log("ZORO LOG EP:");
-        console.log(dat.out.ep);
       }
       callCb(dat.out);
     }
@@ -925,6 +945,14 @@ var miruro={
         var fetchVal = site.url.split("/");
         site_id = fetchVal[fetchVal.length-1];
       }
+      else if (provid=='gogoanime'){
+        if (miruro.providers[miruro.provider]=='anivibe'){
+          if (site_id.endsWith('-dub')){
+            return 0;
+          }
+          provid='anivibe';
+        }
+      }
       miruro.req('dio',"/info?id="+site_id+"&provider="+provid,function(r){
         if (r){
           r._prov = provid;
@@ -933,6 +961,17 @@ var miruro={
           if (provid=="gogoanime"){
             if (site_id.endsWith('-dub')){
               provIdArr="gogoanime_dub";
+            }
+          }
+          if (provid=='anivibe'){
+            // if (r.episodes.length==0){
+            //   providerFetched();
+            //   return;
+            // }
+            if (provIdArr in providerData){
+              if (providerData[provIdArr].episodes.length<r.episodes.length){
+                delete providerData[provIdArr];
+              }
             }
           }
           if (!(provIdArr in providerData)){
