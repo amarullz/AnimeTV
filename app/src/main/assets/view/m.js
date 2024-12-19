@@ -848,13 +848,9 @@ var miruro={
             "url":dat.out.url+"#"+pp.number,
             "active":ep==pp.number,
             "filler":false,
-            "img":pp.snapshot
           };
           if (oe.active){
             dat.out.epactive=i;
-            // if (oe.img){
-            //   dat.out.banner=oe.img;
-            // }  
           }
           dat.out.ep.push(oe);
         }
@@ -875,9 +871,6 @@ var miruro={
           };
           if (oe.active){
             dat.out.epactive=i;
-            // if (oe.img){
-            //   dat.out.banner=oe.img;
-            // }  
           }
           dat.out.ep.push(oe);
         }
@@ -899,9 +892,6 @@ var miruro={
           };
           if (oe.active){
             dat.out.epactive=i;
-            // if (oe.img){
-            //   dat.out.banner=oe.img;
-            // }  
           }
           dat.out.ep.push(oe);
         }
@@ -964,10 +954,6 @@ var miruro={
             }
           }
           if (provid=='anivibe'){
-            // if (r.episodes.length==0){
-            //   providerFetched();
-            //   return;
-            // }
             if (provIdArr in providerData){
               if (providerData[provIdArr].episodes.length<r.episodes.length){
                 delete providerData[provIdArr];
