@@ -407,14 +407,18 @@ var miruro={
   },
   loadVideoProv:function(epProv, dt, f){
     var epNum=dt.epactivenum;
-
+    var epIndex=dt.epactive;
+    var epItem=dt.ep[epIndex];
+    if (!epItem._miruro){
+      epItem._miruro={};
+    }
     dt.skip=[[0,0],[0,0]];
 
-    /* ZORO */
+    /* Zoro */
     if (epProv=="zoro" && ('zoro' in dt._provider)){
       dt.streamtype='softsub';
       var eprov=dt._provider.zoro;
-      var hihref = eprov.episodeList.episodes[dt.epactive].href;
+      var hihref = eprov.episodeList.episodes[epIndex].href;
       var hiargs = hihref.substring(7);
       var hiurl = '/api/v2/hianime/episode/sources?animeEpisodeId='+
         hiargs+'?ep='+hiargs+'?server=hd-1&category=sub';
@@ -451,28 +455,65 @@ var miruro={
         f(null);
       },'zeta');
     }
-    /* ANIMEPAHE */
+    /* Anime Pahe */
     else if (epProv=="animepahe" && ('animepahe' in dt._provider)){
-      dt.streamtype='sub';
       var eprov=dt._provider.animepahe;
       miruro.req('dio','/sources?id='+eprov.id+'&provider=animepahe&ep='+epNum,function(k){
         if (!k || !k.videoSources){
           f(null);
           return;
         }
-        var selId=0;
-        var currRes=0;
+
+        // Sort by resolution
+        k.videoSources.sort(function(a, b) {
+          return Number(b.resolution) - Number(a.resolution);
+        });
+
+        // Set Servers:
+        var src = "";
+        dt.servers={};
+        epItem._miruro.animepahe={};
+        pb.data.stream_url={};
+
         for (var i=0;i<k.videoSources.length;i++){
-          var isDub=(k.videoSources[i].audio=='eng');
-          if (!isDub){
-            var res=toInt(k.videoSources[i].resolution);
-            if (currRes<res){
-              currRes=res;
-              selId=i;
+          var vs=k.videoSources[i];
+          if ('m3u8Url' in vs){
+            var isDub=(vs.audio=='eng');
+            var pkey=isDub?'dub':'sub';
+
+            /* Save Server */
+            if (!epItem._miruro.animepahe[pkey]) epItem._miruro.animepahe[pkey]=[];
+            var mirror_pos = epItem._miruro.animepahe[pkey].length;
+            epItem._miruro.animepahe[pkey].push({
+              p:mirror_pos,
+              n:vs.fansub+" "+vs.resolution,
+              u:vs.m3u8Url
+            });
+
+            if (((_API.currentStreamType==2) && isDub) || ((_API.currentStreamType!=2) && !isDub)){
+              if (isDub){
+                dt.streamtype='dub';
+                dt.playingStreamType=2;
+              }
+              else{
+                dt.streamtype='sub';
+                dt.playingStreamType=0;
+              }
+
+              if (mirror_pos==pb.cfg_data.mirrorserver || !src){
+                src = vs.m3u8Url;
+              }
+            }
+
+            if (mirror_pos==pb.cfg_data.mirrorserver){
+              if (isDub){
+                pb.data.stream_url.dub=vs.m3u8Url;
+              }
             }
           }
         }
-        var src = k.videoSources[selId].m3u8Url;
+
+        dt.servers=JSON.parse(JSON.stringify(epItem._miruro.animepahe));
         if (src){
           var o={
             url:src
@@ -483,6 +524,7 @@ var miruro={
         f(null);
       },1);
     }
+    /* Anime Vibe */
     else if (epProv=="anivibe"){
       var eprov=null;
       if ('gogoanime' in dt._provider){
@@ -525,40 +567,92 @@ var miruro={
         return 0;
       }
     }
+    /* Generic Gogoanime */
     else if (epProv=="gogoanime"){
+      var hasDub=('gogoanime_dub' in dt._provider);
+      var hasSub=('gogoanime' in dt._provider);
+      var isDub=false;
+
       var eprov=null;
       dt.streamtype='sub';
-      if ('gogoanime' in dt._provider){
+
+      if ((_API.currentStreamType==2) && hasDub){
+        eprov=dt._provider.gogoanime_dub;
+        isDub=true;
+      }
+      else{
         eprov=dt._provider.gogoanime;
       }
-      else if ('gogoanime_dub' in dt._provider){
-        eprov=dt._provider.gogoanime_dub;
-      }
+
       if (eprov){
+        var mirrorOrder=[
+          "Gogo server",
+          // "Vidhide",
+          "Vidstreaming",
+          "Streamwish"
+        ];
         miruro.req('dio','/sources?id='+eprov.id+'&ep='+epNum+'&provider=gogoanime',function(k){
           if (!k || !k.srcList){
             f(null);
             return;
           }
-          var src="";
-          var urls=[];
-          for (var i in k.srcList){
-            if ('m3u8' in k.srcList[i]){
-              src=k.srcList[i].m3u8;
-              urls.push({
-                name:i,
-                url:src
-              });
+
+          // Set Servers:
+          var src = "";
+          dt.servers={};
+          epItem._miruro.gogoanime={};
+          pb.data.stream_url={};
+
+          // Prepare server
+          var pkey=isDub?'dub':'sub';
+          if (!epItem._miruro.gogoanime[pkey]) epItem._miruro.gogoanime[pkey]=[];
+
+          for (var i=0;i<mirrorOrder.length;i++){
+            if (mirrorOrder[i] in k.srcList){
+              var vs=k.srcList[mirrorOrder[i]];
+              if ('m3u8' in vs){
+                var mirror_pos = epItem._miruro.gogoanime[pkey].length;
+                
+                epItem._miruro.gogoanime[pkey].push({
+                  p:mirror_pos,
+                  n:mirrorOrder[i],
+                  u:vs.m3u8
+                });
+
+                if (((_API.currentStreamType==2) && isDub) || ((_API.currentStreamType!=2) && !isDub)){
+                  if (isDub){
+                    dt.streamtype='dub';
+                    dt.playingStreamType=2;
+                  }
+                  else{
+                    dt.streamtype='sub';
+                    dt.playingStreamType=0;
+                  }
+                  if (mirror_pos==pb.cfg_data.mirrorserver || !src){
+                    src = vs.m3u8;
+                  }
+                }
+
+                if (mirror_pos==pb.cfg_data.mirrorserver){
+                  if (hasDub){
+                    pb.data.stream_url.dub=vs.m3u8;
+                  }
+                }
+                else if (!src){
+                  src=vs.m3u8;
+                }
+              }
             }
           }
+          dt.servers=JSON.parse(JSON.stringify(epItem._miruro.gogoanime));
           if (src){
             var o={
-              url:src,
-              urls:urls
+              url:src
             };
             f(o);
             return;
           }
+          f(null);
         },1);
       }
       else{
@@ -7284,8 +7378,11 @@ const pb={
         var subel=[
           'Hardsub','Softsub','Dub'
         ];
-        el.innerHTML='<c>'+icos[_API.currentStreamType]+'</c> '+subel[_API.currentStreamType];
-        // _API.currentStreamType
+        var sid=_API.currentStreamType;
+        if ('playingStreamType' in pb.data){
+          sid=pb.data.playingStreamType;
+        }
+        el.innerHTML='<c>'+icos[sid]+'</c> '+subel[sid];
       }
       else if (key=="hardsub" || key=="softsub"||key=="dub"){
         var subel=[
@@ -8417,6 +8514,7 @@ const pb={
             }
             pb.updateStreamTypeInfo();
             pb.init_video_mp4upload(v.url);
+            pb.cfg_update_el();
           }
         });
       }
@@ -9097,19 +9195,29 @@ const pb={
       else if (key=="streamselect"){
         if (!__SD3&&!__SD5/*&&!__SD6*/){
           var lst=['Hardsub'];
+          var lstVal=[0];
+          var cCheck=0;
           if (pb.data.stream_url.soft){
+            if (_API.currentStreamType==1){
+              cCheck=lstVal.length;
+            }
             lst.push('Softsub');
+            lstVal.push(1);
           }
           if (pb.data.stream_url.dub){
+            if (_API.currentStreamType==2){
+              cCheck=lstVal.length;
+            }
             lst.push('Dub');
+            lstVal.push(2);
           }
           listOrder.showList(
             "Stream Type",
             lst,
-            _API.currentStreamType,
+            cCheck,
             function(chval){
               if (chval!=null){
-                _API.setStreamTypeValue(chval,1);
+                _API.setStreamTypeValue(lstVal[chval],1);
                 pb.reinit_video_delay(100,false);
                 pb.cfg_update_el(key);
               }
