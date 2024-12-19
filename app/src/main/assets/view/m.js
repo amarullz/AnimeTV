@@ -416,6 +416,12 @@ var miruro={
     var epNum=dt.epactivenum;
     var epIndex=dt.epactive;
     var epItem=dt.ep[epIndex];
+    if (!epItem){
+      requestAnimationFrame(function(){
+        f(null);
+      });
+      return;
+    }
     if (!epItem._miruro){
       epItem._miruro={};
     }
@@ -18144,7 +18150,7 @@ query ($weekStart: Int, $weekEnd: Int, $page: Int, $perPage: Int) {
       v.data.Page.media=[];
       for (var i=0;i<v.data.Page.airingSchedules.length;i++){
         var md=v.data.Page.airingSchedules[i].media;
-        if (md.countryOfOrigin=="JP" && md.type=="ANIME" && md.format!="TV_SHORT" && md.format!="ONA" && !md.isAdult){
+        if (md.countryOfOrigin=="JP" && md.type=="ANIME" && md.format!="TV_SHORT" && md.format!="ONA" && !md.isAdult && md.episodes){
           var ob=JSON.parse(JSON.stringify(md))
           ob.airEp=v.data.Page.airingSchedules[i].episode;
           v.data.Page.media.push(ob);
