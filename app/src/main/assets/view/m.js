@@ -246,9 +246,9 @@ var miruro={
     'Gogoanime',
   ],
   providers_features:[
-    'Hardsub, Dub, Quality',
+    'Hardsub, Dub, Best Quality, Fast',
     'Softsub, Dub, Multilang',
-    'Hardsub, Dub, Fast',
+    'Hardsub, Dub',
     'Hardsub, Dub, !No new update',
     
   ],
