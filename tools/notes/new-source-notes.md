@@ -8,6 +8,159 @@ EXAMPLE:
 https://api.aniskip.com/v2/skip-times/54744/3?episodeLength=0&types%5B%5D=ed&types%5B%5D=mixed-ed&types%5B%5D=mixed-op&types%5B%5D=op&types%5B%5D=recap
 ```
 
+
+# anime.uniquestream.net
+
+```
+
+# Recent
+https://anime.uniquestream.net/api/v1/videos/new?slider=1
+
+[
+    {
+        "content_id": "0X5B6fPV",
+        "title": "Tower of God",
+        "image": "https://anime.uniquestream.net/public/images/posters/480x720/472656b0aa3c869827826cb130e0785a.jpg",
+        "image_loading": "https://anime.uniquestream.net/public/images/posters/480x720/missing.jpg",
+        "type": "show"
+    },
+    {
+        "content_id": "hy0Edxtk",
+        "title": "I'll Become a Villainess Who Goes Down in History",
+        "image": "https://anime.uniquestream.net/public/images/posters/480x720/79990d0395ee1d681ca0981acf3eda7e.jpg",
+        "image_loading": "https://anime.uniquestream.net/public/images/posters/480x720/missing.jpg",
+        "type": "show"
+    },
+]
+
+# Video Detail
+https://anime.uniquestream.net/api/v1/series/hy0Edxtk
+{
+    "content_id": "hy0Edxtk",
+    "title": "I'll Become a Villainess Who Goes Down in History",
+    "description": "This young girl hates all those goodie-two-shoes heroines. So when she’s reincarnated as Alicia, the villain in her favorite fantasy dating sim, it’s like a dream come true! There’s just one problem: the more she tries to be evil, the more the prince seems to fall for her. Alicia will have to work much harder if she ever wants to become the world’s greatest villainess.",
+    "images": [
+        {
+            "url": "https://anime.uniquestream.net/public/images/posters/480x720/79990d0395ee1d681ca0981acf3eda7e.jpg",
+            "type": "poster_tall"
+        },
+        {
+            "url": "https://anime.uniquestream.net/public/images/posters/1200x675/79990d0395ee1d681ca0981acf3eda7e.jpg",
+            "type": "poster_wide"
+        }
+    ],
+    "seasons": [
+        {
+            "content_id": "ntFzgVsu",
+            "title": "I'll Become a Villainess Who Goes Down in History",
+            "season_number": 1,
+            "season_seq_number": 0,
+            "display_number": "",
+            "episode_count": 12
+        }
+    ],
+    "episode": {
+        "content_id": "EAXpSgfB",
+        "title": "The Villainess and Working Out",
+        "image": "https://anime.uniquestream.net/public/images/episodes/320x180/25bb3671b623f0bbe34e4e84c94f9f28.jpg",
+        "image_loading": null,
+        "type": "show",
+        "series_title": null,
+        "season_number": null,
+        "season_display": "",
+        "episode_number": 1.0,
+        "duration_ms": 1420046,
+        "episode": "1",
+        "is_clip": false
+    }
+}
+
+# Episodes (Season-1: ntFzgVsu)
+https://anime.uniquestream.net/api/v1/season/ntFzgVsu/episodes?page=1&limit=5&order_by=asc
+[
+    {
+        "title": "The Villainess and Working Out",
+        "episode": "1",
+        "is_clip": false,
+        "content_id": "EAXpSgfB",
+        "episode_number": 1.0,
+        "duration_ms": 1420046,
+        "image": "https://anime.uniquestream.net/public/images/episodes/320x180/25bb3671b623f0bbe34e4e84c94f9f28.jpg",
+        "image_loading": "https://anime.uniquestream.net/public/images/episodes/320x180/missing.jpg"
+    },
+    {
+        "title": "The Villainess and a Kiss",
+        "episode": "2",
+        "is_clip": false,
+        "content_id": "BL5RTf00",
+        "episode_number": 2.0,
+        "duration_ms": 1420087,
+        "image": "https://anime.uniquestream.net/public/images/episodes/320x180/826a7c74f1f8aa78d8d754103ea8922b.jpg",
+        "image_loading": "https://anime.uniquestream.net/public/images/episodes/320x180/missing.jpg"
+    }
+]
+
+
+# Get Stream (Ep-2: BL5RTf00)
+https://anime.uniquestream.net/api/v1/content/BL5RTf00
+{
+    "content_id": "BL5RTf00",
+    "episode": "2",
+    "description": "Believing that actual experience is just as crucial as book smarts if she wants to be the greatest villainess ever, Alicia heads to the village of Loana, which is isolated by a magic barrier. There, she has an encounter that changes her life...",
+    "episode_number": 2.0,
+    "title": "The Villainess and a Kiss",
+    "is_clip": false,
+    "duration_ms": 1420087,
+    "content_type": "episode",
+    "series_id": "hy0Edxtk",
+    "series_title": "I'll Become a Villainess Who Goes Down in History",
+    "season_title": "I'll Become a Villainess Who Goes Down in History",
+    "image": "https://anime.uniquestream.net/public/images/episodes/1200x675/826a7c74f1f8aa78d8d754103ea8922b.jpg",
+    "image_loading": "https://anime.uniquestream.net/public/images/episodes/1200x675/missing.jpg",
+    "prev": {
+        "title": "The Villainess and Working Out",
+        "episode_number": 1.0,
+        "content_id": "EAXpSgfB",
+        "duration_ms": 1420046,
+        "episode": "1",
+        "image": "https://anime.uniquestream.net/public/images/episodes/320x180/25bb3671b623f0bbe34e4e84c94f9f28.jpg",
+        "image_loading": "https://anime.uniquestream.net/public/images/episodes/320x180/missing.jpg"
+    },
+    "next": {
+        "title": "The Villainess and Trespassing",
+        "episode_number": 3.0,
+        "content_id": "tfNynk5O",
+        "duration_ms": 1420004,
+        "episode": "3",
+        "image": "https://anime.uniquestream.net/public/images/episodes/320x180/40d1a5fcf7469b6c41f2ae7dccac18b7.jpg",
+        "image_loading": "https://anime.uniquestream.net/public/images/episodes/320x180/missing.jpg"
+    }
+}
+
+# Get Media
+https://anime.uniquestream.net/api/v1/episode/BL5RTf00/media/dash/ja-JP
+
+https://anime.uniquestream.net/api/v1/episode/EAXpSgfB/media/dash/ja-JP
+
+# Get License
+curl 'https://anime.uniquestream.net/api/v1/lic/widevine' \
+  -H 'x-am-media-id: f5597ed24676e587f49af7884eef6aaf' \
+  --data-raw $'\u0008\u0004'
+
+{
+  "status": "OK",
+  "license": "CAUSwQUKuwIIAxIQoNzRYDAsBBPVIHaiDIEkTBi/hPHuBSKOAjCCAQoCggEBALxdz8ZNHBkO2WcFOGrxXfzYPWgkAzQX9iAJC00MvPu9NYn5CyQ0aLkN3arM7izjwKfHkEu8vgfTEJFLDYR3p6QdJ2tFTDKhg4T4z+3WghtxzCVNDuj4GlXVfpMHt/EXLHWOwG1GwFamFTrnDXbXOqZKLDNnMnjGxdVAImlCc0jrWDMc7jZdk4y7HK0ybQXqm40dNOqHJjdnb3Riq9IN04H5RjlAm5cmCOG85QP36houW9P6/CZXb80lbEqocEp0v0mq86c2JBQXSEMjtZ/xZvrdFhJcoTbsrLfWEqDHXC6rtNNaQD6QeclNStMR9DF89Hh0lOq4T4gMsCLnJ5VXHNsCAwEAAToMY2FzdGxhYnMuY29tQAESgAMyYZeleD/SrFS7CiSmypUgdmsl+7rZqv4EXxRVQp0rmhhCiJNl307MreSvb2SoYaTeVKAzT+nj32n8VQvygcfOCwnsdqN2zLOfRWzf5XKwCBokCRdn6T43oprRYGJmUK1y6dUkOIdBvPWwX0a9x49RSLZ8z+HuHKyQblksDIkzNO+CdXcPz8jljqYIUE9v/79GL71sS+q48XcV/2KnfIQe72ZxB4RgJ4Z73NH/bt4jkwBNff2Bi0Keft0NdXGjj+sJgrQDhV6YLcdFqLZfelIZywpjv7rB7uHgjJyOq24a1iDwBtqKCi9yhREBlyvV38bSulESMt1UsbQaOqTrcbHrzxbmCHdMp6awrdHWNXR05+Pd7q5X+ROmw1Ev0qwPS/vKwFBV1RcRsmi1wXPvW0jmpzePCvoaNgg8DdXO6wPXs83oAZCeIzDElXXbP8SCdSilwUHXeizJ2kPYBoOyBajlFYlw1/5/MKC1RDH/QC737FWbktAF2/wlrh/aiIc3d3A=",
+  "service_version_info": {
+    "license_sdk_version": "19.0.2",
+    "license_service_version": "DRMtoday"
+  }
+}
+
+
+
+```
+
+
 # MIRURO
 ```
 12RmYtJexlqnNym38z4ahwy+g1g0la/El8nkkMOVtiQ=
