@@ -64,6 +64,7 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.source.LoadEventInfo;
@@ -737,11 +738,23 @@ import javax.crypto.spec.SecretKeySpec;
     };
 
     videoTrackManager=new TrackManager(activity);
+
+    DefaultLoadControl loadControl=new DefaultLoadControl.Builder()
+        .setBackBuffer(1000 * 60 * 2, true)
+        .setBufferDurationsMs(
+            600000,
+            600000,
+            2500,
+            5000
+        )
+        .build();
+
     // trackManager.
     videoPlayerConfig=
         new PlayerConfigBuilder(activity)
             .setDataSourceFactoryProvider(videoDataSourceFactory)
             .setTrackManager(videoTrackManager)
+            .setLoadControl(loadControl)
             .build();
     videoView=new SurfaceView(activity);
     videoViewEnvelope=new SurfaceViewSurfaceEnvelope(videoView,new MatrixManager());
@@ -933,7 +946,9 @@ import javax.crypto.spec.SecretKeySpec;
     else if (path.startsWith("/__proxy/")){
       /* Proxy */
       try {
-        String proxy_url=url.replace("https://"+host+"/__proxy/","");
+        String proxy_url="";
+        String hostStream=request.getRequestHeaders().get("X-Stream-Prox");
+        proxy_url = url.replace("https://" + host + "/__proxy/", "");
         String fixdomain = request.getRequestHeaders().get("X-Fixdomain-Prox");
         if (!Conf.SOURCE_DOMAIN_USED.isEmpty() && (fixdomain==null)) {
           proxy_url=proxy_url.replace("://"+host,"://"+Conf.SOURCE_DOMAIN_USED);
@@ -986,7 +1001,16 @@ import javax.crypto.spec.SecretKeySpec;
         String noHeaderProxy = request.getRequestHeaders().get("X-NoH-Proxy");
 
         AnimeApi.Http http=new AnimeApi.Http(proxy_url);
-        if (noHeaderProxy!=null){
+        if (hostStream!=null){
+          String[] h=hostStream.split("\\.");
+          String hostProx = h[h.length-2]+"."+h[h.length-1];
+          http.addHeader("Origin", "https://"+hostProx);
+          if (request.getRequestHeaders().get("X-Dash-Prox")==null) {
+            http.addHeader("Referer", "https://" + hostProx + "/");
+          }
+          http.addHeader("User-Agent", Conf.USER_AGENT);
+        }
+        else if (noHeaderProxy!=null){
           if (proxyOrigin!=null) {
             http.addHeader("Origin", proxyOrigin);
           }

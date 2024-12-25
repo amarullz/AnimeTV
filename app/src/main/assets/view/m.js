@@ -67,6 +67,10 @@ requestAnimationFrame(function(){
   }
 });
 
+function html5video(){
+  return _ISELECTRON || pb.cfg_data.html5player || (__SD8 && (miruro.provider==0));
+}
+
 const __SD_NAME = __SD+". "+(__SOURCE_NAME[__SD-1]);
 var __SD_DOMAIN = "";
 function SD_CHECK_DOMAIN(sd,cb){
@@ -3908,7 +3912,7 @@ const _API={
     });
   },
   videoPost:function(c,v){
-    if (_ISELECTRON){
+    if (html5video()){
       console.log("PLAYER-POST = "+c+" -> "+v);
       try{
         if (c=='seek'){
@@ -3945,14 +3949,14 @@ const _API={
         console.warn("VIDEO_SET_URL = "+src);
       }
     }
-    if (_ISELECTRON){
+    if (html5video()){
       console.warn("ELECTRON VIDEO SRC = "+src);
       try{
         if (pb && 'pb_vid' in pb){
           _API.videoSrcValue=src;
           if (src){
             _API.videoInitCb();
-            pb.vid=$n('iframe','',{src:'/__ui/player.html?'+src,frameborder:'0'},pb.pb_vid,'');
+            pb.vid=$n('iframe','',{src:'/__view/ui/player.html?'+src,frameborder:'0'},pb.pb_vid,'');
           }
           else{
             pb.pb_vid.innerHTML='';
@@ -4381,7 +4385,7 @@ const _API={
   },
 
   videoAudioTrack:function(id, update){
-    if (_ISELECTRON){
+    if (html5video()){
       _API.videoPost('audiolang',id);
     }
     else if ('videoAudioTrack' in _JSAPI){
@@ -5680,7 +5684,7 @@ const _API={
   },
   vidInterval:null,
   videoGetPos:function(){
-    if (_ISELECTRON){
+    if (html5video()){
       return _API.videoElectronPos;
     }
     return {
@@ -5785,7 +5789,6 @@ const _API={
   }catch(e){}
 
   /* INITIALIZING */
-  _API.setVideo('');
   _API.theme_update();
 })();
 
@@ -6486,7 +6489,7 @@ const vtt={
       _JSAPI.videoBufferPercent();
       requestAnimationFrame(function(){
         var pc=_JSAPI.videoBufferPercent();
-        if (_ISELECTRON && _API.videoElectronPos.buffer && _API.videoElectronPos.duration){
+        if (html5video() && _API.videoElectronPos.buffer && _API.videoElectronPos.duration){
           pc=_API.videoElectronPos.buffer/_API.videoElectronPos.duration * 100;
         }
         if (pb.pb_track_buffer._curr!=pc){
@@ -7032,7 +7035,7 @@ const pb={
     autoskip:false,
     autonext:true,
     closeconfirm:0,
-    // html5player:false,
+    html5player:false,
     skipfiller:false,
     jptitle:false,
     // compactlist:false,
@@ -7079,7 +7082,7 @@ const pb={
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
         
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
-        // pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
+        pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
         pb.cfg_data.dubaudio=('dubaudio' in j)?(j.dubaudio?true:false):false;
         
         pb.cfg_data.skipfiller=('skipfiller' in j)?(j.skipfiller?true:false):false;
@@ -7225,7 +7228,7 @@ const pb={
     pb.cfg_data.autoskip=false;
     pb.cfg_data.closeconfirm=0;
     pb.cfg_data.autonext=true;
-    // pb.cfg_data.html5player=false;
+    pb.cfg_data.html5player=false;
     pb.cfg_data.dubaudio=false;
     
     pb.cfg_data.skipfiller=false;
@@ -7570,11 +7573,11 @@ const pb={
           pb.cfg_setactive(el,pb.cfg_data.httpclient==0);
         }
         // else if (key=='html5player'){
-        //   pb.cfg_setactive(el,!__SD3);
+        //   pb.cfg_setactive(el,pb.cfg_data.html5player);
         // }
-        else if (key=='dubaudio'){
+        // else if (key=='dubaudio'){
           // pb.cfg_setactive(el,__SD3);
-        }
+        // }
 
         /* Set Values */
         if (key=='server'){
@@ -7660,7 +7663,9 @@ const pb={
       pb.cfg_update_el('autonext');
       pb.cfg_update_el('dubaudio');
       
-      // pb.cfg_update_el('html5player');
+      if (!_ISELECTRON){
+        pb.cfg_update_el('html5player');
+      }
       
       pb.cfg_update_el('skipfiller');
       pb.cfg_update_el('preloadep');
@@ -7943,7 +7948,7 @@ const pb={
       // if (pb.cfg_data.html5player){
       //   pb.vid_cmd('scale',pb.cfg_data.scale);
       // }
-      if (_ISELECTRON){
+      if (html5video()){
         pb.vid_cmd('scale',pb.cfg_data.scale);
         pb.vid_cmd('speed',_API.vidSpeed);
         if (pb.vid){
@@ -7963,7 +7968,7 @@ const pb={
       //   pb.vid_cmd('speed',_API.vidSpeed);
       //   pb.vid_cmd('scale',pb.cfg_data.scale);
       // }
-      if (_ISELECTRON){
+      if (html5video()){
         pb.vid_cmd('scale',pb.cfg_data.scale);
         pb.vid_cmd('speed',_API.vidSpeed);
         if (pb.vid){
@@ -8244,7 +8249,7 @@ const pb={
     ];
 
     /* Auto Quality */
-    if (true || _ISELECTRON || (!__SD6 && pb.cfg_data.quality==0)){
+    if (true || html5video() || (!__SD6 && pb.cfg_data.quality==0)){
       console.log("NO-PARSE AUTO M3u8 QUALITY="+pb.cfg_data.quality);
       pb.init_video_player_url(src);
       pb.cfg_update_el("quality");
@@ -8497,7 +8502,7 @@ const pb={
 
     var mp3utrycount=0;
 
-    if (!_ISELECTRON){
+    if (!html5video()){
       _API.setMessage(function(e){
         if (e){
           // _API.showToast("Got Win Message "+e.data);
@@ -8525,7 +8530,7 @@ const pb={
         pb.pb_vid.innerHTML='';
         (function(){
           var iframe_src=pb.data.stream_vurl;
-          // if (_ISELECTRON){
+          // if (html5video()){
           //   iframe_src+='&autostart=true';
           // }
           // if (pb.cfg_data.html5player && __SD<3){
@@ -8561,7 +8566,7 @@ const pb={
       // if (pb.cfg_data.html5player && __SD<3){
       //   iframe_src+='&autostart=true';
       // }
-      // if (_ISELECTRON){
+      // if (html5video()){
       //   iframe_src+='&autostart=true';
       // }
       pb.vid=$n('iframe','',{src:iframe_src,frameborder:'0'},pb.pb_vid,'');
@@ -8572,7 +8577,7 @@ const pb={
   reinit_video_delay:function(ms, isquality){
     clearTimeout(pb.reinit_video_to);
     pb.reinit_video_to=setTimeout(function(){
-      if (isquality&&_ISELECTRON){
+      if (isquality&&html5video()){
         _API.videoPost('quality',pb.cfg_data.quality);
       }
       else if (isquality){
@@ -9038,7 +9043,7 @@ const pb={
                 'd':d
               };
               console.log('Next EP Preloaded = '+sel_id);
-              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6 &&!_ISELECTRON ){
+              if (/*!pb.cfg_data.html5player&&*/!__SD5&&!__SD6 &&!html5video() ){
                 pb.preload_video_started=1;
                 _API.setVizPageCb(null);
                 _API.setMessage(null);
@@ -9445,7 +9450,7 @@ const pb={
           function(chval){
             if (chval!==null){
               _API.vidSpeed=flist[toInt(chval)];
-              if (_ISELECTRON/*||pb.cfg_data.html5player*/){
+              if (html5video()/*||pb.cfg_data.html5player*/){
                 pb.vid_cmd('speed',_API.vidSpeed);
               }
               else{
@@ -10016,6 +10021,15 @@ const pb={
           /* check actions */
           if (key=='dubaudio'){
             if (pb.state){
+              pb.reloadPlayback(1000);
+            }
+          }
+          else if (key=='html5player'){
+            if (!_ISELECTRON){
+              try{
+                _JSAPI.videoSetUrl("");
+              }catch(e){}
+              pb.pb_vid.innerHTML='';
               pb.reloadPlayback(1000);
             }
           }
@@ -14785,6 +14799,17 @@ const home={
           home.settings.video.P,
           '<c class="check">clear</c><c>cloud_download</c> Preload Next Episode'
         );
+
+        if (!_ISELECTRON){
+          home.settings.tools._s_html5player=$n(
+            'div','',{
+              action:'*html5player',
+              s_desc:"Enable if you have a problem with stuttering playback, some features may disabled"
+            },
+            home.settings.video.P,
+            '<c class="check">check</c><c>live_tv</c> Use HTML5 Video Player'
+          );
+        }
         
 
         /* Style */
@@ -14977,17 +15002,6 @@ const home={
           home.settings.more.P,
           '<c class="check">clear</c><c>language_japanese_kana</c> Japanese Titles'
         );
-
-        /*
-        home.settings.tools._s_html5player=$n(
-          'div','',{
-            action:'*html5player',
-            s_desc:"Enable if you have a problem with stuttering playback, some features may disabled"
-          },
-          home.settings.more.P,
-          '<c class="check">check</c><c>live_tv</c> Use HTML5 Video Player'
-        );
-        */
 
         /* Networks */
         if (_ISELECTRON){
@@ -21187,6 +21201,9 @@ const touchHelper={
 
 /* CHROMECAST */
 (function(){
+  /* reset */
+  _API.setVideo('');
+
   if (!('castConnect' in _JSAPI)){
     /* No Cast API */
     return;
