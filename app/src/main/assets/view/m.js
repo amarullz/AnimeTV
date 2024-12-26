@@ -67,8 +67,9 @@ requestAnimationFrame(function(){
   }
 });
 
+var _video_is_dash=false;
 function html5video(){
-  return _ISELECTRON || pb.cfg_data.html5player || (__SD8 && (miruro.provider==0));
+  return _ISELECTRON || ((pb.cfg_data.html5player || (__SD8 && (miruro.provider==0))) && !_video_is_dash);
 }
 
 const __SD_NAME = __SD+". "+(__SOURCE_NAME[__SD-1]);
@@ -3949,7 +3950,14 @@ const _API={
         console.warn("VIDEO_SET_URL = "+src);
       }
     }
+    _video_is_dash=(src_ori.indexOf("#dash")>0);
+    pb.pb_vid.innerHTML="";
     if (html5video()){
+      if (!_ISELECTRON){
+        try{
+          _JSAPI.videoSetUrl("");
+        }catch(e){}
+      }
       console.warn("ELECTRON VIDEO SRC = "+src);
       try{
         if (pb && 'pb_vid' in pb){

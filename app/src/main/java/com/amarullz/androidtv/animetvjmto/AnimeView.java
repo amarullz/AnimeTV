@@ -999,7 +999,6 @@ import javax.crypto.spec.SecretKeySpec;
         String proxyReferer = request.getRequestHeaders().get("X-Ref-Prox");
         String noHeaderProxy = request.getRequestHeaders().get("X-NoH-Proxy");
 
-        Log.d(_TAG, "PROXY-DASH = " +proxy_url);
         AnimeApi.Http http=new AnimeApi.Http(proxy_url);
         if (hostStream!=null){
           String[] h=hostStream.split("\\.");
@@ -1007,9 +1006,10 @@ import javax.crypto.spec.SecretKeySpec;
           http.addHeader("Origin", "https://"+hostProx);
           if (request.getRequestHeaders().get("X-Dash-Prox")==null) {
             http.addHeader("Referer", "https://" + hostProx + "/");
+            http.addHeader("X-Requested-With", "XMLHttpRequest");
+            request.getRequestHeaders().remove("X-Requested-With");
           }
           http.addHeader("User-Agent", Conf.USER_AGENT);
-
           /* send rest headers */
           for (Map.Entry<String, String> entry :
               request.getRequestHeaders().entrySet()) {
