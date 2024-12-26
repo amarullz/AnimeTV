@@ -816,24 +816,23 @@ import javax.crypto.spec.SecretKeySpec;
 
   public void videoSetSource(String url){
     try {
-      if (me().castMediaConnected){
-        if (url.equals("")) {
-          me().castMediaUrl("","");
-        }
-        else {
-          videoPlayer.setMediaUri(null);
-//          me().mSession.setActive(false);
-          String ctype="application/x-mpegURL";
-          if (url.contains("#dash")){
-            ctype="application/dash+xml";
-          }
-          else if (url.contains("mp4upload.com")){
-            ctype="video/mp4";
-          }
-          me().castMediaUrl(url, ctype);
-          return;
-        }
-      }
+//      if (me().castMediaConnected){
+//        if (url.equals("")) {
+//          me().castMediaUrl("","");
+//        }
+//        else {
+//          videoPlayer.setMediaUri(null);
+//          String ctype="application/x-mpegURL";
+//          if (url.contains("#dash")){
+//            ctype="application/dash+xml";
+//          }
+//          else if (url.contains("mp4upload.com")){
+//            ctype="video/mp4";
+//          }
+//          me().castMediaUrl(url, ctype);
+//          return;
+//        }
+//      }
 
       if (url.equals("")) {
         videoPlayer.setMediaUri(null);
@@ -1973,27 +1972,27 @@ import javax.crypto.spec.SecretKeySpec;
     }
 
 
-    @JavascriptInterface
-    public void castConnect(){
-      activity.runOnUiThread(() ->me().castMediaSearch());
-    }
-
-    @JavascriptInterface
-    public void castSubtitle(String url){
-      me().castSubtitleUrl=url;
-    }
-
-    @JavascriptInterface
-    public boolean castConnected(){
-      return me().castMediaConnected;
-    }
-
-    @JavascriptInterface
-    public void castSubtitleIndex(int idx){
-      Log.d("ATVLOG","CAST REQ IDX: "+idx);
-      me().castSubtitleIndex=idx;
-      activity.runOnUiThread(() ->me().castUpdateSubtitle());
-    }
+//    @JavascriptInterface
+//    public void castConnect(){
+//      activity.runOnUiThread(() ->me().castMediaSearch());
+//    }
+//
+//    @JavascriptInterface
+//    public void castSubtitle(String url){
+//      me().castSubtitleUrl=url;
+//    }
+//
+//    @JavascriptInterface
+//    public boolean castConnected(){
+//      return me().castMediaConnected;
+//    }
+//
+//    @JavascriptInterface
+//    public void castSubtitleIndex(int idx){
+//      Log.d("ATVLOG","CAST REQ IDX: "+idx);
+//      me().castSubtitleIndex=idx;
+//      activity.runOnUiThread(() ->me().castUpdateSubtitle());
+//    }
   }
 
   public int profile_sel=-1;

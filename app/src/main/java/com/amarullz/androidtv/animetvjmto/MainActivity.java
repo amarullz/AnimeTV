@@ -9,8 +9,6 @@ import android.content.res.Configuration;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,30 +24,11 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.media.session.MediaButtonReceiver;
 import androidx.media3.common.util.UnstableApi;
-import androidx.mediarouter.app.MediaRouteChooserDialogFragment;
-import androidx.mediarouter.app.MediaRouteDialogFactory;
-import androidx.mediarouter.media.MediaRouteSelector;
-
-import com.google.android.gms.cast.CastMediaControlIntent;
-import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.MediaLoadRequestData;
-import com.google.android.gms.cast.MediaTrack;
-import com.google.android.gms.cast.framework.CastContext;
-import com.google.android.gms.cast.framework.CastSession;
-import com.google.android.gms.cast.framework.SessionManager;
-import com.google.android.gms.cast.framework.SessionManagerListener;
-import com.google.android.gms.cast.framework.media.RemoteMediaClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.common.images.WebImage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @UnstableApi /*
  * Main Activity class that loads {@link MainFragment}.
@@ -164,7 +143,7 @@ public class MainActivity extends FragmentActivity {
     initBluetooth();
     updateInstance(savedInstanceState);
     aView=new AnimeView(this);
-    initCastService();
+//    initCastService();
   }
 
   @Override
@@ -290,17 +269,17 @@ public class MainActivity extends FragmentActivity {
     aView.onStartPause(false);
     super.onPause();
 
-    if (mSessionManager!=null) {
-      mSessionManager.removeSessionManagerListener(mSessionManagerListener, CastSession.class);
-    }
+//    if (mSessionManager!=null) {
+//      mSessionManager.removeSessionManagerListener(mSessionManagerListener, CastSession.class);
+//    }
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    if (mSessionManager!=null) {
-      mSessionManager.addSessionManagerListener(mSessionManagerListener, CastSession.class);
-    }
+//    if (mSessionManager!=null) {
+//      mSessionManager.addSessionManagerListener(mSessionManagerListener, CastSession.class);
+//    }
   }
 
   @Override
@@ -519,208 +498,208 @@ public class MainActivity extends FragmentActivity {
   }
 
   /* chromecast */
-  public CastContext castContext=null;
-  private CastSession mCastSession=null;
-  private SessionManager mSessionManager;
-  private SessionManagerListener<CastSession> mSessionManagerListener =
-      new SessionManagerListenerImpl();
-  public boolean castMediaConnected=false;
-  public String castSubtitleUrl="";
-  public int castSubtitleIndex=0;
+//  public CastContext castContext=null;
+//  private CastSession mCastSession=null;
+//  private SessionManager mSessionManager;
+//  private SessionManagerListener<CastSession> mSessionManagerListener =
+//      new SessionManagerListenerImpl();
+//  public boolean castMediaConnected=false;
+//  public String castSubtitleUrl="";
+//  public int castSubtitleIndex=0;
 
-  public AnimeServer animeServer;
-  public void initCastService(){
-    boolean isTV = getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
-    if (!isTV) {
-        castContext = CastContext.getSharedInstance(this);
-        mSessionManager = castContext.getSessionManager();
-    }
-    castMediaConnected=false;
+//  public AnimeServer animeServer;
+//  public void initCastService(){
+//    boolean isTV = getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+//    if (!isTV) {
+//        castContext = CastContext.getSharedInstance(this);
+//        mSessionManager = castContext.getSessionManager();
+//    }
+//    castMediaConnected=false;
+//
+//    animeServer=new AnimeServer(this);
+//    try {
+//      animeServer.start();
+//      Log.d("ATVLOG","Starting Anime Server");
+//    } catch (IOException e) {
+//      Log.d("ATVLOG","Error Start Anime Server");
+//    }
+//  }
 
-    animeServer=new AnimeServer(this);
-    try {
-      animeServer.start();
-      Log.d("ATVLOG","Starting Anime Server");
-    } catch (IOException e) {
-      Log.d("ATVLOG","Error Start Anime Server");
-    }
-  }
+//  public void castMediaSearch(){
+//    if (castMediaConnected){
+//      mSessionManager.endCurrentSession(true);
+//      return;
+//    }
+//    MediaRouteSelector mediaRouteSelector =
+//        new MediaRouteSelector.Builder()
+//            .addControlCategory(CastMediaControlIntent.categoryForCast(
+//                CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID))
+//            .build();
+//    final FragmentManager fm = getSupportFragmentManager();
+//    MediaRouteChooserDialogFragment f = MediaRouteDialogFactory.getDefault().onCreateChooserDialogFragment();
+//    f.setRouteSelector(mediaRouteSelector);
+//    f.show(fm, "android.support.v7.mediarouter:MediaRouteChooserDialogFragment");
+//  }
 
-  public void castMediaSearch(){
-    if (castMediaConnected){
-      mSessionManager.endCurrentSession(true);
-      return;
-    }
-    MediaRouteSelector mediaRouteSelector =
-        new MediaRouteSelector.Builder()
-            .addControlCategory(CastMediaControlIntent.categoryForCast(
-                CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID))
-            .build();
-    final FragmentManager fm = getSupportFragmentManager();
-    MediaRouteChooserDialogFragment f = MediaRouteDialogFactory.getDefault().onCreateChooserDialogFragment();
-    f.setRouteSelector(mediaRouteSelector);
-    f.show(fm, "android.support.v7.mediarouter:MediaRouteChooserDialogFragment");
-  }
+//  public void castMediaEvent(String msg,String arg){
+//    AsyncTask.execute(() ->runOnUiThread(() ->
+//        aView.webView.evaluateJavascript(
+//            "try{__CASTMSG('"+msg+"','"+arg+"');}catch(e)" +
+//                "{}",
+//            null)
+//    ));
+//  }
 
-  public void castMediaEvent(String msg,String arg){
-    AsyncTask.execute(() ->runOnUiThread(() ->
-        aView.webView.evaluateJavascript(
-            "try{__CASTMSG('"+msg+"','"+arg+"');}catch(e)" +
-                "{}",
-            null)
-    ));
-  }
+//  public int castMediaUrl(String uri, String ctype){
+//    Log.d("ATVLOG","VIDSTREAM Cast Start: "+ctype+" => "+uri);
+//    if (!castMediaConnected){
+//      return -1;
+//    }
+//    RemoteMediaClient remoteMediaClient = mSessionManager.getCurrentCastSession().getRemoteMediaClient();
+//    if (uri.equals("")){
+//      remoteMediaClient.stop();
+//      return 0;
+//    }
+//
+//    String proxy_url=AnimeServer.getProxyUrl(uri);
+//    Log.d("ATVLOG","VIDSTREAM Cast Proxy: "+proxy_url);
+//
+//    com.google.android.gms.cast.MediaMetadata movieMetadata =
+//        new com.google.android.gms.cast.MediaMetadata(
+//            com.google.android.gms.cast.MediaMetadata.MEDIA_TYPE_MOVIE
+//        );
+//    movieMetadata.putString(com.google.android.gms.cast.MediaMetadata.KEY_TITLE, _metaTitle);
+//    movieMetadata.putString(com.google.android.gms.cast.MediaMetadata.KEY_SUBTITLE, _metaArtist);
+//    movieMetadata.addImage(new WebImage(Uri.parse(_metaUrl)));
+//
+//    MediaInfo.Builder mb = new MediaInfo.Builder(proxy_url)
+//        .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+//        .setContentType(ctype)
+//        .setMetadata(movieMetadata);
+//
+//    if (!castSubtitleUrl.equals("")) {
+//      List tracks = new ArrayList();
+//      String[] subs=castSubtitleUrl.split("\n");
+//      for (int i=0;i<subs.length;i++) {
+//        Log.d("ATVLOG","CAST SUB-LOAD: "+subs[i]);
+//        MediaTrack sub = new MediaTrack.Builder(i+1, MediaTrack.TYPE_TEXT)
+//            .setName("Sub-"+i)
+//            .setSubtype(MediaTrack.SUBTYPE_SUBTITLES)
+//            .setContentId(subs[i])
+//            .setContentType("text/vtt")
+//            .setLanguage("en-US")
+//            .build();
+//        tracks.add(sub);
+//      }
+//      mb.setMediaTracks(tracks);
+//    }
+//
+//    MediaInfo mediaInfo = mb.build();
+//
+//    remoteMediaClient.load(
+//        new MediaLoadRequestData.Builder()
+//            .setMediaInfo(mediaInfo)
+//            .setAutoplay(true).build()).addStatusListener(new PendingResult.StatusListener() {
+//      @Override
+//      public void onComplete(@NonNull Status status) {
+//        Log.d("ATVLOG","CAST LOAD: "+status.getStatusMessage());
+//        castUpdateSubtitle();
+//      }
+//    });
+//    remoteMediaClient.play();
+//
+//
+//    return 1;
+//  }
 
-  public int castMediaUrl(String uri, String ctype){
-    Log.d("ATVLOG","VIDSTREAM Cast Start: "+ctype+" => "+uri);
-    if (!castMediaConnected){
-      return -1;
-    }
-    RemoteMediaClient remoteMediaClient = mSessionManager.getCurrentCastSession().getRemoteMediaClient();
-    if (uri.equals("")){
-      remoteMediaClient.stop();
-      return 0;
-    }
+//  private void castSetActiveMedia(long[] stat){
+//    if (!castMediaConnected){
+//      return;
+//    }
+//    RemoteMediaClient remoteMediaClient
+//        = mSessionManager.getCurrentCastSession().getRemoteMediaClient();
+//    remoteMediaClient.setActiveMediaTracks(stat)
+//        .setResultCallback(mediaChannelResult -> {
+//          if (!mediaChannelResult.getStatus().isSuccess()) {
+//            Log.d("ATVLOG", "CAST Subtitle Failed with status code:" +
+//                mediaChannelResult.getStatus().getStatusCode());
+//          }
+//          else{
+//            Log.d("ATVLOG", "CAST Subtitle Loaded");
+//          }
+//        });
+//  }
 
-    String proxy_url=AnimeServer.getProxyUrl(uri);
-    Log.d("ATVLOG","VIDSTREAM Cast Proxy: "+proxy_url);
+//  public void castUpdateSubtitle(){
+//    if (!castMediaConnected){
+//      return;
+//    }
+//    if (castSubtitleIndex>0) {
+//      Log.d("ATVLOG", "Change Sub Index: "+castSubtitleIndex);
+//      castSetActiveMedia(new long[]{(long) castSubtitleIndex});
+//    }
+//    else{
+//      Log.d("ATVLOG", "Change Sub Index: Reset");
+//      castSetActiveMedia(new long[]{});
+//    }
+//  }
 
-    com.google.android.gms.cast.MediaMetadata movieMetadata =
-        new com.google.android.gms.cast.MediaMetadata(
-            com.google.android.gms.cast.MediaMetadata.MEDIA_TYPE_MOVIE
-        );
-    movieMetadata.putString(com.google.android.gms.cast.MediaMetadata.KEY_TITLE, _metaTitle);
-    movieMetadata.putString(com.google.android.gms.cast.MediaMetadata.KEY_SUBTITLE, _metaArtist);
-    movieMetadata.addImage(new WebImage(Uri.parse(_metaUrl)));
+//  private void castMediaSessionState(boolean connected){
+//    if (castMediaConnected!=connected){
+//      castMediaConnected=connected;
+//      castMediaEvent("connected",connected?"1":"");
+//    }
+//  }
 
-    MediaInfo.Builder mb = new MediaInfo.Builder(proxy_url)
-        .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-        .setContentType(ctype)
-        .setMetadata(movieMetadata);
-
-    if (!castSubtitleUrl.equals("")) {
-      List tracks = new ArrayList();
-      String[] subs=castSubtitleUrl.split("\n");
-      for (int i=0;i<subs.length;i++) {
-        Log.d("ATVLOG","CAST SUB-LOAD: "+subs[i]);
-        MediaTrack sub = new MediaTrack.Builder(i+1, MediaTrack.TYPE_TEXT)
-            .setName("Sub-"+i)
-            .setSubtype(MediaTrack.SUBTYPE_SUBTITLES)
-            .setContentId(subs[i])
-            .setContentType("text/vtt")
-            .setLanguage("en-US")
-            .build();
-        tracks.add(sub);
-      }
-      mb.setMediaTracks(tracks);
-    }
-
-    MediaInfo mediaInfo = mb.build();
-
-    remoteMediaClient.load(
-        new MediaLoadRequestData.Builder()
-            .setMediaInfo(mediaInfo)
-            .setAutoplay(true).build()).addStatusListener(new PendingResult.StatusListener() {
-      @Override
-      public void onComplete(@NonNull Status status) {
-        Log.d("ATVLOG","CAST LOAD: "+status.getStatusMessage());
-        castUpdateSubtitle();
-      }
-    });
-    remoteMediaClient.play();
-
-
-    return 1;
-  }
-
-  private void castSetActiveMedia(long[] stat){
-    if (!castMediaConnected){
-      return;
-    }
-    RemoteMediaClient remoteMediaClient
-        = mSessionManager.getCurrentCastSession().getRemoteMediaClient();
-    remoteMediaClient.setActiveMediaTracks(stat)
-        .setResultCallback(mediaChannelResult -> {
-          if (!mediaChannelResult.getStatus().isSuccess()) {
-            Log.d("ATVLOG", "CAST Subtitle Failed with status code:" +
-                mediaChannelResult.getStatus().getStatusCode());
-          }
-          else{
-            Log.d("ATVLOG", "CAST Subtitle Loaded");
-          }
-        });
-  }
-
-  public void castUpdateSubtitle(){
-    if (!castMediaConnected){
-      return;
-    }
-    if (castSubtitleIndex>0) {
-      Log.d("ATVLOG", "Change Sub Index: "+castSubtitleIndex);
-      castSetActiveMedia(new long[]{(long) castSubtitleIndex});
-    }
-    else{
-      Log.d("ATVLOG", "Change Sub Index: Reset");
-      castSetActiveMedia(new long[]{});
-    }
-  }
-
-  private void castMediaSessionState(boolean connected){
-    if (castMediaConnected!=connected){
-      castMediaConnected=connected;
-      castMediaEvent("connected",connected?"1":"");
-    }
-  }
-
-  private class SessionManagerListenerImpl implements SessionManagerListener<CastSession> {
-    @Override
-    public void onSessionStarting(CastSession session) {
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionStarting");
-      castMediaSessionState(false);
-    }
-    @Override
-    public void onSessionStarted(CastSession session, String sessionId) {
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionStarted");
-      castMediaSessionState(true);
-//      invalidateOptionsMenu();
-    }
-    @Override
-    public void onSessionStartFailed(CastSession session, int error) {
-      int castReasonCode = castContext.getCastReasonCodeForCastStatusCode(error);
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionStartFailed #"+castReasonCode);
-      castMediaSessionState(false);
-      // Handle error
-    }
-    @Override
-    public void onSessionSuspended(CastSession session, int reason) {
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionSuspended");
-      castMediaSessionState(false);
-    }
-    @Override
-    public void onSessionResuming(CastSession session, String sessionId) {
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionResuming");
-      castMediaSessionState(false);
-    }
-    @Override
-    public void onSessionResumed(CastSession session, boolean wasSuspended) {
-//      invalidateOptionsMenu();
-      castMediaSessionState(true);
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionResumed");
-    }
-    @Override
-    public void onSessionResumeFailed(CastSession session, int error) {
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionResumeFailed");
-      castMediaSessionState(false);
-    }
-    @Override
-    public void onSessionEnding(CastSession session) {
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionEnding");
-      castMediaSessionState(false);
-    }
-    @Override
-    public void onSessionEnded(CastSession session, int error) {
-      Log.d("ATVLOG","VIDSTREAM Cast onSessionEnded");
-      castMediaSessionState(false);
-    }
-  }
+//  private class SessionManagerListenerImpl implements SessionManagerListener<CastSession> {
+//    @Override
+//    public void onSessionStarting(CastSession session) {
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionStarting");
+//      castMediaSessionState(false);
+//    }
+//    @Override
+//    public void onSessionStarted(CastSession session, String sessionId) {
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionStarted");
+//      castMediaSessionState(true);
+////      invalidateOptionsMenu();
+//    }
+//    @Override
+//    public void onSessionStartFailed(CastSession session, int error) {
+//      int castReasonCode = castContext.getCastReasonCodeForCastStatusCode(error);
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionStartFailed #"+castReasonCode);
+//      castMediaSessionState(false);
+//      // Handle error
+//    }
+//    @Override
+//    public void onSessionSuspended(CastSession session, int reason) {
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionSuspended");
+//      castMediaSessionState(false);
+//    }
+//    @Override
+//    public void onSessionResuming(CastSession session, String sessionId) {
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionResuming");
+//      castMediaSessionState(false);
+//    }
+//    @Override
+//    public void onSessionResumed(CastSession session, boolean wasSuspended) {
+////      invalidateOptionsMenu();
+//      castMediaSessionState(true);
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionResumed");
+//    }
+//    @Override
+//    public void onSessionResumeFailed(CastSession session, int error) {
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionResumeFailed");
+//      castMediaSessionState(false);
+//    }
+//    @Override
+//    public void onSessionEnding(CastSession session) {
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionEnding");
+//      castMediaSessionState(false);
+//    }
+//    @Override
+//    public void onSessionEnded(CastSession session, int error) {
+//      Log.d("ATVLOG","VIDSTREAM Cast onSessionEnded");
+//      castMediaSessionState(false);
+//    }
+//  }
 }

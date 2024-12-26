@@ -35,11 +35,6 @@
         android:theme="@style/Theme.AnimeTVJMTO"
         android:usesCleartextTraffic="true">
 
-        <meta-data
-            android:name=
-                "com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.amarullz.androidtv.animetvjmto.CastOptionsProvider" />
-
         <service
             android:name=".ChannelService"
             android:exported="true"

@@ -6386,6 +6386,7 @@ const vtt={
   set:function(s){
     vtt.h.innerHTML=s?nlbr(s+''):'';
   },
+  /*
   castSet:function(u){
     if ('castSubtitle' in _JSAPI){
       try{
@@ -6400,6 +6401,7 @@ const vtt={
       }catch(e){}
     }
   },
+  */
   load:function(sub,n){
     vtt.set('');
     vtt.playback.sub=null;
@@ -13635,9 +13637,9 @@ const home={
       else if (c=='playlist'){
         _API.showToast("Under constructions...");
       }
-      else if (c=='castplayer'){
-        _JSAPI.castConnect();
-      }
+      // else if (c=='castplayer'){
+      //   _JSAPI.castConnect();
+      // }
       else{
         return false;
       }
@@ -14477,19 +14479,19 @@ const home={
     }
 
     /* Playlist */
-    var tools=$n('div','sidebar_group',{title:'Tools'},home.sidebar.contents,'');
+    // var tools=$n('div','sidebar_group',{title:'Tools'},home.sidebar.contents,'');
     // var playlist=$n('div','sidebar_item',null,tools,'<c>playlist_play</c>Playlist');
     // playlist._action='playlist';
     // playlist.onclick=home.sidebar.itemclick;
     // home.sidebar.items.push(playlist); 
 
-    if (_TOUCH){
-      var castplayer=$n('div','sidebar_item',null,tools,'<c>cast</c>Cast');
-      castplayer._action='castplayer';
-      castplayer.onclick=home.sidebar.itemclick;
-      home._cast_sidebar=castplayer;
-      home.sidebar.items.push(castplayer);    
-    }
+    // if (_TOUCH){
+    //   var castplayer=$n('div','sidebar_item',null,tools,'<c>cast</c>Cast');
+    //   castplayer._action='castplayer';
+    //   castplayer.onclick=home.sidebar.itemclick;
+    //   home._cast_sidebar=castplayer;
+    //   home.sidebar.items.push(castplayer);    
+    // }
   },
   init:function(){
     pb.cfg_load();
@@ -21204,43 +21206,43 @@ const touchHelper={
   /* reset */
   _API.setVideo('');
 
-  if (!('castConnect' in _JSAPI)){
-    /* No Cast API */
-    return;
-  }
-  console.log("ATVLOG - VIDSTREAM CASTMSG: API Available");
-  window.__CASTMSG=function(m,a){
-    if (m=='connected'){
-      if (a=="1"){
-        _API.showToast("Cast Connected...");
-        if (home._cast_sidebar){
-          home._cast_sidebar.innerHTML='<c>cast_connected</c>Close Cast';
-        }
-        if (pb._cast){
-          pb._cast.innerHTML='cast_connected';
-        }
-      }
-      else{
-        if (home._cast_sidebar){
-          home._cast_sidebar.innerHTML='<c>cast</c>Cast';
-        }
-        if (pb._cast){
-          pb._cast.innerHTML='cast';
-        }
-      }
-      if (pb.state){
-        _JSAPI.videoSetUrl("");
-        pb.startpos_val=pb.vid_stat.pos;
-        pb.init_video();
-      }
-    }
-  };
+  // if (!('castConnect' in _JSAPI)){
+  //   /* No Cast API */
+  //   return;
+  // }
+  // console.log("ATVLOG - VIDSTREAM CASTMSG: API Available");
+  // window.__CASTMSG=function(m,a){
+  //   if (m=='connected'){
+  //     if (a=="1"){
+  //       _API.showToast("Cast Connected...");
+  //       if (home._cast_sidebar){
+  //         home._cast_sidebar.innerHTML='<c>cast_connected</c>Close Cast';
+  //       }
+  //       if (pb._cast){
+  //         pb._cast.innerHTML='cast_connected';
+  //       }
+  //     }
+  //     else{
+  //       if (home._cast_sidebar){
+  //         home._cast_sidebar.innerHTML='<c>cast</c>Cast';
+  //       }
+  //       if (pb._cast){
+  //         pb._cast.innerHTML='cast';
+  //       }
+  //     }
+  //     if (pb.state){
+  //       _JSAPI.videoSetUrl("");
+  //       pb.startpos_val=pb.vid_stat.pos;
+  //       pb.init_video();
+  //     }
+  //   }
+  // };
 
-  if (_TOUCH){
-    pb._cast=$('pb_touch_cast');
-    pb._cast.classList.add('supported');
-    pb._cast.onclick=function(){
-      _JSAPI.castConnect();
-    };
-  }
+  // if (_TOUCH){
+  //   pb._cast=$('pb_touch_cast');
+  //   pb._cast.classList.add('supported');
+  //   pb._cast.onclick=function(){
+  //     _JSAPI.castConnect();
+  //   };
+  // }
 })();
