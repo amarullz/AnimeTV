@@ -1008,6 +1008,23 @@ import javax.crypto.spec.SecretKeySpec;
             http.addHeader("Referer", "https://" + hostProx + "/");
           }
           http.addHeader("User-Agent", Conf.USER_AGENT);
+
+          /* send rest headers */
+          for (Map.Entry<String, String> entry :
+              request.getRequestHeaders().entrySet()) {
+            String k = entry.getKey();
+            if (!k.equalsIgnoreCase("Referer") &&
+                !k.equalsIgnoreCase("User-Agent") &&
+                !k.equalsIgnoreCase("Origin") &&
+                !k.equalsIgnoreCase("X-Stream-Prox")&&
+                !k.equalsIgnoreCase("X-Org-Prox")&&
+                !k.equalsIgnoreCase("X-Ref-Prox")&&
+                !k.equalsIgnoreCase("X-NoH-Proxy")
+            ) {
+              http.addHeader(k, entry.getValue());
+            }
+          }
+
         }
         else if (noHeaderProxy!=null){
           if (proxyOrigin!=null) {

@@ -6103,11 +6103,11 @@ const vtt={
     return stn.join(', ');
   },
   init:function(subs){
-    vtt.castSet("");
+    // vtt.castSet("");
     if (pb.cfg_data.lang=='nosub'){
       /* No Subtitle */
       vtt.set('');
-      vtt.castSetIndex(0);
+      // vtt.castSetIndex(0);
       vtt.playback.sub=null;
       vtt.playback.pos=0;
       vtt.playback.posid=0;
@@ -6125,43 +6125,43 @@ const vtt={
         if (ffind>-1){
           // console.log("SUBTITLES FIND = "+ffind+" -> "+JSON.stringify(subs[ffind],null,'\t'));
           vtt.load(subs[ffind], 1);
-          vtt.castSetIndex(ffind+1);
+          // vtt.castSetIndex(ffind+1);
           return;
         }
       }
 
       // vtt.castSet(sub.u);
-      var subs_url=[];
-      for (var i=0;i<subs.length;i++){
-        subs_url.push(subs[i].u);
-      }
-      vtt.castSet(subs_url.join("\n"));
+      // var subs_url=[];
+      // for (var i=0;i<subs.length;i++){
+      //   subs_url.push(subs[i].u);
+      // }
+      // vtt.castSet(subs_url.join("\n"));
 
       // console.error(JSON.stringify(subs));
       for (var i=0;i<subs.length;i++){
         if ((subs[i].l=='english')||(subs[i].i && subs[i].i=='en')){
           console.log("SUBTITLE LENGTH = FOUND ENGLISH");
           vtt.load(subs[i]);
-          vtt.castSetIndex(i+1);
+          // vtt.castSetIndex(i+1);
           return;
         }
       }
       for (var i=0;i<subs.length;i++){
         if (subs[i].d){
           vtt.load(subs[i]);
-          vtt.castSetIndex(i+1);
+          // vtt.castSetIndex(i+1);
           return;
         }
       }
       for (var i=0;i<subs.length;i++){
         if (subs[i].l.indexOf("eng")>-1){
           vtt.load(subs[i]);
-          vtt.castSetIndex(i+1);
+          // vtt.castSetIndex(i+1);
           return;
         }
       }
       vtt.load(subs[0]);
-      vtt.castSetIndex(1);
+      // vtt.castSetIndex(1);
     }
   },
   match_lang:{ 
