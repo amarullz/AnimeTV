@@ -44,7 +44,7 @@ video{
 }
     </style>
     <script>window.HELP_IMPROVE_VIDEOJS = false;</script>
-    <script src="/__ui/video.min.js"></script>
+    <script src="/__view/ui/video.min.js"></script>
 </head>
 <body>
   <video-js id="player"></video-js>
@@ -74,7 +74,7 @@ video{
     if (dash){
       vtype='application/dash+xml';
       if (location.host!=purihost){
-        location='https://'+purihost+'/__ui/player.html?'+uri+'#dash';
+        location='https://'+purihost+'/__view/ui/player.html?'+uri+'#dash';
         return;
       }
     }
@@ -98,6 +98,9 @@ video{
       else{
         options.headers['X-Stream-Prox']=purihost;
         options.headers['X-Dash-Prox']=purihost;
+      }
+      if (!('isElectron' in _JSAPI)){
+        options.uri="/__proxy/"+options.uri;
       }
       return options;
     };

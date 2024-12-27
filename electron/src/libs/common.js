@@ -45,7 +45,7 @@ const common={
   config:{},
   view_dir:"/app/src/main/assets/view/",
   inject_dir:"/app/src/main/assets/inject/",
-  ui_dir:"/electron/src/ui/",
+  ui_dir:"/app/src/main/assets/view/ui/",
   path(filename){
     return path.join(app.getAppPath(), filename);
   },

@@ -64,6 +64,7 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.source.LoadEventInfo;
@@ -737,11 +738,23 @@ import javax.crypto.spec.SecretKeySpec;
     };
 
     videoTrackManager=new TrackManager(activity);
+
+    DefaultLoadControl loadControl=new DefaultLoadControl.Builder()
+        .setBackBuffer(1000 * 60 * 2, true)
+        .setBufferDurationsMs(
+            600000,
+            600000,
+            2500,
+            5000
+        )
+        .build();
+
     // trackManager.
     videoPlayerConfig=
         new PlayerConfigBuilder(activity)
             .setDataSourceFactoryProvider(videoDataSourceFactory)
             .setTrackManager(videoTrackManager)
+            .setLoadControl(loadControl)
             .build();
     videoView=new SurfaceView(activity);
     videoViewEnvelope=new SurfaceViewSurfaceEnvelope(videoView,new MatrixManager());
@@ -803,24 +816,23 @@ import javax.crypto.spec.SecretKeySpec;
 
   public void videoSetSource(String url){
     try {
-      if (me().castMediaConnected){
-        if (url.equals("")) {
-          me().castMediaUrl("","");
-        }
-        else {
-          videoPlayer.setMediaUri(null);
-//          me().mSession.setActive(false);
-          String ctype="application/x-mpegURL";
-          if (url.contains("#dash")){
-            ctype="application/dash+xml";
-          }
-          else if (url.contains("mp4upload.com")){
-            ctype="video/mp4";
-          }
-          me().castMediaUrl(url, ctype);
-          return;
-        }
-      }
+//      if (me().castMediaConnected){
+//        if (url.equals("")) {
+//          me().castMediaUrl("","");
+//        }
+//        else {
+//          videoPlayer.setMediaUri(null);
+//          String ctype="application/x-mpegURL";
+//          if (url.contains("#dash")){
+//            ctype="application/dash+xml";
+//          }
+//          else if (url.contains("mp4upload.com")){
+//            ctype="video/mp4";
+//          }
+//          me().castMediaUrl(url, ctype);
+//          return;
+//        }
+//      }
 
       if (url.equals("")) {
         videoPlayer.setMediaUri(null);
@@ -933,7 +945,9 @@ import javax.crypto.spec.SecretKeySpec;
     else if (path.startsWith("/__proxy/")){
       /* Proxy */
       try {
-        String proxy_url=url.replace("https://"+host+"/__proxy/","");
+        String proxy_url="";
+        String hostStream=request.getRequestHeaders().get("X-Stream-Prox");
+        proxy_url = url.replace("https://" + host + "/__proxy/", "");
         String fixdomain = request.getRequestHeaders().get("X-Fixdomain-Prox");
         if (!Conf.SOURCE_DOMAIN_USED.isEmpty() && (fixdomain==null)) {
           proxy_url=proxy_url.replace("://"+host,"://"+Conf.SOURCE_DOMAIN_USED);
@@ -986,7 +1000,33 @@ import javax.crypto.spec.SecretKeySpec;
         String noHeaderProxy = request.getRequestHeaders().get("X-NoH-Proxy");
 
         AnimeApi.Http http=new AnimeApi.Http(proxy_url);
-        if (noHeaderProxy!=null){
+        if (hostStream!=null){
+          String[] h=hostStream.split("\\.");
+          String hostProx = h[h.length-2]+"."+h[h.length-1];
+          http.addHeader("Origin", "https://"+hostProx);
+          if (request.getRequestHeaders().get("X-Dash-Prox")==null) {
+            http.addHeader("Referer", "https://" + hostProx + "/");
+            http.addHeader("X-Requested-With", "XMLHttpRequest");
+            request.getRequestHeaders().remove("X-Requested-With");
+          }
+          http.addHeader("User-Agent", Conf.USER_AGENT);
+          /* send rest headers */
+          for (Map.Entry<String, String> entry :
+              request.getRequestHeaders().entrySet()) {
+            String k = entry.getKey();
+            if (!k.equalsIgnoreCase("Referer") &&
+                !k.equalsIgnoreCase("User-Agent") &&
+                !k.equalsIgnoreCase("Origin") &&
+                !k.equalsIgnoreCase("X-Stream-Prox")&&
+                !k.equalsIgnoreCase("X-Org-Prox")&&
+                !k.equalsIgnoreCase("X-Ref-Prox")&&
+                !k.equalsIgnoreCase("X-NoH-Proxy")
+            ) {
+              http.addHeader(k, entry.getValue());
+            }
+          }
+        }
+        else if (noHeaderProxy!=null){
           if (proxyOrigin!=null) {
             http.addHeader("Origin", proxyOrigin);
           }
@@ -1949,27 +1989,27 @@ import javax.crypto.spec.SecretKeySpec;
     }
 
 
-    @JavascriptInterface
-    public void castConnect(){
-      activity.runOnUiThread(() ->me().castMediaSearch());
-    }
-
-    @JavascriptInterface
-    public void castSubtitle(String url){
-      me().castSubtitleUrl=url;
-    }
-
-    @JavascriptInterface
-    public boolean castConnected(){
-      return me().castMediaConnected;
-    }
-
-    @JavascriptInterface
-    public void castSubtitleIndex(int idx){
-      Log.d("ATVLOG","CAST REQ IDX: "+idx);
-      me().castSubtitleIndex=idx;
-      activity.runOnUiThread(() ->me().castUpdateSubtitle());
-    }
+//    @JavascriptInterface
+//    public void castConnect(){
+//      activity.runOnUiThread(() ->me().castMediaSearch());
+//    }
+//
+//    @JavascriptInterface
+//    public void castSubtitle(String url){
+//      me().castSubtitleUrl=url;
+//    }
+//
+//    @JavascriptInterface
+//    public boolean castConnected(){
+//      return me().castMediaConnected;
+//    }
+//
+//    @JavascriptInterface
+//    public void castSubtitleIndex(int idx){
+//      Log.d("ATVLOG","CAST REQ IDX: "+idx);
+//      me().castSubtitleIndex=idx;
+//      activity.runOnUiThread(() ->me().castUpdateSubtitle());
+//    }
   }
 
   public int profile_sel=-1;
