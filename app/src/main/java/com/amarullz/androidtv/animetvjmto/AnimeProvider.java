@@ -155,6 +155,9 @@ public class AnimeProvider {
             try {
                 JSONObject airingSchedule = rs.getJSONObject(i);
                 JSONObject med = airingSchedule.getJSONObject("media");
+                if (med.getBoolean("isAdult")){
+                    continue;
+                }
                 JSONObject medT = med.getJSONObject("title");
                 String en = medT.isNull("english") ? "" : medT.getString("english");
                 String jp = medT.isNull("romaji") ? "" : medT.getString("romaji");
@@ -206,9 +209,10 @@ public class AnimeProvider {
         "$page: Int, $perPage: Int){ Page(page: $page, perPage: $perPage) { " +
         "pageInfo { perPage hasNextPage currentPage } airingSchedules" +
         "(airingAt_lesser:$tm,sort:TIME_DESC){ airingAt episode " +
-        "timeUntilAiring media{ id title{ romaji english } coverImage{ extraLarge " +
+        "timeUntilAiring media{ id isAdult "+
+        "title{ romaji english } coverImage{ extraLarge " +
         "} episodes format popularity averageScore } } } }\",\"variables\":{\"tm\":0xFFFFFF," +
-        "\"page\":1,\"perPage\":30}}";
+        "\"page\":1,\"perPage\":50}}";
 
     /* Get latest updated sub */
     private void loadRecentExec(RecentCallback cb){
@@ -243,7 +247,7 @@ public class AnimeProvider {
         "id title{ romaji english } " +
         "coverImage{ large } " +
         "episodes format averageScore " +
-        "} } }\",\"variables\":{\"page\":1,\"perPage\":30}}";
+        "} } }\",\"variables\":{\"page\":1,\"perPage\":50}}";
 
     public void startLoadPopular() {
         if (CHANNEL_ID < 1) return;
