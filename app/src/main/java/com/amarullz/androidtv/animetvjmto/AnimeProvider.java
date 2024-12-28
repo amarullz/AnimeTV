@@ -69,21 +69,32 @@ public class AnimeProvider {
 
     public static void executeJob(Context c){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Recently Updated Anime
             AnimeProvider recentProvider = new AnimeProvider(
                 c,
-                "Anime Recent",
-                "AnimeTV_Recent",
+                "Recent",
+                "AnimeTV",
                 R.drawable.splash
             );
             recentProvider.startLoadRecent();
 
+            // Trending Anime
+            AnimeProvider trendingProvider = new AnimeProvider(
+                c,
+                "Trending",
+                "AnimeTV_Trending",
+                R.drawable.splash
+            );
+            trendingProvider.startLoadAnilist(TRENDING_ANIME_GRAPHQL);
+
+            // Popular Anime
             AnimeProvider popularProvider = new AnimeProvider(
                 c,
-                "Anime Popular",
+                "Popular",
                 "AnimeTV_Popular",
                 R.drawable.splash
             );
-            popularProvider.startLoadPopular();
+            popularProvider.startLoadAnilist(POPULAR_ANIME_GRAPHQL);
 
             scheduleJob(c);
         }
@@ -249,10 +260,20 @@ public class AnimeProvider {
         "episodes format averageScore " +
         "} } }\",\"variables\":{\"page\":1,\"perPage\":50}}";
 
-    public void startLoadPopular() {
+    private static String TRENDING_ANIME_GRAPHQL = "{\"query\":\"query " +
+        "($page: Int, $perPage: Int){ " +
+        "Page(page: $page, perPage: $perPage) { " +
+        "pageInfo { perPage hasNextPage currentPage } " +
+        "media(sort:TRENDING_DESC,isAdult:false, type: ANIME, status:RELEASING) {" +
+        "id title{ romaji english } " +
+        "coverImage{ large } " +
+        "episodes format averageScore " +
+        "} } }\",\"variables\":{\"page\":1,\"perPage\":50}}";
+
+    public void startLoadAnilist(String graphQl) {
         if (CHANNEL_ID < 1) return;
         try {
-            loadPopular(result -> {
+            loadAnilist(graphQl, result -> {
                 try {
                     JSONArray ja = new JSONArray(result);
                     if (ja.length() > 0) {
@@ -278,16 +299,16 @@ public class AnimeProvider {
         } catch (Exception ignored) {}
     }
 
-    public void loadPopular(RecentCallback cb) {
-        AsyncTask.execute(() -> loadPopularExec(cb));
+    public void loadAnilist(String graphQl, RecentCallback cb) {
+        AsyncTask.execute(() -> loadAnilistExec(graphQl, cb));
     }
 
-    private void loadPopularExec(RecentCallback cb) {
+    private void loadAnilistExec(String graphQl, RecentCallback cb) {
         try {
             AnimeApi.Http http = new AnimeApi.Http("https://graphql.anilist.co/");
             http.addHeader("Accept", "application/json");
 
-            http.setMethod("POST", POPULAR_ANIME_GRAPHQL, "application/json");
+            http.setMethod("POST", graphQl, "application/json");
             http.execute();
 
             JSONArray r = new JSONArray("[]");
