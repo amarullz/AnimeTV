@@ -13,7 +13,6 @@ android {
         versionCode 560
         versionName "5.6.0"
 
-
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         setProperty("archivesBaseName", "animetv-" + versionName)
