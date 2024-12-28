@@ -1471,11 +1471,6 @@ import javax.crypto.spec.SecretKeySpec;
     }
 
     @JavascriptInterface
-    public String getMyIpAddress() {
-      return AnimeServer.getIPAddress(true)+":"+AnimeServer.PORT;
-    }
-
-    @JavascriptInterface
     public void videoSetUrl(String url){
       Log.d(_TAG,"Video Set URL = "+url);
       videoIsPlaying=false;
@@ -1758,11 +1753,6 @@ import javax.crypto.spec.SecretKeySpec;
     @JavascriptInterface
     public String storeGet(String key, String def){
       return aApi.pref.getString("viewstorage_"+key,def);
-    }
-
-    @JavascriptInterface
-    public void setExportString(String val){
-      AnimeServer.exportString=val;
     }
 
     @JavascriptInterface
