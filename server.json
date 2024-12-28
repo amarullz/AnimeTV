@@ -8,10 +8,10 @@
   "stream_domain2": "megaf.cc",
   "update": "1.1-240624",
 
-  "appnum": 540,
-  "appver": "5.4.0",
-  "appsize": "7.27 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.4.0/animetv-5.4.0.apk",
+  "appnum": 560,
+  "appver": "5.6.0",
+  "appsize": "6.02 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.6.0/animetv-5.6.0.apk",
   "appnote": 
-    "- Aniwave+Anix shutdown :(, Kaas will become default source"
+    "- Add new source: miruro with 4 provider: animepahe, zoro, anivibe, gogoanime\n- Add new source: gojo\n- Fix HiAnime/Aniwatchtv and kaas streaming\n- Disable cast features"
 }

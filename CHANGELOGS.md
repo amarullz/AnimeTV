@@ -1,4 +1,40 @@
 # Changelogs
+- **5.6.0 🎆**
+  - Add new source: miruro with 4 provider: animepahe, zoro, anivibe, gogoanime
+  - Add new source: gojo
+  - Add new subtitle outline style
+  - Fix HiAnime/Aniwatchtv and kaas streaming
+  - Disable cast features - Resupport non-google devices like fireos & Quest VR
+  - Add relaxed seeking
+  - Filter Home Screen + Add popular & trending anime list
+- **5.4.0** 🎡
+  - Update mainly because the shutdown of aniwave+anix
+- **5.3.2** 🎡
+  - Brand new app logo for mobile and desktop
+  - Execute back key action on key-up event (Android)
+  - Vidstream & megaF direct scrap implementation for faster playback loading
+  - Replace-string Inject embed.js on android and electron
+  - Automatically fetch new keys if last mediainfo failed to load
+  - Update new aniwave/anix encryption
+  - Update new vidstream/megaF streaming
+  - Add HLS Proxy Settings
+  - Add episode title and preview image fetch from api.ani.zip
+  - Disable animeflix from source selection
+  - Improve anilist loading performance
+  - Change hq anilist banner image image using api.ani.zip api call for detail anime info
+  - Hide mp4upload source from electron app
+  - Fix Add to MAL
+  - Add anilist bannerImage as wallpaper
+  - Refresh video after changing prefer dub audio setting
+  - Add multilanguage audio track selection for animeflix & some kickass
+  - Update quality selection method on Android for fast switch
+  - Remove dub from subtitle language
+  - Prefer DUB Stream for dub option on subtitle replacement
+- **5.2.4** 🦄
+  - Update animeflix video playback
+  - Fix MAL updating on android
+  - Fix mac reinit window
+  - Autohide cursor on playback
 - **5.2.0** 🧸
   - Update vidplay & myclod rebranding to vidstream and MegaF
   - Update mobile portrait ui
