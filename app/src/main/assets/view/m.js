@@ -7044,6 +7044,7 @@ const pb={
     performance:[true,false,true,true,false],
     autoskip:false,
     autonext:true,
+    disablegesture:false,
     closeconfirm:0,
     html5player:false,
     skipfiller:false,
@@ -7090,6 +7091,8 @@ const pb={
       var j=JSON.parse(itm);
       if (j){
         pb.cfg_data.autoskip=('autoskip' in j)?(j.autoskip?true:false):false;
+        pb.cfg_data.disablegesture=('disablegesture' in j)?(j.disablegesture?true:false):false;
+        
         
         pb.cfg_data.autonext=('autonext' in j)?(j.autonext?true:false):true;
         pb.cfg_data.html5player=('html5player' in j)?(j.html5player?true:false):false;
@@ -7235,6 +7238,7 @@ const pb={
         return;
       }
     }
+    pb.cfg_data.disablegesture=false;
     pb.cfg_data.autoskip=false;
     pb.cfg_data.closeconfirm=0;
     pb.cfg_data.autonext=true;
@@ -7668,6 +7672,8 @@ const pb={
     else{
       pb.cfg_update_el('animation');
       pb.cfg_update_el('autoskip');
+      pb.cfg_update_el('disablegesture');
+      
       pb.cfg_update_el('closeconfirm');
       
       pb.cfg_update_el('autonext');
@@ -10591,7 +10597,7 @@ const pb={
           if (pb.pb.classList.contains('menushow')){
             _KEYEV(c);
           }
-          else if (_ISELECTRON){
+          else if (_ISELECTRON || pb.cfg_data.disablegesture){
             _KEYEV(c);
           }
           else{
@@ -10625,7 +10631,7 @@ const pb={
           }
         }
         else if(c==KLEFT||c==KRIGHT){
-          if (!pb.pb.classList.contains('menushow')){
+          if (!pb.pb.classList.contains('menushow') && !pb.cfg_data.disablegesture){
             _API.last_key_source=1;
             pb.track_keycb(pb.pb_tracks,c);
             pb.pb._minmove=window.outerWidth*0.01;
@@ -14800,6 +14806,16 @@ const home={
           home.settings.video.P,
           '<c>cancel_presentation</c> Close Confirmation<span class="value">-</span>'
         );
+
+        if (_USE_TOUCH){
+          home.settings.tools._s_disablegesture=$n(
+            'div','',{
+              action:'*disablegesture'
+            },
+            home.settings.video.P,
+            '<c class="check">clear</c><c>do_not_touch</c> Disable Touch Gesture'
+          );
+        }
 
         home.settings.tools._s_preloadep=$n(
           'div','',{
