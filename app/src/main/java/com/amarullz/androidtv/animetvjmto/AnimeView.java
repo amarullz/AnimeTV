@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -186,18 +187,31 @@ import javax.crypto.spec.SecretKeySpec;
           | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
       decorView.setSystemUiVisibility(uiOptions);
     } else {
-      activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-          WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+      activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+      activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//      activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//          WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 
       View decorView = activity.getWindow().getDecorView();
-      int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
-          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-          | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-          | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-          | View.SYSTEM_UI_FLAG_IMMERSIVE
-          | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-          | View.SYSTEM_UI_FLAG_LOW_PROFILE
-          | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+      int uiOptions =
+          View.SYSTEM_UI_FLAG_IMMERSIVE
+              | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+              | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+              | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+              | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+              | View.SYSTEM_UI_FLAG_FULLSCREEN
+              | WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+
+//          View.SYSTEM_UI_FLAG_FULLSCREEN
+//          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//          | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//          | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//          | View.SYSTEM_UI_FLAG_IMMERSIVE
+//          | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+//          | View.SYSTEM_UI_FLAG_LOW_PROFILE
+//          | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
       decorView.setSystemUiVisibility(uiOptions);
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
           WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
