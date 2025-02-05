@@ -11,8 +11,6 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 - **NIGHTLY APK**
   - AFTV Downloader code: **`196130`**
 
-[![TIPS](https://img.youtube.com/vi/Cx3eJcTect4/hqdefault.jpg)](https://www.youtube.com/watch?v=Cx3eJcTect4)
-
 ## Donation & More Information
 - **Donate Project :** [Paypal Link - https://paypal.me/amarullz](https://paypal.me/amarullz)
 - **Join Discussion on Discord :**  [https://discord.com/invite/y5tVXynE](https://discord.com/invite/y5tVXynE)
