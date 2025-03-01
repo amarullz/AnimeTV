@@ -2354,6 +2354,9 @@ var kaas={
                       srcData.manifest="https:"+srcData.manifest;
                       srcData.isDash=false;
                     }
+                    else{
+                      srcData.manifest=srcData.manifest.replace('https:////','https://');
+                    }
                     console.log("DEC DATA: "+JSON.stringify(srcData));
                     cb(srcData);
                   }catch(ee){
@@ -8864,6 +8867,7 @@ const pb={
             console.warn(["kaas.streamGet",b]);
             if (b.manifest){
               if (b.isDash){
+                console.log("LOAD DASH: "+b.manifest+'#dash');
                 pb.init_video_mp4upload(b.manifest+'#dash');
               }
               else{

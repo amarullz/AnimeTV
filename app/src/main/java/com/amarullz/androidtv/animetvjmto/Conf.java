@@ -31,7 +31,7 @@ public class Conf {
 
   // History
   // * vidplay.site
-  public static String STREAM_DOMAIN = "vid2a41.site";
+  public static String STREAM_DOMAIN = "krussdomi.com"; // "vid2a41.site";
   public static String STREAM_DOMAIN1 = "vidplay.online";
   public static String STREAM_DOMAIN2 = "megaf.cc";
 
@@ -60,7 +60,7 @@ public class Conf {
 
   public static String USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0";
-  
+
       // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, " +
       //     "like Gecko) Chrome/131.0.0.0 Safari/537.36";
 //      "Mozilla/5.0 (Windows NT 10.0; Win64; " +
