@@ -74,6 +74,7 @@ const intercept={
       "mcloud.bz"
     ],
     aniwatch:[
+      "megacloud.club",
       "megacloud.tv",
       "rapid-cloud.co"
     ]
@@ -404,6 +405,7 @@ const intercept={
           let body=await (await f).text();
           console.log(body);
           intercept.getsource_cache=body;
+          console.log('CACHE: '+intercept.getsource_cache);
           // return new Response(body, {
           //   status: f.status,
           //   headers: f.headers

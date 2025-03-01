@@ -39,7 +39,8 @@ public class Conf {
 
 
 
-  public static String STREAM_DOMAIN3 = "megacloud.tv";
+  public static String STREAM_DOMAIN3 = "megacloud.club";
+  // public static String STREAM_DOMAIN3 = "megacloud.tv";
   public static String STREAM_DOMAIN4 = "rapid-cloud.co";
 
   public static String SERVER_VER = "1.0-APK";
@@ -58,8 +59,10 @@ public class Conf {
   public static String MAL_CLIENT_ID="0e9466e5ec09684cc69da53f20b07af6";
 
   public static String USER_AGENT =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, " +
-          "like Gecko) Chrome/131.0.0.0 Safari/537.36";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0";
+  
+      // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, " +
+      //     "like Gecko) Chrome/131.0.0.0 Safari/537.36";
 //      "Mozilla/5.0 (Windows NT 10.0; Win64; " +
 //      "x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 " +
 //          "Safari/537.36 Edg/121.0.0.0";

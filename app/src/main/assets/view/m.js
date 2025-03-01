@@ -2271,39 +2271,84 @@ var kaas={
     function streamLoadSource(sourceUrl){
       $ap(sourceUrl,function(r){
         if (r.ok){
+          var srcData=null;
           try{
-            var srcData=JSON.parse(r.responseText);
-
-            if ('manifest' in srcData){
-              try{
-                console.log("DEC DATA: "+JSON.stringify(data));
-                cb(srcData);
-              }catch(ee){
-                console.warn("Err streamGet cb: "+ee);
+            srcData=JSON.parse(r.responseText);
+          }catch(e){
+            srcData=null;
+          }
+          if (srcData){
+            try{
+              if ('manifest' in srcData){
+                try{
+                  console.log("DEC DATA: "+JSON.stringify(srcData));
+                  cb(srcData);
+                }catch(ee){
+                  console.warn("Err streamGet cb: "+ee);
+                }
+                return;
               }
-              return;
-            }
-            else{
-              var encData=srcData.data.split(':');
-              var decData=_JSAPI.aesDec(
-                encData[0],
+              else{
+                var encData=srcData.data.split(':');
+                var decData=_JSAPI.aesDec(
+                  encData[0],
+                  vidKey,
+                  encData[1]
+                );
+                console.warn(JSON.stringify(["AESDEC",encData[0],
                 vidKey,
-                encData[1]
-              );
-              console.warn(JSON.stringify(["AESDEC",encData[0],
-              vidKey,
-              encData[1], decData]));
-              var data=JSON.parse(decData);
-              data.server_type=type;
-              data.server_url=url;
-              try{
-                cb(data);
-              }catch(ee){
-                console.warn("Err streamGet cb: "+ee);
+                encData[1], decData]));
+                var data=JSON.parse(decData);
+                data.server_type=type;
+                data.server_url=url;
+                try{
+                  cb(data);
+                }catch(ee){
+                  console.warn("Err streamGet cb: "+ee);
+                }
+                return;
               }
-              return;
-            }
-          }catch(e){}
+            }catch(e){}
+          }
+          else{
+            try{
+              var kk=$n('div','',0,0,r.responseText);
+              var ast=kk.querySelector('astro-island[ssr]');
+              if (ast){
+                srcData=JSON.parse(ast.getAttribute('props'));
+                console.log(srcData);
+                if ('manifest' in srcData){
+                  try{
+                    try{
+                      var subs=[];
+                      for (var i=0;i<srcData.subtitles[1].length;i++){
+                        var k=srcData.subtitles[1][i][1];
+                        var psh={
+                          "name":k.name[1],
+                          "language":k.language[1],
+                          "src":k.src[1]
+                        };
+                        if (psh.language=='en'){
+                          subs.unshift(psh);
+                        }
+                        else{
+                          subs.push(psh);
+                        }
+                      }
+                      srcData.subtitles=subs;
+                    }catch(ext){}
+                    srcData.vttabs=true;
+                    srcData.manifest=srcData.manifest[1];
+                    console.log("DEC DATA: "+JSON.stringify(srcData));
+                    cb(srcData);
+                  }catch(ee){
+                    console.warn("Err streamGet cb: "+ee);
+                  }
+                  return;
+                }
+              }
+            }catch(e){}
+          }
         }
         cb(null);
       },
@@ -6329,7 +6374,7 @@ const vtt={
         chunks.push({t:timelines[i].tx,s:i,e:i});
       }
       else{
-        chunks[d].t+="  A2Q7R  "+timelines[i].tx;
+        chunks[d].t+="  [A1234]  "+timelines[i].tx;
         chunks[d].e=i;
       }
       if (++m==15){
@@ -6379,7 +6424,7 @@ const vtt={
     setTimeout(function(){
       vtt.translate_text(chunk.t,lang,function(txts){
         if (txts){
-          txts=txts.split("A2Q7R");
+          txts=txts.split("[A1234]");
           // console.log(txts);
           for (var i=0;i<txts.length;i++){
             var p=chunk.s+i;
@@ -8744,12 +8789,12 @@ const pb={
               for (var i=0;i<n;i++){
                 var tk=b.subtitles[i];
                 var tksrc=tk.src;
-                if (tksrc.indexOf("//")!=0){
+                if ((!b.vttabs)&&(tksrc.indexOf("//")!=0)) {
                   var vurl=new URL(pb.data.stream_vurl);
                   tksrc="//"+vurl.host+tksrc;
                 }
                 pb.subtitles.push({
-                  u:'https:'+tksrc,
+                  u:(!b.vttabs)?'https:'+tksrc:tksrc,
                   d:(i==0)?1:0,
                   l:(tk.name+'').toLowerCase().trim(),
                   i:(tk.language+'').toLowerCase().trim()
