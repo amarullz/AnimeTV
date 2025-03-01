@@ -5,32 +5,15 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 > Source data is from *one anime streaming website* and I don't have any affiliation with it, and it may break on site updates.
 > Take a look at source code for more info
 
-[![AnimeTV](/tools/logo-design/animetv-logo/animetv-logo-brand.png)](https://amarullz.com/)
-
 ## Download URL and Code
 - **STABLE APK**
-  - URL: [https://animetv.amarullz.com/apk](https://animetv.amarullz.com/apk)
   - AFTV Downloader code: **`601972`**
 - **NIGHTLY APK**
-  - URL: [https://animetv.amarullz.com/nightly](https://animetv.amarullz.com/nightly)
   - AFTV Downloader code: **`196130`**
 
-[![TIPS](https://img.youtube.com/vi/Cx3eJcTect4/hqdefault.jpg)](https://www.youtube.com/watch?v=Cx3eJcTect4)
-
 ## Donation & More Information
-
-| License | Stable Release | Nightly Release | Support |
-|-------|---------|---------|---------|
-| [![GitHub License](https://img.shields.io/github/license/amarullz/AnimeTV)](/LICENSE) | [![GitHub Release](https://img.shields.io/github/v/release/amarullz/AnimeTV?logo=github&label=Release)](https://github.com/amarullz/AnimeTV/releases) | [![Nightly](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fanimetv.amarullz.com%2Flast-nightly&query=%24%5B0%5D.name&style=flat&logo=amp&logoColor=fff&label=Nightly&color=800)](https://amarullz.com/animetv-nightly/) | [![Discord](https://img.shields.io/discord/1199444562670792714?style=flat&labelColor=7289da&color=2c2f33&label=Discord&logo=discord&logoColor=ffffff)](https://discord.gg/VGtGtRedGR) |
-
-
 - **Donate Project :** [Paypal Link - https://paypal.me/amarullz](https://paypal.me/amarullz)
-- **Developer Website :** [https://amarullz.com/](https://amarullz.com/)
-- **Nightly Release :** [https://amarullz.com/animetv-nightly/](https://amarullz.com/animetv-nightly/)
-- **Development Discussion :** [https://amarullz.com/animetv-discord/](https://amarullz.com/animetv-discord/)
-- **More Detail Information :** [https://amarullz.com/animetv/](https://amarullz.com/animetv/)
 - **Join Discussion on Discord :**  [https://discord.com/invite/y5tVXynE](https://discord.com/invite/y5tVXynE)
-
 
 ## Features
 - **NEW** - UI Interface with Trailer Video
@@ -113,7 +96,7 @@ Here only a couple screenshot:
 * If the internet infringement issues are involved, please contact the source website. The developer does not assume any legal responsibility.
 
 ## License
-**Copyright 2023 Ahmad Amarullah (https://amarullz.com)**
+**Copyright 2023 Ahmad Amarullah**
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
