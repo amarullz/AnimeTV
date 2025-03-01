@@ -1913,11 +1913,21 @@ var kaas={
               od=di;
             }
           }
-          else if (di.name=='DuckStream'){
+          else if (di.name=='CatStream'){
+            bs=di;
             view_data.servers[stid].push(
-              pb.serverobj('DuckStream',2)
+              pb.serverobj('CatStream',2)
             );
             if (pb.server_selected(2)==2){
+              hasod=true;
+              od=di;
+            }
+          }
+          else if (di.name=='DuckStream'){
+            view_data.servers[stid].push(
+              pb.serverobj('DuckStream',3)
+            );
+            if (pb.server_selected(2)==3){
               hasod=true;
               od=di;
             }
@@ -2258,7 +2268,7 @@ var kaas={
   streamGet:function(url, type, cb){
     var vidUrl=new URL(url);
     var vidMid=(type=='duckstream')?'mid':'id';
-    var vidBird=(type=='birdstream')?true:false;
+    var vidBird=((type=='catstream')||(type=='birdstream'))?true:false;
     var vidId=vidUrl.searchParams.get(vidMid);
     var vidLang=vidUrl.searchParams.get('ln');
     var vidHost=vidUrl.host;
@@ -2339,6 +2349,11 @@ var kaas={
                     }catch(ext){}
                     srcData.vttabs=true;
                     srcData.manifest=srcData.manifest[1];
+                    srcData.isDash=true;
+                    if (srcData.manifest.indexOf("http")!=0){
+                      srcData.manifest="https:"+srcData.manifest;
+                      srcData.isDash=false;
+                    }
                     console.log("DEC DATA: "+JSON.stringify(srcData));
                     cb(srcData);
                   }catch(ee){
@@ -8848,18 +8863,14 @@ const pb={
             /* Load Videos */
             console.warn(["kaas.streamGet",b]);
             if (b.manifest){
-              pb.init_video_mp4upload(b.manifest+'#dash');
-              // pb.init_video_player_url('https:'+b.dash+'#dash');
-              // pb.cfg_update_el("quality");
-              // console.warn(["DASH VIDEO",b]);
-              // pb.sel_quality="Dash Auto";
-              // if (pb.pb_settings._s_quality){
-              //   pb.pb_settings.P.removeChild(pb.pb_settings._s_quality);
-              //   pb.pb_settings._s_quality=null;
-              // }
+              if (b.isDash){
+                pb.init_video_mp4upload(b.manifest+'#dash');
+              }
+              else{
+                pb.init_video_mp4upload(b.manifest);
+              }
             }
             else{
-              // pb.init_video_player_url('https:'+b.hls);
               pb.init_video_mp4upload('https:'+b.hls);
             }
           });
