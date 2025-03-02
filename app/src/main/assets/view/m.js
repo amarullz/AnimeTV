@@ -6252,7 +6252,7 @@ const vtt={
         chunks.push({t:timelines[i].tx,s:i,e:i});
       }
       else{
-        chunks[d].t+="  [A1234]  "+timelines[i].tx;
+        chunks[d].t+="  [103060]  "+timelines[i].tx;
         chunks[d].e=i;
       }
       if (++m==15){
@@ -6302,7 +6302,7 @@ const vtt={
     setTimeout(function(){
       vtt.translate_text(chunk.t,lang,function(txts){
         if (txts){
-          txts=txts.split("[A1234]");
+          txts=txts.split("[103060]");
           // console.log(txts);
           for (var i=0;i<txts.length;i++){
             var p=chunk.s+i;
