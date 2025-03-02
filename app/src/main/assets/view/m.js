@@ -253,7 +253,7 @@ var miruro={
   providers_features:[
     'Hardsub, Dub, Best Quality, Fast',
     'Softsub, Dub, Multilang',
-    'Hardsub, Dub, Fast',
+    'Hardsub, Dub, Fast, Multi Mirror',
     'Hardsub, Dub',
     
   ],

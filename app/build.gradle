@@ -11,7 +11,7 @@ android {
         minSdk 22
         targetSdk 34
         versionCode 560
-        versionName "5.7.1-Nightly"
+        versionName "5.7.5-Nightly"
 
         // Automatic Build Version
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
