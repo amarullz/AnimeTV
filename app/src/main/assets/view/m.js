@@ -625,17 +625,34 @@ var miruro={
         var urls=[];
         var src = "";
         var crn = 0;
+        var ndat=[];
+        var nmain=null;
         for (var i in kdat){
-          var sc=kdat[i];
+          kdat[i].nm=i;
+          if (i=='main'){
+            nmain=kdat[i];
+          }
+          else{
+            ndat.push(kdat[i]);
+          }
+        }
+        if (_ISELECTRON && nmain){
+          ndat.push(nmain);
+        }
+        for (var i=0;i<ndat.length;i++){
+          var sc=ndat[i];
           if ('m3u8' in sc){
             dt.servers[crs].push(
               {
-                n:i,
+                n:sc.nm,
                 p:crn
               }
             );
 
             var csrc = sc.m3u8;
+            if (i!='main'){
+              csrc='https://prxy.miruro.to/m3u8/?url='+encodeURIComponent(csrc);
+            }
             if ((pb.cfg_data.mirrorserver==crn) || !src){
               src=csrc;
             }
