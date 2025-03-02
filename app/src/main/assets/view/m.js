@@ -253,8 +253,8 @@ var miruro={
   providers_features:[
     'Hardsub, Dub, Best Quality, Fast',
     'Softsub, Dub, Multilang',
+    'Hardsub, Dub, Fast',
     'Hardsub, Dub',
-    'Hardsub, Dub, !No new update',
     
   ],
   proxyM3u8:function(url){
@@ -443,372 +443,6 @@ var miruro={
   recent_parse:function(v){
     return gojo.recent_parse(v);
   },
-  loadVideoProvOld:function(epProv, dt, f){
-    var epIndex=dt.epactive;
-    var epItem=dt.ep[epIndex];
-    if (!epItem){
-      requestAnimationFrame(function(){
-        f(null);
-      });
-      return;
-    }
-    if (!epItem._miruro){
-      epItem._miruro={};
-    }
-    dt.skip=[[0,0],[0,0]];
-
-    /* Zoro */
-    if (epProv=="zoro" && ('zoro' in dt._provider)){
-      var eprov=dt._provider.zoro;
-      var hihref = eprov.episodeList.episodes[epIndex].href;
-      var hiargs = hihref.substring(7);
-      var serverMirror = 'hd-1';
-      var streamType='sub';
-
-      // if (pb.cfg_data.mirrorserver==1){
-      //   serverMirror = 'hd-2';
-      // }
-      if (_API.currentStreamType==2){
-        streamType = 'dub';
-      }
-
-      dt.servers={
-        sub:[
-          {n:'HD-1',p:0},
-          {n:'HD-2',p:1}
-        ],
-        softsub:[
-          {n:'HD-1',p:0},
-          {n:'HD-2',p:1}
-        ],
-        dub:[
-          {n:'HD-1',p:0},
-          {n:'HD-2',p:1}
-        ]
-      };
-
-      function loadHiServer(){
-        var hiurl = '/api/v2/hianime/episode/sources?animeEpisodeId='+
-          hiargs+'?ep='+hiargs+'?server='+serverMirror+'&category='+streamType;
-        miruro.req('hi',hiurl,function(k){
-          if (k && k.data){
-            var urls=[];
-            var src = "";
-            for (var i=0;i<k.data.sources.length;i++){
-              var sc=k.data.sources[i];
-              if (!src){
-                src=sc.url;
-              }
-              urls.push(sc.url);
-            }
-            if ('intro' in k.data){
-              dt.skip[0]=[k.data.intro.start,k.data.intro.end];
-            }
-            if ('outro' in k.data){
-              dt.skip[1]=[k.data.outro.start,k.data.outro.end];
-            }
-            if (src){
-              dt.streamtype=(streamType=='dub')?'dub':'softsub';
-              dt.stream_url.dub=src;
-              dt.stream_url.soft=src;
-              dt.stream_url.hard=src;
-              var o={
-                url:src,
-                urls:urls,
-                subtitles:JSON.parse(JSON.stringify(k.data.tracks))
-              };
-              f(o);
-              return;
-            }
-          }
-          if (serverMirror!='hd-1'){
-            serverMirror='hd-1';
-            loadHiServer();
-          }
-          else if (streamType!='sub' && streamType!='raw'){
-            streamType='sub';
-            loadHiServer();
-          }
-          else if (streamType!='raw'){
-            streamType='raw';
-            loadHiServer();
-          }
-          else{
-            f(null);
-          }
-        },'zeta');
-      }
-
-      loadHiServer();
-    }
-    /* Anime Pahe */
-    else if (epProv=="animepahe" && ('animepahe' in dt._provider)){
-      var eprov=dt._provider.animepahe;
-      miruro.req('dio','/sources?id='+eprov.id+'&provider=animepahe&ep='+(epIndex+1),function(k){
-        if (!k || !k.videoSources){
-          f(null);
-          return;
-        }
-
-        // Sort by resolution
-        k.videoSources.sort(function(a, b) {
-          return Number(b.resolution) - Number(a.resolution);
-        });
-
-        // Set Servers:
-        var src = "";
-        dt.servers={};
-        epItem._miruro.animepahe={};
-        dt.stream_url={};
-
-        for (var i=0;i<k.videoSources.length;i++){
-          var vs=k.videoSources[i];
-          if ('m3u8Url' in vs){
-            var isDub=(vs.audio=='eng');
-            var pkey=isDub?'dub':'sub';
-            // vs.m3u8Url=miruro.proxyM3u8(vs.m3u8Url);
-
-            /* Save Server */
-            if (!epItem._miruro.animepahe[pkey]) epItem._miruro.animepahe[pkey]=[];
-            var mirror_pos = epItem._miruro.animepahe[pkey].length;
-            epItem._miruro.animepahe[pkey].push({
-              p:mirror_pos,
-              n:vs.fansub+" "+vs.resolution,
-              u:vs.m3u8Url
-            });
-
-            if (((_API.currentStreamType==2) && isDub) || ((_API.currentStreamType!=2) && !isDub)){
-              if (isDub){
-                dt.streamtype='dub';
-                dt.playingStreamType=2;
-              }
-              else{
-                dt.streamtype='sub';
-                dt.playingStreamType=0;
-              }
-
-              if (mirror_pos==pb.cfg_data.mirrorserver || !src){
-                src = vs.m3u8Url;
-              }
-            }
-
-            if (mirror_pos==pb.cfg_data.mirrorserver){
-              if (isDub){
-                dt.stream_url.dub=vs.m3u8Url;
-              }
-            }
-          }
-        }
-
-        dt.servers=JSON.parse(JSON.stringify(epItem._miruro.animepahe));
-        if (src){
-          var o={
-            url:src
-          };
-          f(o);
-          return;
-        }
-        f(null);
-      },1);
-    }
-    /* Anime Vibe */
-    else if (epProv=="anivibe"){
-      var eprov=null;
-      if ('anivibe' in dt._provider){
-        eprov=dt._provider.anivibe;
-      }
-      dt.streamtype='sub';
-      if (eprov){
-        var mirrorOrder=[
-          "Vidstream",
-          "Streamwish",
-          // "Vidhide",
-        ];
-
-        miruro.req('dio','/sources?id='+eprov.id+'&ep='+(epIndex+1)+'&provider=anivibe',function(k){
-          if (!k || !k.srcList){
-            f(null);
-            return;
-          }
-
-          // Set Servers:
-          var src = "";
-          dt.servers={};
-          epItem._miruro.anivibe={};
-          dt.stream_url={};
-
-          for (var pkey in k.srcList){
-            if ((pkey=='sub')||(pkey=='dub')){
-              var isDub=(pkey=='dub');
-              if (!epItem._miruro.anivibe[pkey]) epItem._miruro.anivibe[pkey]=[];
-              for (var i=0;i<mirrorOrder.length;i++){
-                if (mirrorOrder[i] in k.srcList[pkey]){
-                  var vs=k.srcList[pkey][mirrorOrder[i]];
-                  if ('m3u8' in vs){
-                    var mirror_pos = epItem._miruro.anivibe[pkey].length;
-                    epItem._miruro.anivibe[pkey].push({
-                      p:mirror_pos,
-                      n:mirrorOrder[i],
-                      u:vs.m3u8
-                    });
-    
-                    if (((_API.currentStreamType==2) && isDub) || ((_API.currentStreamType!=2) && !isDub)){
-                      if (isDub){
-                        dt.streamtype='dub';
-                        dt.playingStreamType=2;
-                      }
-                      else{
-                        dt.streamtype='sub';
-                        dt.playingStreamType=0;
-                      }
-                      if (mirror_pos==pb.cfg_data.mirrorserver || !src){
-                        src = vs.m3u8;
-                      }
-                    }
-                    if (mirror_pos==pb.cfg_data.mirrorserver){
-                      if (isDub){
-                        dt.stream_url.dub=vs.m3u8;
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-
-          dt.servers=JSON.parse(JSON.stringify(epItem._miruro.anivibe));
-          if (src){
-            var o={
-              url:src
-            };
-            f(o);
-            return;
-          }
-          f(null);
-        },1);
-      }
-      else{
-        return 0;
-      }
-    }
-    /* Generic Gogoanime */
-    else if (epProv=="gogoanime"){
-      var hasDub=('gogoanime_dub' in dt._provider);
-      var isDub=false;
-
-      var eprov=null;
-      dt.streamtype='sub';
-
-      if ((_API.currentStreamType==2) && hasDub){
-        eprov=dt._provider.gogoanime_dub;
-        isDub=true;
-      }
-      else{
-        eprov=dt._provider.gogoanime;
-      }
-
-      if (eprov){
-        var mirrorOrder=[
-          "Gogo server",
-          // "Vidhide",
-          "Vidstreaming",
-          "Streamwish"
-        ];
-        miruro.req('dio','/sources?id='+eprov.id+'&ep='+(epIndex+1)+'&provider=gogoanime',function(k){
-          if (!k || !k.srcList){
-            f(null);
-            return;
-          }
-
-          // Set Servers:
-          var src = "";
-          dt.servers={};
-          epItem._miruro.gogoanime={};
-          dt.stream_url={};
-
-          // Prepare server
-          var pkey=isDub?'dub':'sub';
-          if (!epItem._miruro.gogoanime[pkey]) epItem._miruro.gogoanime[pkey]=[];
-
-          for (var i=0;i<mirrorOrder.length;i++){
-            if (mirrorOrder[i] in k.srcList){
-              var vs=k.srcList[mirrorOrder[i]];
-              if ('m3u8' in vs){
-                var mirror_pos = epItem._miruro.gogoanime[pkey].length;
-                
-                epItem._miruro.gogoanime[pkey].push({
-                  p:mirror_pos,
-                  n:mirrorOrder[i],
-                  u:vs.m3u8
-                });
-
-                if (((_API.currentStreamType==2) && isDub) || ((_API.currentStreamType!=2) && !isDub)){
-                  if (isDub){
-                    dt.streamtype='dub';
-                    dt.playingStreamType=2;
-                  }
-                  else{
-                    dt.streamtype='sub';
-                    dt.playingStreamType=0;
-                  }
-                  if (mirror_pos==pb.cfg_data.mirrorserver || !src){
-                    src = vs.m3u8;
-                  }
-                }
-
-                if (mirror_pos==pb.cfg_data.mirrorserver){
-                  if (hasDub){
-                    dt.stream_url.dub=vs.m3u8;
-                  }
-                }
-              }
-            }
-          }
-          dt.servers=JSON.parse(JSON.stringify(epItem._miruro.gogoanime));
-          if (src){
-            var o={
-              url:src
-            };
-            f(o);
-            return;
-          }
-          f(null);
-        },1);
-      }
-      else{
-        return 0;
-      }
-    }
-    else{
-      return 0;
-    }
-
-    if (epProv!='zoro'){
-      var anilistid=dt.animeid;
-      $ap('https://api.gojo.wtf/skips?id='+anilistid+'&num='+(epIndex+1),function(r){
-        if (r.ok){
-          var enx=JSON.parse(r.responseText);
-          if (enx.length>0){
-            var ex=enx[0];
-            if (ex){
-              if ('intro' in ex){
-                dt.skip[0]=[ex.intro.start,ex.intro.end];
-              }
-              if ('outro' in ex){
-                dt.skip[1]=[ex.outro.start,ex.outro.end];
-              }
-            }
-          }
-        }
-      },
-      {
-        "X-Org-Prox":"https://api.gojo.wtf",
-        "X-Ref-Prox":"https://gojo.wtf/",
-        "X-NoH-Proxy":"true"
-      });
-    }
-    return 1;
-  },
   loadVideoProv:function(dt, f){
     var epIndex=dt.epactive;
     var epItem=dt.ep[epIndex];
@@ -823,32 +457,40 @@ var miruro={
     function loadEpisodeData(streamType){
       dt.skip=[[0,0],[0,0]];
       var cd = epItem.cache[streamType];
-
-      if (prov=='ZORO'){
+      if (prov=='ZORO' || prov=='ANIMEKAI'){
+        var isKai=(prov=='ANIMEKAI')?true:false;
+        var servName = isKai?'KAI':'ZORO';
+        var snSub='';
+        var snDub='';
         var kdat=null;
         var kdub=null;
-        for (var i in cd.dub){ kdub=cd.dub[i]; break; }
+        for (var i in cd.dub){ snDub=i; kdub=cd.dub[i]; break; }
         var ksub=null;
-        for (var i in cd.sub){ ksub=cd.sub[i]; break; }
+        for (var i in cd.sub){ snSub=i; ksub=cd.sub[i]; break; }
 
         if (kdub && streamType=='dub'){
           kdat=kdub;
+          servName=snDub;
         }
         else{
           kdat=ksub;
+          servName=snSub;
         }
 
         dt.servers={
           sub:[
-            {n:'HD-1',p:0}
+            {n:servName,p:0}
           ],
           softsub:[
-            {n:'HD-1',p:0}
+            {n:servName,p:0}
           ],
           dub:[
-            {n:'HD-1',p:0}
+            {n:servName,p:0}
           ]
         };
+
+        console.log("loadEpisodeData: "+prov+" -> "+servName);
+        console.log(kdat);
 
         if ('intro' in kdat){
           dt.skip[0]=[kdat.intro.start,kdat.intro.end];
@@ -861,10 +503,14 @@ var miruro={
         var src = "";
         for (var i=0;i<kdat.sources.length;i++){
           var sc=kdat.sources[i];
-          if (!src){
-            src=sc.url;
+          var csrc = isKai?sc.file:sc.url;
+          if (isKai){
+            csrc='https://prxy.miruro.to/m3u8/?url='+encodeURIComponent(csrc);
           }
-          urls.push(sc.url);
+          if (!src){
+            src=csrc;
+          }
+          urls.push(csrc);
         }
 
         if (src){
@@ -942,6 +588,78 @@ var miruro={
         }
         f(null);
         return;
+      }
+      else if (prov=='ANIMEZ'){
+        var kdat=null;
+        var kdub=null;
+        var ksub=null;
+        if (cd.dub && 'srcList' in cd.dub){
+          kdub=cd.dub.srcList;
+        }
+        if (cd.sub && 'srcList' in cd.sub){
+          ksub=cd.sub.srcList;
+        }
+
+        dt.servers={};
+        var crs='sub';
+        if (kdub && streamType=='dub'){
+          kdat=kdub;
+          dt.servers={
+            sub:[{n:'MAIN',p:0}],
+            dub:[]
+          };
+          crs='dub';
+        }
+        else if (ksub){
+          kdat=ksub;
+          dt.servers={
+            dub:[{n:'MAIN',p:0}],
+            sub:[]
+          };
+        }
+        else{
+          f(null);
+          return;
+        }
+
+        var urls=[];
+        var src = "";
+        var crn = 0;
+        for (var i in kdat){
+          var sc=kdat[i];
+          if ('m3u8' in sc){
+            dt.servers[crs].push(
+              {
+                n:i,
+                p:crn
+              }
+            );
+
+            var csrc = sc.m3u8;
+            if ((pb.cfg_data.mirrorserver==crn) || !src){
+              src=csrc;
+            }
+            urls.push(csrc);
+            crn++;
+          }
+        }
+        if (src){
+          dt.streamtype=(streamType=='dub')?'dub':'sub';
+          dt.stream_url.dub=src;
+          dt.stream_url.soft=src;
+          dt.stream_url.hard=src;
+          var o={
+            url:src,
+            urls:urls
+          };
+          console.log(["EPINFO", o]);
+          f(o);
+          return;
+        }
+        else{
+          f(null);
+          return;
+        }
       }
     }
     
