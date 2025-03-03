@@ -8,6 +8,188 @@ EXAMPLE:
 https://api.aniskip.com/v2/skip-times/54744/3?episodeLength=0&types%5B%5D=ed&types%5B%5D=mixed-ed&types%5B%5D=mixed-op&types%5B%5D=op&types%5B%5D=recap
 ```
 
+# AnimeKai
+```js
+/* nonstrict */
+function safeBtoa(s){ /* safeBtoa */
+  return btoa(s).replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '');
+}
+function safeAtob(s){
+    return atob(s.replace(/_/g, '/').replace(/-/g, '+'))
+}
+function rc4(key,str){
+    var s = [], j = 0, x, res = '';
+    for (var i = 0; i < 256; i++) {
+      s[i] = i;
+    }
+    for (i = 0; i < 256; i++) {
+      j = (j + s[i] + key.charCodeAt(i % key.length)) % 256;
+      x = s[i];
+      s[i] = s[j];
+      s[j] = x;
+    }
+    i = 0;
+    j = 0;
+    for (var y = 0; y < str.length; y++) {
+      i = (i + 1) % 256;
+      j = (j + s[i]) % 256;
+      x = s[i];
+      s[i] = s[j];
+      s[j] = x;
+      res += String.fromCharCode(str.charCodeAt(y) ^ s[(s[i] + s[j]) % 256]);
+    }
+    return res;
+}
+function reverseString(s) {
+    return s.split('').reverse().join('');
+}
+function replaceChars(s,f,r){
+    let i = f.length;
+    let m = {};
+    while (i-- && (m[f[i]] = r[i])){}
+    return s.split("").map(v=>m[v]||v).join('');
+}
+function vrfStrict(n){
+  n = safeBtoa(
+    replaceChars(
+        safeBtoa(
+            rc4(
+                'sXmH96C4vhRrgi8', 
+                reverseString(
+                    reverseString(
+                        safeBtoa(
+                            rc4('kOCJnByYmfI', replaceChars(
+                                    replaceChars(
+                                        reverseString(
+                                            safeBtoa(
+                                                rc4('0DU8ksIVlFcia2', n)
+                                            )
+                                        ),
+                                        '1wctXeHqb2', '1tecHq2Xbw'
+                                    ),
+                                    '48KbrZx1ml', 'Km8Zb4lxr1'
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ), 'hTn79AMjduR5', 'djn5uT7AMR9h')
+    );
+  return encodeURIComponent(n);
+}
+function vrfNoStrict(n){
+    return safeBtoa(rc4(
+        'n1PEbDBiipbJZvZc',
+        encodeURIComponent(n)
+    ));
+}
+
+function vrfDecode(n){
+    n = rc4(
+        '0DU8ksIVlFcia2', 
+        safeAtob(
+            reverseString(
+                replaceChars(
+                    replaceChars(
+                        rc4('kOCJnByYmfI', 
+                            safeAtob(
+                                reverseString(
+                                    reverseString(
+                                        rc4(
+                                            'sXmH96C4vhRrgi8',
+                                            safeAtob(
+                                                replaceChars(
+                                                    safeAtob(n),
+                                                    'djn5uT7AMR9h',
+                                                    'hTn79AMjduR5'
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        ), 'Km8Zb4lxr1', '48KbrZx1ml'
+                    ),
+                    '1tecHq2Xbw', '1wctXeHqb2'
+                )
+            )
+        )
+    )
+    return decodeURIComponent(n);
+}
+
+function vrfDecodeNoStrict(n){
+    return decodeURIComponent(
+        rc4(
+            'n1PEbDBiipbJZvZc', 
+            safeAtob(n)
+        )
+    );
+}
+
+function vrfMegaDecode(n) {
+    n = reverseString(
+        replaceChars(
+            rc4(
+                '5ygxI8hjLiuDQ0',
+                safeAtob(
+                    rc4('z9cWnXuoDtx', safeAtob(
+                        replaceChars(
+                            reverseString(
+                                replaceChars(
+                                    rc4(
+                                        'EZnfG1IL6DF',
+                                        safeAtob(
+                                            reverseString(
+                                                safeAtob(n)
+                                            )
+                                        )
+                                    ),
+                                    'M2DCEbQmWOe', 'bEDCeOQ2mWM')
+                                ), 
+                                'Lw7nfcTNz3FbWy', 'TFf37zywcNWnLb'
+                            )
+                        )
+                    )
+                )
+            ), 'HK0TOgYzU1C', 'T1CHYU0OKgz'
+        )
+    );
+    return decodeURIComponent(n);
+}
+
+
+/*********************** TEST UNIT ***********************/
+vrfMegaDecode("SFJ0N2hwT3d6V2ZFa21EM0szZ0ZnN2REOVNyaVAyTzhkNGZvZGJDYlJQeVdOVHdPTklRMThNaXhvY0w0NTZ3VWV3dUxETXN1cjYwQl85YWtrUXV5NEpHWUVBa2JlU3Z3ZFV1TUUzaGVyNnl1MV92WGxZZjdKWkh3VFFBR1BIcDl3VVR3b0h4QkxZdlFQRDgyNEdXM2lXSkFSY2tPQ0owd2lfZld3cWdqdkpRT01Bcm1vdmN0d29ibGxsMXpHajNnUHBJV0c4ZGJoNExkcDRZUHV2d1pmcXRjUkZXSUloUUphQnNxN2tKSEsxLWFTZHVKYjdreGpCeTExY0NFMTRULWN5QmtWMEI3UlB6cmppVmdPQi1EXzBCNHBUT2FUUWFUaXI2REE3QWdRZGtuWXhhcFZxclVHdW92ZXNCNjM1ZTcxZVZWQW1SRThlUk1XYTNlN0U3QWpUNHYzXzNYQU5xNHVvU1RLS19Ma1dGOFNFVnI1bmV1RTdYOHBoeXJJcWJNbThkX2wwSFUwVlJVa0wxU3dJYmc1Z1lPMzlzcHVOUmpBaFNHcmJOQUFsQllpSkN2czRrc3VnaG5UaVI2TzRKM1ZDTkxLX1ZWclNvU3BvOVBMdVltc3NrUlhPOHkwbG0yYWRVR2I3RzBzQ2VuVWNBbktsRkJRTW41MC1lU2hMQTdHcFRhWUMyZkVtRDNZdG43ZUs3M1FfcU9hVmU5VUc1d2VDajZabU9TcG1iV3hUV0hWVm5iQlFzLWd3UzRYRnVEaGZhWG9YUmdTSWctMGdsR1F0bmdPbl9XRmFNaS1wS25VelhETF9weGJfQXV6bUlqVFBNaDk3bTYtS2M5NkZOQUM4bDBsdWJfVUltRXpYZ1FYZklabFJYd1ItbEplejJvTFNsWXVuSTNzaXJBdTJaMl9LTW43NEJZN2NjNFB1UDN0bUpGRGM4ZGdkVkJHbTlOQ3Y1aHFTdUE4YU1CU2tCQlpGaUlhOEdnM2U3VmExWS1VS0dXQW4xUVVHVkxURDVMd1diMU0xR1VUcU5lTUk5NGFob2M0WWNrdzVJT2ZsNXVzdDNiS1JaSnZZd29kek9IM0ZmejBrUzhqTndVd0gyZkhHbjZuSVR4Yy1OckxXTTNCejZ5bDFuSklhcWR0SjhCbUxEOG5lb0RwYUF3NTN3U3FmbHZ4RVk0eDN5cHNlSnUtQUJBd0lReTZXSnlxc1BpWHhLUVQ4Unl0aE9qU2VzeHNwQ3B6dmtJU2FCWXNBS0w2MG1EeWxDZWhwRFlVX2M5S1B4RkYtMEZ6bzZqNHNvcVpsMnNQS3hEd2VrYThxaEpTNHdLWmp1b1h4Y1pKeTQtNnNYX211WVlOcmQzaDQ2Z05FMUJRdmJRdWtoYjNTUkJBZjQyelhWLVBnNlBlVjh1RVgwSkhKNjRhZ3pqc25LQzMzTWk0U3A1cEllTXJmNHRQOGVKaGFMQXdjT3duYVV0am5PYm1zTnFpRmJGNUY2X3pSNTREUkxIOHVkUWpFUTRVczFpNUt6T1dKblI4aTAxaWI2NU0xdnRPNnNVY3piSU5SMlNmSWFsVkpMRGNEUGJ5eDliUG9JWElwZ0RzeGI5RzJKNVNJZGNiUVR4U2RPckdJZ1gydHhzQkg4TG43N2t2RndUTnZkUDY4amxpYnJMT0ZXQ25lNGdxdXZnRndmaFFkLUI0Ul80Ykhncm9OdTZMdmJJQXAwN21mVENlaXhWbUxNLWRFTVVkb21uNENWS3VaZGJtdGhOY0FaSXBMaGtQbGhVRC1Idm5mbzI5OUtlUHJJTGxiTEpqdWpqLUZXdWhsazlDNmFvX0ktelpjNjFiVExUZTVHejc1RGJUTkRwU2NQcXRkalduS1VTMGNTUnp0Yzl6XzBISmdJenpTNXZiMUlHeHVwUXdJVkZyQU9hMFptMGNNemZMUXk5cTBtOHRQN1ozVGxzdHR5RHJOTWZrbm5ENXdSOGc3aFhORUtDUm03Q2ZyRXFzSWQ2SmxTLTNGYXR6d3pSNk93dGVWd2RvaDdGU1Y5OXR1YTJPdVBDOXN3TEp1TmZKM1l0R2Zmb280dHdLSzF1Tm0wTVdRcUVTN1ZIU1F6TDRONjhDNUpwcnY2SVBZVUdCN0JzTElsNEVtaTRwYzc5SGEzelRoTGVsdmNqQnM4UVNITnRnMTF5STRCQW1tVzhXc0NpRUdjZE04N2NiRXExbTZMdGNWRjhXbE41WUZ2V3k0MFVOTGNIc3NJdWxLQUNzTHFLeVVEUENZUENrVUd5eDNQalBWQWVHQzVmQmU0VENYeWV5Mm5EQWktUmtDbTVPS3F2R21MdHF0S2ZXQzB1ZjNfSHRrZjYwdlA3c0V3RlBEdnpCSHU2aVo2NWlXSEpVZEgtUy1hYW5pZi1ycWNzblp2Q0FFdUc2NVE3WWQ4NHlGQjExdzlJdTBuZlRIQ3VJdEJ0TkxRTUVNeklXdW1wTlV4VVBuUDhmbjVyWHNfektidXhQLTcwVEJva0hGZVgxckxneFVnbXJuRzQzbXV2NzN6VXN5SURkSy0yeS1mYTZZRXE1ckFDNmo4WWdZak1LdEdkZlJBNEFFd2tzSTJ6aXh0cmp6bWhiWWZWbURKc1ZfT1ZhMTZfakltZUd1MkZaYlFNNURfd0J3MkUzWE91QnVBQ1NYSDZHeW1VTUpHenNHcERyZ3NYQWkzb1J3ejVXZG0ySTRPWGJhLVNZSE9S");
+
+RESULT = '{"sources":[{"file":"https:\\/\\/54d8e.infinity-loop-21.biz\\/c3\\/h1e00e76d6043835b9cc206f446a7563984a4cd132f93c00355ffcaf60d90855259cd8d70c2d9014636b170eed451dae77dd9dab5507b1dea249d16e5cf68f083249697715c0768604e8a2a1eddff5b7dde5ae8e6fc461b835f82d0714e69ba96ebc177ebd6a7d7e2c236a0970429\\/list,5b49a52e32138f5289c309be43a64868d1bfd0166088c3.m3u8"}],"tracks":[{"file":"https:\\/\\/54d8e.megaup.cc\\/v3\\/h1e00e76d6043835b9cc206f446a7563984a4cd132f93c00355ffcaf60d90855259cd8d70c2d9014636b170eed451dae87ad8d8bb527f1dea249d16e5cf68f0842b9bc86743047b234e83231397a71934950ebababc02598a0f918c2b4c38b1d1f2dd3de6ccb889ac93\\/thumbnails.vtt","kind":"thumbnails"}],"download":"https:\\/\\/megaup.cc\\/download\\/2MjhfTmrWSyJcOLxELpI5hDhDQ"}';
+
+//----------------------------
+vrfDecode("amhVMUVlS3g4clFuQ0owd2xWei1ZcjVWc1V1NXpseVFrNTd6VEhtZHpXSGotNHQ1SjI3UFlta012V0xtWmhHcTBxTjdOQ0dIMVpXb2FiNnllQ1I3Ty11c242bFFjTElpMkNOOWs4VWpSUXdtWFl5MXJLbWhrU1hDX1FibDVDd2pnQ3pHd2VKcGh2STBWNjRVVFA2TjBKVTRoTnpleWQ3cjBQSHM1MTVFZVR5RktCVG1jT2FaUGx1WUx2bGdUM3pDX2FFMTFveEx4Mk9PN2FjZ0tKNTlTazBzTXc1YnpEdHVXWjBxN250VnpZdHlIT2hXYUdJbEx2WEFsemVZblNtODNBbHF4WHhybkt1V0lmUHBtWl9KVWtHb1dZNTRObEtNUEZBRl9leVFhSnZEUXhnSWlnbnU4ZzA5VFFGdEZvMjQ4NF8yaGZZcFI4UERuSzhzTTQzdVpfeHJwOXlwWlRiUE9KQXUwT1RtM2Y1MGFpTkV2U3ZRTWhnTDc5cDc1cUpWZFZLQnN2VU12dWhoLXc");
+
+RESULT='{"url":"https:\\/\\/megaup.cc\\/e\\/m43ve2T0WS2JcOLxELpI7hHpCQ","skip":{"intro":[0,0],"outro":[0,0]}}';
+
+
+//----------------------------
+vrfDecodeNoStrict('ZZQdeGGgpgtJaU1ZTbbuRdZIKVnndk63ViNBxyXGiUh6YtUMeHBh0zqyIUdczFyYjCPPu2cSmkFjdREmZMMcAgiBgX3J');
+
+RESULT = '{"id":0,"settings":[],"folders":[]}';
+
+
+//----------------------------
+vrfStrict('c4C486M');
+
+RESULT = 'OUlUN0RQMmRfcE5fSTRVVUFWWQ';
+
+
+rc4('0DU8ksIVlFcia2','c4C486M');
+
+
+
+
+```
+
 # Github repo search
 ```
 https://api.github.com/search/repositories?q=Anime+topic%3Aandroidtv+license:apache-2.0&sort=stars&order=desc
