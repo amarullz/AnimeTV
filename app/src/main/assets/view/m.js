@@ -2319,7 +2319,7 @@ var kaas={
 
 /******************* ANIMEKAI *************************/
 if (__SDKAI){
-  // Load VRF Function Online
+  // AnimeKai Codex
   $ap('https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/kai.js?'+$time(),function(r){
     if (r.ok){
       try{
@@ -2409,16 +2409,15 @@ const kai={
 };
 
 /* ANIWAVE & ANIX SOURCE */
-if (__SD<=2){
-  // Load VRF Function Online
-  $ap('https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/vrf.js?'+$time(),function(r){
-    if (r.ok){
-      try{
-        eval(r.responseText+"\n\nwindow.VRF=VRF;");
-      }catch(e){}
-    }
-  });
-}
+// if (__SD<=2){
+//   $ap('https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/vrf.js?'+$time(),function(r){
+//     if (r.ok){
+//       try{
+//         eval(r.responseText+"\n\nwindow.VRF=VRF;");
+//       }catch(e){}
+//     }
+//   });
+// }
 const wave={
   ns:'https://'+__DNS,
   origin:{
