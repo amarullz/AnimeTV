@@ -2316,6 +2316,86 @@ var kaas={
   }
 };
 
+/******************* ANIMEKAI *************************/
+const kai={
+  dns:'animekai.to',
+  req(u,cb){
+    return $ap("https://"+kai.dns+u,cb,{
+      "X-Org-Prox":"https://"+kai.dns+"/",
+      "X-Ref-Prox":"https://"+kai.dns+"/",
+      'X-Requested-With':'XMLHttpRequest',
+      'Pragma':'no-cache',
+      'Cache-Control':'no-cache'
+    });
+  },
+  parseTooltip(r,cb){
+    var o={
+      title:'',
+      title_jp:'',
+      synopsis:'',
+      genres:[],
+      quality:null,
+      ep:0,
+      rating:'',
+      ttid:''
+    };
+
+    var d=$n('div','',0,0,r);
+    console.log(r.responseText);
+    console.log(d);
+
+    window._kaid=d;
+
+    try{
+      var did=d.querySelector('[data-id]').getAttribute('data-id');
+      o.ttid=o.url=did;
+    }
+    catch(e){
+      cb(null);
+      return;
+    }
+
+    var tt=d.querySelector('div.title');
+    if (tt){
+      o.title=tt.textContent.trim();
+      o.title_jp=tt.getAttribute('data-jp');
+    }
+    try{
+      o.synopsis=d.querySelector('div.desc').textContent.trim();
+    }catch(e){}
+    try{
+      var gn=d.querySelectorAll('div.genre a');
+      for (var i=0;i<gn.length;i++){
+        var gd={
+          name:gn[i].textContent.trim(),
+          val:null
+        };
+        var gnr=gn[i].getAttribute('href').split('/');
+        gd.val=gnr[gnr.length-1].trim();
+        o.genres.push(gd);
+      }
+    }catch(e){}
+    try{
+      o.rating=d.querySelector('span.ttrating').textContent.trim();
+    }catch(e){}
+
+    cb(o);
+  },
+  getTooltip(id, cb, url, isview){
+    kai.req("/ajax/anime/tip?id="+enc(id),function(r){
+      if (r.ok){
+        var vd=JSON.parse(r.responseText);
+        if ('result' in vd){
+          kai.parseTooltip(vd.result,cb);
+          return;
+        }
+      }
+      cb(null);
+    });
+    // https://animekai.to/ajax/episodes/list?ani_id=dYW98Q&_=R3JvWUl2aUFxTXd2RmJr
+  }
+};
+
 /* ANIWAVE & ANIX SOURCE */
 if (__SD<=2){
   // Load VRF Function Online

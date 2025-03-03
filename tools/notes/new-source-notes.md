@@ -193,9 +193,46 @@ RESULT = 'OUlUN0RQMmRfcE5fSTRVVUFWWQ';
 rc4('0DU8ksIVlFcia2','c4C486M');
 
 
+```
 
+### TESTING ANIMEKAI
+```
+## EPS:
+## https://animekai.to/ajax/episodes/list?ani_id=e4K58w&_=V1JVWUl2aXpBNFVBNzVr
+{"status":200,"result":"<div class=\"head-top\"> <div class=\"title\">Episodes</div> <div> <form> <div class=\"form-group\"> <input type=\"text\" class=\"form-control form-control-sm\" placeholder=\"Find\"> </div> </form> <div class=\"subdub-sw\"> <span data-value=\"sub\"><svg class=\"sub\"><use href=\"#sub\"></use></svg></span> <span data-value=\"dub\"><svg class=\"dub\"><use href=\"#dub\"></use></svg></span> </div> <button class=\"btn list-sw\"><i class=\"fa-solid fa-square-list\"></i></button> </div></div><div class=\"head-bot\"> <button class=\"btn range-nav prev\"><i class=\"fa-solid fa-sharp fa-angle-left\"></i></button> <div class=\"dropdown\"> <button class=\"btn range-label\" type=\"button\" data-bs-toggle=\"dropdown\"></button> <div class=\"dropdown-menu range-options\"> <div class=\"dropdown-item item\" data-value=\"001-009\">001-009</div> </div> </div> <button class=\"btn range-nav next\"><i class=\"fa-solid fa-sharp fa-angle-right\"></i></button></div><div class=\"eplist titles\"> <ul class=\"range\" data-range=\"001-009\" style=\"display: block;\"> <li><a href=\"#\" num=\"1\" slug=\"1\" langs=\"3\" token=\"ccTwp_Hxokjv02gVx4if\" class=\"\">1<span data-jp=\"\">You Aren&#039;t E-Rank, Are You?</span></a></li> <li><a href=\"#\" num=\"2\" slug=\"2\" langs=\"3\" token=\"c93zp-DypkmkiXUXj86b\" class=\"\">2<span data-jp=\"\">I Suppose You Aren&#039;t Aware</span></a></li> <li><a href=\"#\" num=\"3\" slug=\"3\" langs=\"3\" token=\"L4Hk-fHztBWzhH5Xy4mH\" class=\"\">3<span data-jp=\"\">Still a Long Way to Go</span></a></li> <li><a href=\"#\" num=\"4\" slug=\"4\" langs=\"3\" token=\"KYXkrP3loU3k2nVMz4fV\" class=\"\">4<span data-jp=\"\">I Need to Stop Faking</span></a></li> <li><a href=\"#\" num=\"5\" slug=\"5\" langs=\"3\" token=\"O9jut_zlt0e70m9Qj5SD\" class=\"\">5<span data-jp=\"\">This Is What We&#039;re Trained to Do</span></a></li> <li><a href=\"#\" num=\"6\" slug=\"6\" langs=\"3\" token=\"dcK6pKTk6Q7ukm8UxYyX\" class=\"\">6<span data-jp=\"\">Don&#039;t Look Down On My Guys</span></a></li> <li><a href=\"#\" num=\"7\" slug=\"7\" langs=\"3\" token=\"JYu7qq7yvRuzlXRXxYfd\" class=\"\">7<span data-jp=\"\">The 10th S-Rank Hunter</span></a></li> <li><a href=\"#\" num=\"8\" slug=\"8\" langs=\"1\" token=\"M4bvufH56BPmhg\" class=\"\">8<span data-jp=\"\">Looking Up Was Tiring Me Out</span></a></li> <li><a href=\"#\" num=\"9\" slug=\"9\" langs=\"1\" token=\"dN7muafz5Ue4kQ\" class=\"\">9<span data-jp=\"\">It Was All Worth It</span></a></li> </ul> </div> "}
+
+## GET SERVER:
+## https://animekai.to/ajax/links/list?token=dN7muafz5Ue4kQ&_=S0pUNzdQbWRrOEVrSnBFVGluam1lTG5YeVQ5cDJVZnFrNTc
+{"status":200,"result":"<div class=\"server-note\"> <p>You are watching <b>Episode 9</b></p> <span>If the current server is not working, please try switching to other servers.</span></div><div class=\"server-wrap\"> <div class=\"server-type\" data-tabs=\".server-wrap .server-items\"> <span class=\"tab active\" data-id=\"sub\"> <svg class=\"sub\"><use href=\"#sub\"></use></svg> Hard Sub </span> <span class=\"tab \" data-id=\"softsub\"> <svg class=\"sub\"><use href=\"#sub\"></use></svg> Soft Sub </span> </div> <div class=\"server-items lang-group\" data-id=\"sub\" style=\"display: ;\"> <span class=\"server\" data-sid=\"3\" data-eid=\"cIe69KGo\" data-lid=\"dIS48a6p6A\" data-tid=\"t_9133_sub\" >Server 1</span> <span class=\"server\" data-sid=\"2\" data-eid=\"cIe69KGo\" data-lid=\"dIS48a6p5w\" data-tid=\"t_9133_sub\" >Server 2</span> </div> <div class=\"server-items lang-group\" data-id=\"softsub\" style=\"display: none;\"> <span class=\"server\" data-sid=\"3\" data-eid=\"cIe69K6n\" data-lid=\"dIS48a6g6Q\" data-tid=\"t_9133_softsub\" >Server 1</span> <span class=\"server\" data-sid=\"2\" data-eid=\"cIe69K6n\" data-lid=\"dIS48a6g6A\" data-tid=\"t_9133_softsub\" >Server 2</span> </div> </div>"}
+
+## Get MegaUP URL:
+## https://animekai.to/ajax/links/view?id=dIS48a6p6A&_=UVpJN001ckY4cHh4R3I4QVJWM2RqTFdCeFQ
+{"status":200,"result":"UVo4RExmLVl1cVYtR0xRVGRWM3VjSXl0eHh1ZzhIbVhrTFl3VEhtbDJVYldrYTF3THhaMlkyMDJrR245Wkxlai10SjdOVDZINGhxdlFycnJMaTVQUXJCMjNoYy1FSXNQMkM5cmxOb2hpMUo0WkthYXZvajEwektlLWpMSmhnVjR3bkhPeF9vZzRSRXhlODAyQnYyQjhZSVdwY0RjcjJJRTE1dkdrR3plRFVtd0tkN2xjT25xRGtOMGotbGRjbnpDNHFJank0bDN5MjJfY28xUkZmZjlRWHc4ZVR2TG9EdG5RT29wVFhsNjJvb3JROHdSTW4waVVjUElwZ25ad0gyWTJDTTZ4WDRaODRoV0pOcmVtcHpLYVY2RVloXzFheGpaT1VYNXdlZjBMZjNmT3dCYUFEX2JwZ3BSUVQ5akJjaU84WXlNenZzcEFmbVd5SzdUUTVlR2FlRnRkMnFKRVZmdlBvdlhfT1lEenZieVVVQnlSQ2I2anV3YWVqOUZfSk5mZ0ZDQWliSVp5b3BuUk5fU2ZCNDZ3eTVSOHZqbUFn"}
+>> DECODE: {"url":"https:\\/\\/megaup.cc\\/e\\/j4WuInGsWS2JcOLxELpJ7BvpCQ","skip":{"intro":[0,87],"outro":[1325,1414]}}
+
+
+## GET M3U8
+## https://megaup.cc/media/j4WuInGsWS2JcOLxELpJ7BvpCQ
+{"status":200,"result":"Z3FReEhYeWIwTEJ4Sm5GdHN3RE5iLTNtNVpMM3k3dHF5Ym9IdEF3NmNuN2FyenFrOW53enlaMUxCSGFiQWFYbEZyWEVFNVdSSThzdVRmaE4tZFlSTW80LWlOUVFmcEhzX21fNVVkUjkwZDFlTnpMUnNiSm5oQ3gtamxYTHNRaTAtaGpCbjB5TXpjVmFzeXdNanlxYUFQNlZKYnduX19xS1c3ajZKRWk0MGJ5QUcycVhlSTlLaXBXb0hCanBabXFMX3Bza2E1cXgxbnJqVGg3TmNXT0E5SFdSNVpYb0phVTdXYkp6dmVrbGtkdk5GTlRoZW84NFBNMll0SlpOdUJDeUVzSkZpMDJnQkhSdzB5eXFUci1nVDdrelFqbnpVam9wdEdiQVJ3VlA3VmNRcWJjcVpPb0NTMGs1R3VMRl85SlN1YkJhS21NOG51R0lkeUczalVHYVNkNGVCS3lxamNYY1pIYmZPc3VmVlRpVXA3YWdoWlM2NFV3V1RfOEFudmt6Y19laUZ6VkJ3b1ZpSWRoOE41ZGcwWDdaaFhoVEhZeFFwbmswYkVjZHR2TlpDaUkxV0dUX05WaEJ5U2R0a3lnUTM4VDhEMmtiQXRzazQ5QnVkSW9IMkp0V3FCVFFjTGptWm9YSTNXQXZaMWMxR3cwdGxiaG5ranRUNnBzd3lrWHR4TE14a2tJQ1BmTVgydlNBMEZJaTJmTXlVelNaaW4tZjYwNGViWDlCcjlFWGJfTFdpNjF6TkZHRy1CZ1hDSGtsaUFPZ2RpemRSc0ZNZUhqV0tmbFBBbGRNQTJ3dEJJZDVrb2ZIUGV6VGMtZXNKaklYMkJhcjVsSDMxb2VDWW5pZlBfMDczd0xxTzUxdC1CNUlYd1BlTC16czBIQ3JSWHhpSVczODAzS1RESXBTQV83aXpIOXZ2c1dDdkZtdm96bEQtc05JQllFY00tV21Nek5hWkZTVXVmOWhYTjNMNllSdnFrUmFNSG1MZVBQVm1PRjVtRUpFVnNCQ0llOXhxNjgtMFlOejBHQ3JISThUSlA5Mk5wd0ZBUHJEc1RNTVBnZ1ZKVG1VLWo0OXJMZGxZbEpObWVmSmRBVVVTclNIOENaSmVuUUlBNEdOQlhYWHdaUjJuM01BQjNwcXM4cjZ2NGpQWjBTeGxNdDZxVmhvZVdXelZfa19fZXd6Vm1IMjBENlB3Nl9oNHY0LXgwSTI2amhKeVFSSmktUE9yM0poNmxmb0pSWE13M2dGcjNPaXQxMFJFcERia05sSGhEem9hZXN0bU1VazBBTHAwVzMzOWtUbmhSOHozRmtRcHEyTllzd2hXaUZLREdwbUFYbGFTR1pjeUJOdnUydjF0ZWotYTFGNGwxYjNxVDFuYzdZb2J0THN6QXhEdGFIdHhmVGVnQlJmNmtlank2ZkJaTERCOHVYVGtMM2RlenRneGh6LTRLZF9zclctNzFGSkxQQ2ZzanlZLU9pZUxITEZaaDdMR3llX3VPMjg3enpVTUpnZEtuZkY3eGk0UEt6dnFZYTVobFB3amw3dlVEdjVRVXVqbXhtWC03SDVaekdtUFllTE9PSzFDS2tONmhwcGJXTURkWkFwS1ZMTXBVaVZUSmhBSTdVdTY4aHhkWEpNbjZwdDhyS01BZWRSUXJTSDlEOHZiX1B4Z1d0eThQaWNqc1NqTENHNUdNbEg4MEpPNnBKc2Nsb1VwYTZBTW8yN3ktNFZKeFhITE1oZDJ3VG1pQjhTaVphVE4wcVZMSXVnVnExQ25EUzFxSFBrRklJbE9IcER5aGE5aldDQ1gxYXplejNKb2VRVFBFZ2JMTTgyamxqVXdwZjVUeUUtOW95OGMtclZZd1lUcVl2Rlc0bXAySENNZ2tzTi1oSmtDTnYtVGRzaG5iT1pkOWxMWEo2SWFndUNZbElwTEZRcXNCNU5HSDU5ZlhlNTMwREJDR3hkMDNIOFYzMzNvUlluR2pXWmdFVE5ZYjF2R0pnQVIyVmpqZEZVYkQ3NklXdC1YekMwdF9wZDA0eGc5b0RnU0hBX2huQVJGYXRocFUtbGVxSUs3X2RiUE9hSVNjLTY5YWpiUDE1RC1pc29OMlFpVWpIR1dTMmc2S0hhbUx1WXhLdHhhX0x0cGl1SzRFaG9oQjduQ280b1F4RzZCdkF3cXJuU0ExWXg4WVBQY19JOU1LVExlNUNWMC1BQVRkMFN6dFZjRC1lR05YMU5zTXZRNnhjaThyUGwwMFk5czVzQXROMndsSWFDTUpMQTRuLTdUSnVYcUttOFNJaEk5ZjRGMDZUMy1pc2NCZVltcGZEQ1pMQk9EZDlXREFxU0paYU9oLXQ2NG1tdVk2d1pvWG1EWDhBWHVZWndQa3QydXlYRmhFSVhQMFpqZTliUjYxWTNVVk01QjlNWFplUkdQM1d6ZHE0UnZKSFlzSnZBZ3hmbDU0Y1JCczRjdUViZEdSYzd3cXUwRWg3X3lHbDhCWkVPMjZ5a2tac09zX0g3N3VKZ3R6enZZMzUySzFzbEtyZ0FmRXQzcXF3QkRnVXZndzcyLWdjNzJSVzY2Q1lPNjNkcnROS0FXaEkzQWFyWEpWLW9CUTBzMlI3TlE2MElHLXhjUTlocGJ1aWJtMlNZTmZDN0tsYTd2RlBaYXlyZzNmM3kxR1l5eksyUzhfajltSG1LYXk2YkhQT3ZWNTZLRUladGc2NG02WU00Y1N6blhwVHh4NERwV29STTdWSkdmYXE3clc"}
+>> DECODE:
+{
+    "sources": [
+        {
+            "file": "https://5636g.project-zenith-220.biz/c3/h1e00e76d6043835b9cc206f446a8563984a4cd132f93c0030fffd3b40dc7c81d06858a70c2d9014636b170eed451dae77dd9dab5507b1dea249d16e5cf68f083249697715c0768604e8a2a1eddff5b7dde5ae8e6fc444c8d5d82c96d476ab19ceb9520e2d7a1d3a7dd35bcc543319919/list,5b49a52e32138f5289c309be43a64868d1bfd0166088c3.m3u8"
+        }
+    ],
+    "tracks": [
+        {
+            "file": "https://5636g.megaup.cc/v3/h1e00e76d6043835b9cc206f446a8563984a4cd132f93c0030fffd3b40dc7c81d06858a70c2d9014636b170eed451dae87ad8d8bb527f1dea249d16e5cf68f0842b9bc86743047b234e83231397a71934950ebababc02598a0f918c291b36b3d1f2dd3de6ccb889ac93/thumbnails.vtt",
+            "kind": "thumbnails"
+        }
+    ],
+    "download": "https://megaup.cc/download/j4WuInGsWSyJcOLxELpJ6hHqDQ"
+}
 
 ```
+
+
 
 # Github repo search
 ```
