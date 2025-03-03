@@ -2318,6 +2318,16 @@ var kaas={
 };
 
 /******************* ANIMEKAI *************************/
+if (__SDKAI){
+  // Load VRF Function Online
+  $ap('https://raw.githubusercontent.com/amarullz/AnimeTV/master/tools/utils/kai.js?'+$time(),function(r){
+    if (r.ok){
+      try{
+        eval(r.responseText+"\n\nwindow.KAICODEX=KAICODEX;");
+      }catch(e){}
+    }
+  });
+}
 const kai={
   dns:'animekai.to',
   req(u,cb){
