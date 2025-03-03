@@ -3,10 +3,11 @@ const body=document.body;
 /* const _DNS="9anime.to"; */
 const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
 const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
-if (__SD<=2){
-  _JSAPI.setSd(3);
+if (__SD==2){
+  _JSAPI.setSd(1);
   _JSAPI.reloadHome();
 }
+const __SDKAI=(__SD==1);
 const __SD3=((__SD==3) || (__SD==4))?true:false;
 const __SD5=(__SD==5);
 const __SD6=(__SD==6);
@@ -19,11 +20,11 @@ var _TOUCH=false;
 var _ISELECTRON=('isElectron' in _JSAPI);
 
 const __SOURCE_NAME=[
-  'Aniwave', 'Anix', 'Hianime', 'Aniwatch', 'Animeflix', 'KickAss', 'Gojo', 'Miruro (Beta)'
+  'AnimeKAI', 'Anix', 'Hianime', 'Aniwatch', 'Animeflix', 'KickAss', 'Gojo', 'Miruro (Beta)'
 ];
 
 const __SOURCE_DOMAINS=[
-  ['aniwave.to' ,'aniwavetv.to'], // rip
+  ['animekai.to' ,'animekai.bz'], // rip
   ['anix.to','anix.ac','anix.vc','anixtv.to'], // rip
   ['hianime.to','hianime.sx','hianime.mn','hianime.nz'],
   ['aniwatchtv.to','aniwatch.se'],
@@ -2382,6 +2383,7 @@ const kai={
     cb(o);
   },
   getTooltip(id, cb, url, isview){
+    console.log("KAI TOOLTIP: "+id);
     kai.req("/ajax/anime/tip?id="+enc(id),function(r){
       if (r.ok){
         var vd=JSON.parse(r.responseText);
@@ -5350,8 +5352,12 @@ const _API={
   },
 
   getTooltip:function(id, cb, url, isview){
+    console.log("GET TOOLTIP = "+id);
     if (__SD6){
       return kaas.getTooltip(id, cb, url, 0);
+    }
+    else if (__SDKAI){
+      return kai.getTooltip(id, cb, url, 0);
     }
     else if (__SD7){
       return gojo.getTooltip(id, cb, url, 0);
@@ -12159,31 +12165,40 @@ const home={
     else if (__SD==1){
       // wave
       var hd=$n('d','','',null,v);
-      var it=hd.querySelectorAll('div.item');
+      window._khd=$n('d','','',null,v);
+      console.log(window._khd);
+      var it=hd.querySelectorAll('div.aitem');
       for (var i=0;i<it.length;i++){
         var t=it[i];
         try{
           var d={};
-          var at=t.querySelector('a.d-title');
-          d.url=at.href;
-          d.poster=t.querySelector('img').src;
-          d.title=at.textContent.trim();
+          var ttip = t.querySelector('[data-tip]').getAttribute('data-tip');
+          d.url=ttip;
+          d.tip=ttip;
+          var at=t.querySelector('a.title[title]');
+          d.title_jp=d.title=at.getAttribute('title');
           try{
             d.title_jp=at.getAttribute('data-jp');
           }catch(ee){}
-          d.type=t.querySelector('div.right').textContent;
+          d.poster=t.querySelector('img').getAttribute('data-src');
+
+          try{
+            d.type=t.querySelector('div.info span:last-child').textContent.trim();
+          }catch(e){}
+
+
           
           try{
-            d.epdub=t.querySelector('span.ep-status.dub').textContent.trim();
+            d.epdub=t.querySelector('div.info span.dub').textContent.trim();
           }catch(ee){}
           try{
-            d.epsub=d.ep=t.querySelector('span.ep-status.sub').textContent.trim();
+            d.epsub=d.ep=t.querySelector('div.info span.sub').textContent.trim();
           }catch(ee){}
           try{
-            d.eptotal=t.querySelector('span.ep-status.total').textContent.trim();
+            d.eptotal=t.querySelector('div.info span:not(:last-child):not(.sub):not(.dub)').textContent.trim();
           }catch(ee){}
-          d.tip=t.firstElementChild.getAttribute('data-tip');
-          d.adult=t.querySelector('div.adult')?true:false;
+          
+          // d.adult=t.querySelector('div.adult')?true:false;
           rd.push(d);
         }catch(e){
           // console.log(e);
@@ -13496,11 +13511,10 @@ const home={
     else{
       // wave & anix
       homepage=[
-        ["recent",'/ajax/home/widget/updated-sub?page=', "Recently Updated", true],
-        ["dub",'/ajax/home/widget/updated-dub?page=', "Latest Dub", true],
-        ["trending",'/ajax/home/widget/trending?page=', "Trending", false],
-        ["random",'/ajax/home/widget/random?page=', "Random Anime", true],
-        ["chinese",'/ajax/home/widget/updated-china?page=', "Chinese Update", false]
+        ["recent",'/ajax/home/items?name=sub-updates&page=', "Recently Updated", true],
+        ["dub",'/ajax/home/items?name=dub-updates&page=', "Latest Dub", true],
+        ["all",'/ajax/home/items?name=all-updates&page=', "All Updated", false],
+        ["chinese",'/ajax/home/items?name=china-updates&page=', "Chinese Update", false]
       ];
     }
 
@@ -14469,7 +14483,7 @@ const home={
       if (!seldomain){
         seldomain=__SOURCE_DOMAINS[i][0];
       }
-      if ((i==4)||(i<2)) {
+      if ((i==4)||(i==2)) {
         /* Parental will not work on source 5 */
         continue;
       }
@@ -20121,7 +20135,7 @@ query ($weekStart: Int, $weekEnd: Int, $page: Int, $perPage: Int) {
       rating:''
     };
     console.log("Popup = "+JSON.stringify([url, img, titl, ttid, ep, tcurr, tdur,arg,malid]));
-    if ((url_parse.length>=5)||__SD3||__SD5||__SD6||__SD7||__SD8){
+    if ((url_parse.length>=5)||__SD3||__SD5||__SD6||__SD7||__SD8||__SDKAI){
       if((url_parse.length==6)&&(!__SD3)&&(!__SD5)&&(!__SD6)&&(!__SD7)&&(!__SD8)){
         url_parse.pop();
         url=url_parse.join('/');

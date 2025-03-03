@@ -1,9 +1,9 @@
 package com.amarullz.androidtv.animetvjmto;
 
 public class Conf {
-  public static String DOMAIN = "aniwave.to";
+  public static String DOMAIN = "animekai.to";
   public static String[] SOURCE_DOMAINS={
-      "aniwave.to", /* default */
+      "animekai.to", /* default */
       "aniwave.to",
       "anix.to",
       "hianime.to",
