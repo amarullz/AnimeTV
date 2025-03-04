@@ -2643,10 +2643,10 @@ const kai={
       };
 
       if (d.anilistId){
-        o.anilistId=d.anilistId;
+        dat.out.anilistId=d.anilistId;
       }
       if (d.malId){
-        o.malId=d.malId;
+        dat.out.malId=d.malId;
       }
 
       /* fetch episode */
@@ -12707,8 +12707,6 @@ const home={
     else if (__SD==1){
       // wave
       var hd=$n('d','','',null,v);
-      window._khd=$n('d','','',null,v);
-      console.log(window._khd);
       var it=hd.querySelectorAll('div.aitem');
       for (var i=0;i<it.length;i++){
         var t=it[i];
