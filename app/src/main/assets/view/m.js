@@ -4658,9 +4658,6 @@ const _API={
           }
           qv.push('genre_mode=and');
         }
-        if (!pb.cfg_data.nonjapan){
-          qv.push(enc('country[]')+'=120822');
-        }
         qv.push(enc('language[]')+'=sub');
       }
       if (sort==1){
