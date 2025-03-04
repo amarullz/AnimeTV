@@ -1,7 +1,7 @@
 /* Body */
 const body=document.body;
 /* const _DNS="9anime.to"; */
-const __DNS=('_JSAPI' in window)?_JSAPI.dns():"aniwave.to";
+const __DNS=('_JSAPI' in window)?_JSAPI.dns():"animekai.to";
 const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
 if (__SD==2){
   _JSAPI.setSd(1);
