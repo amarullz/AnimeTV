@@ -2535,6 +2535,7 @@ const kai={
         if (lg&1==1){
           epd.epsub++;
         }
+        p.filler=t.classList.contains('filler');
         epd.epnum++;
         p.title="EP-"+p.ep;
         p.title_jp=p.title;
@@ -2659,7 +2660,7 @@ const kai={
           "title":pp.title,
           "title_jp":pp.title_jp,
           "dub":pp.dub,
-          "filler":false,
+          "filler":pp.filler,
           "token":pp.token,
           "epuri":"/ajax/links/list?token="+enc(pp.token)+"&_="+KAICODEX.enc(pp.token)
         };
