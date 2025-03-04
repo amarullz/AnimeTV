@@ -4,7 +4,7 @@ public class Conf {
   public static String DOMAIN = "animekai.to";
   public static String[] SOURCE_DOMAINS={
       "animekai.to", /* default */
-      "aniwave.to",
+      "animekai.to",
       "anix.to",
       "hianime.to",
       "aniwatchtv.to",
