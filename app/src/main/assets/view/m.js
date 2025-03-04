@@ -2333,7 +2333,7 @@ const kai={
   dns:'animekai.to',
   req(u,cb,vdns){
     if (!vdns){
-      vdns=kai.dns;
+      vdns=__SD_DOMAIN?__SD_DOMAIN:kai.dns;
     }
     return $ap("https://"+vdns+u,cb,{
       "X-Org-Prox":"https://"+vdns+"/",
