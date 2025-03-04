@@ -4563,14 +4563,22 @@ const _API={
     "_ova":"ova","_ona":"ona",
     "_special":"special",
 
-    "action":"1","adventure":"2","avant_garde":"2262888",
-    "comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9",
-    "gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552",
-    "josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18",
-    "mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25",
-    "reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31",
-    "shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38",
-    "supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"
+    // "action":"1","adventure":"2","avant_garde":"2262888",
+    // "comedy":"4","demons":"4424081","drama":"7","ecchi":"8","fantasy":"9",
+    // "gourmet":"2263289","harem":"11","horror":"14","isekai":"3457284","iyashikei":"4398552",
+    // "josei":"15","kids":"16","magic":"4424082","mahou_shoujo":"3457321","martial_arts":"18",
+    // "mecha":"19","military":"20","music":"21","mystery":"22","parody":"23","psychological":"25",
+    // "reverse_harem":"4398403","romance":"26","school":"28","sci_fi":"29","seinen":"30","shoujo":"31",
+    // "shounen":"33","slice_of_life":"35","space":"36","sports":"37","super_power":"38",
+    // "supernatural":"39","suspense":"2262590","thriller":"40","vampire":"41"
+
+    // ANIMEKAI:
+    "action":"47","adventure":"1","avant_garde":"235","boys_love":"184","comedy":"7","demons":"127",
+    "drama":"66","ecchi":"8","fantasy":"34","girls_love":"926","gourmet":"436","harem":"196","horror":"421",
+    "isekai":"77","iyashikei":"225","josei":"555","kids":"35","magic":"78","mahou_shoujo":"857","martial_arts":"92",
+    "mecha":"219","military":"134","music":"27","mystery":"48","parody":"356","psychological":"240","reverse_harem":"798",
+    "romance":"145","school":"9","sci_fi":"36","seinen":"189","shoujo":"183","shounen":"37","slice_of_life":"125",
+    "space":"220","sports":"10","super_power":"350","supernatural":"49","suspense":"322","thriller":"241","vampire":"126"
   },
 
   genres_hi:{
@@ -4665,7 +4673,7 @@ const _API={
       if (page&&(page>1)){
         qv.push('page='+page);
       }
-      uri='/filter?'+qv.join('&');
+      uri='/browser?'+qv.join('&');
       console.log('FILTER: '+uri);
     }
     else if (__SD5){
@@ -12583,9 +12591,6 @@ const home={
           try{
             d.type=t.querySelector('div.info span:last-child').textContent.trim();
           }catch(e){}
-
-
-          
           try{
             d.epdub=t.querySelector('div.info span.dub').textContent.trim();
           }catch(ee){}
@@ -15943,40 +15948,36 @@ const home={
       }
       else if (__SD==1){
         var h=$n('div','','',null,v);
-        // wave
-        var ls=h.querySelector('#list-items');
-        if (ls){
-          var it=ls.querySelectorAll('div.item');
-          for (var i=0;i<it.length;i++){
-            var t=it[i];
+        window._kaisrc=h;
+        // animekai
+        var it=h.querySelectorAll('main section div.aitem');
+        for (var i=0;i<it.length;i++){
+          var t=it[i];
+          try{
+            var d={};
+            d.tip=d.url=t.querySelector('[data-tip]').getAttribute('data-tip');
+            var at=t.querySelector('a.title');
+            d.title=at.textContent.trim();
             try{
-              var d={};
-              var at=t.querySelector('a.d-title');
-              d.url=at.href;
-              d.poster=t.querySelector('img').src;
-              d.title=at.textContent.trim();
-              try{
-                d.title_jp=at.getAttribute('data-jp');
-              }catch(ee){}
-              d.type=t.querySelector('div.right').textContent;
-              
-              try{
-                d.epdub=t.querySelector('span.ep-status.dub').textContent.trim();
-              }catch(ee){}
-              try{
-                d.epsub=d.ep=t.querySelector('span.ep-status.sub').textContent.trim();
-              }catch(ee){}
-              try{
-                d.eptotal=t.querySelector('span.ep-status.total').textContent.trim();
-              }catch(ee){}
-              d.tip=t.firstElementChild.getAttribute('data-tip');
-              d.adult=t.querySelector('div.adult')?true:false;
-              d.epavail=toInt(d.ep?d.ep:d.eptotal);
-              rd.push(d);
+              d.title_jp=at.getAttribute('data-jp');
+            }catch(ee){}
+            d.poster=t.querySelector('img[data-src]').getAttribute('data-src');
+            try{
+              d.type=t.querySelector('div.info span:last-child').textContent.trim();
             }catch(e){}
-          }
+            try{
+              d.epdub=t.querySelector('div.info span.dub').textContent.trim();
+            }catch(ee){}
+            try{
+              d.epsub=d.ep=t.querySelector('div.info span.sub').textContent.trim();
+            }catch(ee){}
+            try{
+              d.eptotal=t.querySelector('div.info span:not(:last-child):not(.sub):not(.dub)').textContent.trim();
+            }catch(ee){}
+            rd.push(d);
+          }catch(e){}
         }
-        h.innerHTML='';
+        // h.innerHTML='';
       }
       else{
         var h=$n('div','','',null,v);
@@ -17108,7 +17109,7 @@ const home={
 
       home.search.history.load();
       home.search.initresult(home.search.res);
-      _API.setUri((__SD3||__SD5)?"/search":"/filter");
+      _API.setUri((__SD3||__SD5)?"/search":"/browser");
       home.onsearch=true;
       home.search.search.classList.add('active');
       home.search.kw._keycb=home.search.kwcb;
