@@ -2351,6 +2351,7 @@ const kai={
     var tipOut={
       tip:null,
       ep:null,
+      more:null,
       n:0
     };
 
@@ -2363,12 +2364,36 @@ const kai={
       return;
     }
     function tipFinalize(){
-      if (tipOut.n<2){
+      if (tipOut.n<3){
         return;
       }
       var o=tipOut.tip;
       o.ep=tipOut.ep.epnum;
       o.epdata=tipOut.ep; 
+      o.more=tipOut.more;
+      o.poster='';
+      o.banner='';
+
+      if (o.more){
+        if (o.more.poster){
+          o.poster=o.more.poster;
+        }
+        if (o.more.banner){
+          o.banner=o.more.banner;
+        }
+        if (o.more.detail.duration){
+          o.duration=o.more.detail.duration;
+        }
+        if (o.more.detail.genres){
+          o.genre=o.more.detail.genres.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+            return letter.toUpperCase();
+          });
+        }
+        if (o.more.detail.status){
+          o.status=o.more.detail.status.toUpperCase();
+        }
+      }
+
       console.log(o);
       kai.caches.ttip[id]=JSON.stringify(o);
       cb(o);
@@ -2387,12 +2412,54 @@ const kai={
         ttid:''
       };
       var d=$n('div','',0,0,r);
+
+      
       try{
         var did=d.querySelector('[data-id]').getAttribute('data-id');
         o.ttid=o.url=did;
+
+        var detailuri=d.querySelector('a.watch-btn').getAttribute('href');
+        kai.req(detailuri,function(t){
+          if (t.ok){
+            var txs=t.responseText;
+            try{
+              var jsdt=JSON.parse(txs);
+              if (jsdt && ('result' in jsdt)){
+                txs=jsdt.result;
+              }
+            }catch(e){}
+            var g=$n('div','',0,0,txs);
+            window._kaitip=g;
+            tipOut.more={
+              banner:'',
+              poster:'',
+              desc:'',
+              detail:{}
+            };
+            try{
+              tipOut.more.banner=g.querySelector('div.player-main div.player-bg').style.backgroundImage.slice(4, -1).replace(/["']/g, "");
+              tipOut.more.poster=g.querySelector('section div.poster-wrap div.poster img').src;
+              tipOut.more.desc=g.querySelector('section div.main-entity div.desc').textContent.trim();
+
+              var dtEl=g.querySelectorAll('section div.main-entity div.detail>div');
+              tipOut.more.detail={};
+              for (var i=0;i<dtEl.length;i++){
+                var tx=dtEl[i].textContent.split(':');
+                if (tx.length==2){
+                  var key=tx[0].trim().toLowerCase();
+                  var val=tx[1].trim().toLowerCase();
+                  tipOut.more.detail[key]=val;
+                }
+              }
+            }catch(e){}
+            // g.innerHTML='';
+          }
+          tipOut.n++;
+          tipFinalize();
+        });
       }
       catch(e){
-        return;
+        return 0;
       }
       var tt=d.querySelector('div.title');
       if (tt){
@@ -2418,6 +2485,10 @@ const kai={
         o.rating=d.querySelector('span.ttrating').textContent.trim();
       }catch(e){}
       tipOut.tip=o;
+
+      tipOut.n++;
+      tipFinalize();
+      return 1;
     }
 
     /* parse episodes */
@@ -2468,10 +2539,12 @@ const kai={
       if (r.ok){
         var vd=JSON.parse(r.responseText);
         if ('result' in vd){
-          tipParse(vd.result);
+          if (tipParse(vd.result)){
+            return;
+          }
         }
       }
-      tipOut.n++;
+      tipOut.n+=2;
       tipFinalize();
     });
 
@@ -2521,11 +2594,11 @@ const kai={
         "synopsis": d.synopsis,
         "genres": d.genres,
         "quality": null,
-        "banner": "",
+        "banner": d.banner,
         "rating": "",
         "ttid": d.ttid,
         "url": d.url,
-        "poster": "",
+        "poster": d.poster,
         "rating":"",
         "status": false,
         "epavail": d.ep,
@@ -2688,7 +2761,7 @@ const kai={
       console.log("serverParse");
 
       var d=$n('div','',0,0,r);
-      window._kaiep=d;
+      // window._kaiep=d;
 
       var sList=[
         d.querySelectorAll('div[data-id="sub"] span.server'),
@@ -2718,6 +2791,8 @@ const kai={
         dub:epServers[2]
       };
 
+      d.innerHTML='';
+
       serverOpen(kai.caches.eps[aEp.token]);
     }
 
@@ -2734,6 +2809,9 @@ const kai={
     });
   }
 };
+
+
+
 
 /* ANIWAVE & ANIX SOURCE */
 // if (__SD<=2){
@@ -3796,9 +3874,9 @@ function $imgnl(src, maxw){
 /* proxy image */
 function $img(src){
   /* kai image cache */
-  // if (src.indexOf('https://static.animekai.to')==0){
-  //   return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w=256&we';
-  // }
+  if ((src.indexOf('https://static.animekai.')==0) && (src.indexOf('https://wsrv.nl')==-1)){
+    return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w=256&we';
+  }
 
   if (src && __IMGCDNL==1){
     if (__SD6 && src.substring(0,1)=='/' && (src.indexOf("/poster/")>-1 || src.indexOf("/thumbnail/")>-1)){
@@ -3815,9 +3893,9 @@ function $img(src){
   if (!src || ((src+'')=='undefined')){
     return '/__view/noimg.jpg';
   }
-  if (src.indexOf('/hqdefault.jpg')>0){
-    src=src.replace('/hqdefault.jpg','/maxresdefault.jpg');
-  }
+  // if (src.indexOf('/hqdefault.jpg')>0){
+  //   src=src.replace('/hqdefault.jpg','/maxresdefault.jpg');
+  // }
   return src;
 }
 function $aimg(cvi){
@@ -15945,7 +16023,7 @@ const home={
       }
       else if (__SD==1){
         var h=$n('div','','',null,v);
-        window._kaisrc=h;
+        // window._kaisrc=h;
         // animekai
         var it=h.querySelectorAll('main section div.aitem');
         for (var i=0;i<it.length;i++){
@@ -15974,7 +16052,7 @@ const home={
             rd.push(d);
           }catch(e){}
         }
-        // h.innerHTML='';
+        h.innerHTML='';
       }
       else{
         var h=$n('div','','',null,v);
