@@ -1998,12 +1998,17 @@ c.loader {
 }
 #vtt_subtitle_preview *,
 #vtt_subtitle *{
-  text-shadow: -.1vw -.1vw .05vw #000,
-  .1vw -.1vw .05vw #000,
-   -.1vw .1vw .05vw #000,
-   .1vw .1vw .05vw #000,
-  0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
-  -webkit-text-stroke-color: #000 !important;
+  --text-shadow-color:#000;
+  text-shadow: 
+    -.1vw -.1vw .01vw var(--text-shadow-color),
+    0 -.1vw .01vw var(--text-shadow-color),
+    .1vw -.1vw .01vw var(--text-shadow-color),
+    .1vw 0 .01vw var(--text-shadow-color),
+    .1vw .1vw .01vw var(--text-shadow-color),
+    0 .1vw .01vw var(--text-shadow-color),
+    -.1vw .1vw .01vw var(--text-shadow-color),
+    -.1vw 0 .01vw var(--text-shadow-color),
+    0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000
 }
 #vtt_subtitle_preview .vtt_obj,
 #vtt_subtitle .vtt_obj{
@@ -2081,12 +2086,44 @@ c.loader {
 .vtt_style_primary *,
 .vtt_style_blue *,
 .vtt_style_black *{
-  text-shadow: -.1vw -.1vw .05vw #fff,
-  .1vw -.1vw .05vw #fff,
-   -.1vw .1vw .05vw #fff,
-   .1vw .1vw .05vw #fff,
-  0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
-  -webkit-text-stroke-color: #fff !important;
+  --text-shadow-color: #fff;
+}
+
+.vtt_style_medium_outline *{
+  text-shadow: 
+    -.15vw -.15vw .03vw var(--text-shadow-color),
+    0 -.15vw .03vw var(--text-shadow-color),
+    .15vw -.15vw .03vw var(--text-shadow-color),
+    .15vw 0 .03vw var(--text-shadow-color),
+    .15vw .15vw .03vw var(--text-shadow-color),
+    0 .15vw .03vw var(--text-shadow-color),
+    -.15vw .15vw .03vw var(--text-shadow-color),
+    -.15vw 0 .03vw var(--text-shadow-color),
+    0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
+}
+.vtt_style_thick_outline *{
+  text-shadow: 
+    -.2vw -.2vw .08vw var(--text-shadow-color),
+    0 -.2vw .08vw var(--text-shadow-color),
+    .2vw -.2vw .08vw var(--text-shadow-color),
+    .2vw 0 .08vw var(--text-shadow-color),
+    .2vw .2vw .08vw var(--text-shadow-color),
+    0 .2vw .08vw var(--text-shadow-color),
+    -.2vw .2vw .08vw var(--text-shadow-color),
+    -.2vw 0 .08vw var(--text-shadow-color),
+    0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
+}
+.vtt_style_extra_thick_outline *{
+  text-shadow: 
+    -.25vw -.25vw .14vw var(--text-shadow-color),
+    0 -.25vw .14vw var(--text-shadow-color),
+    .25vw -.25vw .14vw var(--text-shadow-color),
+    .25vw 0 .14vw var(--text-shadow-color),
+    .25vw .25vw .14vw var(--text-shadow-color),
+    0 .25vw .14vw var(--text-shadow-color),
+    -.25vw .25vw .14vw var(--text-shadow-color),
+    -.25vw 0 .14vw var(--text-shadow-color),
+    0 0 .1vw #000, 0 0 .2vw #000, .1vw .1vw .4vw #000 !important;
 }
 
 .vtt_style_background_25 .vtt_obj{
@@ -2145,8 +2182,12 @@ c.loader {
 .vtt_style_serif{
   font-family: Times, serif;
 }
-.vtt_style_condensed{
-  font-family: robotoc, Arial, Helvetica, sans-serif;
+.vtt_style_allerta{
+  font-family: 'Trebuchet','Trebuchet MS','Allerta', sans-serif;
+}
+.vtt_style_outfit{
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.1;
 }
 .vtt_style_outfit{
   font-family: 'Outfit', sans-serif;
@@ -2163,6 +2204,10 @@ c.loader {
   font-family: "Salsa", sans-serif;
   line-height: 1.1;
 }
+.vtt_style_signika{
+  font-family: "Signika", sans-serif;
+  line-height: 1.1;
+}
 .vtt_style_reddit_sans{
   font-family: "Reddit Sans", sans-serif;
   line-height: 1.1;
@@ -2174,15 +2219,6 @@ c.loader {
 .vtt_style_merienda{
   font-family: "Merienda", cursive, sans-serif;
   line-height: 1.2;
-}
-.vtt_style_medium_outline{
-  -webkit-text-stroke-width: 0.05vw !important;
-}
-.vtt_style_thick_outline{
-  -webkit-text-stroke-width: 0.1vw !important;
-}
-.vtt_style_extra_thick_outline{
-  -webkit-text-stroke-width: 0.15vw !important;
 }
 
 #pb_action_streamtype{

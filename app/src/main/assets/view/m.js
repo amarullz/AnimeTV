@@ -3796,9 +3796,9 @@ function $imgnl(src, maxw){
 /* proxy image */
 function $img(src){
   /* kai image cache */
-  if (src.indexOf('https://static.animekai.to')==0){
-    return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w=256&we';
-  }
+  // if (src.indexOf('https://static.animekai.to')==0){
+  //   return 'https://wsrv.nl/?url='+encodeURIComponent(src)+'&w=256&we';
+  // }
 
   if (src && __IMGCDNL==1){
     if (__SD6 && src.substring(0,1)=='/' && (src.indexOf("/poster/")>-1 || src.indexOf("/thumbnail/")>-1)){
@@ -6314,11 +6314,12 @@ const vtt={
     'Spanish','Arabic','French','German','Italian','Russian'
   ],
   google_font_family:{
+    'allerta':'https://fonts.googleapis.com/css2?family=Allerta&display=swap',
     'salsa':'https://fonts.googleapis.com/css2?family=Salsa&display=swap',
     'outfit':'https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap',
     'merriweather':'https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap',
     'philosopher':'https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&display=swap',
-    'reddit_sans':'https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap',
+    'signika':'https://fonts.googleapis.com/css2?family=Signika:wght@300..700&display=swap',
     'exo':'https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap',
     'merienda':'https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&display=swap',
   },
@@ -6344,12 +6345,12 @@ const vtt={
     [
       "Serif",
       "Proportional",
-      "Condensed",
+      "Allerta",
       "Salsa",
       "Outfit",
       "Merriweather",
       "Philosopher",
-      "Reddit Sans",
+      "Signika",
       "Exo",
       "Merienda"
     ],
@@ -9076,16 +9077,26 @@ const pb={
           vtt.clear();
           pb.subtitles=[];
           if ('tracks' in v){
+            var stidx={};
             var n=v.tracks.length;
-            for (var i=1;i<n;i++){
+            var dfn=0;
+            for (var i=0;i<n;i++){
               var tk=v.tracks[i];
               if (tk.kind=='captions'){
-                pb.subtitles.push({
-                  u:tk.file,
-                  d:(i==1)?1:0,
-                  l:(tk.label+'').toLowerCase().trim(),
-                  i:(tk.label+'').toLowerCase().trim()
-                });
+                var clab = (tk.label+'').toLowerCase().trim();
+                var sub=null;
+                if (!(clab in stidx)){
+                  stidx[clab]={
+                    u:tk.file,
+                    d:(dfn==0)?1:0,
+                    l:clab,
+                    i:clab
+                  };
+                  pb.subtitles.push(stidx[clab]);
+                  dfn++;
+                }
+                sub = stidx[clab];
+                sub.u=tk.file;
               }
             }
             vtt.init(pb.subtitles);
