@@ -9093,7 +9093,8 @@ const pb={
 
           /* Load Video */
           pb.updateStreamTypeInfo();
-          pb.init_video_mp4upload(v.sources[0].file);
+          var srcvd=v.sources[0].file;
+          pb.init_video_mp4upload(srcvd);
           pb.cfg_update_el();
 
 
