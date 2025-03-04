@@ -14869,7 +14869,7 @@ const home={
       if (!seldomain){
         seldomain=__SOURCE_DOMAINS[i][0];
       }
-      if ((i==4)||(i==2)) {
+      if ((i==4)||(i==1)) {
         /* Parental will not work on source 5 */
         continue;
       }
