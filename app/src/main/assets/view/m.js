@@ -2354,6 +2354,10 @@ const kai={
       more:null,
       n:0
     };
+    if (!id && url){
+      id=url;
+    }
+    var ttip_ttid=id;
 
     if (id in kai.caches.ttip){
       requestAnimationFrame(
@@ -2422,7 +2426,8 @@ const kai={
       
       try{
         var did=d.querySelector('[data-id]').getAttribute('data-id');
-        o.ttid=o.url=did;
+        o.ttid=o.url=ttip_ttid;
+        // o.ttid=
 
         var detailuri=d.querySelector('a.watch-btn').getAttribute('href');
         kai.req(detailuri,function(t){
