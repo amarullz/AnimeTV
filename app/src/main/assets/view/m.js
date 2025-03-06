@@ -3,10 +3,18 @@ const body=document.body;
 /* const _DNS="9anime.to"; */
 const __DNS=('_JSAPI' in window)?_JSAPI.dns():"animekai.to";
 const __SD=('_JSAPI' in window)?_JSAPI.getSd():1;
+
+/* Change Removed Sources */
 if (__SD==2){
   _JSAPI.setSd(1);
   _JSAPI.reloadHome();
 }
+if (__SD==4){
+  _JSAPI.setSd(3);
+  _JSAPI.reloadHome();
+}
+
+/* Source Constants */
 const __SDKAI=(__SD==1);
 const __SD3=((__SD==3) || (__SD==4))?true:false;
 const __SD5=(__SD==5);
@@ -26,7 +34,7 @@ const __SOURCE_NAME=[
 const __SOURCE_DOMAINS=[
   ['animekai.to' ,'animekai.bz'], // rip
   ['anix.to','anix.ac','anix.vc','anixtv.to'], // rip
-  ['hianime.to','hianime.sx','hianime.nz'],
+  ['hianime.to','hianime.sx','hianime.nz', 'aniwatchtv.to'],
   ['aniwatchtv.to'],
   ['animeflix.live','animeflix.gg','animeflix.li'], // rip
   ['kaas.to','kaas.ro','kaa.mx'],
@@ -15042,7 +15050,7 @@ const home={
       if (!seldomain){
         seldomain=__SOURCE_DOMAINS[i][0];
       }
-      if ((i==4)||(i==1)) {
+      if ((i==4)||(i==1)||(i==3)) {
         /* Parental will not work on source 5 */
         continue;
       }
