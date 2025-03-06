@@ -26,11 +26,11 @@ const __SOURCE_NAME=[
 const __SOURCE_DOMAINS=[
   ['animekai.to' ,'animekai.bz'], // rip
   ['anix.to','anix.ac','anix.vc','anixtv.to'], // rip
-  ['hianime.to','hianime.sx','hianime.mn','hianime.nz'],
-  ['aniwatchtv.to','aniwatch.se'],
+  ['hianime.to','hianime.sx','hianime.nz'],
+  ['aniwatchtv.to'],
   ['animeflix.live','animeflix.gg','animeflix.li'], // rip
-  ['kaas.to','kickassanimes.io','kaas.ro','www1.kickassanime.mx'],
-  ['api.gojo.live','api.gojotv.xyz','api.gojo.wtf'],
+  ['kaas.to','kaas.ro','kaa.mx'],
+  ['api.gojo.wtf'],
   ['www.miruro.tv']
 ];
 
@@ -83,12 +83,14 @@ function SD_CHECK_DOMAIN(sd,cb){
   var chk_url='/manifest.json';
   var chk_json='name';
   if (sd==6){
+    // animeflix
     chk_url='/api/home_data';
     chk_json='recent_update';
   }
   else if (sd==7){
-    chk_url='/';
-    chk_json='home';
+    // gojo
+    chk_url='/config';
+    chk_json='maintenance';
   }
   var res=[];
   var num=__SOURCE_DOMAINS[sm].length;
@@ -175,22 +177,28 @@ function SD_SETTINGS(n, cb){
       function(chval){
         if (chval!=null){
           var wsel=r[chval];
-          if (wsel.st!=2){
-            if (!_API.confirmDialog("Domain Warning!!",
-            "Target Domain <b>"+wsel.dn+"</b> is failed in benchmark!!!<br>"+
-            "Do you want to continue?",
-            true)){
-              return;
+          function setDomainNow(){
+            var sdomain="";
+            if (chval>0){
+              sdomain=__SOURCE_DOMAINS[nx][chval];
+            }
+            _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
+            if (cb){
+              cb(__SOURCE_DOMAINS[nx][chval]);
             }
           }
-          var sdomain="";
-          if (chval>0){
-            sdomain=__SOURCE_DOMAINS[nx][chval];
+          if (wsel.st!=2){
+            _API.confirm("Domain Warning!!",
+            "Target Domain <b>"+wsel.dn+"</b> is failed in benchmark!!!<br>"+
+            "Do you want to continue?",
+            function(val){
+              if (val){
+                setDomainNow();
+              }
+            });
+            return;
           }
-          _JSAPI.storeSet(SD_CFGNAME(n),sdomain);
-          if (cb){
-            cb(__SOURCE_DOMAINS[nx][chval]);
-          }
+          setDomainNow();
           return;
         }
         if (cb){
@@ -971,7 +979,7 @@ var gojo={
   },
   cache:{},
   getAnimeId:function(url){
-    var ux=url.split('#');
+    var ux=(url+'').split('#');
     return ux[0];
   },
   getFilterOrigin:function(){
@@ -1310,15 +1318,15 @@ var gojo={
         "stream_url":{}
       };
       const eps=d.gojo.ep;
-      const covs={};
-      for (var i=0;i<dat.cov[0].data.length;i++){
-        var cvdt=dat.cov[0].data[i];
-        covs[cvdt.number]={
-          title:cvdt.title,
-          img:cvdt.img,
-          desc:cvdt.description
-        };
-      }
+      // const covs={};
+      // for (var i=0;i<dat.cov[0].data.length;i++){
+      //   var cvdt=dat.cov[0].data[i];
+      //   covs[cvdt.number]={
+      //     title:cvdt.title,
+      //     img:cvdt.img,
+      //     desc:cvdt.description
+      //   };
+      // }
       for (var i=0;i<eps[0].episodes.length;i++){
         var pp=eps[0].episodes[i];
         var oe={
@@ -1330,12 +1338,12 @@ var gojo={
           "streams":[]
         };
         
-        if (pp.number in covs){
-          var cvd=covs[pp.number];
-          oe.title=cvd.title;
-          oe.img=cvd.img;
-          oe.desc=cvd.desc;
-        }
+        // if (pp.number in covs){
+        //   var cvd=covs[pp.number];
+        //   oe.title=cvd.title;
+        //   oe.img=cvd.img;
+        //   oe.desc=cvd.desc;
+        // }
         
         var svs={};
         for (var j=0;j<eps.length;j++){
@@ -1374,18 +1382,20 @@ var gojo={
     }
 
 
-    $a("/ep-covers?id="+uri,function(r){
-      if (r.ok){
-        try{
-          dat.cov=JSON.parse(r.responseText);
-        }
-        catch(e){
-          dat.cov=null;
-        }
-      }
-      dat.x++;
-      datacb();
-    });
+    // $a("/ep-covers?id="+uri,function(r){
+    //   if (r.ok){
+    //     try{
+    //       dat.cov=JSON.parse(r.responseText);
+    //     }
+    //     catch(e){
+    //       dat.cov=null;
+    //     }
+    //   }
+    //   dat.x++;
+    //   datacb();
+    // });
+
+    dat.x++;
     gojo.getTooltip(uri,function(k){
       if (k){
         dat.tip=k;
@@ -13602,7 +13612,7 @@ const home={
       el.__last_touch=$tick()+5000;
     });
 
-    if (__SD6||pb.cfg_data.alisthomess||(__SD==2)){
+    if (__SD6||pb.cfg_data.alisthomess||(__SD==2)||__SD7){
       home.home_anilist_load();
       return;
     }
@@ -20562,99 +20572,100 @@ query ($weekStart: Int, $weekEnd: Int, $page: Int, $perPage: Int) {
 
     // console.log("PreviewDo = "+JSON.stringify([url, img, ttid, currep, tcurr, tdur,d,arg,malid]));
     try{
-    var numep=toInt(d.ep);
-    currep=toInt(currep);
-    if (currep>numep){
-      currep=numep;
-    }
+      var numep=toInt(d.ep);
+      currep=toInt(currep);
+      if (currep>numep){
+        currep=numep;
+      }
 
-    _MAL.pop.title.innerHTML=tspecial(d.title);
-    _MAL.pop.title.setAttribute('jp',d.title_jp?d.title_jp:d.title);
+      _MAL.pop.title.innerHTML=tspecial(d.title);
+      _MAL.pop.title.setAttribute('jp',d.title_jp?d.title_jp:d.title);
 
-    _MAL.pop.img.src=$img(img);
-    _MAL.pop.menu=[
-      _MAL.pop.detail_button,
-      _MAL.pop.begin
-    ];
-    _MAL.pop.var.url=url;
-    _MAL.pop.var.ttip=ttid;
-    _MAL.pop.var.malid=malid?malid:null;
-    _MAL.pop.menusel=1;
+      _MAL.pop.img.src=$img(img);
+      _MAL.pop.menu=[
+        _MAL.pop.detail_button,
+        _MAL.pop.begin
+      ];
+      _MAL.pop.var.url=url;
+      _MAL.pop.var.ttip=ttid;
+      _MAL.pop.var.malid=malid?malid:null;
+      _MAL.pop.menusel=1;
 
-    _MAL.pop.var.title=d.title;
-    _MAL.pop.var.title_jp=d.title_jp;
-    _MAL.pop.var.img=img;
+      _MAL.pop.var.title=d.title;
+      _MAL.pop.var.title_jp=d.title_jp;
+      _MAL.pop.var.img=img;
 
-    _MAL.pop.var.play.c=tcurr;
-    _MAL.pop.var.play.d=tdur;
-    _MAL.pop.var.play.e=currep;
+      _MAL.pop.var.play.c=tcurr;
+      _MAL.pop.var.play.d=tdur;
+      _MAL.pop.var.play.e=currep;
 
-    // headimg
-    // $('malview_info').style.backgroundImage=((d&&d.logoimg)?('url('+d.logoimg+')'):'');
+      // headimg
+      // $('malview_info').style.backgroundImage=((d&&d.logoimg)?('url('+d.logoimg+')'):'');
 
-    _MAL.preview_detail(d);
+      _MAL.preview_detail(d);
 
-    _MAL.popuprating(d.rating);
+      _MAL.popuprating(d.rating);
 
-    _MAL.pop.progh.className='';
-    if (tcurr>0 && tdur>0){
-      _MAL.pop.progh.className='active';
-      var pct=(parseFloat(tcurr)/parseFloat(tdur))*100.0;
-      _MAL.pop.prog.style.width=pct+"%";
-    }
+      _MAL.pop.progh.className='';
+      if (tcurr>0 && tdur>0){
+        _MAL.pop.progh.className='active';
+        var pct=(parseFloat(tcurr)/parseFloat(tdur))*100.0;
+        _MAL.pop.prog.style.width=pct+"%";
+      }
 
-    _MAL.pop.var.resume=0;
-    _MAL.pop.var.next=0;
+      _MAL.pop.var.resume=0;
+      _MAL.pop.var.next=0;
 
-    if (currep>0){
-      _MAL.pop.menu.push(_MAL.pop.resume);
-      if (numep>currep){
-        _MAL.pop.menu.push(_MAL.pop.next);
-        _MAL.pop.next_ep.innerHTML='EP-'+(currep+1);
-        _MAL.pop.next.className='';
-        _MAL.pop.var.next=currep+1;
+      if (currep>0){
+        _MAL.pop.menu.push(_MAL.pop.resume);
+        if (numep>currep){
+          _MAL.pop.menu.push(_MAL.pop.next);
+          _MAL.pop.next_ep.innerHTML='EP-'+(currep+1);
+          _MAL.pop.next.className='';
+          _MAL.pop.var.next=currep+1;
+        }
+        else{
+          _MAL.pop.next_ep.innerHTML='';
+          _MAL.pop.next.className='disable';
+        }
+        _MAL.pop.resume_ep.innerHTML='EP-'+(currep);
+        _MAL.pop.resume.className='';
+        _MAL.pop.var.resume=currep;
+        _MAL.pop.menusel=2;
       }
       else{
-        _MAL.pop.next_ep.innerHTML='';
-        _MAL.pop.next.className='disable';
+        _MAL.pop.next_ep.innerHTML=
+        _MAL.pop.resume_ep.innerHTML='';
+        _MAL.pop.next.className=
+        _MAL.pop.resume.className='disable';
       }
-      _MAL.pop.resume_ep.innerHTML='EP-'+(currep);
-      _MAL.pop.resume.className='';
-      _MAL.pop.var.resume=currep;
-      _MAL.pop.menusel=2;
-    }
-    else{
-      _MAL.pop.next_ep.innerHTML=
-      _MAL.pop.resume_ep.innerHTML='';
-      _MAL.pop.next.className=
-      _MAL.pop.resume.className='disable';
-    }
 
-    if (arg=="ep"){
-      _MAL.pop.resume_text.innerHTML='Play Episode';
-    }
-    else{
-      _MAL.pop.resume_text.innerHTML='Resume';
-    }
+      if (arg=="ep"){
+        _MAL.pop.resume_text.innerHTML='Play Episode';
+      }
+      else{
+        _MAL.pop.resume_text.innerHTML='Resume';
+      }
 
-    _MAL.pop.var.num=numep;
-    _MAL.pop.var.ep=(currep>0)?currep:1;
-    _MAL.pop.setEp();
-    if (_MAL.pop.var.num>0){
-      _MAL.pop.menu.push(_MAL.pop.ep);
-    }
-    _MAL.popup_update();
-    _MAL.pop.mv.className='active';
-    $('popupcontainer').className='active';
+      _MAL.pop.var.num=numep;
+      _MAL.pop.var.ep=(currep>0)?currep:1;
+      _MAL.pop.setEp();
+      if (_MAL.pop.var.num>0){
+        _MAL.pop.menu.push(_MAL.pop.ep);
+      }
+      _MAL.popup_update();
+      _MAL.pop.mv.className='active';
+      $('popupcontainer').className='active';
 
-    _MAL.pop_initlist(url);
+      _MAL.pop_initlist(url);
 
-    _MAL.pop.var.ready=true;
-    _MAL.pop.var.ondetail=false;
+      _MAL.pop.var.ready=true;
+      _MAL.pop.var.ondetail=false;
 
-    _MAL.buttonRegister();
+      _MAL.buttonRegister();
 
     }catch(e){
+      console.log(e);
       console.log("PDO = "+e);
     }
   },
