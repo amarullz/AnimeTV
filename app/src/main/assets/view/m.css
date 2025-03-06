@@ -2083,20 +2083,20 @@ c.loader {
   paint-order: stroke fill !important;
   -webkit-text-stroke-color: var(--text-shadow-color);
 
-  -webkit-filter: drop-shadow(.1vw .1vw .05vw rgba(40,40,40,.7));
+  -webkit-filter: drop-shadow(.1vw .1vw .05vw rgba(10,10,10,.5));
   -webkit-text-stroke-width: .2vw;
 }
 
 .vtt_style_medium_outline *{
-  -webkit-filter: drop-shadow(.15vw .15vw .05vw rgba(40,40,40,.7)) !important;
+  -webkit-filter: drop-shadow(.15vw .15vw .05vw rgba(10,10,10,.5)) !important;
   -webkit-text-stroke-width: .4vw !important;
 }
 .vtt_style_thick_outline *{
-  -webkit-filter: drop-shadow(.2vw .2vw .05vw rgba(40,40,40,.7)) !important;
+  -webkit-filter: drop-shadow(.2vw .2vw .05vw rgba(10,10,10,.5)) !important;
   -webkit-text-stroke-width: .6vw !important;
 }
 .vtt_style_extra_thick_outline *{
-  -webkit-filter: drop-shadow(.25vw .25vw .05vw rgba(40,40,40,.7)) !important;
+  -webkit-filter: drop-shadow(.25vw .25vw .05vw rgba(10,10,10,.5)) !important;
   -webkit-text-stroke-width: .8vw !important;
 }
 
