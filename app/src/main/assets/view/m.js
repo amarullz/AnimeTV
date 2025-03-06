@@ -32,7 +32,7 @@ const __SOURCE_NAME=[
 ];
 
 const __SOURCE_DOMAINS=[
-  ['animekai.to' ,'animekai.bz'], // rip
+  ['animekai.to' ,'animekai.bz'],
   ['anix.to','anix.ac','anix.vc','anixtv.to'], // rip
   ['hianime.to','hianime.sx','hianime.nz', 'aniwatchtv.to'],
   ['aniwatchtv.to'],
@@ -15947,8 +15947,8 @@ const home={
       }
       else{
         home.settings.open_qrcode(
-          "Join Discord Server<br>https://discord.gg/VGtGtRedGR",
-          "https://discord.gg/VGtGtRedGR"
+          "Join Discord Server<br>https://discord.gg/xPmEnY32",
+          "https://discord.gg/xPmEnY32"
         );
       }
     },
