@@ -4442,12 +4442,15 @@ const _API={
     if (src_ori){
       if (pb.cfg_data && pb.cfg_data.hlsproxy){
         if (
-          !__SD7 && !__SD8 &&
+          !__SD7 && !__SD8 && !__SDKAI &&
           (src_ori.indexOf("#dash")==-1)
+          && (src_ori.indexOf("megaup.cc")==-1)
+          && (src_ori.indexOf("prxy.miruro.to")==-1)
           && (src_ori.indexOf("mp4upload.com")==-1)
           && (src_ori.indexOf("netmagcdn.com")==-1)
           && (src_ori.indexOf("vidco.pro")==-1)
           && (src_ori.indexOf("#FILEMOON")==-1)){
+          // src='https://prxy.miruro.to/m3u8?url='+encodeURIComponent(src_ori);
           src='https://m3u8.justchill.workers.dev/?url='+encodeURIComponent(src_ori);
         }
         console.warn("VIDEO_SET_URL = "+src);
