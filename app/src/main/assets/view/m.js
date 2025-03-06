@@ -15405,7 +15405,7 @@ const home={
           '<c>cancel_presentation</c> Close Confirmation<span class="value">-</span>'
         );
 
-        if (_USE_TOUCH){
+        if (_TOUCH){
           home.settings.tools._s_disablegesture=$n(
             'div','',{
               action:'*disablegesture'
