@@ -13,7 +13,7 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 
 ## Donation & More Information
 - **Donate Project :** [Paypal Link - https://paypal.me/amarullz](https://paypal.me/amarullz)
-- **Join Discussion on Discord :**  [https://discord.com/invite/y5tVXynE](https://discord.com/invite/y5tVXynE)
+- **Join Discussion on Discord :**  [https://discord.gg/xPmEnY32](https://discord.gg/xPmEnY32)
 
 ## Features
 - **NEW** - UI Interface with Trailer Video
