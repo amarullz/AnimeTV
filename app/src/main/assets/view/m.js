@@ -15766,13 +15766,13 @@ const home={
           "<c>sports_esports</c> Discord Server"
         );
 
-        home.settings.tools._s_exportcsv=$n(
-          'div','',{
-            action:'*exportcsv'
-          },
-          home.settings.about.P,
-          "<c>export_notes</c> Export CSV List"
-        );
+        // home.settings.tools._s_exportcsv=$n(
+        //   'div','',{
+        //     action:'*exportcsv'
+        //   },
+        //   home.settings.about.P,
+        //   "<c>export_notes</c> Export CSV List"
+        // );
 
         if (!_ISELECTRON && home.profiles.isadmin()){
           home.settings.tools._s_checknightly=$n(
