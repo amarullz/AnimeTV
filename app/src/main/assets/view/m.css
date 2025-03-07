@@ -2002,12 +2002,12 @@ c.loader {
   display: inline !important;
 }
 
-#vtt_subtitle .vtt_obj span:not(:last-child):first-child{
+/* #vtt_subtitle .vtt_obj span:not(:last-child):first-child{
   position:fixed;
   top:1vw;
   left:1vw;
   right:1vw;
-}
+} */
 
 .vtt_style_full_opacity .vtt_obj{
   opacity: 1;
