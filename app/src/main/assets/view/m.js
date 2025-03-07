@@ -6480,14 +6480,15 @@ const vtt={
     'Spanish','Arabic','French','German','Italian','Russian'
   ],
   google_font_family:{
-    'allerta':'https://fonts.googleapis.com/css2?family=Allerta&display=swap',
+    'proportional':'https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap',
+    'itim':'https://fonts.googleapis.com/css2?family=Itim&display=swap',
     'salsa':'https://fonts.googleapis.com/css2?family=Salsa&display=swap',
     'outfit':'https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap',
     'merriweather':'https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap',
-    'philosopher':'https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&display=swap',
-    'signika':'https://fonts.googleapis.com/css2?family=Signika:wght@300..700&display=swap',
-    'exo':'https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&display=swap',
-    'merienda':'https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&display=swap',
+    'cantora_one':'https://fonts.googleapis.com/css2?family=Cantora+One&display=swap',
+    'questrial':'https://fonts.googleapis.com/css2?family=Questrial&display=swap',
+    'ruluko':'https://fonts.googleapis.com/css2?family=Ruluko&display=swap',
+    'alatsi':'https://fonts.googleapis.com/css2?family=Alatsi&display=swap',
   },
   style_type:[
     'Font Type',
@@ -6511,14 +6512,14 @@ const vtt={
     [
       "Serif",
       "Proportional",
-      "Allerta",
+      "Itim",
       "Salsa",
       "Outfit",
       "Merriweather",
-      "Philosopher",
-      "Signika",
-      "Exo",
-      "Merienda"
+      "Cantora One",
+      "Questrial",
+      "Ruluko",
+      "Alatsi"
     ],
     [
       "Large",

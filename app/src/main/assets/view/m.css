@@ -2151,13 +2151,13 @@ c.loader {
   font-size: calc(var(--fs-30vw) + calc(var(--fs-7vw) / 3));
 }
 .vtt_style_proportional{
-  font-family: sans-serif !important;
+  font-family: "Fira Sans", sans-serif !important;
 }
 .vtt_style_serif{
   font-family: Times, serif;
 }
-.vtt_style_allerta{
-  font-family: 'Trebuchet','Trebuchet MS','Allerta', sans-serif;
+.vtt_style_itim{
+  font-family: 'Itim', sans-serif;
 }
 .vtt_style_outfit{
   font-family: 'Outfit', sans-serif;
@@ -2170,28 +2170,28 @@ c.loader {
 .vtt_style_merriweather{
   font-family: "Merriweather", serif;
 }
-.vtt_style_philosopher{
-  font-family: "Philosopher", sans-serif;
+.vtt_style_cantora_one{
+  font-family: "Cantora One", sans-serif;
   line-height: 1.1;
 }
 .vtt_style_salsa{
   font-family: "Salsa", sans-serif;
   line-height: 1.1;
 }
-.vtt_style_signika{
-  font-family: "Signika", sans-serif;
+.vtt_style_questrial{
+  font-family: "Questrial", sans-serif;
   line-height: 1.1;
 }
 .vtt_style_reddit_sans{
   font-family: "Reddit Sans", sans-serif;
   line-height: 1.1;
 }
-.vtt_style_exo{
-  font-family: "Exo", sans-serif;
+.vtt_style_ruluko{
+  font-family: "Ruluko", sans-serif;
   line-height: 1.1;
 }
-.vtt_style_merienda{
-  font-family: "Merienda", cursive, sans-serif;
+.vtt_style_alatsi{
+  font-family: "Alatsi", cursive, sans-serif;
   line-height: 1.2;
 }
 
