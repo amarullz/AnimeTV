@@ -4998,8 +4998,9 @@ const _API={
     ["Disable Subtitle","nosub"],
     ["English","en"],
     /* sources */
-    ["Arabic","ar"],["German","de"], ["French","fr"], ["Italian","it"], ["Portuguese","pt"], ["Russian","ru"], ["Spanish","es"],
-    /* translates - start=10 */
+    ["Arabic","ar"],["German","de"], ["French","fr"], ["Italian","it"], 
+    ["Brazilian","pt"], ["Portuguese","pt-PT"], ["Russian","ru"], ["Spanish","es"],
+    /* translates - start=11 */
     ["Indonesian","id"],
     ["Chinese (Simplified)","zh-CN"],["Chinese (Traditional)","zh-TW"],
     ["Danish","da"], ["Dutch","nl"], ["Filipino","tl"],["Finnish","fi"],
@@ -6741,7 +6742,7 @@ const vtt={
       lang_name=lang_name.toLowerCase();
       for (var i=0;i<t.length;i++){
         if ((t[i].l==lang_name) || (t[i].i && t[i].i==lang)){
-          // console.log("VTT MATCH GOT -> "+lang_name+" = "+i+" => "+JSON.stringify(t[i]));
+          console.log("VTT MATCH GOT -> "+lang_name+" = "+i+" => "+JSON.stringify(t[i]));
           return i;
         }
       }
@@ -9251,6 +9252,11 @@ const pb={
               var tk=v.tracks[i];
               if (tk.kind=='captions'){
                 var clab = (tk.label+'').toLowerCase().trim();
+                if (clab==''){
+                  var cll=tk.file.split('/');
+                  cll=(cll[cll.length-1]).split("_");
+                  clab=cll[0];
+                }
                 var sub=null;
                 if (!(clab in stidx)){
                   stidx[clab]={
@@ -9266,6 +9272,7 @@ const pb={
                 sub.u=tk.file;
               }
             }
+            console.log(pb.subtitles);
             vtt.init(pb.subtitles);
           }
 
