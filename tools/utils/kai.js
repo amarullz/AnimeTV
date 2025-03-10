@@ -84,62 +84,35 @@ const KAICODEX = {
       )
     );
   },
-  decMegaOld(n) {
-    var u = KAICODEX.safeAtob;
-    var a = KAICODEX.rc4;
-    var s = KAICODEX.replaceChars;
-    var r = KAICODEX.reverseString;
-    n = r(
-      s(
-        a(
-          '5ygxI8hjLiuDQ0',
-          u(
-            a('z9cWnXuoDtx', u(
-              s(
-                r(
-                  s(
-                    a(
-                      'EZnfG1IL6DF',
-                      u(
-                        r(
-                          u(n)
-                        )
-                      )
-                    ),
-                    'M2DCEbQmWOe', 'bEDCeOQ2mWM')
-                ),
-                'Lw7nfcTNz3FbWy', 'TFf37zywcNWnLb'
-              )
-            )
-            )
-          )
-        ), 'HK0TOgYzU1C', 'T1CHYU0OKgz'
-      )
-    );
-    return decodeURIComponent(n);
-  },
   decMega(n) {
     var o = KAICODEX.safeAtob;
     var e = KAICODEX.rc4;
     var c = KAICODEX.replaceChars;
     var v = KAICODEX.reverseString;
-    n = n = c(
+    n = c(
       e('fnxEj3tD4Bl0X',
-        o(v(v(
+        o(
           e('IjilzMV57GrnF',
-            o(c(
-              v(
-                c(
-                  e('PlzI69YVCtGwoa8', o(o(n))),
-                  'c2IfHZwSX1mj',
-                  'mwfXcS2ZjI1H'
-                )
-              ),
-              '82NkgQDYbIF',
-              '82IQNkFgYbD'
-            ))
+            o(
+              c(
+                v(
+                  c(
+                    e(
+                      'PlzI69YVCtGwoa8',
+                      o(
+                        o(n)
+                      )
+                    ),
+                    'c2IfHZwSX1mj',
+                    'mwfXcS2ZjI1H'
+                  )
+                ),
+                '82NkgQDYbIF',
+                '82IQNkFgYbD'
+              )
+            )
           )
-        )))
+        )
       ),
       'crwkth05iJR8',
       'JRkt8rw0i5ch'
