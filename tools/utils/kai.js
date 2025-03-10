@@ -1,126 +1,154 @@
-const KAICODEX={
+const KAICODEX = {
   /* ANIMEKAI CODEX */
-  enc(n){
-    var u=KAICODEX.safeBtoa;
-    var a=KAICODEX.rc4;
-    var s=KAICODEX.replaceChars;
-    var r=KAICODEX.reverseString;
+  enc(n) {
+    var u = KAICODEX.safeBtoa;
+    var a = KAICODEX.rc4;
+    var s = KAICODEX.replaceChars;
+    var r = KAICODEX.reverseString;
     n = u(
       s(
-          u(
-              a(
-                  'sXmH96C4vhRrgi8', 
-                  r(
-                    r(
-                          u(
-                              a('kOCJnByYmfI', s(
-                                s(
-                                  r(
-                                              u(
-                                                  a('0DU8ksIVlFcia2', n)
-                                              )
-                                          ),
-                                          '1wctXeHqb2', '1tecHq2Xbw'
-                                      ),
-                                      '48KbrZx1ml', 'Km8Zb4lxr1'
-                                  )
-                              )
-                          )
-                      )
+        u(
+          a(
+            'sXmH96C4vhRrgi8',
+            r(
+              r(
+                u(
+                  a('kOCJnByYmfI', s(
+                    s(
+                      r(
+                        u(
+                          a('0DU8ksIVlFcia2', n)
+                        )
+                      ),
+                      '1wctXeHqb2', '1tecHq2Xbw'
+                    ),
+                    '48KbrZx1ml', 'Km8Zb4lxr1'
                   )
+                  )
+                )
               )
-          ), 'hTn79AMjduR5', 'djn5uT7AMR9h')
-      );
+            )
+          )
+        ), 'hTn79AMjduR5', 'djn5uT7AMR9h')
+    );
     return encodeURIComponent(n);
   },
-  encPlain(n){
+  encPlain(n) {
     return KAICODEX.safeBtoa(KAICODEX.rc4(
-        'n1PEbDBiipbJZvZc',
-        encodeURIComponent(n)
+      'n1PEbDBiipbJZvZc',
+      encodeURIComponent(n)
     ));
   },
-  dec(n){
-    var u=KAICODEX.safeAtob;
-    var a=KAICODEX.rc4;
-    var s=KAICODEX.replaceChars;
-    var r=KAICODEX.reverseString;
+  dec(n) {
+    var u = KAICODEX.safeAtob;
+    var a = KAICODEX.rc4;
+    var s = KAICODEX.replaceChars;
+    var r = KAICODEX.reverseString;
     n = a(
-        '0DU8ksIVlFcia2', 
-        u(
-            r(
-                s(
-                    s(
-                        a('kOCJnByYmfI', 
-                          u(
-                                r(
-                                    r(
-                                        a(
-                                            'sXmH96C4vhRrgi8',
-                                            u(
-                                                s(
-                                                  u(n),
-                                                    'djn5uT7AMR9h',
-                                                    'hTn79AMjduR5'
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        ), 'Km8Zb4lxr1', '48KbrZx1ml'
-                    ),
-                    '1tecHq2Xbw', '1wctXeHqb2'
+      '0DU8ksIVlFcia2',
+      u(
+        r(
+          s(
+            s(
+              a('kOCJnByYmfI',
+                u(
+                  r(
+                    r(
+                      a(
+                        'sXmH96C4vhRrgi8',
+                        u(
+                          s(
+                            u(n),
+                            'djn5uT7AMR9h',
+                            'hTn79AMjduR5'
+                          )
+                        )
+                      )
+                    )
+                  )
                 )
-            )
+              ), 'Km8Zb4lxr1', '48KbrZx1ml'
+            ),
+            '1tecHq2Xbw', '1wctXeHqb2'
+          )
         )
+      )
     )
     return decodeURIComponent(n);
   },
-  decPlain(n){
+  decPlain(n) {
     return decodeURIComponent(
       KAICODEX.rc4(
-          'n1PEbDBiipbJZvZc', 
-          KAICODEX.safeAtob(n)
+        'n1PEbDBiipbJZvZc',
+        KAICODEX.safeAtob(n)
       )
     );
   },
-  decMega(n) {
-    var u=KAICODEX.safeAtob;
-    var a=KAICODEX.rc4;
-    var s=KAICODEX.replaceChars;
-    var r=KAICODEX.reverseString;
+  decMegaOld(n) {
+    var u = KAICODEX.safeAtob;
+    var a = KAICODEX.rc4;
+    var s = KAICODEX.replaceChars;
+    var r = KAICODEX.reverseString;
     n = r(
-        s(
-            a(
-                '5ygxI8hjLiuDQ0',
-                u(
-                    a('z9cWnXuoDtx', u(
-                        s(
-                            r(
-                                s(
-                                    a(
-                                        'EZnfG1IL6DF',
-                                        u(
-                                            r(
-                                                u(n)
-                                            )
-                                        )
-                                    ),
-                                    'M2DCEbQmWOe', 'bEDCeOQ2mWM')
-                                ), 
-                                'Lw7nfcTNz3FbWy', 'TFf37zywcNWnLb'
-                            )
+      s(
+        a(
+          '5ygxI8hjLiuDQ0',
+          u(
+            a('z9cWnXuoDtx', u(
+              s(
+                r(
+                  s(
+                    a(
+                      'EZnfG1IL6DF',
+                      u(
+                        r(
+                          u(n)
                         )
-                    )
+                      )
+                    ),
+                    'M2DCEbQmWOe', 'bEDCeOQ2mWM')
+                ),
+                'Lw7nfcTNz3FbWy', 'TFf37zywcNWnLb'
+              )
+            )
+            )
+          )
+        ), 'HK0TOgYzU1C', 'T1CHYU0OKgz'
+      )
+    );
+    return decodeURIComponent(n);
+  },
+  decMega(n) {
+    var o = KAICODEX.safeAtob;
+    var e = KAICODEX.rc4;
+    var c = KAICODEX.replaceChars;
+    var v = KAICODEX.reverseString;
+    n = n = c(
+      e('fnxEj3tD4Bl0X',
+        o(v(v(
+          e('IjilzMV57GrnF',
+            o(c(
+              v(
+                c(
+                  e('PlzI69YVCtGwoa8', o(o(n))),
+                  'c2IfHZwSX1mj',
+                  'mwfXcS2ZjI1H'
                 )
-            ), 'HK0TOgYzU1C', 'T1CHYU0OKgz'
-        )
+              ),
+              '82NkgQDYbIF',
+              '82IQNkFgYbD'
+            ))
+          )
+        )))
+      ),
+      'crwkth05iJR8',
+      'JRkt8rw0i5ch'
     );
     return decodeURIComponent(n);
   },
 
   /* Helper */
-  rc4:function(key, str) {
+  rc4: function (key, str) {
     var s = [], j = 0, x, res = '';
     for (var i = 0; i < 256; i++) {
       s[i] = i;
@@ -143,20 +171,20 @@ const KAICODEX={
     }
     return res;
   },
-  safeBtoa:function(s){
+  safeBtoa: function (s) {
     return btoa(s).replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '');
   },
-  safeAtob:function(s){
+  safeAtob: function (s) {
     return atob(s.replace(/_/g, '/').replace(/-/g, '+'));
   },
-  reverseString:function(s) {
+  reverseString: function (s) {
     return s.split('').reverse().join('');
   },
-  replaceChars:function(s,f,r){
+  replaceChars: function (s, f, r) {
     let i = f.length;
     let m = {};
-    while (i-- && (m[f[i]] = r[i])){}
-    return s.split("").map(v=>m[v]||v).join('');
+    while (i-- && (m[f[i]] = r[i])) { }
+    return s.split("").map(v => m[v] || v).join('');
   }
 };
 
