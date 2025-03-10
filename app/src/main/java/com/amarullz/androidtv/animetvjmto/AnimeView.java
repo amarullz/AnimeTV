@@ -1970,7 +1970,7 @@ import javax.crypto.spec.SecretKeySpec;
     public void setLandscape(boolean stat){
       activity.runOnUiThread(()->{
         if (stat){
-          activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+          activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         }
         else{
           activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
