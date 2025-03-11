@@ -2080,13 +2080,21 @@ c.loader {
 #vtt_subtitle *{
   --text-shadow-color:#000;
   
+  -webkit-paint-order: stroke fill !important;
   paint-order: stroke fill !important;
   -webkit-text-stroke-color: var(--text-shadow-color);
 
   -webkit-filter: drop-shadow(.1vw .1vw .05vw rgba(10,10,10,.5));
-  -webkit-text-stroke-width: .2vw;
+  -webkit-text-stroke-width: 0;
 }
-
+.vtt_style_no_outline *{
+  text-shadow: 0 0 .1vw  var(--text-shadow-color);
+  -webkit-text-stroke-width: 0 !important;
+}
+.vtt_style_thin_outline *{
+  -webkit-filter: drop-shadow(.15vw .15vw .05vw rgba(10,10,10,.5)) !important;
+  -webkit-text-stroke-width: .2vw !important;
+}
 .vtt_style_medium_outline *{
   -webkit-filter: drop-shadow(.15vw .15vw .05vw rgba(10,10,10,.5)) !important;
   -webkit-text-stroke-width: .4vw !important;

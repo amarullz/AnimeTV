@@ -6564,6 +6564,7 @@ const vtt={
       "60% Transparent"
     ],
     [
+      "No Outline",
       "Thin Outline",
       "Medium Outline",
       "Thick Outline",
