@@ -15964,8 +15964,8 @@ const home={
       }
       else{
         home.settings.open_qrcode(
-          "Join Discord Server<br>https://discord.gg/xPmEnY32",
-          "https://discord.gg/xPmEnY32"
+          "Join Discord Server<br>https://discord.gg/syYkTDZ9",
+          "https://discord.gg/syYkTDZ9"
         );
       }
     },

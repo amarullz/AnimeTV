@@ -225,7 +225,7 @@ const updater={
         console.log("Testing Writable...");
         var testPath=path.join(resPath,'testupdate.txt');
         fs.writeFileSync(testPath, 'test', { flag: "w+"});
-        if (fs.existsSync(testPath) && false){
+        if (fs.existsSync(testPath)){
           console.log("Non-sudo Update...");
           fs.unlinkSync(testPath);
           var updaterPathNoAdmin = path.join(common.userPath(), 'updater.sh');

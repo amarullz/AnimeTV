@@ -138,12 +138,14 @@ const main={
     shell.openExternal(d);
   },
   handlerUpdateDownload(e,d){
-    updater.updateDownload(d,function(v){
-      if (v){
-        console.log(v);
-        updater.update(v.save);
-      }
-    });
+    if (process.platform !== "darwin"){
+      updater.updateDownload(d,function(v){
+        if (v){
+          console.log(v);
+          updater.update(v.save);
+        }
+      });
+    }
   },
   handlerVarsLoad(e,d){
     e.returnValue = main.vars;
