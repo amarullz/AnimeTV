@@ -36,9 +36,9 @@ const intercept = require("./libs/intercept.js");
 const updater = require("./libs/updater.js");
 
 /* check for update */
-if (updater.update()){
-  return;
-}
+// if (updater.update()){
+//   return;
+// }
 
 /* ignore connection limit on source domains */
 app.commandLine.appendSwitch('ignore-connections-limit', common.dns.join(", "));
@@ -141,7 +141,7 @@ const main={
     updater.updateDownload(d,function(v){
       if (v){
         console.log(v);
-        updater.update();
+        updater.update(v.save);
       }
     });
   },

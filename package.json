@@ -1,36 +1,28 @@
 {
     "name": "animetv",
-    "version": "5.8.2",
+    "version": "5.8.3",
     "description": "AnimeTV for Desktop",
     "main": "electron/src/animetv.js",
     "scripts": {
         "start": "electron .",
-
         "build-debug-apk": "gradlew assembleDebug",
         "build-release-apk": "gradlew assembleRelease",
-
         "update-version": "node electron/ver.js build",
-        
         "pack-win-arm64": "npm run update-version && electron-packager . AnimeTV --overwrite --platform=win32 --arch=arm64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png --icon=electron/animetv.ico",
-        "pack-win": "npm run update-version && electron-packager . AnimeTV --overwrite --platform=win32  --arch=x64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png --icon=electron/animetv.ico && npm run pack-win-arm64",
-
+        "pack-win-x64": "npm run update-version && electron-packager . AnimeTV --overwrite --platform=win32  --arch=x64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png --icon=electron/animetv.ico",
+        "pack-win": "npm run pack-win-x64 && npm run pack-win-arm64",
         "pack-linux": "npm run update-version && electron-packager . animetv --overwrite --platform=linux  --arch=x64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png",
         "pack-linux-arm64": "npm run update-version && electron-packager . animetv --overwrite --platform=linux  --arch=arm64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png",
         "pack-mac": "npm run update-version && electron-packager . animetv --overwrite --platform=darwin --arch=arm64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png --icon=electron/animetv.icns",
         "pack-mac-x64": "npm run update-version && electron-packager . animetv --overwrite --platform=darwin --arch=x64 --prune=true --out=electron/builds --asar --ignore=.gradle --ignore=.git --ignore=.idea --ignore=gradle --ignore=keystore --ignore=tools --ignore=.gitignore --ignore=.gitattributes --ignore=adbwsl.bat --ignore=CHANGELOGS.md --ignore=gradle* --ignore=local* --ignore=server* --ignore=settings* --ignore=README* --ignore=app/build --ignore=app/proguard-rules.pro --ignore=app/libs --ignore=app/src/main/java --ignore=app/src/main/res --ignore=app/src/main/AndroidManifest.xml --ignore=app/src/main/ic_launcher-playstore.png --icon=electron/animetv.icns",
-
         "build-win": "npm run pack-win && electron-installer-windows --src electron/builds/animetv-win32-x64 --config electron/win-config.json",
-
         "build-linux": "npm run pack-linux && electron-installer-debian --src electron/builds/animetv-linux-x64 --arch amd64 --config electron/deb-config.json && electron-installer-redhat --src electron/builds/animetv-linux-x64 --arch x86_64 --config electron/deb-config.json",
         "build-linux-arm64": "npm run pack-linux-arm64 && electron-installer-debian --src electron/builds/animetv-linux-arm64 --arch aarch64 --config electron/deb-config.json && electron-installer-redhat --src electron/builds/animetv-linux-arm64 --arch aarch64 --config electron/deb-config.json",
-
         "build-mac": "npm run pack-mac && cd ./electron/builds/animetv-darwin-arm64/ && electron-installer-dmg animetv.app animetv-mac-arm64 && cd ../../../",
         "build-mac-x64": "npm run pack-mac-x64 && cd ./electron/builds/animetv-darwin-x64/ && electron-installer-dmg animetv.app animetv-mac-x64 && cd ../../../",
-
         "wsl-build-linux": "bash -c \"npm run build-linux && npm run build-linux-arm64\"",
-
-        "zip-win":"cd ./electron/builds/AnimeTV-win32-x64/ && tar -acvf ../AnimeTV-win32-x64-portable.zip * && cd ../../../"
-
+        "wsl-pack-linux-x64": "bash -c \"npm run pack-linux\"",
+        "zip-win": "cd ./electron/builds/AnimeTV-win32-x64/ && tar -acvf ../AnimeTV-win32-x64-portable.zip * && cd ../../../"
     },
     "author": {
         "name": "amarullz.com",
@@ -49,6 +41,7 @@
         "electron-installer-redhat": "^3.0.0"
     },
     "dependencies": {
+        "@vscode/sudo-prompt": "^9.3.1",
         "axios": "^1.7.4",
         "crypto-js": "^4.2.0",
         "doh-js-client": "^0.2.1",

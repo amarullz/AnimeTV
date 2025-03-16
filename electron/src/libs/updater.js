@@ -2,40 +2,64 @@ const { net, protocol, app } = require('electron')
 const fs = require('fs')
 const { spawn } = require('child_process')
 const zlib = require('zlib');
-
+const path = require("path");
+const sudoPrompt = require("@vscode/sudo-prompt");
+const common = require("./common.js");
 const updateAsarFn='update.asar.bin';
 
-const updaterWin32 = `@echo off
-cd /D "%~dp0"
-IF EXIST `+updateAsarFn+` (
-  echo Updating
-  timeout 2
-  del /F /Q app.asar.bak
-  ren app.asar app.asar.bak
-  ren `+updateAsarFn+` app.asar
-) ELSE (
-  echo Not Updating
-)
+function waiterWin32(dir,fn){
+  return `@echo off
+cd /D "`+dir+`"
+SET LookForFile="`+fn+`"
+echo Updating AnimeTV
+:CheckForFile
+IF NOT EXIST %LookForFile% GOTO FoundIt
+TIMEOUT /T 3 /NOBREAK > nul
+GOTO CheckForFile
+:FoundIt
 cd ..
 start /b AnimeTV
 `;
+}
 
-const updaterUnix = `#!/bin/sh
-cd "$(dirname "$0")"
+function updaterWin32(dir,fn,addstr){
+  return `@echo off
+cd /D "`+dir+`"
+echo Updating AnimeTV
+copy /y "`+fn+`" `+updateAsarFn+` > nul
+IF EXIST `+updateAsarFn+` (
+  TIMEOUT /T 4 /NOBREAK > nul
+  del /F /Q app.asar.bak > nul
+  ren app.asar app.asar.bak > nul
+  ren `+updateAsarFn+` app.asar > nul
+) ELSE (
+  echo Not Updating
+)
+del /F /Q "`+fn+`" > nul
+cd ..
+`+addstr+`
+`;
+}
+
+function updaterUnix(dir,fn,addstr){
+  return `#!/bin/sh
+cd "`+dir+`"
+cp -f "`+fn+`" `+updateAsarFn+`
 if [ -e `+updateAsarFn+` ]
 then
     echo "Updating"
-    sleep 2
+    sleep 3
     rm -f app.asar.bak
     mv app.asar app.asar.bak
     mv `+updateAsarFn+` app.asar
 else
     echo "Not Updating"
 fi
-
+rm -f "`+fn+`"
 cd ..
-nohup ./animetv &> /dev/null &disown
+`+addstr+`
 `;
+}
 
 function getAppPath(){
   const AppPath = app.getAppPath();
@@ -56,12 +80,14 @@ const updater={
         cb(v);
       }
     }
+
     const resPath=getAppPath();
     if (!resPath){
       callCb(false);
       return;
     }
-    const savePath=resPath+updateAsarFn;
+    const savePath=path.join(common.userPath(), updateAsarFn);
+    const movePath=resPath+updateAsarFn;
     net.fetch(
       url,
       {
@@ -78,7 +104,7 @@ const updater={
           fs.writeFileSync(savePath,data,{ 
             flag: "w+"
           });
-          callCb({save:savePath, size:body.length});
+          callCb({save:savePath, movePath:movePath, size:body.length});
         }
         catch(e){
           callCb(false);
@@ -92,48 +118,110 @@ const updater={
       callCb(false);
     });
   },
-  update(){
+  update(savePath){
     const resPath = getAppPath();
     if (!resPath){
       return false;
     }
-    const updatePath = resPath+updateAsarFn;
 
-    if (!fs.existsSync(updatePath)){
-      /* no update asar */
-      console.log("No Update Asar...");
-      return false;
+    if (savePath){
+      if (!fs.existsSync(savePath)){
+        /* no update asar */
+        console.log("No Downloaded Update Asar...");
+        return false;
+      }
+    }
+    else{
+      savePath = path.join(common.userPath(), updateAsarFn);
+      if (!fs.existsSync(savePath)){
+        /* no update asar */
+        console.log("No Update Asar...");
+        return false;
+      }
     }
 
     /* WINDOWS */
     if (process.platform === 'win32'){
-      console.log("Updating Windows...")
-      const updaterPath = resPath+'updater.bat';
-      fs.writeFileSync(updaterPath, updaterWin32, { 
-        flag: "w+", 
-        mode: 0o777 
-      });
-      spawn('cmd', ['/c', updaterPath], {
-        detached: true,
-        stdio: 'ignore'
-      });
+      console.log("Updating Windows...");
+      var updated=false;
+
+      try {
+        /* No Need SUDO */
+        console.log("Testing Writable...");
+        var testPath=path.join(resPath,'testupdate.txt');
+        fs.writeFileSync(testPath, 'test', { flag: "w+"});
+        if (fs.existsSync(testPath)){
+          console.log("Is Writable...");
+          fs.unlinkSync(testPath);
+          var updaterPathNoAdmin = path.join(common.userPath(), 'updater.bat');
+          fs.writeFileSync(updaterPathNoAdmin, updaterWin32(resPath,savePath,'start /b AnimeTV'), {
+            flag: "w+", 
+            mode: 0o777 
+          });
+          spawn('cmd',['/c',updaterPathNoAdmin], {
+            detached: true,
+            stdio: 'ignore',
+            windowsHide: false,
+            shell:true
+          });
+          updated=true;
+        }
+        else{
+          console.log("Non writable...");
+        }
+      } catch (err) {
+        console.log("Exception:"+err);
+        updated=false;
+      }
+      if (!updated){
+        console.log("Need Admin Update...");
+        var updaterPath = path.join(common.userPath(), 'updater.bat');
+        fs.writeFileSync(updaterPath, updaterWin32(resPath,savePath,''), { 
+          flag: "w+", 
+          mode: 0o777 
+        });
+
+        var waiterPath = path.join(common.userPath(), 'waiter.bat');
+        fs.writeFileSync(waiterPath, waiterWin32(resPath,savePath), { 
+          flag: "w+", 
+          mode: 0o777 
+        });
+        
+        console.log("EXEC: "+updaterPath);
+        sudoPrompt.exec('cmd /c "'+updaterPath+'"', {
+          name: 'AnimeTV',
+          shell: true
+        }, (error, stdout, stderr) => {
+        });
+
+        console.log("EXEC: "+waiterPath);
+        spawn('cmd',['/c',waiterPath], {
+          detached: true,
+          stdio: 'ignore',
+          windowsHide: false,
+          shell:true
+        });
+      }
     }
     else{
-      console.log("Updating Linux...")
-      const updaterPath = resPath+'updater.sh';
-      fs.writeFileSync(updaterPath, updaterUnix, { 
+      console.log("Updating Linux...");
+      var updaterPath = path.join(common.userPath(), 'updater.sh');
+      fs.writeFileSync(updaterPath, updaterUnix(resPath,savePath,''), { 
         flag: "w+", 
         mode: 0o777 
       });
-      spawn('bash', [updaterPath], {
-        detached: true,
-        stdio: 'ignore'
+      sudoPrompt.exec('bash "'+updaterPath+'"', {
+        name: 'AnimeTV',
+      }, (error, stdout, stderr) => {
       });
     }
 
     /* Quit */
-    app.exit(0);
-    app.quit(0);
+    setTimeout(function(){
+      app.exit(0);
+      app.quit(0);
+    },2000);
+    
     return true;
   }
 };

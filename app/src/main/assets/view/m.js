@@ -15796,13 +15796,16 @@ const home={
             home.settings.about.P,
             "<c>partly_cloudy_night</c> Check for Nightly Build"
           );
-          home.settings.tools._s_checkupdate=$n(
-            'div','',{
-              action:'*checkupdate'
-            },
-            home.settings.about.P,
-            "<c>update</c> Check for Update"
-          );
+
+          if (!_ISELECTRON){
+            home.settings.tools._s_checkupdate=$n(
+              'div','',{
+                action:'*checkupdate'
+              },
+              home.settings.about.P,
+              "<c>update</c> Check for Update"
+            );
+          }
         }
       }
       home.settings.initmore_done=true;
