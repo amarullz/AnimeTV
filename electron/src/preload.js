@@ -198,8 +198,8 @@ const api={
   /* android will not implemented */
   getSysHeight(nav){ return 0 },
   haveMic(checkSpeech){ return false },
-  installApk(url,isNightly){},
-  isOnUpdate(){ return true },
+  installApk(url,isNightly){ console.log("UPDATE URL: "+url); },
+  isOnUpdate(){ return false },
   showIme(show){},
   getArg(name){ return ""; },
   clearArg(){},

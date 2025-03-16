@@ -5085,7 +5085,8 @@ const _API={
         pb.cfg_setactive(home.settings.tools._s_checknightly,true);
       }
     }
-    $ap('https://animetv.amarullz.com/last-nightly',function(r){
+    var urlcheck = 'https://animetv.amarullz.com/last-nightly'+(_ISELECTRON?'-pc':'');
+    $ap(urlcheck,function(r){
       if (r.ok){
         try{
           var nb=JSON.parse(r.responseText);
@@ -5130,14 +5131,18 @@ const _API={
                     (d.nightly?"\n\n**CAUTION: __NIGHTLY BUILD MAY UNSTABLE !!!__**\n":"\n\n")+
                     (d.nightly?"**ARE YOU SURE YOU WANT TO INSTALL NIGHTLY BUILD?**":"**Install this stable build?**");
                   ctxt=md2html(ctxt,true);
-                  if (_API.confirmDialog((d.nightly?"Nightly ":"Release ")+d.name,ctxt,true)){
+                  _API.confirm((d.nightly?"Nightly ":"Release ")+d.name,ctxt,function(isok){
+                    if (!isok){
+                      return;
+                    }
                     _API.showToast(
                       d.nightly?"Downloading Nightly Build...":"Downloading Stable Build..."
                     );
+
                     _JSAPI.installApk(d.url,d.nightly);
                     setTimeout(reCheckForOnUpdate,500);
                     return;
-                  }
+                  });
                 }
               },
               true,
@@ -15783,7 +15788,7 @@ const home={
         //   "<c>export_notes</c> Export CSV List"
         // );
 
-        if (!_ISELECTRON && home.profiles.isadmin()){
+        if (/*!_ISELECTRON &&*/ home.profiles.isadmin()){
           home.settings.tools._s_checknightly=$n(
             'div','',{
               action:'*checknightly'

@@ -4551,7 +4551,7 @@ c.loader {
   width: calc(100% - 2vw);
 }
 #listorder #listorder_window.inputdialog{
-  width:30vw;
+  width:40vw;
 }
 
 #listorder .listorder_tips{
