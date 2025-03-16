@@ -48,7 +48,7 @@ cp -f "`+fn+`" `+updateAsarFn+`
 if [ -e `+updateAsarFn+` ]
 then
     echo "Updating"
-    sleep 3
+    sleep 4
     rm -f app.asar.bak
     mv app.asar app.asar.bak
     mv `+updateAsarFn+` app.asar
@@ -58,6 +58,19 @@ fi
 rm -f "`+fn+`"
 cd ..
 `+addstr+`
+`;
+}
+
+function waiterUnix(dir,fn){
+  return `#!/bin/sh
+cd "`+dir+`"
+echo Updating AnimeTV
+while [ -f "`+fn+`" ]
+do
+  sleep 2
+done
+cd ..
+nohup ./animetv &> /dev/null &disown
 `;
 }
 
@@ -151,7 +164,7 @@ const updater={
         var testPath=path.join(resPath,'testupdate.txt');
         fs.writeFileSync(testPath, 'test', { flag: "w+"});
         if (fs.existsSync(testPath)){
-          console.log("Is Writable...");
+          console.log("Non-Admin Update...");
           fs.unlinkSync(testPath);
           var updaterPathNoAdmin = path.join(common.userPath(), 'updater.bat');
           fs.writeFileSync(updaterPathNoAdmin, updaterWin32(resPath,savePath,'start /b AnimeTV'), {
@@ -174,7 +187,7 @@ const updater={
         updated=false;
       }
       if (!updated){
-        console.log("Need Admin Update...");
+        console.log("Admin Update...");
         var updaterPath = path.join(common.userPath(), 'updater.bat');
         fs.writeFileSync(updaterPath, updaterWin32(resPath,savePath,''), { 
           flag: "w+", 
@@ -205,15 +218,64 @@ const updater={
     }
     else{
       console.log("Updating Linux...");
-      var updaterPath = path.join(common.userPath(), 'updater.sh');
-      fs.writeFileSync(updaterPath, updaterUnix(resPath,savePath,''), { 
-        flag: "w+", 
-        mode: 0o777 
-      });
-      sudoPrompt.exec('bash "'+updaterPath+'"', {
-        name: 'AnimeTV',
-      }, (error, stdout, stderr) => {
-      });
+      var updated=false;
+
+      try {
+        /* No Need SUDO */
+        console.log("Testing Writable...");
+        var testPath=path.join(resPath,'testupdate.txt');
+        fs.writeFileSync(testPath, 'test', { flag: "w+"});
+        if (fs.existsSync(testPath) && false){
+          console.log("Non-sudo Update...");
+          fs.unlinkSync(testPath);
+          var updaterPathNoAdmin = path.join(common.userPath(), 'updater.sh');
+          fs.writeFileSync(updaterPathNoAdmin, updaterUnix(resPath,savePath,'nohup ./animetv &> /dev/null &disown'), {
+            flag: "w+", 
+            mode: 0o777 
+          });
+          spawn('bash',[updaterPathNoAdmin], {
+            detached: true,
+            stdio: 'ignore',
+            windowsHide: false,
+            shell:true
+          });
+          updated=true;
+        }
+        else{
+          console.log("Non writable...");
+        }
+      } catch (err) {
+        console.log("Exception:"+err);
+        updated=false;
+      }
+      if (!updated){
+        console.log("Linux sudo updating...");
+        var updaterPath = path.join(common.userPath(), 'updater.sh');
+        fs.writeFileSync(updaterPath, updaterUnix(resPath,savePath,''), { 
+          flag: "w+", 
+          mode: 0o777 
+        });
+
+        var waiterPath = path.join(common.userPath(), 'waiter.sh');
+        fs.writeFileSync(waiterPath, waiterUnix(resPath,savePath), { 
+          flag: "w+", 
+          mode: 0o777 
+        });
+
+        console.log("EXEC: "+updaterPath);
+        sudoPrompt.exec('bash "'+updaterPath+'"', {
+          name: 'AnimeTV',
+        }, (error, stdout, stderr) => {
+        });
+
+        console.log("EXEC: "+waiterPath);
+        spawn('bash',[waiterPath], {
+          detached: true,
+          stdio: 'ignore',
+          windowsHide: true,
+          shell:true
+        });
+      }
     }
 
     /* Quit */
