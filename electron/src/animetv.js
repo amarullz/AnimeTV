@@ -33,6 +33,12 @@ if (process.platform === 'win32'){
 
 const common = require("./libs/common.js");
 const intercept = require("./libs/intercept.js");
+const updater = require("./libs/updater.js");
+
+/* check for update */
+if (updater.update()){
+  return;
+}
 
 /* ignore connection limit on source domains */
 app.commandLine.appendSwitch('ignore-connections-limit', common.dns.join(", "));
