@@ -101,6 +101,7 @@ const main={
       ipcMain.handle('config-save', main.handlerConfigSave);
       ipcMain.handle('vars-save', main.handlerVarsSave);
       ipcMain.handle('intent-start', main.handlerIntent);
+      ipcMain.handle('download-update', main.handlerUpdateDownload);
       ipcMain.handle('set-url', (e,d)=>{
         if (d!=''){
           main.win.loadURL(d);
@@ -135,6 +136,14 @@ const main={
   },
   handlerIntent(e,d){
     shell.openExternal(d);
+  },
+  handlerUpdateDownload(e,d){
+    updater.updateDownload(d,function(v){
+      if (v){
+        console.log(v);
+        updater.update();
+      }
+    });
   },
   handlerVarsLoad(e,d){
     e.returnValue = main.vars;

@@ -27,6 +27,7 @@ const CryptoJS = require("crypto-js");
 
 /* Versions */
 var versions;
+var isOnDownloadUpdate = false;
 try{
   versions=require("./version.js");
 }catch(e){
@@ -198,8 +199,12 @@ const api={
   /* android will not implemented */
   getSysHeight(nav){ return 0 },
   haveMic(checkSpeech){ return false },
-  installApk(url,isNightly){ console.log("UPDATE URL: "+url); },
-  isOnUpdate(){ return false },
+  installApk(url,isNightly){ 
+    console.log("UPDATE URL: "+url);
+    isOnDownloadUpdate=true;
+    invoke('download-update',url);
+  },
+  isOnUpdate(){ return isOnDownloadUpdate },
   showIme(show){},
   getArg(name){ return ""; },
   clearArg(){},
