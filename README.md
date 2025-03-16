@@ -11,6 +11,8 @@ AnimeTV is Android TV application for watching your favorite anime series and mo
 - **NIGHTLY APK**
   - AFTV Downloader code: **`196130`**
 
+https://private-user-images.githubusercontent.com/1386831/423260195-dac0445a-086c-4f10-8443-15cc3da48e4b.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDIxNjY3NDEsIm5iZiI6MTc0MjE2NjQ0MSwicGF0aCI6Ii8xMzg2ODMxLzQyMzI2MDE5NS1kYWMwNDQ1YS0wODZjLTRmMTAtODQ0My0xNWNjM2RhNDhlNGIubXA0P1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI1MDMxNiUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTAzMTZUMjMwNzIxWiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9ODAwODBiNzk0MzllZjY5NTA4M2IzYWU4ZjE4NWE3ZDI2ZDBlNTEwODI0MWNhYzQ4ZTQwY2VjNDEyZWJjNTBjZiZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.03e46iRcNv2oMjlsFtmxxhaZ4bnMjeqHe4DjPMMvLKk
+
 ## Donation & More Information
 - **Donate Project :** [Paypal Link - https://paypal.me/amarullz](https://paypal.me/amarullz)
 - **Join Discussion on Discord :**  [https://discord.gg/syYkTDZ9](https://discord.gg/syYkTDZ9)
