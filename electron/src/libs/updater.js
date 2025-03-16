@@ -25,13 +25,13 @@ then
     sleep 2
     rm -f app.asar.bak
     mv app.asar app.asar.bak
-    mv. update.asar app.asar
+    mv update.asar app.asar
 else
     echo "Not Updating"
 fi
 
 cd ..
-./AnimeTV &
+nohup ./animetv &> /dev/null &disown
 `;
 
 const updater={
@@ -66,7 +66,7 @@ const updater={
       });
     }
     else{
-      console.log("Updating Windows...")
+      console.log("Updating Linux...")
       const updaterPath = resPath+'updater.sh';
       fs.writeFileSync(updaterPath, updaterUnix, { 
         flag: "w+", 
