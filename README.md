@@ -1,4 +1,4 @@
-# AnimeTV for Android TV & Google TV
+# AnimeTV
 
 AnimeTV is cross-platform anime streaming application. It supports AndroidTV, GoogleTV, FireTV, Android Smartphone, Windows (x64 & arm64), Linux (portable, deb, rpm) and MacOS (no binary).
 
