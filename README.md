@@ -16,8 +16,11 @@ You can select any source that suit your needs, easy to install, contains alot o
 ## Download URL and Code
 - **STABLE APK**
   - AFTV Downloader code: **`601972`**
+  - Github Release: **[https://github.com/amarullz/AnimeTV/releases](https://github.com/amarullz/AnimeTV/releases)**
 - **NIGHTLY APK**
   - AFTV Downloader code: **`196130`**
+  - Github Actions: **[https://github.com/amarullz/AnimeTV/actions](https://github.com/amarullz/AnimeTV/actions)**
+  - Nightly.link: **[https://nightly.link/amarullz/AnimeTV/workflows/nightly-build/master?preview](https://nightly.link/amarullz/AnimeTV/workflows/nightly-build/master?preview)**
 
 https://private-user-images.githubusercontent.com/1386831/423260195-dac0445a-086c-4f10-8443-15cc3da48e4b.mp4
 
