@@ -8,12 +8,20 @@ You can select any source that suit your needs, easy to install, contains alot o
 
 > Source data is from various *anime streaming website*. Developer doesn't have any affiliation with it. Please read [DISCLAIMER](#DISCLAIMER)
 
-## Donation & More Information
+# Donation & More Information
 - 💖 **Sponsor Project :** [https://github.com/sponsors/amarullz](https://github.com/sponsors/amarullz)
 - 💝 **Donate Project :** [Paypal: https://paypal.me/amarullz](https://paypal.me/amarullz)
 - ❓ **Join Discussion on Discord :**  [https://discord.gg/syYkTDZ9](https://discord.gg/syYkTDZ9)
 
-## Download URL and Code
+# DISCLAIMER
+* AnimeTV only scrapes links from various websites and makes it easier for users to find anime.
+* AnimeTV or any of its developer doesn't host any of the contents found inside the app. All images and anime information found in the app are taken from various public APIs.
+* All anime found in AnimeTV are taken from various 3rd party anime hosting websites.
+* AnimeTV or it's owners aren't liable for any misuse of any of the contents found inside or outside of the app and cannot be held accountable for the distribution of any of the contents found inside the app.
+* By using AnimeTV, you comply to the fact that the developer of the app is not responsible for any of the contents found in the app; nonetheless they may or may not be from their legitimate sources.
+* If the internet infringement issues are involved, please contact the source website. The developer does not assume any legal responsibility.
+
+# Download URL and Code
 - **STABLE APK**
   - AFTV Downloader code: **`601972`**
   - Github Release: **[https://github.com/amarullz/AnimeTV/releases](https://github.com/amarullz/AnimeTV/releases)**
@@ -24,13 +32,7 @@ You can select any source that suit your needs, easy to install, contains alot o
 
 https://private-user-images.githubusercontent.com/1386831/423260195-dac0445a-086c-4f10-8443-15cc3da48e4b.mp4
 
-# DISCLAIMER
-* AnimeTV only scrapes links from various websites and makes it easier for users to find anime.
-* AnimeTV or any of its developer doesn't host any of the contents found inside the app. All images and anime information found in the app are taken from various public APIs.
-* All anime found in AnimeTV are taken from various 3rd party anime hosting websites.
-* AnimeTV or it's owners aren't liable for any misuse of any of the contents found inside or outside of the app and cannot be held accountable for the distribution of any of the contents found inside the app.
-* By using AnimeTV, you comply to the fact that the developer of the app is not responsible for any of the contents found in the app; nonetheless they may or may not be from their legitimate sources.
-* If the internet infringement issues are involved, please contact the source website. The developer does not assume any legal responsibility.
+
 
 # Screenshot
 ![Homescreen](https://github.com/amarullz/AnimeTV/assets/1386831/d05c7e5d-8abc-4fed-9183-0c58aa815c44)
