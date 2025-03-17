@@ -2,7 +2,7 @@
 
 AnimeTV is cross-platform anime streaming application. It supports AndroidTV, GoogleTV, FireTV, Android Smartphone, Windows (x64 & arm64), Linux (portable, deb, rpm) and MacOS (no binary).
 
-It's optimized for TV interface and great support of TV remote control for navigation, Completely no Ads, Full of features, and no hidden malicious code inside (every release binary is automated by github actions).
+It's optimized for TV interface and great support of TV remote control for navigation, Completely no Ads, Full of features, no data collections, no analytics, and no hidden malicious code inside (every release binary is automated by github actions). It's **completely free to use** and open source (*so consider to [donate or sponsor](#DONATION-MORE-INFORMATION) the developer if you find it useful for you*).
 
 You can select any source that suit your needs, easy to install, contains alot of deal-breaker functions like skip-intro, skip-filter, playback speed, watchlist, history or even AniList and MAL integration.
 
