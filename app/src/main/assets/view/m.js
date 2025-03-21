@@ -6320,7 +6320,7 @@ const _API={
   },
 
   /* Fetch animetv-info last message */
-  discord_info_url:"https://animetv.amarullz.com/discord-info",
+  discord_info_url:"https://raw.githubusercontent.com/amarullz/AnimeTV/refs/heads/master/tools/home-info.json",
   discordFetch:function(cb){
     $ap(_API.discord_info_url+"?"+$tick(), cb);
   }
