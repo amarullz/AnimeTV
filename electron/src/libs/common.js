@@ -36,7 +36,7 @@ const common={
     "hianime.to",
     "aniwatchtv.to",
     "animeflix.live",
-    "kaas.to",
+    "kaa.mx",
     "api.gojo.live",
     "www.miruro.tv"
   ],

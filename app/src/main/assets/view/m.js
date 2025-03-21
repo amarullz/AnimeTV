@@ -37,7 +37,7 @@ const __SOURCE_DOMAINS=[
   ['hianime.to','hianime.sx','hianime.nz', 'aniwatchtv.to'],
   ['aniwatchtv.to'],
   ['animeflix.live','animeflix.gg','animeflix.li'], // rip
-  ['kaas.to','kaas.ro','kaa.mx'],
+  ['kaa.mx','kaas.to','kaas.ro'],
   ['api.gojo.wtf'],
   ['www.miruro.tv']
 ];
@@ -1586,14 +1586,15 @@ var kaas={
       }
     }
     var furi=null;
-    if ((pb.cfg_data.httpclient==1) && kaas.filterIsPost){
-      furi=jpath;
-      kaas.filterData=jsv;
-    }
-    else{
-      kaas.filterData=null;
-      furi="/__proxy/https://"+__DNS+jpath+"?"+enc(jsv);
-    }
+    // if ((pb.cfg_data.httpclient==1) && kaas.filterIsPost){
+    //   furi=jpath;
+    //   kaas.filterData=jsv;
+    // }
+    // else{
+      kaas.filterData=null;// kaa.mx
+      furi="/__proxy/https://kaa.mx"+jpath+"?"+enc(jsv);
+      // furi="/__proxy/https://"+__DNS+jpath+"?"+enc(jsv);
+    // }
     console.warn("KAAS FILTER = "+furi+" / "+kaas.filterData);
     return furi;
   },
