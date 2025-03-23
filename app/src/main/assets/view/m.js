@@ -1793,9 +1793,9 @@ var kaas={
           if (di.name=='VidStreaming'){
             vs=di;
             view_data.servers[stid].push(
-              pb.serverobj('VidStreaming',1)
+              pb.serverobj('VidStreaming',0)
             );
-            if (pb.server_selected(2)==1){
+            if (pb.server_selected(2)==0){
               hasod=true;
               od=di;
             }
@@ -1803,9 +1803,9 @@ var kaas={
           else if (di.name=='BirdStream'){
             bs=di;
             view_data.servers[stid].push(
-              pb.serverobj('BirdStream',0)
+              pb.serverobj('BirdStream',1)
             );
-            if (pb.server_selected(2)==0){
+            if (pb.server_selected(2)==1){
               hasod=true;
               od=di;
             }
