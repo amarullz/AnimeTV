@@ -5065,7 +5065,14 @@ const _API={
   },
   
   checkUpdate(){
-    if (!_JSAPI.isOnUpdate()){
+    if (_ISELECTRON){
+      if (window._ELECTRON_CHECK_UPDATE){
+        try{
+          window._ELECTRON_CHECK_UPDATE(1);
+        }catch(e){};
+      }
+    }
+    else if (!_JSAPI.isOnUpdate()){
       _JSAPI.checkUpdate();
     }
   },
@@ -15798,15 +15805,14 @@ const home={
             "<c>partly_cloudy_night</c> Check for Nightly Build"
           );
 
-          if (!_ISELECTRON){
-            home.settings.tools._s_checkupdate=$n(
-              'div','',{
-                action:'*checkupdate'
-              },
-              home.settings.about.P,
-              "<c>update</c> Check for Update"
-            );
-          }
+
+          home.settings.tools._s_checkupdate=$n(
+            'div','',{
+              action:'*checkupdate'
+            },
+            home.settings.about.P,
+            "<c>update</c> Check for Update"
+          );
         }
       }
       home.settings.initmore_done=true;
@@ -21867,6 +21873,62 @@ const touchHelper={
   }
 })();
 
+/* PC AUTOUPDATE */
+(function(){
+  if (_ISELECTRON){
+    function remindLater(){
+      _API.confirm("Remind Me Again",
+        md2html("Check for update again next time."),function(isok){
+          if (!isok){
+            _JSAPI.storeSet('__noautoupdate','1');
+          }
+          else{
+            _JSAPI.storeSet('__noautoupdate','0');
+          }
+      });
+    }
+    window._ELECTRON_CHECK_UPDATE=function(ismenu){
+      _JSAPI.storeSet('__noautoupdate','0');
+      $ap('https://raw.githubusercontent.com/amarullz/AnimeTV/refs/heads/master/server.json',function(r){
+        if (r.ok){
+          try{
+            var update=JSON.parse(r.responseText);
+            console.log(update);
+            var bv=Number(_JSAPI.getVersion(2));
+            if (bv<update.pcnum){
+              var ctxt=
+                "Version: **"+update.pcver+"** ("+update.pcsize+")\n\n"+
+                update.pcnote.trim();
+              ctxt=md2html(ctxt,true);
+              _API.confirm("New Update Available",ctxt,function(isok){
+                if (!isok){
+                  remindLater();
+                  return;
+                }
+                _API.showToast(
+                  "Downloading Update..."
+                );
+                _JSAPI.installApk(update.pcurl,1);
+                return;
+              });
+            }
+            else{
+              if (ismenu){
+                _API.showToast(
+                  "Already up to date..."
+                );
+              }
+            }
+          }catch(e){}
+        }
+      });
+    };
+    var noAutoupdate=toInt(_JSAPI.storeGet('__noautoupdate','0'));
+    if (!noAutoupdate){
+      window._ELECTRON_CHECK_UPDATE(0);
+    }
+  }
+})();
 
 /* CHROMECAST */
 (function(){

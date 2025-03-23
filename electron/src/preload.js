@@ -166,8 +166,12 @@ const api={
   getVersion(type){
     if (type==0)
       return versions.version;
-    else if (type==2)
+    else if (type==2){
+      if (versions.code){
+        return versions.code;
+      }
       return "500";
+    }
     return versions.build+"/"+os.platform()+"-"+os.arch();
   },
 
