@@ -13,12 +13,12 @@
   "appsize": "6.00 MB",
   "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.9.0/animetv-5.9.0.apk",
   "appnote": 
-    "- Tweak subtitles styles\n- Update Subtitle outline & text shadow\n- Change font selections\n- Android: Add reverse landscape support on playback\n- KAI: Fix subtitle without label (cannot select english)\n- Add brazilian (pt) token for subtitle\n- Add no outline settings\n- Fix Kickass Search\n- Fix Kickass Anilist Matching\n- Github based home information\n- Add Desktop in-app update\n- Fix miruro home slideshow\n- set vidstream as default mirror for kaas",  
+    "- Tweak subtitles styles\n- Add reverse landscape support on playback\n- KAI: Fix subtitle without label (cannot select english)\n- Fix Kickass Search, Anilist Matching and vidstream as default mirror\n- Fix miruro home slideshow",  
 
   "pcnum": 590,
   "pcver": "5.9.0",
   "pcsize": "6.89 MB",
   "pcurl": "https://github.com/amarullz/AnimeTV/releases/download/5.9.0/animetv-5.9.0.asar.gz",
   "pcnote": 
-    "- Tweak subtitles styles\n- Update Subtitle outline & text shadow\n- Change font selections\n- Android: Add reverse landscape support on playback\n- KAI: Fix subtitle without label (cannot select english)\n- Add brazilian (pt) token for subtitle\n- Add no outline settings\n- Fix Kickass Search\n- Fix Kickass Anilist Matching\n- Github based home information\n- Add Desktop in-app update\n- Fix miruro home slideshow\n- set vidstream as default mirror for kaas"  
+    "- Tweak subtitles styles\n- Add reverse landscape support on playback\n- KAI: Fix subtitle without label (cannot select english)\n- Fix Kickass Search, Anilist Matching and vidstream as default mirror\n- Fix miruro home slideshow"  
 }
