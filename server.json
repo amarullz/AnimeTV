@@ -8,17 +8,17 @@
   "stream_domain2": "megaf.cc",
   "update": "1.1-240624",
 
-  "appnum": 580,
-  "appver": "5.8.0",
-  "appsize": "6.02 MB",
-  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.8.0/animetv-5.8.0.apk",
+  "appnum": 590,
+  "appver": "5.9.0",
+  "appsize": "6.00 MB",
+  "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.9.0/animetv-5.9.0.apk",
   "appnote": 
-    "- Add AnimeKai Source, Fix kaas, Fix gojo, update miruro providers\n- Fix subtitles & translation\n- Fix several bugs & optimize performance\n- Remove not-working dns and add new dns for sources\n- Move aniwatchtv to hianime, and remove aniwatchtv source\n- Change new Android Application icon\n- Fix  cannot load anime on history&watchlist",
-  
-  "pcnum": 580,
-  "pcver": "5.8.9",
-  "pcsize": "6.88 MB",
-  "pcurl": "https://github.com/amarullz/AnimeTV/releases/download/5.8.0/animetv-5.8.9.asar.gz",
+    "- Tweak subtitles styles\n- Update Subtitle outline & text shadow\n- Change font selections\n- Android: Add reverse landscape support on playback\n- KAI: Fix subtitle without label (cannot select english)\n- Add brazilian (pt) token for subtitle\n- Add no outline settings\n- Fix Kickass Search\n- Fix Kickass Anilist Matching\n- Github based home information\n- Add Desktop in-app update\n- Fix miruro home slideshow\n- set vidstream as default mirror for kaas",  
+
+  "pcnum": 590,
+  "pcver": "5.9.0",
+  "pcsize": "6.89 MB",
+  "pcurl": "https://github.com/amarullz/AnimeTV/releases/download/5.9.0/animetv-5.9.0.asar.gz",
   "pcnote": 
-    "- Add AnimeKai Source, Fix kaas, Fix gojo, update miruro providers\n- Fix subtitles & translation\n- Fix several bugs & optimize performance\n- Remove not-working dns and add new dns for sources\n- Move aniwatchtv to hianime, and remove aniwatchtv source\n- Change new Android Application icon\n- Fix  cannot load anime on history&watchlist"
+    "- Tweak subtitles styles\n- Update Subtitle outline & text shadow\n- Change font selections\n- Android: Add reverse landscape support on playback\n- KAI: Fix subtitle without label (cannot select english)\n- Add brazilian (pt) token for subtitle\n- Add no outline settings\n- Fix Kickass Search\n- Fix Kickass Anilist Matching\n- Github based home information\n- Add Desktop in-app update\n- Fix miruro home slideshow\n- set vidstream as default mirror for kaas"  
 }
