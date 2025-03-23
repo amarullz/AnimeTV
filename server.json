@@ -13,5 +13,12 @@
   "appsize": "6.02 MB",
   "appurl": "https://github.com/amarullz/AnimeTV/releases/download/5.8.0/animetv-5.8.0.apk",
   "appnote": 
+    "- Add AnimeKai Source, Fix kaas, Fix gojo, update miruro providers\n- Fix subtitles & translation\n- Fix several bugs & optimize performance\n- Remove not-working dns and add new dns for sources\n- Move aniwatchtv to hianime, and remove aniwatchtv source\n- Change new Android Application icon\n- Fix  cannot load anime on history&watchlist",
+  
+  "pcnum": 590,
+  "pcver": "5.9.0",
+  "pcsize": "8.02 MB",
+  "pcurl": "https://github.com/amarullz/AnimeTV/releases/download/5.8.0/animetv-5.8.9.asar.gz",
+  "pcnote": 
     "- Add AnimeKai Source, Fix kaas, Fix gojo, update miruro providers\n- Fix subtitles & translation\n- Fix several bugs & optimize performance\n- Remove not-working dns and add new dns for sources\n- Move aniwatchtv to hianime, and remove aniwatchtv source\n- Change new Android Application icon\n- Fix  cannot load anime on history&watchlist"
 }
