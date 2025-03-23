@@ -13635,7 +13635,7 @@ const home={
       el.__last_touch=$tick()+5000;
     });
 
-    if (__SD6||pb.cfg_data.alisthomess||(__SD==2)||__SD7){
+    if (__SD6||pb.cfg_data.alisthomess||(__SD==2)||__SD7||__SD8){
       home.home_anilist_load();
       return;
     }
