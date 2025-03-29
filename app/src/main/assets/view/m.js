@@ -6500,7 +6500,7 @@ const vtt={
     'outfit':'https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap',
     'merriweather':'https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap',
     'cantora_one':'https://fonts.googleapis.com/css2?family=Cantora+One&display=swap',
-    'questrial':'https://fonts.googleapis.com/css2?family=Questrial&display=swap',
+    'open_sans':'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap',
     'ruluko':'https://fonts.googleapis.com/css2?family=Ruluko&display=swap',
     'alatsi':'https://fonts.googleapis.com/css2?family=Alatsi&display=swap',
   },
@@ -6531,7 +6531,7 @@ const vtt={
       "Outfit",
       "Merriweather",
       "Cantora One",
-      "Questrial",
+      "Open Sans",
       "Ruluko",
       "Alatsi"
     ],
