@@ -11,7 +11,7 @@ You can select any source that suit your needs, easy to install, contains alot o
 # Donation & More Information
 - 💖 **Sponsor Project :** [https://github.com/sponsors/amarullz](https://github.com/sponsors/amarullz)
 - 💝 **Donate Project :** [Paypal: https://paypal.me/amarullz](https://paypal.me/amarullz)
-- ❓ **Join Discussion on Discord :**  [https://discord.gg/syYkTDZ9](https://discord.gg/syYkTDZ9)
+- ❓ **Join Discussion on Discord :**  [https://discord.gg/6XJBmQC7](https://discord.gg/6XJBmQC7)
 
 # DISCLAIMER
 * AnimeTV only scrapes links from various websites and makes it easier for users to find anime.
