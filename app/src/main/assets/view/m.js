@@ -6805,6 +6805,9 @@ const vtt={
               ln='';
             }
           }
+          /* remove escapes */
+          ln=ln.replace(/{b}/g,'<b>').replace(/{\/b}/g,'</b>').replace(/{i}/g,'<i>').replace(/{\/i}/g,'</i>').replace(/{u}/g,'<u>').replace(/{\/u}/g,'</u>');
+          ln=ln.replace(/{[\*\=][^}]*}/g,"");
           t[p].tx+='\n'+ln;
           t[p].tx=t[p].tx.trim();
         }
