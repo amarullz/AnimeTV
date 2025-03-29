@@ -15974,8 +15974,8 @@ const home={
       }
       else{
         home.settings.open_qrcode(
-          "Join Discord Server<br>https://discord.gg/6XJBmQC7",
-          "https://discord.gg/6XJBmQC7"
+          "Join Discord Server<br>https://discord.gg/VGtGtRedGR",
+          "https://discord.gg/VGtGtRedGR"
         );
       }
     },
