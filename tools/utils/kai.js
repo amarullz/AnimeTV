@@ -85,10 +85,44 @@ const KAICODEX = {
     );
   },
   decMega(n) {
-    var o = KAICODEX.safeAtob;
-    var i = KAICODEX.rc4;
-    var f = KAICODEX.replaceChars;
-    var c = KAICODEX.reverseString;
+    var base64_url_decode = KAICODEX.safeAtob;
+    var transform = KAICODEX.rc4;
+    var substitute = KAICODEX.replaceChars;
+    var reverse_it = KAICODEX.reverseString;
+
+    n = substitute(
+        transform(
+            "Pga3kHbfN1",
+            base64_url_decode(
+                reverse_it(
+                    substitute(
+                        transform(
+                            "twUI4s9kDrT3qb",
+                            base64_url_decode(
+                                reverse_it(
+                                    substitute(
+                                        transform(
+                                            "TyrGFfhi40zq",
+                                            base64_url_decode(
+                                                reverse_it(base64_url_decode(n))
+                                            ),
+                                        ),
+                                        "4zSetv9CNImRdiq",
+                                        "i94NvzeIRCqdtSm",
+                                    )
+                                )
+                            ),
+                        ),
+                        "vfIiqFKutaW",
+                        "tqaiKIfuvWF",
+                    )
+                )
+            ),
+        ),
+        "vnb0rLzdZN6a",
+        "vNZnrzd60baL",
+    );
+/*
     n = 
     i(
       'A6mkJw3XMsruY',
@@ -117,7 +151,7 @@ const KAICODEX = {
             'FpPBdhzCyGYoDvO',
             'YGFpvoBdCyDPhzO')
           )
-        );
+        );*/
     return decodeURIComponent(n);
   },
 
