@@ -120,7 +120,7 @@ const KAICODEX = {
             ),
         ),
         "vnb0rLzdZN6a",
-        "vNZnrzd60baL",
+        "vNZnrzd60baL"
     );
 /*
     n = 
