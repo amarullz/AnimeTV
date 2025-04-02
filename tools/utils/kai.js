@@ -105,19 +105,19 @@ const KAICODEX = {
                                             "TyrGFfhi40zq",
                                             base64_url_decode(
                                                 reverse_it(base64_url_decode(n))
-                                            ),
+                                            )
                                         ),
                                         "4zSetv9CNImRdiq",
-                                        "i94NvzeIRCqdtSm",
+                                        "i94NvzeIRCqdtSm"
                                     )
                                 )
-                            ),
+                            )
                         ),
                         "vfIiqFKutaW",
-                        "tqaiKIfuvWF",
+                        "tqaiKIfuvWF"
                     )
                 )
-            ),
+            )
         ),
         "vnb0rLzdZN6a",
         "vNZnrzd60baL"
