@@ -90,38 +90,38 @@ const KAICODEX = {
     var substitute = KAICODEX.replaceChars;
     var reverse_it = KAICODEX.reverseString;
 
-    n = substitute(
-        transform(
-            "Pga3kHbfN1",
-            base64_url_decode(
+    n =substitute(
                 reverse_it(
-                    substitute(
-                        transform(
-                            "twUI4s9kDrT3qb",
-                            base64_url_decode(
-                                reverse_it(
+                    transform(
+                        "3U8XtHJfgam02k",
+                        base64_url_decode(
+                            transform(
+                                "PgiY5eIZWn",
+                                base64_url_decode(
                                     substitute(
-                                        transform(
-                                            "TyrGFfhi40zq",
-                                            base64_url_decode(
-                                                reverse_it(base64_url_decode(n))
+                                        reverse_it(
+                                            substitute(
+                                                transform(
+                                                    "QKbVomcBHysCW9",
+                                                    base64_url_decode(
+                                                        reverseIt(
+                                                            base64_url_decode(n)
+                                                        )
+                                                    )
+                                                ),
+                                                "0GsO8otUi21aY", "Go1UiY82st0Oa"
                                             )
                                         ),
-                                        "4zSetv9CNImRdiq",
-                                        "i94NvzeIRCqdtSm"
+                                        "rXjnhU3SsbEd", "rXEsS3nbjhUd"
                                     )
                                 )
                             )
-                        ),
-                        "vfIiqFKutaW",
-                        "tqaiKIfuvWF"
+                        )
                     )
-                )
+                ),
+                "7DtY4mHcMA2yIL", "IM7Am4D2yYHctL"
             )
-        ),
-        "vnb0rLzdZN6a",
-        "vNZnrzd60baL"
-    );
+        );
     return decodeURIComponent(n);
   },
 
