@@ -122,36 +122,6 @@ const KAICODEX = {
         "vnb0rLzdZN6a",
         "vNZnrzd60baL"
     );
-/*
-    n = 
-    i(
-      'A6mkJw3XMsruY',
-      o(
-        f(
-              i(
-                'Sv7tijKFrwDxsl9',
-                o(
-                  f(
-                    i(
-                      'j8971KLwSyI',
-                      o(
-                        c(
-                          f(
-                            o(n),
-                            'kxV4iJtRZg3',
-                            'VJx34RtgkZi'
-                          )
-                        )
-                      )
-                    ),
-                    'BjZ9dF6AxHTqn',
-                    'jxqZdB6n9FTHA')
-                  )
-                ),
-            'FpPBdhzCyGYoDvO',
-            'YGFpvoBdCyDPhzO')
-          )
-        );*/
     return decodeURIComponent(n);
   },
 
