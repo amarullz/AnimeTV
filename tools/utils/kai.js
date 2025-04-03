@@ -104,7 +104,7 @@ const KAICODEX = {
                                                 transform(
                                                     "QKbVomcBHysCW9",
                                                     base64_url_decode(
-                                                        reverseIt(
+                                                        reverse_it(
                                                             base64_url_decode(n)
                                                         )
                                                     )
