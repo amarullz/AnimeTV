@@ -84,42 +84,15 @@ const KAICODEX = {
       )
     );
   },
-  
+
   decMega(n) {
-  var u = KAICODEX.safeAtob;
-  var a = KAICODEX.rc4;
-  var s = KAICODEX.replaceChars;
-  var r = KAICODEX.reverseString;
-  n = s(
-    r(
-      a("3U8XtHJfgam02k",
-        u(
-          a("PgiY5eIZWn",
-            u(
-              s(
-                r(
-                  s(
-                    a("QKbVomcBHysCW9",
-                      u(
-                        r(
-                          u(n)
-                        )
-                      )
-                    ),
-                    "0GsO8otUi21aY", "Go1UiY82st0Oa"
-                  )
-                ),
-                "rXjnhU3SsbEd", "rXEsS3nbjhUd"
-              )
-            )
-          )
-        )
-      )
-    ),
-    "7DtY4mHcMA2yIL", "IM7Am4D2yYHctL"
-  );
-  return decodeURIComponent(n);
-},
+    var a = KAICODEX.safeAtob;
+    var b = KAICODEX.rc4;
+    var c = KAICODEX.replaceChars;
+    var d = KAICODEX.reverseString;
+    var e = decodeURIComponent;
+    return e(d(b("hI8JxsWF9G", a(c(b("HzdLUrxnhcS", a(c(d(d(c(b("Zd5yYckQ38h", a(a(n))), "RuFt8YWnQA", "RQunFW8AYt"))), "GJRdPQgXn34ul", "JGQ34nPlRudgX"))), "9mz6PhsUQVNS", "mN9sQhVUPSz6")))));
+  },
 
   /* Helper */
   rc4: function (key, str) {
