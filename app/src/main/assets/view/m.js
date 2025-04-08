@@ -4137,7 +4137,10 @@ function md2html(text,safe_code){
 
 /**************************** NEW HIANIME ***************************/
 const __HIANIME = {
-  ns: 'https://hianime.to'
+  ns: 'https://hianime.to',
+  getUrl:function(uri){
+    return __HIANIME.ns+""+uri;
+  }
 };
 window.hianimeapi=__HIANIME;
 
@@ -5555,7 +5558,8 @@ const _API={
       }
     }
 
-    function fetchServer(d, srv_d){
+    function fetchServerFallback(d, srv_d){
+      console.log('HI FALLBACK');
       var dserver={
         'raw':[],
         'sub':[],
@@ -5590,6 +5594,58 @@ const _API={
       }
     }
 
+    function fetchHiServer(eid,audio,mirror,cbx){
+      var animeid=tipurl.substring(1);
+      var epUri=__HIANIME.getUrl(
+        '/anime/zoro/watch?episodeId='+animeid+'$episode$'+eid+'$'+audio+'&server='+mirror
+      );
+      $ap(epUri,function(r){
+        console.log(epUri);
+        if (r.ok){
+          try{
+            var kr = JSON.parse(r.responseText);
+            if ('sources' in kr){
+              cbx(kr);
+              return;
+            }
+          }
+          catch(e){}
+        }
+        cbx(null);
+      });
+    }
+
+    function fetchServer(d,eid,srv_d){
+      var audio = (_API.currentStreamType==2||pb.cfg_data.dubaudio)?'dub':'sub';
+      var mirror = ((pb.cfg_data.mirrorserver===true)||(pb.cfg_data.mirrorserver==1))?'vidcloud':'vidstreaming';
+      function hiFetched(dax){
+        d.ep_servers=null;
+        d.ep_streamdata=dax;
+        d.stream_vurl  = "";
+        d.ep_stream_sel=null;
+        d.skip=[];
+        runCb(d);
+      }
+      fetchHiServer(eid,audio,mirror,function(d1){
+        if (d1){
+          hiFetched(d1);
+          return;
+        }
+        else if (audio=='dub'){
+          audio='sub';
+          fetchHiServer(eid,audio,mirror,function(d2){
+            if (d2){
+              hiFetched(d2);
+              return;
+            }
+            fetchServerFallback(d,srv_d);
+          });
+          return;
+        }
+        fetchServerFallback(d,srv_d);
+      });
+    }
+
     function getEpServer(d,eid){
       $a(ajax_url+'/episode/servers?episodeId='+enc(eid),function(r){
         if (r.ok){
@@ -5610,7 +5666,7 @@ const _API={
               }
             }
             hd.innerHTML='';
-            fetchServer(d, srv_d);
+            fetchServer(d,eid,srv_d);
             return;
           }
           catch(e){
@@ -9201,9 +9257,14 @@ const pb={
 
       if (__SD3){
         /* Get Servers - HIANIME */
-        pb.hiLoadVideo(pb.data, true, function(){
+        pb.hiLoadVideo(pb.data, true, function(m3u8url){
           pb.updateStreamTypeInfo();
-          pb.init_video_vidcloud();
+          if (m3u8url){
+            pb.init_video_mp4upload(m3u8url);
+          }
+          else{
+            pb.init_video_vidcloud();
+          }
         });
       }
       else if (__SD5){
@@ -9720,12 +9781,12 @@ const pb={
                   });
                   // $n('iframe','',{src:d.stream_vurl+(__SD5?"":"#NOPLAY"),frameborder:'0'},pb.pb_vid,'');
                 }
-                else if (__SD3){
-                  _API.setVizCb(preloadVidCb);
-                  pb.hiLoadVideo(d, false, function(){
-                    $n('iframe','',{src:d.stream_vurl,frameborder:'0'},pb.pb_vid,'');
-                  });
-                }
+                // else if (__SD3){
+                //   _API.setVizCb(preloadVidCb);
+                //   pb.hiLoadVideo(d, false, function(){
+                //     $n('iframe','',{src:d.stream_vurl,frameborder:'0'},pb.pb_vid,'');
+                //   });
+                // }
               }
             }
           });
@@ -9735,6 +9796,58 @@ const pb={
   },
 
   hiLoadVideo:function(dt,loadSubtitle,cb){
+    function showErrorHi(){
+      pb.playback_error(
+        'PLAYBACK ERROR',
+        "Loading video from source failed.\tTry changing mirror or check source server."
+      );
+    }
+
+    if (!dt.ep_servers && dt.ep_streamdata){
+      var srm=dt.ep_streamdata;
+      console.log(srm);
+      try{
+        dt.stream_vurl =srm.sources[0].url;
+      }catch(e){
+        showErrorHi();
+        return;
+      }
+
+      /* load intro */
+      try{
+        var st=srm.intro.start;
+        var en=srm.intro.end;
+        var sto=srm.outro.start;
+        var eno=srm.outro.end;
+        dt.skip=[
+          [st?st:0,en?en:0],
+          [sto?sto:0,eno?eno:0]
+        ];
+      }catch(e){}
+
+      /* init subtitle */
+      try{
+        if (loadSubtitle){
+          vtt.clear();
+          pb.subtitles=[];
+          window.__subtitle=pb.subtitles;
+          var n=srm.subtitles.length;
+          for (var i=0;i<n;i++){
+            var tk=srm.subtitles[i];
+            pb.subtitles.push({
+              u:tk.url,
+              d:(i==0)?1:0,
+              l:(tk.lang+'').toLowerCase().trim()
+            });
+          }
+          vtt.init(pb.subtitles);
+        }
+      }catch(e){}
+
+      cb(dt.stream_vurl);
+      return;
+    }
+
     var st=_API.currentStreamType;
     var uid=0;
     var ut="sub";
@@ -9805,7 +9918,6 @@ const pb={
       var subld = dt.ep_servers[subut][subuid];
       console.log("GOT-VIDEO-IFRAME-URL : "+seld.link);
       console.log("GOT-SUB-URL : "+subld.link+" LOAD SUB: "+loadSubtitle);
-      console.log(seld);
 
       // Get Video Data
       if (loadSubtitle){
@@ -9860,13 +9972,10 @@ const pb={
         });
         
       }
-      cb();
+      cb(null);
       return;
     }
-    pb.playback_error(
-      'PLAYBACK ERROR',
-      "Loading video from source failed.\tTry changing mirror or check source server."
-    );
+    showErrorHi();
   },
 
   /* next ep */

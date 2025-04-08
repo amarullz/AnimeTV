@@ -301,6 +301,7 @@ const intercept={
 
       /* Redirect Script */
       else if (url.pathname.startsWith("/__REDIRECT")) {
+        console.log("DO REDIRECT: "+url);
         return net.fetch(common.injectRequest("redirect.html"));
       }
 
@@ -346,8 +347,8 @@ const intercept={
           var h=hostStream.split(".");
           var host2=h[h.length-2]+"."+h[h.length-1];
           if (common.main.vars.sd==3||common.main.vars.sd==4){
-            req.headers.set('Referer','https://megacloud.tv/');
-            req.headers.set('Origin','https://megacloud.tv');
+            req.headers.set('Referer','https://megacloud.club/');
+            req.headers.set('Origin','https://megacloud.club');
           }
           else if (common.main.vars.sd==5){
             req.headers.set('Referer','https://'+common.dns[5]+'/');
