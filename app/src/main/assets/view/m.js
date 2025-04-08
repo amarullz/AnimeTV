@@ -323,6 +323,7 @@ var miruro={
     epsilon:"https://epsilon.yamista.xyz",
     zeta:"https://zeta.yamista.xyz",
   },
+  nkey:'Y29uc3VtZXQ=',
   req:function(b,u,cb,proxy){
     var req_url = miruro.base[b]+u;
     // proxy=0;
@@ -365,6 +366,7 @@ var miruro={
   getFilterUrl:function(q,genres,sort,page,ses,year){
     return "";
   },
+  rkey:'LjhtYW4u',
   /* Reuse miruro anilist view */
   getTooltip:function(id, cb, url, isview){
     if (!id){
@@ -1003,6 +1005,7 @@ var gojo={
   getFilterUrl:function(q,genres,sort,page,ses,year){
     return "";
   },
+  zoneFilter:atob(miruro.nkey)+atob(miruro.rkey)+"me",
   getTooltip:function(id, cb, url, isview){
     if (!id){
       var ux=url.split('#');
@@ -9791,6 +9794,7 @@ const pb={
       var subld = dt.ep_servers[subut][subuid];
       console.log("GOT-VIDEO-IFRAME-URL : "+seld.link);
       console.log("GOT-SUB-URL : "+subld.link+" LOAD SUB: "+loadSubtitle);
+      console.log(seld);
 
       // Get Video Data
       if (loadSubtitle){
