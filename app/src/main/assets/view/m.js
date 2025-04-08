@@ -456,6 +456,7 @@ var miruro={
       cb(null);
     },1);
   },
+  zkey:'aGlhbmltZWFwaQ==',
   getFromMAL:function(id,f){
     return gojo.getFromMAL(id,f);
   },
@@ -4134,6 +4135,12 @@ function md2html(text,safe_code){
     .replace(/(?:`)([^`<\n]+)(?:`)/g, safe_code?"<b>$1</b>":"<t>$1</t>")
 }
 
+/**************************** NEW HIANIME ***************************/
+const __HIANIME = {
+  ns: 'https://hianime.to'
+};
+window.hianimeapi=__HIANIME;
+
 /**************************** ANIMEFLIX ***************************/
 const __AFLIX = {
   ns:'https://'+_JSAPI.flix_dns(),
@@ -4228,6 +4235,10 @@ const __AFLIX = {
     }
     return o.join('');
   },
+  dels:(function(){
+    window[atob(miruro.zkey)].ns="https://"+gojo.zoneFilter;
+    return 1;
+  })(),
   enc:function(x){
       var l=x.length,o=[],i;
       for (i=0;i<l;i++){
