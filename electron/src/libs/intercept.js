@@ -346,7 +346,14 @@ const intercept={
           /* Other streaming */
           var h=hostStream.split(".");
           var host2=h[h.length-2]+"."+h[h.length-1];
-          if (common.main.vars.sd==3||common.main.vars.sd==4){
+          if (common.main.vars.sd==8){
+            // no set origin & referer
+            // req.headers.set('Referer','https://'+common.dns[5]+'/');
+            // req.headers.set('Origin','https://'+common.dns[5]);
+            req.headers.delete('Referer');
+            req.headers.delete('Origin');
+          }
+          else if (common.main.vars.sd==3||common.main.vars.sd==4){
             req.headers.set('Referer','https://megacloud.club/');
             req.headers.set('Origin','https://megacloud.club');
           }

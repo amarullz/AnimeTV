@@ -252,25 +252,25 @@ var miruro={
   providers:[
     'animepahe',
     'zoro',
-    'animez',
+    // 'animez',
     'animekai',
   ],
   providers_mirror_key:[
     'ANIMEPAHE',
     'ZORO',
-    'ANIMEZ',
+    // 'ANIMEZ',
     'ANIMEKAI',
   ],
   providers_name:[
     'Animepahe',
     'Zoro Hianime',
-    'AnimeZ',
+    // 'AnimeZ',
     'AnimeKai',
   ],
   providers_features:[
     'Hardsub, Dub, Best Quality, Fast',
     'Softsub, Dub, Multilang',
-    'Hardsub, Dub, Fast, Multi Mirror',
+    // 'Hardsub, Dub, Fast, Multi Mirror',
     'Hardsub, Dub',
     
   ],
@@ -311,6 +311,7 @@ var miruro={
     'Cache-Control':'no-cache'
   },
   base:{
+    www:'https://www.miruro.tv',
     dio:"https://dio.miruro.tv",
     mapper:"https://mapper.miruro.tv",
     hi:"https://hi.miruro.tv"
@@ -434,7 +435,9 @@ var miruro={
             ttid:id,
             poster:m.coverImage.large,
             tip:id,
-            malId:m.idMal
+            malId:m.idMal,
+            status:m.status,
+            ongoing:(m.status=='RELEASING')?true:false
           };
           o.genre=m.genres.join(", ");
           for (var i=1;i<m.genres.length;i++){
@@ -476,7 +479,58 @@ var miruro={
 
     function loadEpisodeData(streamType){
       dt.skip=[[0,0],[0,0]];
+      dt.servers={};
+      dt.stream_url={};
+
+      var kdat = epItem.cache[streamType];
+      console.log(kdat);
+      try{
+        if ('intro' in kdat){
+          dt.skip[0]=[kdat.intro.start,kdat.intro.end];
+        }
+        if ('outro' in kdat){
+          dt.skip[1]=[kdat.outro.start,kdat.outro.end];
+        }
+
+        var urls=[];
+        var src = "";
+        for (var i=0;i<kdat.streams.length;i++){
+          var sc=kdat.streams[i];
+          var csrc = sc.url;
+          if (!src){
+            src=csrc;
+          }
+          urls.push(csrc);
+        }
+
+        if (src){
+          dt.streamtype=(streamType=='dub')?'dub':'softsub';
+          dt.stream_url.dub=src;
+          dt.stream_url.soft=src;
+          dt.stream_url.hard=src;
+          var o={
+            url:src,
+            urls:urls
+          };
+          if (kdat.tracks){
+            o.subtitles=JSON.parse(JSON.stringify(kdat.tracks));
+          }
+          console.log(["EPINFO", o]);
+          f(o);
+          return;
+        }
+        else{
+          f(null);
+          return;
+        }
+      }catch(e){
+        console.log(e);
+      }
+    }
+    function loadEpisodeDataOld(streamType){
+      dt.skip=[[0,0],[0,0]];
       var cd = epItem.cache[streamType];
+      console.log(cd);
       if (prov=='ZORO' || prov=='ANIMEKAI'){
         var isKai=(prov=='ANIMEKAI')?true:false;
         var servName = isKai?'KAI':'ZORO';
@@ -718,7 +772,7 @@ var miruro={
     }
     else{
       function loadStreamData(){
-        miruro.req("dio",epItem.epurl+"&lang="+streamType,function(k){
+        miruro.req("www",epItem.epurl+"&category="+streamType,function(k){
           if (k){
             epItem.cache[streamType]=k;
             loadEpisodeData(streamType);
@@ -732,7 +786,7 @@ var miruro={
               f(null);
             }
           }
-        },true);
+        },false);
       }
       loadStreamData();
     }
@@ -775,6 +829,7 @@ var miruro={
       if (!site){
         return 0;
       }
+      var og="ongoing="+(dat.tip.ongoing?"true":"false");
       if (prov=='ZORO'){
         for (var i=0;i<site.episodeList.episodes.length;i++){
           var pp=site.episodeList.episodes[i];
@@ -788,7 +843,7 @@ var miruro={
             "title_jp":pp.jptitle?pp.jptitle:pptitle,
             "filler":pp.filler?pp.filler:false,
             "epid":pp.id,
-            "epurl":"/sources?epId="+pp.id+"&provider=zoro",
+            "epurl":"/api/sources?episodeId="+pp.id+"&provider=zoro&fetchType=m3u8&"+og,
             "prov":prov
           };
           if (oe.active){
@@ -810,7 +865,7 @@ var miruro={
             "title":pptitle,
             "title_jp":pptitle,
             "epid":pp.id,
-            "epurl":"/sources?epId="+pp.id+"&provider=animekai",
+            "epurl":"/api/sources?episodeId="+pp.id+"&provider=animekai&fetchType=m3u8&"+og,
             "prov":prov
           };
           if (oe.active){
@@ -830,8 +885,8 @@ var miruro={
             "active":ep==pp.number,
             "title":pptitle,
             "title_jp":pptitle,
-            "epid":pp.id,
-            "epurl":"/sources?id="+site.id+"&ep="+pp.number+"&provider=animepahe",
+            "epid":pp.id, /*ok*/
+            "epurl":"/api/sources?episodeId="+site.id+"%2Fep-"+pp.number+"&provider=animepahe&fetchType=&"+og,
             "prov":prov
           };
           if (oe.active){
@@ -861,9 +916,9 @@ var miruro={
             "title":pptitle,
             "title_jp":pptitle,
             "epid":pp.id,
-            "epurl":"/sources?epId="+pp.id+"&provider=animez",
+            "epurl":"/api/sources?episodeId="+pp.id+"&provider=animez&fetchType=m3u8&"+og,
             "dub_epid":isdub?ppd.id:null,
-            "dub_epurl":ppd?("/sources?epId="+ppd.id+"&provider=animez"):null,
+            "epurl":ppd?("/api/sources?episodeId="+ppd.id+"&provider=animez&fetchType=m3u8&"+og):null,
             "prov":prov
           };
           if (oe.active){
@@ -961,15 +1016,20 @@ var miruro={
     miruro.getTooltip(uri, function(k){
       if (k) dat.tip=k;
       dat.x++;
-      var urljson = "/i?id="+k.malId+"&provider=anilist&type=anime";
-      if (k.malId){
-        urljson = "/i?id="+k.malId+"&provider=mal&type=anime";
-      }
-      miruro.req("dio",urljson,function(k){
+      // var urljson = "/i?id="+k.malId+"&provider=anilist&type=anime";
+      // if (k.malId){
+      //   urljson = "/i?id="+k.malId+"&provider=mal&type=anime";
+      // }
+      // miruro.req("dio",urljson,function(k){
+
+      console.log(k);
+      var detailurl="/api/episodes?malId="+k.malId+"&ongoing="+(k.ongoing?"true":"false");
+      miruro.req("www",detailurl,function(k){
         if (k) dat.cov=k;
         dat.x++;
         datacb();
-      },true);
+      },false);
+
     }, uri, true);
 
     
