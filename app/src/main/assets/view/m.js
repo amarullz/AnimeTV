@@ -34,7 +34,7 @@ const __SOURCE_NAME=[
 const __SOURCE_DOMAINS=[
   ['animekai.to' ,'animekai.bz'],
   ['anix.to','anix.ac','anix.vc','anixtv.to'], // rip
-  ['hianime.to','hianime.sx','hianime.nz', 'aniwatchtv.to'],
+  ['hianime.to','hianime.sx','hianime.nz', 'aniwatchtv.to','hianime.bz'],
   ['aniwatchtv.to'],
   ['animeflix.live','animeflix.gg','animeflix.li'], // rip
   ['kaa.mx','kaas.to','kaas.ro'],
