@@ -2402,14 +2402,78 @@ var kaas={
 
 /******************* ANIMEKAI *************************/
 if (__SDKAI){
-  // AnimeKai Codex
-  $ap('https://raw.githubusercontent.com/amarullz/kaicodex/main/generated/kai_codex.js?'+$time(),function(r){
+  $ap('https://raw.githubusercontent.com/amarullz/kaicodex/main/generated/keys.json?'+$time(),function(r){
     if (r.ok){
-      try{
-        eval(r.responseText+"\n\nwindow.KAICODEX=KAICODEX;");
-      }catch(e){}
+      var keys=JSON.parse(r.responseText);
+      var homeKeys=[];
+      var megaKeys=[];
+      for (var i=0;i<keys.kai.length;i++){
+        homeKeys.push(atob(keys.kai[i]));
+      }
+      for (var i=0;i<keys.mega.length;i++){
+        megaKeys.push(atob(keys.mega[i]));
+      }
+      function megaDec(n){
+        n = atob(n.replace(/_/g, '/').replace(/-/g, '+'));
+        var l = n.length;
+        var o = [];
+        for (var i = 0; i < l; i++) {
+            var c=n.charCodeAt(i);
+            var k=megaKeys[c];
+            o.push(k.charCodeAt(i%k.length));
+        }
+        return decodeURIComponent(String.fromCharCode.apply(null,o));
+      }
+      var keysChar='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-~!*()\'.'.split('');
+      function encrypt$(n){
+        n = encodeURIComponent(n);
+        var l = n.length;
+        var o = [];
+        for (var i = 0; i < l; i++) {
+          var kc = homeKeys[keysChar.indexOf(n.charAt(i))];
+          c = kc.charAt(i % kc.length);
+          o.push(c);
+        }
+        return btoa(o.join('')).replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '');
+      }
+      function decrypt$(n){
+        n = atob(n.replace(/_/g, '/').replace(/-/g, '+'));
+        var l = n.length;
+        var o = [];
+        for (var i = 0; i < l; i++) {
+          var c=n.charCodeAt(i);
+          var cp='';
+          for (var j=0;j<homeKeys.length;j++){
+            var ck=homeKeys[j].charCodeAt(i%homeKeys[j].length);
+            if (ck===c){
+              cp=keysChar[j];
+              break;
+            }
+          }
+          if (cp){
+            o.push(cp);
+          }
+          else{
+            o.push('%');
+          }
+        }
+        return decodeURIComponent(o.join(''));
+      }
+      window.KAICODEX={
+        enc:encrypt$,
+        dec:decrypt$,
+        decMega:megaDec
+      };
     }
   });
+  // AnimeKai Codex
+  // $ap('https://raw.githubusercontent.com/amarullz/kaicodex/main/generated/kai_codex.js?'+$time(),function(r){
+  //   if (r.ok){
+  //     try{
+  //       eval(r.responseText+"\n\nwindow.KAICODEX=KAICODEX;");
+  //     }catch(e){}
+  //   }
+  // });
 }
 const kai={
   sdns:'megaup.cc',
