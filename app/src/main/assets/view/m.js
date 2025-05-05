@@ -251,27 +251,27 @@ var miruro={
   },
   providers:[
     'animepahe',
-    'zoro',
+    // 'zoro',
     // 'animez',
-    'animekai',
+    // 'animekai',
   ],
   providers_mirror_key:[
     'ANIMEPAHE',
-    'ZORO',
+    // 'ZORO',
     // 'ANIMEZ',
-    'ANIMEKAI',
+    // 'ANIMEKAI',
   ],
   providers_name:[
     'Animepahe',
-    'Zoro Hianime',
+    // 'Zoro Hianime',
     // 'AnimeZ',
-    'AnimeKai',
+    // 'AnimeKai',
   ],
   providers_features:[
     'Hardsub, Dub, Best Quality, Fast',
-    'Softsub, Dub, Multilang',
+    // 'Softsub, Dub, Multilang',
     // 'Hardsub, Dub, Fast, Multi Mirror',
-    'Hardsub, Dub',
+    // 'Hardsub, Dub',
     
   ],
   proxyM3u8:function(url){
