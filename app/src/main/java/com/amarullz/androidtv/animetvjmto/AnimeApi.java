@@ -358,16 +358,23 @@ public class AnimeApi extends WebViewClient {
     buffer.write(injectByte, 0, injectByte.length);
   }
 
-  public void replaceString(ByteArrayOutputStream buffer, String src,
-                            String replace){
-    try {
-      String out=buffer.toString("UTF-8");
-      out = out.replace(src,replace);
-      byte[] injectByte = out.getBytes();
-      buffer.reset();
-      buffer.write(injectByte, 0, injectByte.length);
-    } catch (Exception ignored) {
-    }
+  public void replaceString(ByteArrayOutputStream buffer, String src, String replace) {
+      try {
+          String out = buffer.toString("UTF-8");
+          // Ensure source string is not empty
+          if (src != null && !src.trim().isEmpty()) {
+              // Perform the replacement while preserving case-sensitivity
+              out = out.replace(src, replace);
+              // Also try with capital first letter
+              String srcCapitalized = src.substring(0, 1).toUpperCase() + src.substring(1);
+              out = out.replace(srcCapitalized, replace);
+          }
+          byte[] injectByte = out.getBytes(StandardCharsets.UTF_8);
+          buffer.reset();
+          buffer.write(injectByte, 0, injectByte.length);
+      } catch (Exception e) {
+          Log.e("ATVLOG-API", "Error replacing text: " + e.getMessage());
+      }
   }
 
   public void injectJs(ByteArrayOutputStream buffer, String url){
