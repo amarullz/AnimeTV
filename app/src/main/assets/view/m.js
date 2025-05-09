@@ -7076,16 +7076,18 @@ const vtt={
     return t;
   },
   translate:function(timelines, lang){
+    var CHUNK_SIZE = 5;
+    var MARKER = '__SUBSPLIT__' + Math.random().toString(36).substr(2, 8) + '__';
     var chunks=[],m=0,d=0,n=timelines.length;
     for (var i=0;i<n;i++){
       if (m==0){
         chunks.push({t:timelines[i].tx,s:i,e:i});
       }
       else{
-        chunks[d].t+="  [103060]  "+timelines[i].tx;
+        chunks[d].t+="  " + MARKER + "  "+timelines[i].tx;
         chunks[d].e=i;
       }
-      if (++m==15){
+      if (++m==CHUNK_SIZE){
         m=0;
         d++;
       }
@@ -7093,55 +7095,104 @@ const vtt={
     if (chunks.length>0){
       var chunkn = chunks.length;
       for (var i=0;i<chunkn;i++){
-        vtt.translate_chunk(timelines, lang, chunks[i],i*400);
+        // Pass the marker to the chunk
+        chunks[i].marker = MARKER;
+        vtt.translate_chunk(timelines, lang, chunks[i],i*800);
       }
     }
   },
-  translate_text:function(text, lang, cb){
-    var translate_url='https://translate.google.com/m?tl='+
-      lang+'&sl=en&q='+encodeURIComponent(text);
-    $ap(translate_url,function(r){
+  translate_text:function(text, lang, cb, marker){
+    marker = marker || '__SUBSPLIT__';
+    // Ensures that the marker will not be changed by Google Translate
+    var safeText = text.replace(new RegExp(marker, 'g'), marker + '_');
+    var translate_url = 'https://translate.google.com/m?tl=' + lang + '&sl=en&q=' + encodeURIComponent(safeText);
+    $ap(translate_url, function(r){
       if (r.ok){
         try{
           var l=document.createElement('div');
           l.innerHTML=r.responseText;
           var txts=l.querySelector('div.result-container').outerText+'';
-
-          /* Fix space on tags xd */
-          txts=txts.replace(/\< /g,"<");
-          txts=txts.replace(/\< /g,"<");
-          txts=txts.replace(/\< /g,"<");
-          txts=txts.replace(/\<\/ /g,"</");
-          txts=txts.replace(/\<\/ /g,"</");
-          txts=txts.replace(/\<\/ /g,"</");
-          txts=txts.replace(/\ >/g,">");
-          txts=txts.replace(/\ >/g,">");
-          txts=txts.replace(/\ >/g,">");
-          try{
-            cb(txts);
-          }catch(e){}
-          return;
+          if (!txts) {
+            console.warn("Empty translation received");
+            setTimeout(function() {
+              vtt.translate_text(text, lang, cb, marker); // Try again
+            }, 1000);
+            return;
+          }
+          cb(txts);
         }
         catch(e){
+          console.error("Translation error:", e);
+          setTimeout(function() {
+            vtt.translate_text(text, lang, cb, marker); // Try again
+          }, 1000);
         }
       }
-      cb(null);
+      else {
+        console.error("Translation request failed");
+        setTimeout(function() {
+          vtt.translate_text(text, lang, cb, marker); // Try again
+        }, 1000);
+      }
     });
+  },
+  debug_subtitles: function(sub) {
+    if (!sub || !sub.p) return;
+    
+    var debug_data = {
+      original: sub.p,
+      translated: sub.p.map(function(line) {
+        return {
+          original: line.tx,
+          translated: line.tz,
+          time: line.s + " --> " + line.e
+        };
+      })
+    };
+    
+    // Save to localStorage for later analysis
+    localStorage.setItem('subtitle_debug_' + new Date().getTime(), JSON.stringify(debug_data));
+    
+    // Log to console
+    console.log('Subtitle Debug Data:', debug_data);
+    
+    // Create a download element
+    var blob = new Blob([JSON.stringify(debug_data, null, 2)], {type: 'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'subtitle_debug_' + new Date().getTime() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
   },
   translate_chunk:function(timelines, lang, chunk, delay){
     setTimeout(function(){
-      vtt.translate_text(chunk.t,lang,function(txts){
-        if (txts){
-          txts=txts.split("[103060]");
-          // console.log(txts);
-          for (var i=0;i<txts.length;i++){
-            var p=chunk.s+i;
-            if (p<=chunk.e){
-              timelines[p].tz=txts[i];
+      vtt.translate_text(chunk.t, lang, function(txts){
+        if (txts) {
+          var marker = chunk.marker || '__SUBSPLIT__';
+          var parts = txts.split(marker);
+          // Correct extra spaces
+          parts = parts.map(function(x){ return x.trim(); });
+          var expected = chunk.e - chunk.s + 1;
+          if (parts.length !== expected) {
+            // fallback: translate line by line if chunk fails
+            for (var i=chunk.s;i<=chunk.e;i++){
+              (function(pidx){
+                vtt.translate_text(timelines[pidx].tx, lang, function(singleTxt){
+                  timelines[pidx].tz = singleTxt;
+                });
+              })(i);
+            }
+          } else {
+            for (var i=0;i<parts.length;i++){
+              var p=chunk.s+i;
+              if (p<=chunk.e){
+                timelines[p].tz=parts[i];
+              }
             }
           }
         }
-      });
+      }, chunk.marker);
     },delay);
   },
   set:function(s){
