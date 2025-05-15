@@ -20,3 +20,8 @@ keystore/debug.keystore
 /electron/builds
 .idea/deploymentTargetSelector.xml
 electron/src/version.js
+.github/workflows/android.yml
+.github/workflows/desktop.yml
+keystore/animetv.keystore
+keystore/keystore-info.md
+keystore/keystore.base64
