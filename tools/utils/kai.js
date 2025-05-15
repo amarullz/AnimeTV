@@ -88,9 +88,11 @@ $ap('https://raw.githubusercontent.com/amarullz/kaicodex/refs/heads/main/generat
     }
     $ap('https://raw.githubusercontent.com/amarullz/kaicodex/refs/heads/main/generated/gen/keys.json?'+$time(),function(r){
       if (r.ok){
-        localStorage.setItem('kaicodex_hash',hash.hash);
-        localStorage.setItem('kaicodex_key',r.responseText);
         kaiCodexInit(JSON.parse(r.responseText));
+        try{
+          localStorage.setItem('kaicodex_hash',hash.hash);
+          localStorage.setItem('kaicodex_key',r.responseText);
+        }catch(e){}
       }
     });
   }
