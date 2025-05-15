@@ -74,7 +74,9 @@ function kaiCodexInit(keys){
 $ap('https://raw.githubusercontent.com/amarullz/kaicodex/refs/heads/main/generated/gen/keys-hash.json?'+$time(),function(r){
   if (r.ok){
     var hash=JSON.parse(r.responseText);
+    var cacheArg="?"+$time();
     if (hash.hash==localStorage.getItem('kaicodex_hash')){
+      cacheArg="";
       var cachedKey=localStorage.getItem('kaicodex_key');
       if (cachedKey){
         try{
@@ -86,7 +88,7 @@ $ap('https://raw.githubusercontent.com/amarullz/kaicodex/refs/heads/main/generat
         }catch(e){}
       }
     }
-    $ap('https://raw.githubusercontent.com/amarullz/kaicodex/refs/heads/main/generated/gen/keys.json?'+$time(),function(r){
+    $ap('https://raw.githubusercontent.com/amarullz/kaicodex/refs/heads/main/generated/gen/keys.json'+cacheArg,function(r){
       if (r.ok){
         kaiCodexInit(JSON.parse(r.responseText));
         try{
